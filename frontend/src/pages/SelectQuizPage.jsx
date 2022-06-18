@@ -1,28 +1,27 @@
 import React from "react";
 import { Button, Card, CardContent, Checkbox, Container, FormControl, FormControlLabel, InputLabel, MenuItem, Select, FormGroup, TextField, Typography, Slider } from "@material-ui/core"
 
+import API from "../common/API";
+
 const buttonStyle = {
     'margin'     :  '10px',
 }
 class SelectQuizPage extends React.Component{
     componentDidMount(){
-        fetch('http://localhost:4000/namelist')
-            .then(response => response.json())
-            .then(data => {
-                let filelist = []
-                for(var i=0;i<data.length;i++){
-                    filelist.push(<MenuItem value={data[i].file_num}>{data[i].file_nickname}</MenuItem>)
-                }
-                this.setState({
-                    filelistoption: filelist,
-                })
-            }).catch(error => {
-                console.error("componentDidMount:",error)
+        API.get("/namelist",(data) => {
+            let filelist = []
+            for(var i=0;i<data.length;i++){
+                filelist.push(<MenuItem value={data[i].file_num}>{data[i].file_nickname}</MenuItem>)
+            }
+            this.setState({
+                filelistoption: filelist,
             })
+        })
     }
 
     constructor(props){
         super(props);
+        this.selectedFileChange = this.selectedFileChange.bind(this);
         this.rangeSlider = this.rangeSlider.bind(this);
         this.state = {
             value: [20,37]
@@ -30,7 +29,6 @@ class SelectQuizPage extends React.Component{
     }
 
     rangeSlider = () => {
-    
         const handleChange = (event, newValue) => {
             this.setState({value: newValue})
         };
@@ -50,6 +48,20 @@ class SelectQuizPage extends React.Component{
         );
     } 
 
+    selectedFileChange = (e) => {
+        API.post("/get_category",{
+            "file_num": e.target.value
+        },(data) => {
+            let categorylist = []
+            for(var i=0;i<data.length;i++){
+                categorylist.push(<MenuItem value={data[i].category}>{data[i].category}</MenuItem>)
+            }
+            this.setState({
+                categorylistoption: categorylist,
+            })
+        });
+    }
+
     render() {
         return (
             <Container>
@@ -60,8 +72,9 @@ class SelectQuizPage extends React.Component{
                         <Select
                             labelId="quiz-file-name"
                             id="quiz-file-id"
+                            defaultValue={-1}
                             // value={age}
-                            // onChange={handleChange}
+                            onChange={(e) => this.selectedFileChange(e)}
                         >
                             <MenuItem value={-1}>選択なし</MenuItem>
                             {this.state.filelistoption}
@@ -77,10 +90,12 @@ class SelectQuizPage extends React.Component{
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
+                            defaultValue={-1}
                             // value={age}
                             // onChange={handleChange}
                         >
-                            <MenuItem value={-1}>選択肢テスト</MenuItem>
+                            <MenuItem value={-1}>選択なし</MenuItem>
+                            {this.state.categorylistoption}
                         </Select>
                     </FormControl>
 
