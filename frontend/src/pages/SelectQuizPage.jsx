@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Card, CardContent, Checkbox, Container, FormControl, FormControlLabel, InputLabel, MenuItem, Select, FormGroup, TextField, Typography, Slider } from "@material-ui/core"
+import { Button, Card, CardContent, CardActions, Checkbox, Container, Collapse, FormControl, FormControlLabel, InputLabel, MenuItem, Select, FormGroup, TextField, Typography, Slider } from "@material-ui/core"
 
 import API from "../common/API";
 
@@ -23,8 +23,11 @@ class SelectQuizPage extends React.Component{
         super(props);
         this.selectedFileChange = this.selectedFileChange.bind(this);
         this.rangeSlider = this.rangeSlider.bind(this);
+        this.answerSection = this.answerSection.bind(this);
+        this.getQuiz = this.getQuiz.bind(this);
         this.state = {
-            value: [20,37]
+            expanded: false,
+            value: [20,37],
         }
     }
 
@@ -57,9 +60,48 @@ class SelectQuizPage extends React.Component{
                 categorylist.push(<MenuItem value={data[i].category}>{data[i].category}</MenuItem>)
             }
             this.setState({
+                file_num: e.target.value,
                 categorylistoption: categorylist,
             })
         });
+    }
+
+    getQuiz = () => {
+        API.post("/get_quiz",{
+            "file_num": this.state.file_num,
+            "quiz_num": this.state.quiz_num
+        },(data) => {
+            this.setState({
+                quiz_sentense: data[0].quiz_sentense,
+                answer: data[0].answer,
+            })
+        });
+    }
+
+    answerSection = () => {
+        const handleExpandClick = () => {
+            this.setState({expanded: !this.state.expanded})
+        };
+
+        return (
+            <>
+                <CardActions>
+                    <Button 
+                        size="small"
+                        onClick={handleExpandClick}
+                        aria-expanded={this.state.expanded}
+                    >答え
+                    </Button>
+                </CardActions>
+                <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+                    <CardContent>
+                        <Typography variant="subtitle1" component="h2">
+                            {this.state.answer}
+                        </Typography>
+                    </CardContent>
+                </Collapse>
+            </>
+        )
     }
 
     render() {
@@ -82,7 +124,10 @@ class SelectQuizPage extends React.Component{
                     </FormControl>
 
                     <FormControl>
-                        <TextField label="問題番号" />
+                        <TextField 
+                            label="問題番号" 
+                            onChange={(e) => { this.setState({quiz_num: e.target.value}); }}
+                        />
                     </FormControl>
 
                     <FormControl>
@@ -92,7 +137,7 @@ class SelectQuizPage extends React.Component{
                             id="demo-simple-select"
                             defaultValue={-1}
                             // value={age}
-                            // onChange={handleChange}
+                            onChange={(e) => { this.setState({selected_category: e.target.value})}}
                         >
                             <MenuItem value={-1}>選択なし</MenuItem>
                             {this.state.categorylistoption}
@@ -100,8 +145,6 @@ class SelectQuizPage extends React.Component{
                     </FormControl>
 
                     <FormControl>
-
-
                         {this.rangeSlider()}
                     </FormControl>
 
@@ -115,7 +158,11 @@ class SelectQuizPage extends React.Component{
                     </FormControl>
                 </FormGroup>
 
-                <Button style={buttonStyle} variant="contained" color="primary">
+                <Button 
+                    style={buttonStyle} 
+                    variant="contained" 
+                    color="primary"
+                    onClick={(e) => this.getQuiz()}>
                     出題
                 </Button>
                 <Button style={buttonStyle} variant="contained" color="secondary">
@@ -134,17 +181,18 @@ class SelectQuizPage extends React.Component{
                     画像表示
                 </Button>
 
-                <Card>
+                <Card variant="outlined">
                     <CardContent>
-                        問題カード
+                        <Typography variant="h5" component="h2">
+                            問題
+                        </Typography>
+                        <Typography variant="subtitle1" component="h2">
+                            {this.state.quiz_sentense}
+                        </Typography>
                     </CardContent>
+                    {this.answerSection()}
                 </Card>
 
-                <Card>
-                    <CardContent>
-                        答えカード
-                    </CardContent>
-                </Card>
 
             </Container>
         )
