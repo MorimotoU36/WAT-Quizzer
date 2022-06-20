@@ -6,16 +6,30 @@ import API from "../common/API";
 const buttonStyle = {
     'margin'     :  '10px',
 }
+
+const messageBoxStyle = {
+    'margin'        : '10px 0px 20px',
+    'borderStyle'  : 'none'
+}
+
 class SelectQuizPage extends React.Component{
     componentDidMount(){
         API.get("/namelist",(data) => {
-            let filelist = []
-            for(var i=0;i<data.length;i++){
-                filelist.push(<MenuItem value={data[i].file_num}>{data[i].file_nickname}</MenuItem>)
+            if(data.status === 200){
+                data = data.body
+                let filelist = []
+                for(var i=0;i<data.length;i++){
+                    filelist.push(<MenuItem value={data[i].file_num}>{data[i].file_nickname}</MenuItem>)
+                }
+                this.setState({
+                    filelistoption: filelist,
+                })
+            }else{
+                this.setState({
+                    message: 'エラー:外部APIとの連携に失敗しました',
+                    messageColor: 'error',
+                })
             }
-            this.setState({
-                filelistoption: filelist,
-            })
         })
     }
 
@@ -26,8 +40,12 @@ class SelectQuizPage extends React.Component{
         this.answerSection = this.answerSection.bind(this);
         this.getQuiz = this.getQuiz.bind(this);
         this.state = {
+            file_num: -1,
             expanded: false,
-            value: [20,37],
+            value: [0,100],
+            checked: false,
+            message: '　',
+            messageColor: 'initial',
         }
     }
 
@@ -55,26 +73,63 @@ class SelectQuizPage extends React.Component{
         API.post("/get_category",{
             "file_num": e.target.value
         },(data) => {
-            let categorylist = []
-            for(var i=0;i<data.length;i++){
-                categorylist.push(<MenuItem value={data[i].category}>{data[i].category}</MenuItem>)
+            if(data.status === 200){
+                data = data.body
+                let categorylist = []
+                for(var i=0;i<data.length;i++){
+                    categorylist.push(<MenuItem value={data[i].category}>{data[i].category}</MenuItem>)
+                }
+                this.setState({
+                    file_num: e.target.value,
+                    categorylistoption: categorylist,
+                })
+            }else{
+                this.setState({
+                    message: 'エラー:外部APIとの連携に失敗しました',
+                    messageColor: 'error',
+                })
             }
-            this.setState({
-                file_num: e.target.value,
-                categorylistoption: categorylist,
-            })
         });
     }
 
     getQuiz = () => {
+        if(this.state.file_num === -1){
+            this.setState({
+                message: 'エラー:問題ファイルを選択して下さい',
+                messageColor: 'error',
+            })
+            return;
+        }else if(this.state.quiz_num === undefined || this.state.quiz_num === null || this.state.quiz_num === ""){
+            this.setState({
+                message: 'エラー:問題番号を入力して下さい',
+                messageColor: 'error',
+            })
+            return;
+        }
+
         API.post("/get_quiz",{
             "file_num": this.state.file_num,
             "quiz_num": this.state.quiz_num
         },(data) => {
-            this.setState({
-                quiz_sentense: data[0].quiz_sentense,
-                answer: data[0].answer,
-            })
+            if(data.status === 200){
+                data = data.body
+                this.setState({
+                    quiz_sentense: data[0].quiz_sentense,
+                    answer: data[0].answer,
+                    message: '　',
+                    messageColor: 'initial',
+                })
+            }else if(data.status === 404){
+                this.setState({
+                    message: 'エラー:条件に合致するデータはありません',
+                    messageColor: 'error',
+                })
+            }else{
+                this.setState({
+                    message: 'エラー:外部APIとの連携に失敗しました',
+                    messageColor: 'error',
+                })
+            }
         });
     }
 
@@ -104,10 +159,58 @@ class SelectQuizPage extends React.Component{
         )
     }
 
+    getRandomQuiz = () => {
+        if(this.state.file_num === -1){
+            this.setState({
+                message: 'エラー:問題ファイルを選択して下さい',
+                messageColor: 'error',
+            })
+            return;
+        }
+        console.log(this.state)
+        API.post("/random",{
+            "file_num": this.state.file_num,
+            "min_rate": this.state.value[0],
+            "max_rate": this.state.value[1],
+            "category": this.state.selected_category === -1 ? null : this.state.selected_category,
+            "checked" : this.state.checked,
+        },(data) => {
+            if(data.status === 200){
+                data = data.body
+                this.setState({
+                    quiz_sentense: data[0].quiz_sentense,
+                    answer: data[0].answer,
+                    message: '　',
+                    messageColor: 'initial',
+                })
+            }else if(data.status === 404){
+                this.setState({
+                    message: 'エラー:条件に合致するデータはありません',
+                    messageColor: 'error',
+                    
+                })
+            }else{
+                this.setState({
+                    message: 'エラー:外部APIとの連携に失敗しました',
+                    messageColor: 'error',
+                })
+            }
+        });
+    }
+
     render() {
         return (
             <Container>
                 <h1>WAT Quizzer</h1>
+
+                <Card variant="outlined" style={messageBoxStyle}>
+                    <CardContent>
+                        <Typography variant="h6" component="h6" color={this.state.messageColor}>
+                            {this.state.message}
+                        </Typography>
+                    </CardContent>
+                </Card>
+
                 <FormGroup>
                     <FormControl>
                         <InputLabel id="quiz-file-input">問題ファイル</InputLabel>
@@ -137,7 +240,7 @@ class SelectQuizPage extends React.Component{
                             id="demo-simple-select"
                             defaultValue={-1}
                             // value={age}
-                            onChange={(e) => { this.setState({selected_category: e.target.value})}}
+                            onChange={(e) => {this.setState({selected_category: e.target.value})}}
                         >
                             <MenuItem value={-1}>選択なし</MenuItem>
                             {this.state.categorylistoption}
@@ -154,6 +257,7 @@ class SelectQuizPage extends React.Component{
                             control={<Checkbox color="primary" />}
                             label="チェック済から出題"
                             labelPlacement="start"
+                            onChange={(e) => this.setState({checked: e.target.checked})}
                         />
                     </FormControl>
                 </FormGroup>
@@ -165,7 +269,11 @@ class SelectQuizPage extends React.Component{
                     onClick={(e) => this.getQuiz()}>
                     出題
                 </Button>
-                <Button style={buttonStyle} variant="contained" color="secondary">
+                <Button 
+                    style={buttonStyle} 
+                    variant="contained" 
+                    color="secondary"
+                    onClick={(e) => this.getRandomQuiz()}>
                     ランダム出題
                 </Button>
                 <Button style={buttonStyle} variant="contained" color="secondary">
@@ -173,9 +281,6 @@ class SelectQuizPage extends React.Component{
                 </Button>
                 <Button style={buttonStyle} variant="contained" color="secondary">
                     最小正解数問出題
-                </Button>
-                <Button style={buttonStyle} variant="contained" color="default">
-                    答え
                 </Button>
                 <Button style={buttonStyle} variant="contained" color="default" disabled>
                     画像表示
