@@ -141,6 +141,92 @@ class SelectQuizPage extends React.Component{
             this.setState({expanded: !this.state.expanded})
         };
 
+        const inputCorrect = () => {
+            if(this.state.file_num === -1){
+                this.setState({
+                    message: 'エラー:問題ファイルを選択して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }else if(this.state.quiz_num === undefined || this.state.quiz_num === null || this.state.quiz_num === ""){
+                this.setState({
+                    message: 'エラー:問題番号を入力して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }else if(this.state.quiz_sentense === undefined || this.state.quiz_sentense === null || this.state.quiz_sentense === "" ||
+                    this.state.answer === undefined || this.state.answer === null || this.state.answer === ""){
+                this.setState({
+                    message: 'エラー:問題を出題してから登録して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }
+    
+            API.post("/correct",{
+                "file_num": this.state.file_num,
+                "quiz_num": this.state.quiz_num
+            },(data) => {
+                if(data.status === 200){
+                    data = data.body
+                    this.setState({
+                        quiz_sentense: "",
+                        answer: "",
+                        message: "問題[" + this.state.quiz_num + "] 正解+1! 登録しました",
+                        messageColor: 'initial',
+                    })
+                }else{
+                    this.setState({
+                        message: 'エラー:外部APIとの連携に失敗しました',
+                        messageColor: 'error',
+                    })
+                }
+            });
+        }
+
+        const inputIncorrect = () => {
+            if(this.state.file_num === -1){
+                this.setState({
+                    message: 'エラー:問題ファイルを選択して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }else if(this.state.quiz_num === undefined || this.state.quiz_num === null || this.state.quiz_num === ""){
+                this.setState({
+                    message: 'エラー:問題番号を入力して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }else if(this.state.quiz_sentense === undefined || this.state.quiz_sentense === null || this.state.quiz_sentense === "" ||
+                    this.state.answer === undefined || this.state.answer === null || this.state.answer === ""){
+                this.setState({
+                    message: 'エラー:問題を出題してから登録して下さい',
+                    messageColor: 'error',
+                })
+                return;
+            }
+    
+            API.post("/incorrect",{
+                "file_num": this.state.file_num,
+                "quiz_num": this.state.quiz_num
+            },(data) => {
+                if(data.status === 200){
+                    data = data.body
+                    this.setState({
+                        quiz_sentense: "",
+                        answer: "",
+                        message: "問題[" + this.state.quiz_num + "] 不正解+1.. 登録しました",
+                        messageColor: 'initial',
+                    })
+                }else{
+                    this.setState({
+                        message: 'エラー:外部APIとの連携に失敗しました',
+                        messageColor: 'error',
+                    })
+                }
+            });
+        }
+
         return (
             <>
                 <CardActions>
@@ -156,6 +242,20 @@ class SelectQuizPage extends React.Component{
                         <Typography variant="subtitle1" component="h2">
                             {this.state.answer}
                         </Typography>
+                        <Button 
+                            style={buttonStyle} 
+                            variant="contained" 
+                            color="primary"
+                            onClick={inputCorrect}>
+                            正解!!
+                        </Button>
+                        <Button 
+                            style={buttonStyle} 
+                            variant="contained" 
+                            color="secondary"
+                            onClick={inputIncorrect}>
+                            不正解..
+                        </Button>
                     </CardContent>
                 </Collapse>
             </>
@@ -180,6 +280,7 @@ class SelectQuizPage extends React.Component{
             if(data.status === 200){
                 data = data.body
                 this.setState({
+                    quiz_num: data[0].quiz_num,
                     quiz_sentense: data[0].quiz_sentense,
                     answer: data[0].answer,
                     message: '　',
@@ -216,6 +317,7 @@ class SelectQuizPage extends React.Component{
             if(data.status === 200){
                 data = data.body
                 this.setState({
+                    quiz_num: data[0].quiz_num,
                     quiz_sentense: data[0].quiz_sentense,
                     answer: data[0].answer,
                     message: '　',
@@ -252,6 +354,7 @@ class SelectQuizPage extends React.Component{
             if(data.status === 200){
                 data = data.body
                 this.setState({
+                    quiz_num: data[0].quiz_num,
                     quiz_sentense: data[0].quiz_sentense,
                     answer: data[0].answer,
                     message: '　',

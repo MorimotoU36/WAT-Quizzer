@@ -54,10 +54,38 @@ const getMinimumClearQuiz = (file_num,category,checked) => {
     });
 };
 
+// 正解登録
+const correctRegister = (file_num,quiz_num) => {
+    return new Promise((resolve, reject) =>{
+        QuizDao.correctRegister(file_num,quiz_num)
+            .then((result) => {
+                resolve(result);
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+
+// 不正解登録
+const incorrectRegister = (file_num,quiz_num) => {
+    return new Promise((resolve, reject) =>{
+        QuizDao.incorrectRegister(file_num,quiz_num)
+            .then((result) => {
+                resolve(result);
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+
 // モジュール化
 module.exports = {
     getQuiz,
     getRandomQuiz,
     getWorstRateQuiz,
     getMinimumClearQuiz,
+    correctRegister,
+    incorrectRegister,
 }
