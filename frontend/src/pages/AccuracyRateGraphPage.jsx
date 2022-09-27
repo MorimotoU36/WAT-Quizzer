@@ -55,15 +55,46 @@ export default class AccuracyRateGraphPage extends React.Component{
             return;
         }
 
-        API.post("/get_accuracy_rate_by_category",{
+        API.post("/category/accuracy_rate",{
             "file_num": this.state.file_num
         },(data) => {
             if(data.status === 200){
                 data = data.body
-                console.log("data:",data);
                 this.setState({
                     accuracy_data: data,
                     message: '　',
+                    messageColor: 'initial',
+                })
+            }else if(data.status === 404){
+                this.setState({
+                    message: 'エラー:条件に合致するデータはありません',
+                    messageColor: 'error',
+                })
+            }else{
+                this.setState({
+                    message: 'エラー:外部APIとの連携に失敗しました',
+                    messageColor: 'error',
+                })
+            }
+        });
+    }
+
+    updateCategory = () => {
+        if(this.state.file_num === -1){
+            this.setState({
+                message: 'エラー:問題ファイルを選択して下さい',
+                messageColor: 'error',
+            })
+            return;
+        }
+
+        API.post("/category/renewal",{
+            "file_num": this.state.file_num
+        },(data) => {
+            if(data.status === 200){
+                data = data.body
+                this.setState({
+                    message: '指定問題ファイルへのカテゴリ更新に成功しました',
                     messageColor: 'initial',
                 })
             }else if(data.status === 404){
@@ -187,6 +218,15 @@ export default class AccuracyRateGraphPage extends React.Component{
                     onClick={(e) => this.getAccuracy()}
                     >
                     正解率表示
+                </Button>
+
+                <Button 
+                    style={buttonStyle} 
+                    variant="contained" 
+                    color="primary"
+                    onClick={(e) => this.updateCategory()}
+                    >
+                    カテゴリ更新
                 </Button>
 
                 {this.displayChart()}
