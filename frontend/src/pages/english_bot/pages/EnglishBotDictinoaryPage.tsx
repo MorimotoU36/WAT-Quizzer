@@ -11,7 +11,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import API from "../../../common/API";
+import { post } from "../../../common/API";
 import EnglishBotLayout from "../components/EnglishBotLayout";
 import { messageBoxStyle } from '../styles/Pages';
 
@@ -28,9 +28,9 @@ export default function EnglishBotDictionaryPage() {
     }, [])
 
     const comingDisplay = () => {
-        API.post("/english/word/search", {
+        post("/english/word/search", {
             "wordName": ""
-        }, (data) => {
+        }, (data: any) => {
             if (data.status === 200) {
                 setTableData(data.body.wordData || [])
             } else {
@@ -53,7 +53,7 @@ export default function EnglishBotDictionaryPage() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {tableData.map((data) => (
+                        {tableData.map((data: any) => (
                             < TableRow
                                 key={data.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

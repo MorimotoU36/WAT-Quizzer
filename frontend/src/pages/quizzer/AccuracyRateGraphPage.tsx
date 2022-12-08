@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Card, CardContent, Container, FormControl, InputLabel, MenuItem, Select, FormGroup, Typography } from "@material-ui/core"
 import { Chart } from "react-google-charts";
 
-import API from "../common/API";
+import { get, post } from "../../common/API";
 import QuizzerLayout from "./components/QuizzerLayout";
 
 const messageBoxStyle = {
@@ -17,7 +17,7 @@ const buttonStyle = {
 
 export default class AccuracyRateGraphPage extends React.Component{
     componentDidMount(){
-        API.get("/namelist",(data) => {
+        get("/namelist",(data) => {
             if(data.status === 200){
                 data = data.body
                 let filelist = []
@@ -55,7 +55,7 @@ export default class AccuracyRateGraphPage extends React.Component{
             return;
         }
 
-        API.post("/category/accuracy_rate",{
+        post("/category/accuracy_rate",{
             "file_num": this.state.file_num
         },(data) => {
             if(data.status === 200){
@@ -88,7 +88,7 @@ export default class AccuracyRateGraphPage extends React.Component{
             return;
         }
 
-        API.post("/category/renewal",{
+        post("/category/renewal",{
             "file_num": this.state.file_num
         },(data) => {
             if(data.status === 200){
