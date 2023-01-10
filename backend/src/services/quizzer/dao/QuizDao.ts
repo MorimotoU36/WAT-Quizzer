@@ -663,3 +663,49 @@ export const removeCategoryFromQuiz = async (
     throw error
   }
 }
+
+// 問題にチェックつけるSQL
+const checkToQuizSQL = `
+    UPDATE
+        quiz
+    SET
+        checked = true
+    WHERE 
+        file_num = ? 
+        AND quiz_num = ? 
+`
+
+// 問題にチェック追加
+export const checkToQuiz = async (file_num: number, quiz_num: number) => {
+  try {
+    // 更新
+    const result = await execQuery(checkToQuizSQL, [file_num, quiz_num])
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
+// 問題にチェック外すSQL
+const uncheckToQuizSQL = `
+    UPDATE
+        quiz
+    SET
+        checked = false
+    WHERE 
+        file_num = ? 
+        AND quiz_num = ? 
+`
+
+// 問題にチェック外す
+export const uncheckToQuiz = async (file_num: number, quiz_num: number) => {
+  try {
+    // 更新
+    const result = await execQuery(uncheckToQuizSQL, [file_num, quiz_num])
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
