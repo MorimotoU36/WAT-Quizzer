@@ -19,9 +19,9 @@ import IconButton from '@mui/material/IconButton'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import Button from '@mui/material/Button'
 
-import EnglishBotLayout from '../components/EnglishBotLayout'
-import { get, post } from '../../../common/API'
-import { messageBoxStyle, buttonStyle } from '../../../styles/Pages'
+import EnglishBotLayout from './components/EnglishBotLayout'
+import { get, post } from '../../common/API'
+import { messageBoxStyle, buttonStyle } from '../../styles/Pages'
 
 interface SendToAddWordApiData {
   partOfSpeechId: number
@@ -143,8 +143,8 @@ export default function EnglishBotAddWordPage() {
       }
     }
     inputMeans[i] = isMean
-    ? [inputMeans[i][0], value]
-    : [Number(value), inputMeans[i][1]]
+      ? [inputMeans[i][0], value]
+      : [Number(value), inputMeans[i][1]]
   }
 
   // 入力した単語名の更新
@@ -213,11 +213,7 @@ export default function EnglishBotAddWordPage() {
 
         <Card variant="outlined" style={messageBoxStyle}>
           <CardContent>
-            <Typography
-              variant="h6"
-              component="h6"
-              color={messageColor}
-            >
+            <Typography variant="h6" component="h6" color={messageColor}>
               {message}
             </Typography>
           </CardContent>
@@ -266,4 +262,3 @@ export default function EnglishBotAddWordPage() {
     </>
   )
 }
-
