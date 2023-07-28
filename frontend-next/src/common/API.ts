@@ -1,7 +1,16 @@
-export const baseURL: string = process.env.REACT_APP_API_SERVER || '';
+import { getApiKey } from '../../lib/aws/secrets';
+
+export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || '';
 
 export const get = async (path: string, func: any) => {
-  await fetch(baseURL + path)
+  const key = await getApiKey();
+  await fetch(baseURL + path, {
+    method: 'GET',
+    headers: {
+      'x-api-key': key,
+      'header-test': 'header-test'
+    }
+  })
     .then((response) =>
       response.json().then((data) => ({
         status: response.status,
@@ -15,10 +24,15 @@ export const get = async (path: string, func: any) => {
 };
 
 export const post = async (path: string, jsondata: object, func: any) => {
+  const key = await getApiKey();
   await fetch(baseURL + path, {
     method: 'POST',
     body: JSON.stringify(jsondata),
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'header-test': 'header-test'
+    }
   })
     .then((response) =>
       response.json().then((data) => ({
