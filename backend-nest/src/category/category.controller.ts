@@ -1,22 +1,23 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
+import { SelectFileDto } from './category.dto';
 
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
-  async getCategory(file_num: number) {
+  async getCategory(@Query('file_num') file_num: number) {
     return await this.categoryService.getCategoryList(file_num);
   }
 
-  @Put()
-  async replaceAllCategory(file_num: number) {
-    return await this.categoryService.replaceAllCategory(file_num);
+  @Post()
+  async replaceAllCategory(@Body() req: SelectFileDto) {
+    return await this.categoryService.replaceAllCategory(req);
   }
 
   @Get('rate')
-  async getAccuracyRateByCategory(file_num: number) {
+  async getAccuracyRateByCategory(@Query('file_num') file_num: number) {
     return await this.categoryService.getAccuracyRateByCategory(file_num);
   }
 }

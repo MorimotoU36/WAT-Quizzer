@@ -38,7 +38,7 @@ export default function SelectQuizPage() {
   const [messageColor, setMessageColor] = useState<messageColorType>('initial');
 
   useEffect(() => {
-    get('/namelist', (data: any) => {
+    get('/quiz/file', (data: any) => {
       if (data.status === 200) {
         data = data.body;
         let filelist = [];
@@ -73,11 +73,8 @@ export default function SelectQuizPage() {
   };
 
   const selectedFileChange = (e: any) => {
-    post(
-      '/get_category',
-      {
-        file_num: e.target.value
-      },
+    get(
+      '/category',
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -95,6 +92,9 @@ export default function SelectQuizPage() {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
         }
+      },
+      {
+        file_num: e.target.value
       }
     );
   };
@@ -110,12 +110,8 @@ export default function SelectQuizPage() {
       return;
     }
 
-    post(
-      '/get_quiz',
-      {
-        file_num: file_num,
-        quiz_num: quiz_num
-      },
+    get(
+      '/quiz',
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -132,6 +128,10 @@ export default function SelectQuizPage() {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
         }
+      },
+      {
+        file_num: String(file_num),
+        quiz_num: String(quiz_num)
       }
     );
   };
@@ -164,7 +164,7 @@ export default function SelectQuizPage() {
       }
 
       post(
-        '/correct',
+        '/quiz/clear',
         {
           file_num: file_num,
           quiz_num: quiz_num
@@ -209,7 +209,7 @@ export default function SelectQuizPage() {
       }
 
       post(
-        '/incorrect',
+        '/quiz/fail',
         {
           file_num: file_num,
           quiz_num: quiz_num
@@ -254,7 +254,7 @@ export default function SelectQuizPage() {
       }
 
       post(
-        '/edit/check/reverse',
+        '/quiz/check',
         {
           file_num: file_num,
           quiz_num: quiz_num
@@ -306,15 +306,8 @@ export default function SelectQuizPage() {
       setMessageColor('error');
       return;
     }
-    post(
+    get(
       '/random',
-      {
-        file_num: file_num,
-        min_rate: Array.isArray(value) ? value[0] : value,
-        max_rate: Array.isArray(value) ? value[1] : value,
-        category: selected_category === '' ? null : selected_category,
-        checked: checked
-      },
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -332,6 +325,13 @@ export default function SelectQuizPage() {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
         }
+      },
+      {
+        file_num: String(file_num),
+        min_rate: String(Array.isArray(value) ? value[0] : value),
+        max_rate: String(Array.isArray(value) ? value[1] : value),
+        category: selected_category || '',
+        checked: String(checked)
       }
     );
   };
@@ -342,13 +342,8 @@ export default function SelectQuizPage() {
       setMessageColor('error');
       return;
     }
-    post(
-      '/worst_rate',
-      {
-        file_num: file_num,
-        category: selected_category === '' ? null : selected_category,
-        checked: checked
-      },
+    get(
+      '/quiz/worst',
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -366,6 +361,11 @@ export default function SelectQuizPage() {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
         }
+      },
+      {
+        file_num: String(file_num),
+        category: selected_category || '',
+        checked: String(checked)
       }
     );
   };
@@ -376,13 +376,8 @@ export default function SelectQuizPage() {
       setMessageColor('error');
       return;
     }
-    post(
-      '/minimum_clear',
-      {
-        file_num: file_num,
-        category: selected_category === '' ? null : selected_category,
-        checked: checked
-      },
+    get(
+      '/quiz/minimum',
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -400,6 +395,11 @@ export default function SelectQuizPage() {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
         }
+      },
+      {
+        file_num: String(file_num),
+        category: selected_category || '',
+        checked: String(checked)
       }
     );
   };

@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SQL } from 'config/sql';
 import { execQuery } from 'lib/db/dao';
+import { parseStrToBool } from 'lib/str';
+import {
+  UpdateCategoryOfQuizDto,
+  SelectQuizDto,
+  AddQuizDto,
+  IntegrateQuizDto,
+  EditQuizDto,
+} from './quiz.dto';
 
 @Injectable()
 export class QuizService {
@@ -29,39 +37,36 @@ export class QuizService {
     min_rate: number,
     max_rate: number,
     category: string,
-    checked: boolean,
+    checked: string,
   ) {
     try {
       const categorySQL =
-        category !== null && category !== undefined
+        category && category !== ''
           ? ` AND category LIKE '%` + category + `%' `
           : '';
 
-      const checkedSQL = checked ? ` AND checked = 1 ` : '';
+      const checkedSQL = parseStrToBool(checked) ? ` AND checked = 1 ` : '';
 
       const sql =
         SQL.QUIZ.RANDOM +
         categorySQL +
         checkedSQL +
         ' ORDER BY rand() LIMIT 1; ';
-      return await execQuery(sql, [file_num, min_rate, max_rate]);
+      return await execQuery(sql, [file_num, min_rate || 0, max_rate || 100]);
     } catch (error) {
       throw error;
     }
   }
 
   // 最低正解率問題取得
-  async getWorstRateQuiz(file_num: number, category: string, checked: boolean) {
+  async getWorstRateQuiz(file_num: number, category: string, checked: string) {
     try {
-      let categorySQL = '';
-      if (category !== null && category !== undefined) {
-        categorySQL = ` AND category LIKE '%` + category + `%' `;
-      }
+      const categorySQL =
+        category && category !== ''
+          ? ` AND category LIKE '%` + category + `%' `
+          : '';
 
-      let checkedSQL = '';
-      if (checked) {
-        checkedSQL += ` AND checked = 1 `;
-      }
+      const checkedSQL = parseStrToBool(checked) ? ` AND checked = 1 ` : '';
 
       // 最低正解率問題取得SQL作成
       const getWorstRateQuizSQL =
@@ -80,18 +85,15 @@ export class QuizService {
   async getMinimumAnsweredQuiz(
     file_num: number,
     category: string,
-    checked: boolean,
+    checked: string,
   ) {
     try {
-      let categorySQL = '';
-      if (category !== null && category !== undefined) {
-        categorySQL = ` AND category LIKE '%` + category + `%' `;
-      }
+      const categorySQL =
+        category && category !== ''
+          ? ` AND category LIKE '%` + category + `%' `
+          : '';
 
-      let checkedSQL = '';
-      if (checked) {
-        checkedSQL += ` AND checked = 1 `;
-      }
+      const checkedSQL = parseStrToBool(checked) ? ` AND checked = 1 ` : '';
 
       // ランダム問題取得SQL作成
       const getMinimumClearQuizSQL =
@@ -107,8 +109,9 @@ export class QuizService {
   }
 
   // 正解登録
-  async cleared(file_num: number, quiz_num: number) {
+  async cleared(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // 正解数取得
       const data = await execQuery(SQL.QUIZ.CLEARED.GET, [file_num, quiz_num]);
       const clear_count = data[0].clear_count;
@@ -125,8 +128,9 @@ export class QuizService {
   }
 
   // 不正解登録
-  async failed(file_num: number, quiz_num: number) {
+  async failed(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // 不正解数取得
       const data = await execQuery(SQL.QUIZ.FAILED.GET, [file_num, quiz_num]);
       const fail_count = data[0].fail_count;
@@ -143,8 +147,9 @@ export class QuizService {
   }
 
   // 問題追加
-  async add(file_num: number, input_data: string) {
+  async add(req: AddQuizDto) {
     try {
+      const { file_num, input_data } = req;
       // 入力データを１行ずつに分割
       const data = input_data.split('\n');
 
@@ -158,54 +163,27 @@ export class QuizService {
         const category = data_i[2];
         const img_file = data_i[3];
 
-        // データのidを作成
-        let new_quiz_id = -1;
-        // 削除済問題がないかチェック、あればそこに入れる
-        const id: any = await execQuery(SQL.QUIZ.DELETED.GET, [file_num]);
-        if (id.length > 0) {
-          //削除済問題がある場合はそこに入れる
-          new_quiz_id = id[0]['quiz_num'];
-          await execQuery(SQL.QUIZ.EDIT, [
-            question,
+        // 新問題番号を取得しINSERT
+        const res = await execQuery(SQL.QUIZ.MAX_QUIZ_NUM, [file_num]);
+        const new_quiz_id: number = res ? res[0]['quiz_num'] + 1 : 1;
+        await execQuery(SQL.QUIZ.ADD, [
+          file_num,
+          new_quiz_id,
+          question,
+          answer,
+          category,
+          img_file,
+        ]);
+        result.push(
+          'Added!! [' +
+            file_num +
+            '-' +
+            new_quiz_id +
+            ']:' +
+            question +
+            ',' +
             answer,
-            category,
-            img_file,
-            file_num,
-            new_quiz_id,
-          ]);
-          result.push(
-            'Added!! [' +
-              file_num +
-              '-' +
-              new_quiz_id +
-              ']:' +
-              question +
-              ',' +
-              answer,
-          );
-        } else {
-          //削除済問題がない場合は普通にINSERT
-          const now_count: any = await execQuery(SQL.QUIZ.COUNT, [file_num]);
-          new_quiz_id = now_count[0]['count(*)'] + 1;
-          await execQuery(SQL.QUIZ.ADD, [
-            file_num,
-            new_quiz_id,
-            question,
-            answer,
-            category,
-            img_file,
-          ]);
-          result.push(
-            'Added!! [' +
-              file_num +
-              '-' +
-              new_quiz_id +
-              ']:' +
-              question +
-              ',' +
-              answer,
-          );
-        }
+        );
       }
       return result;
     } catch (error) {
@@ -214,15 +192,9 @@ export class QuizService {
   }
 
   // 問題編集
-  async edit(
-    file_num: number,
-    quiz_num: number,
-    question: string,
-    answer: string,
-    category: string,
-    img_file: string,
-  ) {
+  async edit(req: EditQuizDto) {
     try {
+      const { file_num, quiz_num, question, answer, category, img_file } = req;
       return await execQuery(SQL.QUIZ.EDIT, [
         question,
         answer,
@@ -242,43 +214,32 @@ export class QuizService {
     min_rate: number,
     max_rate: number,
     category: string,
-    checked: boolean,
+    checked: string,
     query: string,
-    cond: any,
+    queryOnlyInSentense: string,
+    queryOnlyInAnswer: string,
   ) {
     try {
-      let categorySQL = '';
-      if (category !== null && category !== undefined) {
-        categorySQL = ` AND category LIKE '%` + category + `%' `;
-      }
+      const categorySQL =
+        category && category !== ''
+          ? ` AND category LIKE '%` + category + `%' `
+          : '';
 
-      let checkedSQL = '';
-      if (checked) {
-        checkedSQL += ` AND checked = 1 `;
-      }
+      const checkedSQL = parseStrToBool(checked) ? ` AND checked = 1 ` : '';
 
       let querySQL = '';
-      const cond_question =
-        cond !== undefined &&
-        cond.question !== undefined &&
-        cond.question === true
-          ? true
-          : false;
-      const cond_answer =
-        cond !== undefined && cond.answer !== undefined && cond.answer === true
-          ? true
-          : false;
-      if (cond_question && !cond_answer) {
-        querySQL += ` AND quiz_sentense LIKE '%` + query + `%' `;
-      } else if (!cond_question && cond_answer) {
-        querySQL += ` AND answer LIKE '%` + query + `%' `;
-      } else {
-        querySQL +=
-          ` AND (quiz_sentense LIKE '%` +
-          query +
-          `%' OR answer LIKE '%` +
-          query +
-          `%') `;
+      if (query && query !== '') {
+        const searchInOnlySentense = parseStrToBool(queryOnlyInSentense);
+        const searchInOnlyAnswer = parseStrToBool(queryOnlyInAnswer);
+        if (searchInOnlySentense && !searchInOnlyAnswer) {
+          querySQL += ` AND quiz_sentense LIKE '%${query || ''}%' `;
+        } else if (!searchInOnlySentense && searchInOnlyAnswer) {
+          querySQL += ` AND answer LIKE '%${query || ''}%' `;
+        } else {
+          querySQL += ` AND (quiz_sentense LIKE '%${
+            query || ''
+          }%' OR answer LIKE '%${query || ''}%') `;
+        }
       }
 
       // ランダム問題取得SQL作成
@@ -288,16 +249,20 @@ export class QuizService {
         checkedSQL +
         querySQL +
         ' ORDER BY quiz_num; ';
-
-      return await execQuery(searchQuizSQL, [file_num, min_rate, max_rate]);
+      return await execQuery(searchQuizSQL, [
+        file_num,
+        min_rate || 0,
+        max_rate || 100,
+      ]);
     } catch (error) {
       throw error;
     }
   }
 
   // 問題削除
-  async delete(file_num: number, quiz_num: number) {
+  async delete(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // 削除済にアップデート
       return await execQuery(SQL.QUIZ.DELETE, [file_num, quiz_num]);
     } catch (error) {
@@ -306,13 +271,9 @@ export class QuizService {
   }
 
   // 問題統合
-  async integrate(
-    pre_file_num: number,
-    pre_quiz_num: number,
-    post_file_num: number,
-    post_quiz_num: number,
-  ) {
+  async integrate(req: IntegrateQuizDto) {
     try {
+      const { pre_file_num, pre_quiz_num, post_file_num, post_quiz_num } = req;
       if (pre_file_num !== post_file_num) {
         throw (
           '統合前後のファイル番号は同じにしてください (' +
@@ -368,18 +329,19 @@ export class QuizService {
   }
 
   // 問題にカテゴリ追加
-  async addCategoryToQuiz(
-    file_num: number,
-    quiz_num: number,
-    category: string,
-  ) {
+  async addCategoryToQuiz(req: UpdateCategoryOfQuizDto) {
     try {
+      const { file_num, quiz_num, category } = req;
       // 現在のカテゴリ取得
-      let nowCategory: any = await execQuery(SQL.QUIZ.INFO, [
-        file_num,
-        quiz_num,
-      ]);
-      nowCategory = nowCategory[0]['category'];
+      const nowCategory: string = (
+        await execQuery(SQL.QUIZ.INFO, [file_num, quiz_num])
+      )[0]['category'];
+
+      if (nowCategory.includes(category)) {
+        return {
+          message: ` カテゴリ'${category}'は既に[${file_num}-${quiz_num}]に含まれています `,
+        };
+      }
 
       // カテゴリ追加
       let newCategory = nowCategory + ':' + category;
@@ -401,12 +363,9 @@ export class QuizService {
   }
 
   // 問題からカテゴリ削除
-  async removeCategoryFromQuiz(
-    file_num: number,
-    quiz_num: number,
-    category: string,
-  ) {
+  async removeCategoryFromQuiz(body: UpdateCategoryOfQuizDto) {
     try {
+      const { file_num, quiz_num, category } = body;
       // 現在のカテゴリ取得
       let nowCategory: any = await execQuery(SQL.QUIZ.INFO, [
         file_num,
@@ -449,8 +408,9 @@ export class QuizService {
   }
 
   // 問題にチェック追加
-  async check(file_num: number, quiz_num: number) {
+  async check(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // 更新
       return await execQuery(SQL.QUIZ.CHECK, [file_num, quiz_num]);
     } catch (error) {
@@ -459,8 +419,9 @@ export class QuizService {
   }
 
   // 問題にチェック外す
-  async uncheck(file_num: number, quiz_num: number) {
+  async uncheck(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // 更新
       return await execQuery(SQL.QUIZ.UNCHECK, [file_num, quiz_num]);
     } catch (error) {
@@ -469,18 +430,17 @@ export class QuizService {
   }
 
   // 問題のチェック反転
-  async reverseCheck(file_num: number, quiz_num: number) {
+  async reverseCheck(req: SelectQuizDto) {
     try {
+      const { file_num, quiz_num } = req;
       // チェック取得
       const result: any = await execQuery(SQL.QUIZ.INFO, [file_num, quiz_num]);
       const checked = result[0].checked;
 
-      let response;
-      if (!checked) {
-        response = await execQuery(SQL.QUIZ.CHECK, [file_num, quiz_num]);
-      } else {
-        response = await execQuery(SQL.QUIZ.UNCHECK, [file_num, quiz_num]);
-      }
+      const response = await execQuery(
+        checked ? SQL.QUIZ.UNCHECK : SQL.QUIZ.CHECK,
+        [file_num, quiz_num],
+      );
 
       // チェックしたらtrue、チェック外したらfalseを返す
       return !checked;

@@ -87,7 +87,7 @@ export class UsEast1Stack extends cdk.Stack {
         ],
         defaultBehavior: {
           origin: new origins.S3Origin(props.s3Bucket),
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -117,11 +117,24 @@ export class UsEast1Stack extends cdk.Stack {
       {
         defaultBehavior: {
           origin: new origins.RestApiOrigin(props.restApi),
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          originRequestPolicy: apiOriginRequestPolicy
+          originRequestPolicy: apiOriginRequestPolicy,
+          responseHeadersPolicy: new cdk.aws_cloudfront.ResponseHeadersPolicy(
+            this,
+            'responseHeadersPolicy',
+            {
+              corsBehavior: {
+                accessControlAllowOrigins: ['*'],
+                accessControlAllowHeaders: ['*'],
+                accessControlAllowMethods: ['ALL'],
+                accessControlAllowCredentials: false,
+                originOverride: true
+              }
+            }
+          )
         },
         domainNames: [process.env.API_DOMAIN_NAME || ''],
         certificate: apiCertificate
