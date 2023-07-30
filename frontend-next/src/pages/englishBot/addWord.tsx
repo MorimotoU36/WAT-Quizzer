@@ -41,7 +41,7 @@ export default function EnglishBotAddWordPage() {
 
   useEffect(() => {
     getPartOfSpeechList();
-  });
+  }, []);
 
   const messeageClear = () => {
     setMessage('　');
@@ -180,7 +180,7 @@ export default function EnglishBotAddWordPage() {
         }, [])
       },
       (data: any) => {
-        if (data.status === 200) {
+        if (data.status === 200 || data.status === 201) {
           setMessage(`単語「${inputWord}」を登録しました`);
           setMessageColor('success.light');
           setInputWord('');

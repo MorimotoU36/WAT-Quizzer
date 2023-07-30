@@ -265,4 +265,42 @@ export const SQL = {
           accuracy_rate 
     `,
   },
+  ENGLISH: {
+    PARTOFSPEECH: `
+      SELECT
+          *
+      FROM
+          partsofspeech
+      ORDER BY
+          id
+      ;
+    `,
+    WORD: {
+      ADD: `
+        INSERT INTO
+          word (name,pronounce)
+        VALUES(?,?)
+        ;
+      `,
+      SEARCH: `
+        SELECT 
+          * 
+        FROM 
+          word
+        WHERE
+          name LIKE ?
+        ORDER BY
+          name, id
+        ;
+      `,
+    },
+    MEAN: {
+      ADD: `
+        INSERT INTO
+          mean (word_id,wordmean_id,partsofspeech_id,meaning)
+        VALUES(?,?,?,?)
+        ;
+      `,
+    },
+  },
 };
