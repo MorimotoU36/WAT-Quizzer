@@ -35,7 +35,7 @@ export default function SelectQuizPage() {
   const [value, setValue] = useState<number[] | number>([0, 100]);
   const [checked, setChecked] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('　');
-  const [messageColor, setMessageColor] = useState<messageColorType>('initial');
+  const [messageColor, setMessageColor] = useState<messageColorType>('common.black');
 
   useEffect(() => {
     get('/quiz/file', (data: any) => {
@@ -113,17 +113,17 @@ export default function SelectQuizPage() {
     get(
       '/quiz',
       (data: any) => {
-        if (data.status === 200) {
+        if (data.status === 404 || data.body.length === 0) {
+          setMessage('エラー:条件に合致するデータはありません');
+          setMessageColor('error');
+        } else if (data.status === 200) {
           data = data.body;
-          setQuizSentense(data[0].quiz_sentense);
+          setQuizSentense('[' + data[0].file_num + '-' + data[0].quiz_num + ']' + data[0].quiz_sentense);
           setAnswer(data[0].answer);
           setQuizChecked(data[0].checked);
           setExpanded(false);
           setMessage('　');
-          setMessageColor('initial');
-        } else if (data.status === 404) {
-          setMessage('エラー:条件に合致するデータはありません');
-          setMessageColor('error');
+          setMessageColor('success.light');
         } else {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
@@ -170,13 +170,13 @@ export default function SelectQuizPage() {
           quiz_num: quiz_num
         },
         (data: any) => {
-          if (data.status === 200) {
+          if (data.status === 200 || data.status === 201) {
             data = data.body;
             setQuizSentense('');
             setAnswer('');
             setQuizChecked(null);
             setMessage('問題[' + quiz_num + '] 正解+1! 登録しました');
-            setMessageColor('initial');
+            setMessageColor('success.light');
             setExpanded(false);
           } else {
             setMessage('エラー:外部APIとの連携に失敗しました');
@@ -215,13 +215,13 @@ export default function SelectQuizPage() {
           quiz_num: quiz_num
         },
         (data: any) => {
-          if (data.status === 200) {
+          if (data.status === 200 || data.status === 201) {
             data = data.body;
             setQuizSentense('');
             setAnswer('');
             setQuizChecked(null);
             setMessage('問題[' + quiz_num + '] 不正解+1.. 登録しました');
-            setMessageColor('initial');
+            setMessageColor('success.light');
             setExpanded(false);
           } else {
             setMessage('エラー:外部APIとの連携に失敗しました');
@@ -260,11 +260,11 @@ export default function SelectQuizPage() {
           quiz_num: quiz_num
         },
         (data: any) => {
-          if (data.status === 200) {
+          if (data.status === 200 || data.status === 201) {
             data = data.body;
             setQuizChecked(Boolean(data));
             setMessage(`問題[${quiz_num}] にチェック${Boolean(data) ? 'をつけ' : 'を外し'}ました`);
-            setMessageColor('initial');
+            setMessageColor('success.light');
           } else {
             setMessage('エラー:外部APIとの連携に失敗しました');
             setMessageColor('error');
@@ -307,7 +307,7 @@ export default function SelectQuizPage() {
       return;
     }
     get(
-      '/random',
+      '/quiz/random',
       (data: any) => {
         if (data.status === 200) {
           data = data.body;
@@ -316,7 +316,7 @@ export default function SelectQuizPage() {
           setAnswer(data[0].answer);
           setQuizChecked(data[0].checked);
           setMessage('　');
-          setMessageColor('initial');
+          setMessageColor('success.light');
           setExpanded(false);
         } else if (data.status === 404) {
           setMessage('エラー:条件に合致するデータはありません');
@@ -352,7 +352,7 @@ export default function SelectQuizPage() {
           setAnswer(data[0].answer);
           setQuizChecked(data[0].checked);
           setMessage('　');
-          setMessageColor('initial');
+          setMessageColor('success.light');
           setExpanded(false);
         } else if (data.status === 404) {
           setMessage('エラー:条件に合致するデータはありません');
@@ -386,7 +386,7 @@ export default function SelectQuizPage() {
           setAnswer(data[0].answer);
           setQuizChecked(data[0].checked);
           setMessage('　');
-          setMessageColor('initial');
+          setMessageColor('success.light');
           setExpanded(false);
         } else if (data.status === 404) {
           setMessage('エラー:条件に合致するデータはありません');

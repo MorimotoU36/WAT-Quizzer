@@ -22,7 +22,7 @@ import {
 export default function EditQuizPage() {
   const [file_num, setFileNum] = useState<number>(-1);
   const [message, setMessage] = useState<string>('　');
-  const [messageColor, setMessageColor] = useState<messageColorType>('initial');
+  const [messageColor, setMessageColor] = useState<messageColorType>('common.black');
   const [quiz_num, setQuizNum] = useState<number>();
   const [edit_file_num, setEditFileNum] = useState<number>();
   const [edit_quiz_num, setEditQuizNum] = useState<number>();
@@ -50,7 +50,7 @@ export default function EditQuizPage() {
         setMessageColor('error');
       }
     });
-  });
+  }, []);
 
   const getQuiz = () => {
     if (file_num === -1) {
@@ -66,7 +66,10 @@ export default function EditQuizPage() {
     get(
       '/quiz',
       (data: any) => {
-        if (data.status === 200) {
+        if (data.status === 404 || data.body.length === 0) {
+          setMessage('エラー:条件に合致するデータはありません');
+          setMessageColor('error');
+        } else if (data.status === 200) {
           data = data.body;
           setEditFileNum(data[0].file_num);
           setEditQuizNum(data[0].quiz_num);
@@ -75,10 +78,7 @@ export default function EditQuizPage() {
           setEditCategory(data[0].category);
           setEditImage(data[0].img_file);
           setMessage('　');
-          setMessageColor('initial');
-        } else if (data.status === 404) {
-          setMessage('エラー:条件に合致するデータはありません');
-          setMessageColor('error');
+          setMessageColor('success.light');
         } else {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');
@@ -93,7 +93,7 @@ export default function EditQuizPage() {
 
   const editQuiz = () => {
     post(
-      '/edit',
+      '/quiz/edit',
       {
         file_num: edit_file_num,
         quiz_num: edit_quiz_num,
@@ -103,7 +103,7 @@ export default function EditQuizPage() {
         img_file: edit_image
       },
       (data: any) => {
-        if (data.status === 200) {
+        if (data.status === 200 || data.status === 201) {
           data = data.body;
           setEditFileNum(-1);
           setEditQuizNum(-1);
@@ -112,7 +112,7 @@ export default function EditQuizPage() {
           setEditCategory('');
           setEditImage('');
           setMessage('Success!! 編集に成功しました');
-          setMessageColor('initial');
+          setMessageColor('success.light');
         } else {
           setMessage('エラー:外部APIとの連携に失敗しました');
           setMessageColor('error');

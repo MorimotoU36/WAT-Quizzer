@@ -21,7 +21,7 @@ import {
 export default function AccuracyRateGraphPage() {
   const [file_num, setFileNum] = useState<number>(-1);
   const [message, setMessage] = useState<string>('　');
-  const [messageColor, setMessageColor] = useState<messageColorType>('initial');
+  const [messageColor, setMessageColor] = useState<messageColorType>('common.black');
   const [accuracy_data, setAccuracyData] = useState<any>();
   const [filelistoption, setFilelistoption] = useState<JSX.Element[]>();
 
@@ -37,13 +37,13 @@ export default function AccuracyRateGraphPage() {
             </MenuItem>
           );
         }
-        setFilelistoption(filelistoption);
+        setFilelistoption(filelist);
       } else {
         setMessage('エラー:外部APIとの連携に失敗しました');
         setMessageColor('error');
       }
     });
-  });
+  }, []);
 
   const getAccuracy = () => {
     if (file_num === -1) {
@@ -59,7 +59,7 @@ export default function AccuracyRateGraphPage() {
           data = data.body;
           setAccuracyData(data);
           setMessage('　');
-          setMessageColor('initial');
+          setMessageColor('success.light');
         } else if (data.status === 404) {
           setMessage('エラー:条件に合致するデータはありません');
           setMessageColor('error');
@@ -87,10 +87,10 @@ export default function AccuracyRateGraphPage() {
         file_num: file_num
       },
       (data: any) => {
-        if (data.status === 200) {
+        if (data.status === 200 || data.status === 201) {
           data = data.body;
           setMessage('指定問題ファイルへのカテゴリ更新に成功しました');
-          setMessageColor('error');
+          setMessageColor('success.light');
         } else if (data.status === 404) {
           setMessage('エラー:条件に合致するデータはありません');
           setMessageColor('error');
