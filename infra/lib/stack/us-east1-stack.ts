@@ -18,6 +18,8 @@ type UsEast1StackProps = {
   env: string
   s3Bucket: s3.Bucket
   restApi: apigw.RestApi
+  frontCertificate: acm.Certificate
+  hostedZone: route53.HostedZone
 }
 
 // us-east-1(その他、グローバル)リージョンに作成するリソース
@@ -27,34 +29,6 @@ export class UsEast1Stack extends cdk.Stack {
       env: { region: 'us-east-1' },
       crossRegionReferences: true
     })
-
-    const { region, accountId } = new cdk.ScopedAws(this)
-
-    // DNS hostzone
-    const hostedZone = new route53.HostedZone(this, 'HostedZone', {
-      zoneName: process.env.HOSTZONE_NAME || ''
-    })
-    hostedZone.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN)
-
-    // ACM（quizzerフロント用）
-    const frontCertificate = new acm.Certificate(
-      this,
-      `${props.env}-quizzer-front`,
-      {
-        domainName: process.env.FRONT_DOMAIN_NAME || '',
-        validation: acm.CertificateValidation.fromDns(hostedZone)
-      }
-    )
-
-    // ACM（quizzer API用）
-    const apiCertificate = new acm.Certificate(
-      this,
-      `${props.env}-quizzer-api`,
-      {
-        domainName: process.env.API_DOMAIN_NAME || '',
-        validation: acm.CertificateValidation.fromDns(hostedZone)
-      }
-    )
 
     // Cognito at edge Lambda
     const edgeLambdaRole = makeQuizzerLambdaEdgeIamRole(this, props.env)
@@ -99,7 +73,7 @@ export class UsEast1Stack extends cdk.Stack {
           ]
         },
         domainNames: [process.env.FRONT_DOMAIN_NAME || ''],
-        certificate: frontCertificate
+        certificate: props.frontCertificate
       }
     )
 
@@ -109,35 +83,6 @@ export class UsEast1Stack extends cdk.Stack {
       {
         headerBehavior:
           cloudfront.OriginRequestHeaderBehavior.allowList('x-api-key')
-      }
-    )
-    const apiDistribution = new cloudfront.Distribution(
-      this,
-      `${props.env}QuizzerApiDistribution`,
-      {
-        defaultBehavior: {
-          origin: new origins.RestApiOrigin(props.restApi),
-          allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-          viewerProtocolPolicy:
-            cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          originRequestPolicy: apiOriginRequestPolicy,
-          responseHeadersPolicy: new cdk.aws_cloudfront.ResponseHeadersPolicy(
-            this,
-            'responseHeadersPolicy',
-            {
-              corsBehavior: {
-                accessControlAllowOrigins: ['*'],
-                accessControlAllowHeaders: ['*'],
-                accessControlAllowMethods: ['ALL'],
-                accessControlAllowCredentials: false,
-                originOverride: true
-              }
-            }
-          )
-        },
-        domainNames: [process.env.API_DOMAIN_NAME || ''],
-        certificate: apiCertificate
       }
     )
 
@@ -176,13 +121,7 @@ export class UsEast1Stack extends cdk.Stack {
       this,
       process.env.FRONT_DOMAIN_NAME || '',
       distribution,
-      hostedZone
-    )
-    makeRecordsToDistribution(
-      this,
-      process.env.API_DOMAIN_NAME || '',
-      apiDistribution,
-      hostedZone
+      props.hostedZone
     )
   }
 }

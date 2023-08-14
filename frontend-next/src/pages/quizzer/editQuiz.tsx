@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 
 import { get, post } from '../../common/API';
 import QuizzerLayout from './components/QuizzerLayout';
-import { messageColorType } from '../../interfaces/MessageColorType';
 import { buttonStyle, messageBoxStyle } from '../../styles/Pages';
 import {
   Button,
@@ -22,7 +21,7 @@ import {
 export default function EditQuizPage() {
   const [file_num, setFileNum] = useState<number>(-1);
   const [message, setMessage] = useState<string>('　');
-  const [messageColor, setMessageColor] = useState<messageColorType>('common.black');
+  const [messageColor, setMessageColor] = useState<string>('common.black');
   const [quiz_num, setQuizNum] = useState<number>();
   const [edit_file_num, setEditFileNum] = useState<number>();
   const [edit_quiz_num, setEditQuizNum] = useState<number>();
@@ -33,6 +32,8 @@ export default function EditQuizPage() {
   const [filelistoption, setFilelistoption] = useState<JSX.Element[]>();
 
   useEffect(() => {
+    setMessage('通信中...');
+    setMessageColor('#d3d3d3');
     get('/quiz/file', (data: any) => {
       if (data.status === 200) {
         data = data.body;
@@ -45,6 +46,8 @@ export default function EditQuizPage() {
           );
         }
         setFilelistoption(filelist);
+        setMessage('　');
+        setMessageColor('common.black');
       } else {
         setMessage('エラー:外部APIとの連携に失敗しました');
         setMessageColor('error');
@@ -63,13 +66,15 @@ export default function EditQuizPage() {
       return;
     }
 
+    setMessage('通信中...');
+    setMessageColor('#d3d3d3');
     get(
       '/quiz',
       (data: any) => {
-        if (data.status === 404 || data.body.length === 0) {
+        if (data.status === 404 || data.body?.length === 0) {
           setMessage('エラー:条件に合致するデータはありません');
           setMessageColor('error');
-        } else if (data.status === 200) {
+        } else if (data.status === 200 && data.body?.length > 0) {
           data = data.body;
           setEditFileNum(data[0].file_num);
           setEditQuizNum(data[0].quiz_num);
@@ -92,6 +97,8 @@ export default function EditQuizPage() {
   };
 
   const editQuiz = () => {
+    setMessage('通信中...');
+    setMessageColor('#d3d3d3');
     post(
       '/quiz/edit',
       {

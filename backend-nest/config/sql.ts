@@ -1,6 +1,12 @@
 export const SQL = {
+  ANSWER_LOG: {
+    RESET: `UPDATE answer_log SET deleted_at = NOW() WHERE file_num = ? AND quiz_num = ?; `,
+  },
   QUIZ_FILE: {
     LIST: ` SELECT * FROM quiz_file ORDER BY file_num; `,
+    ADD: ` INSERT INTO quiz_file (file_num, file_name, file_nickname) VALUES (?,?,?);`,
+    COUNT: `SELECT MAX(file_num) as file_num FROM quiz_file;`,
+    DELETE: `UPDATE quiz_file SET updated_at = NOW(), deleted_at = NOW() WHERE file_num = ?  `,
   },
   QUIZ: {
     INFO: `SELECT 
@@ -9,7 +15,7 @@ export const SQL = {
             quiz 
           WHERE file_num = ? 
           AND quiz_num = ? 
-          AND deleted = 0; `,
+          AND deleted_at IS NULL; `,
     RANDOM: ` SELECT 
                 * 
               FROM 
@@ -17,42 +23,36 @@ export const SQL = {
               WHERE file_num = ? 
               AND accuracy_rate >= ? 
               AND accuracy_rate <= ? 
-              AND deleted = 0 `,
+              AND deleted_at IS NULL `,
     WORST: ` SELECT
                 *
               FROM
                   quiz_view
               WHERE
                   file_num = ?
-              AND deleted = 0 `,
+              AND deleted_at IS NULL `,
     MINIMUM: ` SELECT
                   *
               FROM
                   quiz_view
               WHERE
                   file_num = ?
-              AND deleted = 0 `,
+              AND deleted_at IS NULL `,
     CLEARED: {
       GET: `
         SELECT
             clear_count
         FROM
-            quiz
+            quiz_view
         WHERE
             file_num = ?
             AND quiz_num = ?
-            AND deleted = 0 
+            AND deleted_at IS NULL 
       `,
       INPUT: `
-        UPDATE
-            quiz
-        SET
-            clear_count = ?
-        WHERE
-            file_num = ?
-            AND quiz_num = ?
-            AND deleted = 0 
-        ;
+        INSERT INTO 
+          answer_log 
+        (file_num, quiz_num, is_corrected) VALUES (?,?,true);
       `,
     },
     FAILED: {
@@ -60,22 +60,16 @@ export const SQL = {
         SELECT
             fail_count
         FROM
-            quiz
+            quiz_view
         WHERE
             file_num = ?
             AND quiz_num = ?
-            AND deleted = 0 
+            AND deleted_at IS NULL
       `,
       INPUT: `
-        UPDATE
-            quiz
-        SET
-            fail_count = ?
-        WHERE
-            file_num = ?
-            AND quiz_num = ?
-            AND deleted = 0 
-        ;
+        INSERT INTO 
+          answer_log 
+        (file_num, quiz_num, is_corrected) VALUES (?,?,false);
       `,
     },
     DELETED: {
@@ -86,7 +80,7 @@ export const SQL = {
             quiz
         WHERE
             file_num = ?
-            AND deleted = 1
+            AND deleted_at IS NULL
         ORDER BY
             quiz_num
         LIMIT 1
@@ -94,8 +88,8 @@ export const SQL = {
     },
     ADD: `
       INSERT INTO
-          quiz 
-      VALUES(?,?,?,?,0,0,?,?,0,0)
+          quiz (file_num,quiz_num,quiz_sentense,answer,category,img_file,checked)
+      VALUES(?,?,?,?,?,?,false)
       ;
     `,
     EDIT: `
@@ -104,12 +98,11 @@ export const SQL = {
       SET
           quiz_sentense = ? ,
           answer = ? ,
-          clear_count = 0, 
-          fail_count = 0, 
           category = ? ,
           img_file = ? ,
           checked = 0, 
-          deleted = 0 
+          updated_at = NOW(),
+          deleted_at = NOW() 
       WHERE 
           file_num = ? 
           AND quiz_num = ? 
@@ -122,7 +115,7 @@ export const SQL = {
           quiz 
       WHERE 
           file_num = ?
-      AND deleted = 0
+      AND deleted_at IS NULL
     `,
     MAX_QUIZ_NUM: `
       SELECT 
@@ -136,32 +129,42 @@ export const SQL = {
     `,
     SEARCH: `
       SELECT
-          file_num, quiz_num AS id, quiz_sentense, answer, clear_count, fail_count, category, img_file, checked, deleted, ROUND(accuracy_rate,1) AS accuracy_rate 
+          file_num, quiz_num AS id, quiz_sentense, answer, clear_count, fail_count, category, img_file, checked, ROUND(accuracy_rate,1) AS accuracy_rate 
       FROM
           quiz_view
       WHERE
           file_num = ?
       AND accuracy_rate >= ? 
       AND accuracy_rate <= ? 
-      AND deleted = 0 
+      AND deleted_at IS NULL 
     `,
     DELETE: `
       UPDATE
           quiz
       SET
-          deleted = 1 
+          updated_at = NOW(), 
+          deleted_at = NOW()
       WHERE 
           file_num = ? 
           AND quiz_num = ? 
+      ;
+    `,
+    DELETE_FILE: ` 
+      UPDATE 
+        quiz
+      SET
+        updated_at = NOW(),
+        deleted_at = NOW()
+      WHERE
+        file_num = ?
       ;
     `,
     INTEGRATE: `
       UPDATE
           quiz
       SET
-          clear_count = ?,
-          fail_count = ?,
-          category = ?
+          category = ?,
+          updated_at = NOW()
       WHERE 
           file_num = ? 
           AND quiz_num = ? 
@@ -180,7 +183,8 @@ export const SQL = {
         UPDATE
             quiz
         SET
-            category = ?
+            category = ?,
+            updated_at = NOW()
         WHERE 
             file_num = ? 
             AND quiz_num = ? 
@@ -199,7 +203,8 @@ export const SQL = {
       UPDATE
           quiz
       SET
-          checked = true
+          checked = true,
+          updated_at = NOW()
       WHERE 
           file_num = ? 
           AND quiz_num = ? 
@@ -208,7 +213,8 @@ export const SQL = {
       UPDATE
           quiz
       SET
-          checked = false
+          checked = false,
+          updated_at = NOW()
       WHERE 
           file_num = ? 
           AND quiz_num = ? 
@@ -221,11 +227,11 @@ export const SQL = {
           SUM(fail_count) as sum_fail, 
           ( 100 * SUM(clear_count) / ( SUM(clear_count) + SUM(fail_count) ) ) as accuracy_rate 
       FROM 
-          quiz 
+          quiz_view 
       where 
           file_num = ? 
           and checked = 1 
-          and deleted != 1 
+          and deleted_at IS NULL
       group by checked;
     `,
   },
@@ -266,15 +272,62 @@ export const SQL = {
     `,
   },
   ENGLISH: {
-    PARTOFSPEECH: `
-      SELECT
-          *
-      FROM
-          partsofspeech
-      ORDER BY
-          id
-      ;
-    `,
+    PARTOFSPEECH: {
+      GET: {
+        ALL: `
+              SELECT
+                  *
+              FROM
+                  partsofspeech
+              ORDER BY
+                  id
+              ;
+            `,
+        BYNAME: `
+            SELECT
+                *
+            FROM
+                partsofspeech
+            WHERE
+                name = ?
+            ;
+        `,
+      },
+      ADD: `
+        INSERT INTO
+          partsofspeech (name)
+        VALUES(?)
+        ;
+      `,
+    },
+    SOURCE: {
+      GET: {
+        ALL: `
+            SELECT
+                *
+            FROM
+                source
+            ORDER BY
+                id
+            ;
+        `,
+        BYNAME: `
+            SELECT
+                *
+            FROM
+                source
+            WHERE
+                name = ?
+            ;
+        `,
+      },
+      ADD: `
+        INSERT INTO
+          source (name)
+        VALUES(?)
+        ;
+      `,
+    },
     WORD: {
       ADD: `
         INSERT INTO
@@ -299,6 +352,12 @@ export const SQL = {
         INSERT INTO
           mean (word_id,wordmean_id,partsofspeech_id,meaning)
         VALUES(?,?,?,?)
+        ;
+      `,
+      SOURCE: `
+        INSERT INTO
+          mean_source (mean_id,source_id)
+        VALUES(?,?)
         ;
       `,
     },

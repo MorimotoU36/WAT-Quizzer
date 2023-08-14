@@ -29,3 +29,12 @@ export interface EditQuizDto {
   category: string;
   img_file: string;
 }
+
+export interface AddFileDto {
+  file_name: string;
+  file_nickname: string;
+}
+
+export interface DeleteFileDto {
+  file_id: number;
+}

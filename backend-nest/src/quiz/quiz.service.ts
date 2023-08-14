@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SQL } from 'config/sql';
 import { execQuery } from 'lib/db/dao';
 import { parseStrToBool } from 'lib/str';
@@ -8,6 +8,8 @@ import {
   AddQuizDto,
   IntegrateQuizDto,
   EditQuizDto,
+  AddFileDto,
+  DeleteFileDto,
 } from './quiz.dto';
 
 @Injectable()
@@ -23,11 +25,23 @@ export class QuizService {
 
   // 問題取得
   async getQuiz(file_num: number, quiz_num: number) {
+    if (!file_num && !quiz_num) {
+      throw new HttpException(
+        `ファイル番号または問題番号が入力されていません`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     try {
       const data = await execQuery(SQL.QUIZ.INFO, [file_num, quiz_num]);
       return data;
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -53,8 +67,13 @@ export class QuizService {
         checkedSQL +
         ' ORDER BY rand() LIMIT 1; ';
       return await execQuery(sql, [file_num, min_rate || 0, max_rate || 100]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -76,8 +95,13 @@ export class QuizService {
         ' ORDER BY accuracy_rate LIMIT 1; ';
 
       return await execQuery(getWorstRateQuizSQL, [file_num]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -103,8 +127,13 @@ export class QuizService {
         ' ORDER BY clear_count LIMIT 1; ';
 
       return await execQuery(getMinimumClearQuizSQL, [file_num]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -112,18 +141,14 @@ export class QuizService {
   async cleared(req: SelectQuizDto) {
     try {
       const { file_num, quiz_num } = req;
-      // 正解数取得
-      const data = await execQuery(SQL.QUIZ.CLEARED.GET, [file_num, quiz_num]);
-      const clear_count = data[0].clear_count;
-
-      // 正解登録
-      return await execQuery(SQL.QUIZ.CLEARED.INPUT, [
-        clear_count + 1,
-        file_num,
-        quiz_num,
-      ]);
-    } catch (error) {
-      throw error;
+      return await execQuery(SQL.QUIZ.CLEARED.INPUT, [file_num, quiz_num]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -131,18 +156,14 @@ export class QuizService {
   async failed(req: SelectQuizDto) {
     try {
       const { file_num, quiz_num } = req;
-      // 不正解数取得
-      const data = await execQuery(SQL.QUIZ.FAILED.GET, [file_num, quiz_num]);
-      const fail_count = data[0].fail_count;
-
-      // 正解登録
-      return await execQuery(SQL.QUIZ.FAILED.INPUT, [
-        fail_count + 1,
-        file_num,
-        quiz_num,
-      ]);
-    } catch (error) {
-      throw error;
+      return await execQuery(SQL.QUIZ.FAILED.INPUT, [file_num, quiz_num]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -150,6 +171,13 @@ export class QuizService {
   async add(req: AddQuizDto) {
     try {
       const { file_num, input_data } = req;
+      if (!file_num && !input_data) {
+        throw new HttpException(
+          `ファイル番号または問題文が入力されていません。(file_num:${file_num},input_data:${input_data})`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       // 入力データを１行ずつに分割
       const data = input_data.split('\n');
 
@@ -164,8 +192,9 @@ export class QuizService {
         const img_file = data_i[3];
 
         // 新問題番号を取得しINSERT
-        const res = await execQuery(SQL.QUIZ.MAX_QUIZ_NUM, [file_num]);
-        const new_quiz_id: number = res ? res[0]['quiz_num'] + 1 : 1;
+        const res: any = await execQuery(SQL.QUIZ.MAX_QUIZ_NUM, [file_num]);
+        const new_quiz_id: number =
+          res && res.length > 0 ? res[0]['quiz_num'] + 1 : 1;
         await execQuery(SQL.QUIZ.ADD, [
           file_num,
           new_quiz_id,
@@ -186,8 +215,13 @@ export class QuizService {
         );
       }
       return result;
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message + req.input_data,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -195,7 +229,7 @@ export class QuizService {
   async edit(req: EditQuizDto) {
     try {
       const { file_num, quiz_num, question, answer, category, img_file } = req;
-      return await execQuery(SQL.QUIZ.EDIT, [
+      await execQuery(SQL.QUIZ.EDIT, [
         question,
         answer,
         category,
@@ -203,8 +237,15 @@ export class QuizService {
         file_num,
         quiz_num,
       ]);
-    } catch (error) {
-      throw error;
+      // 編集した問題の解答ログ削除
+      await execQuery(SQL.ANSWER_LOG.RESET, [file_num, quiz_num]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -254,8 +295,13 @@ export class QuizService {
         min_rate || 0,
         max_rate || 100,
       ]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -265,8 +311,13 @@ export class QuizService {
       const { file_num, quiz_num } = req;
       // 削除済にアップデート
       return await execQuery(SQL.QUIZ.DELETE, [file_num, quiz_num]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -297,10 +348,6 @@ export class QuizService {
       ]);
 
       // 統合データ作成
-      const new_clear_count =
-        pre_data[0]['clear_count'] + post_data[0]['clear_count'];
-      const new_fail_count =
-        pre_data[0]['fail_count'] + post_data[0]['fail_count'];
       const pre_category = new Set(pre_data[0]['category'].split(':'));
       const post_category = new Set(post_data[0]['category'].split(':'));
       const new_category = Array.from(
@@ -309,22 +356,30 @@ export class QuizService {
 
       // 問題統合
       const result = [];
-      let result_i = await execQuery(SQL.QUIZ.INTEGRATE, [
-        new_clear_count,
-        new_fail_count,
-        new_category,
-        post_file_num,
-        post_quiz_num,
-      ]);
-      result.push(result_i);
+      result.push(
+        await execQuery(SQL.QUIZ.INTEGRATE, [
+          new_category,
+          post_file_num,
+          post_quiz_num,
+        ]),
+      );
 
-      // 統合元データは削除
-      result_i = await execQuery(SQL.QUIZ.DELETE, [pre_file_num, pre_quiz_num]);
-      result.push(result_i);
+      // 統合元データは削除、それまでの解答ログデータも削除
+      result.push(
+        await execQuery(SQL.QUIZ.DELETE, [pre_file_num, pre_quiz_num]),
+      );
+      result.push(
+        await execQuery(SQL.ANSWER_LOG.RESET, [pre_file_num, pre_quiz_num]),
+      );
 
       return result;
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -357,8 +412,13 @@ export class QuizService {
       ]);
 
       return result;
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -402,8 +462,13 @@ export class QuizService {
       return {
         result,
       };
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -424,8 +489,13 @@ export class QuizService {
       const { file_num, quiz_num } = req;
       // 更新
       return await execQuery(SQL.QUIZ.UNCHECK, [file_num, quiz_num]);
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 
@@ -437,15 +507,71 @@ export class QuizService {
       const result: any = await execQuery(SQL.QUIZ.INFO, [file_num, quiz_num]);
       const checked = result[0].checked;
 
-      const response = await execQuery(
-        checked ? SQL.QUIZ.UNCHECK : SQL.QUIZ.CHECK,
-        [file_num, quiz_num],
-      );
+      await execQuery(checked ? SQL.QUIZ.UNCHECK : SQL.QUIZ.CHECK, [
+        file_num,
+        quiz_num,
+      ]);
 
       // チェックしたらtrue、チェック外したらfalseを返す
       return !checked;
-    } catch (error) {
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // ファイル追加
+  async addFile(req: AddFileDto) {
+    try {
+      const { file_name, file_nickname } = req;
+      // ファイル番号取得
+      const max_file_num: number = (await execQuery(SQL.QUIZ_FILE.COUNT, []))[0]
+        .file_num;
+
+      // ファイル追加
+      const result: any = await execQuery(SQL.QUIZ_FILE.ADD, [
+        max_file_num + 1,
+        file_name,
+        file_nickname,
+      ]);
+
+      return {
+        result,
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // ファイル削除
+  async deleteFile(req: DeleteFileDto) {
+    try {
+      const { file_id } = req;
+      // 指定ファイルの問題全削除
+      await execQuery(SQL.QUIZ.DELETE_FILE, [file_id]);
+
+      // 指定ファイル削除
+      const result: any = await execQuery(SQL.QUIZ_FILE.DELETE, [file_id]);
+
+      return {
+        result,
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
   }
 }
