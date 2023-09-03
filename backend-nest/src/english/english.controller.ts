@@ -1,6 +1,18 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { EnglishService } from './english.service';
-import { AddEnglishWordDto } from './english.dto';
+import {
+  AddEnglishWordDto,
+  AddExampleDto,
+  EditWordMeanDto,
+} from './english.dto';
 
 @Controller('english')
 export class EnglishController {
@@ -21,8 +33,33 @@ export class EnglishController {
     return await this.englishService.searchWordService(wordName);
   }
 
+  @Get('/word')
+  async getAllWord() {
+    return await this.englishService.getAllWordService();
+  }
+
+  @Get('/word/byname')
+  async getWordByName(@Query('name') name: string) {
+    return await this.englishService.getWordByNameService(name);
+  }
+
   @Get('/source')
   async getSourceList() {
     return await this.englishService.getSourceService();
+  }
+
+  @Get('/word/:id')
+  async getWordById(@Param('id') id: string) {
+    return await this.englishService.getWordByIdService(+id);
+  }
+
+  @Patch('/word/:id')
+  async editWordMean(@Body() req: EditWordMeanDto) {
+    return await this.englishService.editWordMeanService(req);
+  }
+
+  @Post('/example')
+  async addExample(@Body() req: AddExampleDto) {
+    return await this.englishService.addExampleService(req);
   }
 }

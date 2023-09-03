@@ -11,7 +11,12 @@ export interface UpdateCategoryOfQuizDto {
 
 export interface AddQuizDto {
   file_num: number;
-  input_data: string;
+  input_data: {
+    question?: string;
+    answer?: string;
+    category?: string;
+    img_file?: string;
+  };
 }
 
 export interface IntegrateQuizDto {
@@ -36,5 +41,9 @@ export interface AddFileDto {
 }
 
 export interface DeleteFileDto {
+  file_id: number;
+}
+
+export interface DeleteAnswerLogByFile {
   file_id: number;
 }

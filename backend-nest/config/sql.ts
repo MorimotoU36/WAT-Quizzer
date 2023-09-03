@@ -1,6 +1,17 @@
 export const SQL = {
   ANSWER_LOG: {
     RESET: `UPDATE answer_log SET deleted_at = NOW() WHERE file_num = ? AND quiz_num = ?; `,
+    FILE: {
+      RESET: `
+        UPDATE
+          answer_log
+        SET
+          deleted_at = NOW()
+        WHERE
+          file_num = ?
+          AND deleted_at IS NULL;
+      `,
+    },
   },
   QUIZ_FILE: {
     LIST: ` SELECT * FROM quiz_file ORDER BY file_num; `,
@@ -142,6 +153,7 @@ export const SQL = {
       UPDATE
           quiz
       SET
+          quiz_sentense = concat(quiz_sentense,'(削除済-',DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'),')'),
           updated_at = NOW(), 
           deleted_at = NOW()
       WHERE 
@@ -344,20 +356,225 @@ export const SQL = {
           name LIKE ?
         ORDER BY
           name, id
+        LIMIT 200
         ;
       `,
+      GET: {
+        ALL: `
+          SELECT 
+            * 
+          FROM 
+            word
+          ;
+        `,
+        MAX_ID: `
+          SELECT
+            MAX(id) as id
+          FROM
+            word
+          ;
+        `,
+        ID: `
+          SELECT
+            word.id as word_id,
+            word.name as name,
+            word.pronounce,
+            mean.id as mean_id, 
+            mean.wordmean_id,
+            mean.meaning,
+            partsofspeech.id as partsofspeech_id,
+            partsofspeech.name as partsofspeech,
+            source.id as source_id,
+            source.name as source_name
+          FROM
+            word
+          INNER JOIN
+            mean
+          ON
+            word.id = mean.word_id
+          INNER JOIN
+            partsofspeech
+          ON
+            mean.partsofspeech_id = partsofspeech.id
+          LEFT OUTER JOIN
+            mean_source
+          ON
+            mean.id = mean_source.mean_id
+          LEFT OUTER JOIN
+            source
+          ON
+            mean_source.source_id = source.id
+          WHERE
+            word.id = ?
+          ;
+        `,
+        NAME: `
+          SELECT
+            word.id as word_id,
+            word.name as name,
+            word.pronounce,
+            mean.id as id, 
+            mean.wordmean_id as wordmean_id,
+            mean.meaning,
+            partsofspeech.id as partsofspeech_id,
+            partsofspeech.name as partsofspeech,
+            source.id as source_id,
+            source.name as source_name
+          FROM
+            word
+          INNER JOIN
+            mean
+          ON
+            word.id = mean.word_id
+          INNER JOIN
+            partsofspeech
+          ON
+            mean.partsofspeech_id = partsofspeech.id
+          LEFT OUTER JOIN
+            mean_source
+          ON
+            mean.id = mean_source.mean_id
+          LEFT OUTER JOIN
+            source
+          ON
+            mean_source.source_id = source.id
+          WHERE
+            word.name = ?
+          ;
+        `,
+      },
     },
     MEAN: {
+      GET: {
+        MAX_ID: `
+          SELECT
+            MAX(id) as id
+          FROM
+            mean
+          ;
+        `,
+      },
       ADD: `
         INSERT INTO
           mean (word_id,wordmean_id,partsofspeech_id,meaning)
         VALUES(?,?,?,?)
         ;
       `,
-      SOURCE: `
+      EDIT: `
+        UPDATE
+            mean
+        SET
+            partsofspeech_id = ?,
+            meaning = ?,
+            updated_at = NOW()
+        WHERE 
+            word_id = ? 
+            AND wordmean_id = ?  
+      `,
+      SOURCE: {
+        ADD: `
+          INSERT INTO
+            mean_source (mean_id,source_id)
+          VALUES(?,?)
+          ;
+        `,
+        EDIT: `
+          UPDATE
+            mean_source
+          SET
+            source_id = ?,
+            updated_at = NOW()
+          WHERE
+            mean_id = ?
+          ;
+        `,
+      },
+      EXAMPLE: {
+        ADD: `
+          INSERT INTO
+            mean_example (example_sentense_id, mean_id)
+          VALUES(?,?)
+          ;
+        `,
+      },
+    },
+    EXAMPLE: {
+      GET: {
+        MAX_ID: `
+          SELECT
+            MAX(id) as id
+          FROM
+            example
+          ;
+        `,
+      },
+      ADD: `
         INSERT INTO
-          mean_source (mean_id,source_id)
+          example (en_example_sentense,ja_example_sentense)
         VALUES(?,?)
+        ;
+      `,
+    },
+  },
+  SAYING: {
+    ADD: `
+      INSERT INTO
+        saying (book_id,book_saying_id,saying)
+      VALUES(?,?,?)
+    `,
+    GET: {
+      RANDOM: {
+        ALL: `
+          SELECT
+            saying
+          FROM
+            saying
+          ORDER BY RAND()
+          LIMIT 1
+          ;
+        `,
+        BYBOOK: `
+          SELECT
+            saying
+          FROM
+            saying
+          WHERE
+            book_id = ?
+          ORDER BY RAND()
+          LIMIT 1
+          ;
+        `,
+      },
+      ID: {
+        BYBOOK: `
+          SELECT
+            MAX(book_saying_id) as book_saying_id
+          FROM
+            saying
+          WHERE
+            book_id = ?
+          GROUP BY
+            book_id
+          ;
+        `,
+      },
+    },
+  },
+  SELFHELP_BOOK: {
+    ADD: `
+      INSERT INTO
+        selfhelp_book (name)
+      VALUES(?)
+      ;
+    `,
+    GET: {
+      ALL: `
+        SELECT
+          id,name
+        FROM
+          selfhelp_book
+        ORDER BY
+          id
         ;
       `,
     },

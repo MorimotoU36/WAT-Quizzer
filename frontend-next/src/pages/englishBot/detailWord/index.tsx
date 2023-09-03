@@ -1,13 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { get } from '../../common/API';
-import EnglishBotLayout from './components/EnglishBotLayout';
-import { buttonStyle, messageBoxStyle, searchedTableStyle } from '../../styles/Pages';
-import { Button, Card, CardContent, Container, FormControl, FormGroup, TextField, Typography } from '@mui/material';
-import { columns } from '../../../utils/englishBot/SearchWordTable';
+import { get } from '../../../common/API';
+import EnglishBotLayout from '../components/EnglishBotLayout';
+import { buttonStyle, messageBoxStyle, searchedTableStyle } from '../../../styles/Pages';
+import {
+  Button,
+  Card,
+  CardContent,
+  Container,
+  FormControl,
+  FormGroup,
+  Link,
+  TextField,
+  Typography
+} from '@mui/material';
 import { DataGrid, GridRowsProp } from '@mui/x-data-grid';
 
-export default function EnglishBotDictionaryPage() {
+export const searchedDetailColumns = [
+  {
+    field: 'id',
+    headerName: 'ID',
+    sortable: true,
+    width: 100
+  },
+  {
+    field: 'name',
+    headerName: '単語',
+    sortable: true,
+    width: 300,
+    renderCell: (params: any) => (
+      <Link tabIndex={params.id} href={'/englishBot/detailWord/' + params.id + process.env.NEXT_PUBLIC_URL_END}>
+        {params.value}
+      </Link>
+    )
+  }
+];
+
+export default function EnglishBotDetailWordPage() {
   const [query, setQuery] = useState('');
   const [searchResult, setSearchResult] = useState<GridRowsProp>([] as GridRowsProp);
   const [message, setMessage] = useState({
@@ -48,7 +77,7 @@ export default function EnglishBotDictionaryPage() {
   const contents = () => {
     return (
       <Container>
-        <h1>Dictionary</h1>
+        <h1>Detail Word</h1>
         <Card variant="outlined" style={messageBoxStyle}>
           <CardContent>
             <Typography variant="h6" component="h6" color={message.messageColor}>
@@ -60,7 +89,7 @@ export default function EnglishBotDictionaryPage() {
         <FormGroup>
           <FormControl>
             <TextField
-              label="単語名検索"
+              label="単語入力"
               onChange={(e) => {
                 setQuery(e.target.value);
               }}
@@ -75,7 +104,7 @@ export default function EnglishBotDictionaryPage() {
         <div style={searchedTableStyle}>
           <DataGrid
             rows={searchResult}
-            columns={columns}
+            columns={searchedDetailColumns}
             pageSizeOptions={[15]}
             //checkboxSelection
             disableRowSelectionOnClick
@@ -88,7 +117,7 @@ export default function EnglishBotDictionaryPage() {
 
   return (
     <>
-      <EnglishBotLayout contents={contents()} title={'辞書'} />
+      <EnglishBotLayout contents={contents()} title={'単語詳細Top'} />
     </>
   );
 }

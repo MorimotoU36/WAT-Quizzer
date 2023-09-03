@@ -1,7 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SQL } from 'config/sql';
-import { execQuery } from 'lib/db/dao';
-import { AddEnglishWordDto } from './english.dto';
+import { TransactionQuery, execQuery, execTransaction } from 'lib/db/dao';
+import {
+  AddEnglishWordDto,
+  AddExampleDto,
+  EditWordMeanDto,
+} from './english.dto';
 
 @Injectable()
 export class EnglishService {
@@ -43,11 +47,25 @@ export class EnglishService {
   async addWordAndMeanService(req: AddEnglishWordDto) {
     const { wordName, pronounce, meanArrayData } = req;
     try {
-      const wordData: any = await execQuery(SQL.ENGLISH.WORD.ADD, [
-        wordName,
-        pronounce,
-      ]);
+      //トランザクション実行準備
+      const transactionQuery: TransactionQuery[] = [];
+      //単語追加
+      transactionQuery.push({
+        query: SQL.ENGLISH.WORD.ADD,
+        value: [wordName, pronounce],
+      });
 
+      // insertされるだろう単語ID,意味ID計算
+      const wordWillId =
+        ((await execQuery(SQL.ENGLISH.WORD.GET.MAX_ID, []))[0][
+          'id'
+        ] as number) + 1;
+      const meanWillId =
+        ((await execQuery(SQL.ENGLISH.MEAN.GET.MAX_ID, []))[0][
+          'id'
+        ] as number) + 1;
+
+      //入力した意味一つ分のデータ作成
       for (let i = 0; i < meanArrayData.length; i++) {
         // その他　の場合は入力した品詞をチェック
         let partofspeechId: number = meanArrayData[i].partOfSpeechId;
@@ -97,18 +115,19 @@ export class EnglishService {
           }
         }
 
-        const meanResult: any = await execQuery(SQL.ENGLISH.MEAN.ADD, [
-          wordData.insertId,
-          i + 1,
-          partofspeechId,
-          meanArrayData[i].meaning,
-        ]);
-        await execQuery(SQL.ENGLISH.MEAN.SOURCE, [
-          meanResult.insertId,
-          sourceId,
-        ]);
+        transactionQuery.push({
+          query: SQL.ENGLISH.MEAN.ADD,
+          value: [wordWillId, i + 1, partofspeechId, meanArrayData[i].meaning],
+        });
+        transactionQuery.push({
+          query: SQL.ENGLISH.MEAN.SOURCE.ADD,
+          value: [meanWillId + i, sourceId],
+        });
       }
-      return { wordData };
+
+      //トランザクション実行
+      const result = await execTransaction(transactionQuery);
+      return { result };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -126,6 +145,121 @@ export class EnglishService {
         '%' + (wordName || '') + '%',
       ]);
       return { wordData };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語全取得
+  async getAllWordService() {
+    try {
+      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.ALL, []);
+      return { wordData };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // IDから単語情報取得
+  async getWordByIdService(id: number) {
+    try {
+      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.ID, [id]);
+      return { wordData };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語名から単語情報取得
+  async getWordByNameService(name: string) {
+    try {
+      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.NAME, [name]);
+      return { wordData };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語の意味などを更新
+  async editWordMeanService(req: EditWordMeanDto) {
+    try {
+      const { wordId, wordMeanId, meanId, partofspeechId, meaning, sourceId } =
+        req;
+
+      //トランザクション実行準備
+      const transactionQuery: TransactionQuery[] = [];
+
+      //意味編集
+      transactionQuery.push({
+        query: SQL.ENGLISH.MEAN.EDIT,
+        value: [partofspeechId, meaning, wordId, wordMeanId],
+      });
+      // 意味出典紐付け編集
+      transactionQuery.push({
+        query: SQL.ENGLISH.MEAN.SOURCE.EDIT,
+        value: [sourceId, meanId],
+      });
+      //トランザクション実行
+      const result = await execTransaction(transactionQuery);
+      return { result };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 例文追加
+  async addExampleService(req: AddExampleDto) {
+    const { exampleEn, exampleJa, meanId } = req;
+    try {
+      //トランザクション実行準備
+      const transactionQuery: TransactionQuery[] = [];
+
+      // insertされるだろう例文ID計算
+      const exampleWillId =
+        ((await execQuery(SQL.ENGLISH.EXAMPLE.GET.MAX_ID, []))[0][
+          'id'
+        ] as number) + 1;
+
+      //例文追加
+      transactionQuery.push({
+        query: SQL.ENGLISH.EXAMPLE.ADD,
+        value: [exampleEn, exampleJa],
+      });
+      for (let i = 0; i < meanId.length; i++) {
+        // await execQuery(SQL.ENGLISH.MEAN.EXAMPLE.ADD, [exampleId, meanId[i]]);
+        transactionQuery.push({
+          query: SQL.ENGLISH.MEAN.EXAMPLE.ADD,
+          value: [exampleWillId, meanId[i]],
+        });
+      }
+      //トランザクション実行
+      const result = await execTransaction(transactionQuery);
+      return { result };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(

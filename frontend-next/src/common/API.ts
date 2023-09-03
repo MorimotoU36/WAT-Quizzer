@@ -24,6 +24,18 @@ export const get = async (path: string, func: any, queryParam?: { [key: string]:
     });
 };
 
+export const getApiAndGetValue = async (path: string, queryParam?: { [key: string]: string }) => {
+  const key = await getApiKey();
+  const query = queryParam ? `?${new URLSearchParams(queryParam)}` : '';
+
+  return await fetch(baseURL + path + query, {
+    method: 'GET',
+    headers: {
+      'x-api-key': key
+    }
+  });
+};
+
 export const post = async (path: string, jsondata: object, func: any) => {
   const key = await getApiKey();
   await fetch(baseURL + path, {
@@ -42,7 +54,7 @@ export const post = async (path: string, jsondata: object, func: any) => {
     )
     .then(func)
     .catch((error) => {
-      console.error(`GET(${path}): ${error}`);
+      console.error(`POST(${path}): ${error}`);
     });
 };
 
@@ -64,7 +76,7 @@ export const put = async (path: string, jsondata: object, func: any) => {
     )
     .then(func)
     .catch((error) => {
-      console.error(`GET(${path}): ${error}`);
+      console.error(`PUT(${path}): ${error}`);
     });
 };
 
@@ -86,6 +98,28 @@ export const del = async (path: string, jsondata: object, func: any) => {
     )
     .then(func)
     .catch((error) => {
-      console.error(`GET(${path}): ${error}`);
+      console.error(`DELETE(${path}): ${error}`);
+    });
+};
+
+export const patch = async (path: string, jsondata: object, func: any) => {
+  const key = await getApiKey();
+  await fetch(baseURL + path, {
+    method: 'PATCH',
+    body: JSON.stringify(jsondata),
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key
+    }
+  })
+    .then((response) =>
+      response.json().then((data) => ({
+        status: response.status,
+        body: data
+      }))
+    )
+    .then(func)
+    .catch((error) => {
+      console.error(`PATCH(${path}): ${error}`);
     });
 };
