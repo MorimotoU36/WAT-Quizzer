@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SQL } from 'config/sql';
-import { TransactionQuery, execQuery, execTransaction } from 'lib/db/dao';
+import { execQuery, execTransaction } from 'lib/db/dao';
 import {
   AddEnglishWordDto,
   AddExampleDto,
   EditWordMeanDto,
-} from './english.dto';
+} from '../../../interfaces/api/request/english';
+import { TransactionQuery } from '../../../interfaces/db';
 
 @Injectable()
 export class EnglishService {
@@ -141,10 +142,9 @@ export class EnglishService {
   // 単語検索
   async searchWordService(wordName: string) {
     try {
-      const wordData = await execQuery(SQL.ENGLISH.WORD.SEARCH, [
+      return await execQuery(SQL.ENGLISH.WORD.SEARCH, [
         '%' + (wordName || '') + '%',
       ]);
-      return { wordData };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -158,8 +158,7 @@ export class EnglishService {
   // 単語全取得
   async getAllWordService() {
     try {
-      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.ALL, []);
-      return { wordData };
+      return await execQuery(SQL.ENGLISH.WORD.GET.ALL, []);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -173,8 +172,7 @@ export class EnglishService {
   // IDから単語情報取得
   async getWordByIdService(id: number) {
     try {
-      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.ID, [id]);
-      return { wordData };
+      return await execQuery(SQL.ENGLISH.WORD.GET.ID, [id]);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -188,8 +186,7 @@ export class EnglishService {
   // 単語名から単語情報取得
   async getWordByNameService(name: string) {
     try {
-      const wordData = await execQuery(SQL.ENGLISH.WORD.GET.NAME, [name]);
-      return { wordData };
+      return await execQuery(SQL.ENGLISH.WORD.GET.NAME, [name]);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -258,8 +255,7 @@ export class EnglishService {
         });
       }
       //トランザクション実行
-      const result = await execTransaction(transactionQuery);
-      return { result };
+      return await execTransaction(transactionQuery);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
