@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-google-charts';
 
 import { get, post } from '../../common/API';
-import QuizzerLayout from './components/QuizzerLayout';
 import { buttonStyle, messageBoxStyle } from '../../styles/Pages';
 import {
   Button,
@@ -16,8 +15,9 @@ import {
   Select,
   Typography
 } from '@mui/material';
-import { GetAccuracyRateByCategoryServiceDto, ProcessingApiReponse } from '../../../../interfaces/api';
-import { QuizFileApiResponse } from '../../../../interfaces/db';
+import { GetAccuracyRateByCategoryServiceDto, ProcessingApiReponse } from '../../../interfaces/api/response';
+import { QuizFileApiResponse } from '../../../interfaces/db';
+import { Layout } from '@/components/templates/layout/Layout';
 
 export default function AccuracyRateGraphPage() {
   const [file_num, setFileNum] = useState<number>(-1);
@@ -225,7 +225,7 @@ export default function AccuracyRateGraphPage() {
 
   return (
     <>
-      <QuizzerLayout contents={contents()} title={'カテゴリ別正解率表示'} />
+      <Layout mode="quizzer" contents={contents()} title={'カテゴリ別正解率表示'} />
     </>
   );
 }

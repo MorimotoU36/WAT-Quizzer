@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { del, get, patch, post } from '../../common/API';
-import QuizzerLayout from './components/QuizzerLayout';
 import {
   Button,
   Card,
@@ -20,8 +19,9 @@ import {
 } from '@mui/material';
 import { messageBoxStyle } from '../../styles/Pages';
 import { getRandomStr } from '../../../lib/str';
-import { ProcessingApiReponse } from '../../../../interfaces/api';
-import { QuizFileApiResponse } from '../../../../interfaces/db';
+import { ProcessingApiReponse } from '../../../interfaces/api/response';
+import { QuizFileApiResponse } from '../../../interfaces/db';
+import { Layout } from '@/components/templates/layout/Layout';
 
 export default function SelectQuizPage() {
   const [filelistoption, setFilelistoption] = useState<JSX.Element[]>();
@@ -319,7 +319,7 @@ export default function SelectQuizPage() {
 
   return (
     <>
-      <QuizzerLayout contents={contents()} title={'設定'} />
+      <Layout mode="quizzer" contents={contents()} title={'設定'} />
     </>
   );
 }
