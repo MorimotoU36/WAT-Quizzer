@@ -690,6 +690,26 @@ export const SQL = {
             AND word.deleted_at IS NULL
           ;
         `,
+        RANDOM: (sourceTemplate: string) => {
+          return `
+        SELECT
+          w.id,
+          w.name
+        FROM
+          word w 
+        INNER JOIN
+          (
+          SELECT 
+            word_id
+          FROM
+            mean m 
+          ${sourceTemplate}
+          GROUP BY word_id
+          ORDER BY RAND() LIMIT 1) as random_word
+        ON
+          w.id = random_word.word_id;
+        `;
+        },
       },
     },
     MEAN: {
@@ -699,6 +719,36 @@ export const SQL = {
             MAX(id) as id
           FROM
             mean
+          ;
+        `,
+        BY_WORD_ID: `
+          SELECT
+            id,
+            word_id,
+            wordmean_id,
+            partsofspeech_id,
+            meaning
+          FROM
+            mean
+          WHERE
+            word_id = ?
+          ORDER BY RAND()
+          LIMIT 1
+          ;
+        `,
+        BY_NOT_WORD_ID: `
+          SELECT
+            id,
+            word_id,
+            wordmean_id,
+            partsofspeech_id,
+            meaning
+          FROM
+            mean
+          WHERE
+            word_id <> ?
+          ORDER BY RAND()
+          LIMIT 3
           ;
         `,
       },
@@ -762,6 +812,22 @@ export const SQL = {
         VALUES(?,?)
         ;
       `,
+    },
+    WORD_TEST: {
+      CLEARED: {
+        INPUT: `
+          INSERT INTO 
+            englishbot_answer_log 
+          (word_id, result) VALUES (?,true);
+        `,
+      },
+      FAILED: {
+        INPUT: `
+          INSERT INTO 
+            englishbot_answer_log 
+          (word_id, result) VALUES (?,false);
+        `,
+      },
     },
   },
   SAYING: {

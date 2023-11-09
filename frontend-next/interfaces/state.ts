@@ -1,6 +1,7 @@
 export interface MessageState {
   message: string;
   messageColor: string;
+  isDisplay?: boolean;
 }
 
 export interface PullDownOptionState {
@@ -38,6 +39,23 @@ export interface QueryOfAddQuizState {
   dummy1?: string; //四択問題のダミー選択肢１
   dummy2?: string; //四択問題のダミー選択肢２
   dummy3?: string; //四択問題のダミー選択肢３
+}
+
+export interface QueryOfGetWordState {
+  source?: string;
+}
+
+export interface DisplayWordTestState {
+  wordId?: number;
+  wordName?: string;
+  choice?: {
+    correct: {
+      mean: string;
+    };
+    dummy: {
+      mean: string;
+    }[];
+  };
 }
 
 export interface SayingState {

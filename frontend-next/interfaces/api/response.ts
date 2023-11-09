@@ -87,6 +87,12 @@ export interface GetSelfHelpBookResponse extends ApiResponse {
   name: string;
 }
 
+// おすすめイベント取得APIの型
+export interface GetPopularEventResponse extends ApiResponse {
+  name: string;
+  link: string;
+}
+
 // 画面で利用するデータ型
 // (Quizzer)
 
@@ -125,4 +131,14 @@ export interface SendToAddWordApiData {
   meaning: string;
   partOfSpeechName?: string;
   sourceName?: string;
+}
+
+// 英単語テスト画面での四択選択肢をAPIから受け取るときのデータ型
+export interface EnglishBotTestFourChoiceResponse extends ApiResponse {
+  correct: {
+    mean: string;
+  };
+  dummy: {
+    mean: string;
+  }[];
 }
