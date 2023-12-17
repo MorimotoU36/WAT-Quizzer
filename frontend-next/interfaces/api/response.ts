@@ -12,6 +12,15 @@ export interface ProcessingApiReponse {
   status: number;
   body: ApiResponse[];
 }
+export interface ProcessingAddApiReponse {
+  status: number;
+  body: ApiResponse;
+}
+
+// データ追加APIの返り値の型
+export interface AddDataApiResponse extends ApiResponse {
+  insertId: number;
+}
 
 // 問題追加APIの返り値の型
 export interface AddQuizApiResponse extends ApiResponse {
@@ -72,6 +81,14 @@ export interface EnglishWordByIdApiResponse extends ApiResponse {
   meaning: string;
   partsofspeech_id: number;
   partsofspeech: string; // partofspeech.name
+  source_id: number;
+  source_name: string;
+}
+
+// 英単語の出典（単語IDで）取得APIの返り値
+export interface EnglishWordSourceByIdApiResponse extends ApiResponse {
+  word_id: number;
+  word_name: string;
   source_id: number;
   source_name: string;
 }

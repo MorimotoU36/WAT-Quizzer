@@ -365,27 +365,78 @@ export const SQL = {
         VALUES(?,?)
       `,
     },
-    FOUR_CHOICE: {
+    EXPLANATION: {
+      UPSERT: `
+        INSERT INTO
+          advanced_quiz_explanation
+        (advanced_quiz_id,explanation)
+        VALUES (?,?)
+        ON DUPLICATE KEY UPDATE 
+        explanation = ?,updated_at = NOW()
+        ;
+      `,
+    },
+    BASIC_LINKAGE: {
       GET: `
         SELECT
-          a.id,
-          a.file_num,
-          a.quiz_num,
-          a.quiz_sentense,
-          a.answer,
-          a.img_file,
-          a.checked,
-          d.dummy_choice_sentense
+          basis_quiz_id
         FROM
           advanced_quiz as a
         INNER JOIN
-          dummy_choice as d
+          quiz_basis_advanced_linkage as b
         ON
-          a.id = d.advanced_quiz_id
+          a.file_num = b.file_num
+        AND a.id = b.advanced_quiz_id
         WHERE
           a.file_num = ?
           AND a.quiz_num = ?
+        ;
       `,
+    },
+    FOUR_CHOICE: {
+      GET: {
+        DUMMY_CHOICE: `
+          SELECT
+            a.id,
+            a.file_num,
+            a.quiz_num,
+            a.quiz_sentense,
+            a.answer,
+            a.img_file,
+            a.checked,
+            d.dummy_choice_sentense,
+            e.explanation
+          FROM
+            advanced_quiz as a
+          LEFT OUTER JOIN
+            dummy_choice as d
+          ON
+            a.id = d.advanced_quiz_id
+          LEFT OUTER JOIN
+            advanced_quiz_explanation as e 
+          ON
+            a.id = e.advanced_quiz_id
+          WHERE
+            a.file_num = ?
+            AND a.quiz_num = ?
+        `,
+        BASIS_ADVANCED_LINK: `
+          SELECT
+            a.id,
+            a.file_num,
+            a.quiz_num,
+            l.basis_quiz_id
+          FROM
+            advanced_quiz as a
+          INNER JOIN
+            quiz_basis_advanced_linkage as l
+          ON
+            a.id = l.advanced_quiz_id
+          WHERE
+            a.file_num = ?
+            AND a.quiz_num = ?
+        `,
+      },
       RANDOM: {
         PRE: ` 
           SELECT 
@@ -396,7 +447,8 @@ export const SQL = {
             a.answer,
             a.img_file,
             a.checked,
-            d.dummy_choice_sentense
+            d.dummy_choice_sentense,
+            e.explanation
           FROM 
           ( SELECT * FROM 
             advanced_quiz_view 
@@ -412,6 +464,10 @@ export const SQL = {
             dummy_choice as d
           ON
             a.id = d.advanced_quiz_id
+          LEFT OUTER JOIN
+            advanced_quiz_explanation as e 
+          ON
+            a.id = e.advanced_quiz_id
         `,
       },
       WORST: {
@@ -424,7 +480,8 @@ export const SQL = {
             a.answer,
             a.img_file,
             a.checked,
-            d.dummy_choice_sentense
+            d.dummy_choice_sentense,
+            e.explanation
           FROM 
           ( SELECT * FROM 
             advanced_quiz_view 
@@ -437,6 +494,10 @@ export const SQL = {
             dummy_choice as d
           ON
             a.id = d.advanced_quiz_id
+          LEFT OUTER JOIN
+            advanced_quiz_explanation as e 
+          ON
+            a.id = e.advanced_quiz_id
         `,
       },
       MINIMUM: {
@@ -449,7 +510,8 @@ export const SQL = {
             a.answer,
             a.img_file,
             a.checked,
-            d.dummy_choice_sentense
+            d.dummy_choice_sentense,
+            e.explanation
           FROM 
           ( SELECT * FROM 
             advanced_quiz_view 
@@ -462,6 +524,10 @@ export const SQL = {
             dummy_choice as d
           ON
             a.id = d.advanced_quiz_id
+          LEFT OUTER JOIN
+            advanced_quiz_explanation as e 
+          ON
+            a.id = e.advanced_quiz_id
         `,
       },
       CLEARED: `
@@ -474,6 +540,52 @@ export const SQL = {
           answer_log 
         (quiz_format_id, file_num, quiz_num, is_corrected) VALUES (3,?,?,false);
       `,
+      EDIT: {
+        ADVANCED_QUIZ: `
+          UPDATE
+              advanced_quiz
+          SET
+              quiz_sentense = ? ,
+              answer = ? ,
+              img_file = ? ,
+              updated_at = NOW()
+          WHERE 
+              file_num = ? 
+              AND quiz_num = ? 
+              AND advanced_quiz_type_id = 2
+          ;
+        `,
+        DUMMY_CHOICE: {
+          UPDATE: `
+            UPDATE
+                dummy_choice
+            SET
+                dummy_choice_sentense = ? ,
+                updated_at = NOW()
+            WHERE 
+                id = ?
+            ;
+          `,
+          INSERT: `
+            INSERT INTO
+              dummy_choice
+            (advanced_quiz_id,dummy_choice_sentense)
+            VALUES (?,?)
+            ;
+          `,
+          GET_DUMMY_CHOICE_ID: `
+            SELECT
+              id
+            FROM
+              dummy_choice
+            WHERE
+              advanced_quiz_id = ?
+            ORDER BY
+                id
+            LIMIT 1 OFFSET ?
+          `,
+        },
+      },
     },
   },
   CATEGORY: {
@@ -519,6 +631,15 @@ export const SQL = {
           quiz_basis_advanced_linkage(file_num, basis_quiz_id, advanced_quiz_id)
       VALUES (?,?,?) ;
     `,
+    DELETE: `
+      DELETE FROM
+        quiz_basis_advanced_linkage
+      WHERE
+        file_num = ?
+        AND basis_quiz_id = ?
+        AND advanced_quiz_id = ?
+      ;
+    `, // TODO DELETEでなくdeleted_atに設定する形にしたい
   },
   ENGLISH: {
     PARTOFSPEECH: {
@@ -710,6 +831,31 @@ export const SQL = {
           w.id = random_word.word_id;
         `;
         },
+        SOURCE: `
+          SELECT DISTINCT
+            word.id as word_id,
+            word.name as word_name,
+            source.id as source_id,
+            source.name as source_name
+          FROM 
+            word
+          INNER JOIN
+            mean
+          ON
+            word.id = mean.word_id
+          INNER JOIN
+            mean_source
+          ON
+            mean.id = mean_source.mean_id
+          INNER JOIN
+            source
+          ON
+            mean_source.source_id = source.id
+          WHERE
+            word.id = ?
+            AND word.deleted_at IS NULL
+          ;
+        `,
       },
     },
     MEAN: {
@@ -784,6 +930,7 @@ export const SQL = {
             updated_at = NOW()
           WHERE
             mean_id = ?
+            AND source_id = ?
           ;
         `,
       },

@@ -1,5 +1,5 @@
 import { GetPopularEventResponse, GetSelfHelpBookResponse, ProcessingApiReponse } from '../../interfaces/api/response';
-import { QuizFileApiResponse, QuizViewApiResponse } from '../../interfaces/db';
+import { PartofSpeechApiResponse, QuizFileApiResponse, QuizViewApiResponse } from '../../interfaces/db';
 import { MessageState, PullDownOptionState } from '../../interfaces/state';
 import { get } from './API';
 
@@ -65,15 +65,30 @@ export const generateQuizSentense = (format: string, res: QuizViewApiResponse[])
       choices.push(res[i].dummy_choice_sentense || '');
     }
     // 選択肢の配列をランダムに並び替える
-    choices.sort((a, b) => 0.5 - Math.random());
+    const choiceName = ['A', 'B', 'C', 'D'];
+    choiceName.sort((a, b) => 0.5 - Math.random());
 
-    return `[${res[0].file_num}-${res[0].quiz_num}]${res[0].quiz_sentense}
-        A: ${choices[0]}
-        B: ${choices[1]}
-        C: ${choices[2]}
-        D: ${choices[3]}`;
+    return {
+      quizSentense: `[${res[0].file_num}-${res[0].quiz_num}]${res[0].quiz_sentense}
+        A: ${choices[choiceName.indexOf('A')]}
+        B: ${choices[choiceName.indexOf('B')]}
+        C: ${choices[choiceName.indexOf('C')]}
+        D: ${choices[choiceName.indexOf('D')]}`,
+      quizAnswer: `${choiceName[0]}: ${res[0].answer}`,
+      explanation: res[0].explanation
+        ? res[0].explanation
+            .replaceAll('{c}', choiceName[0])
+            .replaceAll('{d1}', choiceName[1])
+            .replaceAll('{d2}', choiceName[2])
+            .replaceAll('{d3}', choiceName[3])
+        : ''
+    };
   } else {
-    return `[${res[0].file_num}-${res[0].quiz_num}]${res[0].quiz_sentense}`;
+    return {
+      quizSentense: `[${res[0].file_num}-${res[0].quiz_num}]${res[0].quiz_sentense}`,
+      quizAnswer: res[0].answer,
+      explanation: res[0].explanation
+    };
   }
 };
 
@@ -137,7 +152,43 @@ export const getSourceList = (
   }
 };
 
-// englishbot用 出典リストをapi通信して取ってくる
+// englishbot用 品詞リストをapi通信して取ってくる
+export const getPartOfSpeechList = (
+  setMessageStater: React.Dispatch<React.SetStateAction<MessageState>>,
+  setPartOfSpeechOption: React.Dispatch<React.SetStateAction<PullDownOptionState[]>>
+) => {
+  setMessageStater({ message: '通信中...', messageColor: '#d3d3d3' });
+
+  const storageKey = 'partOfSpeechList';
+  const savedFileList = sessionStorage.getItem(storageKey);
+  if (!savedFileList) {
+    get('/english/partsofspeech', (data: ProcessingApiReponse) => {
+      if (data.status === 200) {
+        const result: PartofSpeechApiResponse[] = data.body as PartofSpeechApiResponse[];
+        let posList: PullDownOptionState[] = [];
+        for (var i = 0; i < result.length; i++) {
+          posList.push({
+            value: String(result[i].id),
+            label: result[i].name
+          });
+        }
+        setPartOfSpeechOption(posList);
+        setMessageStater({ message: '　', messageColor: 'common.black' });
+      } else {
+        setMessageStater({ message: 'エラー:外部APIとの連携に失敗しました', messageColor: 'error' });
+      }
+    });
+  } else {
+    // 既にsession storageに値が入っている場合はそれを利用する
+    setPartOfSpeechOption(JSON.parse(savedFileList));
+    setMessageStater({
+      message: '　',
+      messageColor: 'common.black'
+    });
+  }
+};
+
+// イベントリストをapi通信して取ってくる
 export const getPopularEventList = async (
   setEventList: React.Dispatch<React.SetStateAction<GetPopularEventResponse[]>>
 ) => {
@@ -148,6 +199,8 @@ export const getPopularEventList = async (
       if (data.status === 200) {
         const result: GetPopularEventResponse[] = data.body as GetPopularEventResponse[];
         setEventList(result);
+      } else {
+        setEventList([{ name: `Error:${data.status}`, link: '' }]);
       }
     });
   } else {
