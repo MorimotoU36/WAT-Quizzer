@@ -52,16 +52,17 @@ export const post = async (path: string, jsondata: object, func: (data: Processi
       'x-api-key': key
     }
   })
+    .catch((error) => {
+      console.error('API Error1.');
+      throw Error(error);
+    })
     .then((response) =>
       response.json().then((data) => ({
         status: response.status,
         body: data
       }))
     )
-    .then(func)
-    .catch((error) => {
-      console.error(`POST(${path}): ${error}`);
-    });
+    .then(func);
 };
 
 export const put = async (path: string, jsondata: object, func: (data: ProcessingApiReponse) => void) => {
