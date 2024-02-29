@@ -12,9 +12,11 @@ import { EnglishService } from './english.service';
 import {
   AddEnglishWordDto,
   AddExampleDto,
+  AddWordSubSourceDto,
   AddWordTestLogDto,
   EditWordMeanDto,
   EditWordSourceDto,
+  GetWordSubSourceDto,
 } from '../../interfaces/api/request/english';
 
 @Controller('english')
@@ -52,8 +54,16 @@ export class EnglishController {
   }
 
   @Get('/word/random')
-  async getRandomWord(@Query('sourceId') sourceId: number) {
-    return await this.englishService.getRandomWordService(+sourceId);
+  async getRandomWord(
+    @Query('source') source: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return await this.englishService.getRandomWordService(
+      source,
+      startDate,
+      endDate,
+    );
   }
 
   // 指定した単語を出題するときの四択選択肢（正解選択肢1つとダミー選択肢3つ）を作る
@@ -82,10 +92,25 @@ export class EnglishController {
     return await this.englishService.editSourceOfWordById(req);
   }
 
+  @Put('/word/subsource')
+  async addSubSourceOfWordById(@Body() req: AddWordSubSourceDto) {
+    return await this.englishService.addSubSourceOfWordById(req);
+  }
+
+  @Get('/word/summary')
+  async getSummary() {
+    return await this.englishService.getSummary();
+  }
+
   /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */
   @Get('/word/source/:id')
   async getSourceOfWordById(@Param('id') id: string) {
     return await this.englishService.getSourceOfWordById(+id);
+  }
+
+  @Get('/word/subsource/:id')
+  async getSubSourceOfWordById(@Param('id') id: string) {
+    return await this.englishService.getSubSourceOfWordById(+id);
   }
 
   @Get('/word/:id')

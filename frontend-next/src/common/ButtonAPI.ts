@@ -4,29 +4,39 @@ import {
   AddQuizApiResponse,
   CheckQuizApiResponse,
   EnglishBotTestFourChoiceResponse,
+  EnglishWordByNameApiResponse,
+  GetAccuracyRateByCategoryServiceDto,
+  GetSayingByIdResponse,
   ProcessingAddApiReponse,
-  ProcessingApiReponse
+  ProcessingApiReponse,
+  SendToAddWordApiData,
+  meanOfAddWordDto
 } from '../../interfaces/api/response';
 import { QuizApiResponse, QuizViewApiResponse, WordApiResponse } from '../../interfaces/db';
 import {
   DeleteQuizInfoState,
   DisplayQuizState,
   DisplayWordTestState,
+  EditQueryOfSaying,
   InputSayingState,
   IntegrateToQuizInfoState,
   MessageState,
   PullDownOptionState,
   QueryOfDeleteQuizState,
+  QueryOfGetAccuracyState,
   QueryOfGetWordState,
   QueryOfIntegrateToQuizState,
   QueryOfPutQuizState,
   QueryOfQuizState,
   QueryOfSearchQuizState,
   WordMeanData,
-  WordSourceData
+  WordSourceData,
+  WordSubSourceData
 } from '../../interfaces/state';
 import { del, get, patch, post, put } from './API';
 import { generateQuizSentense, getBook } from './response';
+import { getDateForSqlString } from '../../lib/str';
+import { InputExampleData } from '@/pages/englishBot/addExample';
 
 interface AddQuizButtonProps {
   value: number;
@@ -1481,6 +1491,114 @@ export const integrateQuiz = ({
   );
 };
 
+interface GetAccuracyProps {
+  queryOfGetAccuracy: QueryOfGetAccuracyState;
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setAccuracyData?: React.Dispatch<React.SetStateAction<GetAccuracyRateByCategoryServiceDto>>;
+}
+export const getAccuracy = ({ queryOfGetAccuracy, setMessage, setAccuracyData }: GetAccuracyProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage || !setAccuracyData) {
+    return;
+  }
+
+  if (queryOfGetAccuracy.fileNum === -1) {
+    setMessage({
+      message: 'エラー:問題ファイルを選択して下さい',
+      messageColor: 'error'
+    });
+    return;
+  }
+
+  setMessage({
+    message: '通信中...',
+    messageColor: '#d3d3d3',
+    isDisplay: true
+  });
+  get(
+    '/category/rate',
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200) {
+        const res: GetAccuracyRateByCategoryServiceDto[] = data.body as GetAccuracyRateByCategoryServiceDto[];
+        setAccuracyData(res[0]);
+        setMessage({
+          message: '　',
+          messageColor: 'commmon.black',
+          isDisplay: false
+        });
+      } else if (data.status === 404) {
+        setMessage({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    },
+    {
+      file_num: String(queryOfGetAccuracy.fileNum)
+    }
+  );
+};
+
+interface UpdateCategoryProps {
+  queryOfGetAccuracy: QueryOfGetAccuracyState;
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+}
+export const updateCategory = ({ queryOfGetAccuracy, setMessage }: UpdateCategoryProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage) {
+    return;
+  }
+
+  if (queryOfGetAccuracy.fileNum === -1) {
+    setMessage({
+      message: 'エラー:問題ファイルを選択して下さい',
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  }
+
+  setMessage({
+    message: '通信中...',
+    messageColor: '#d3d3d3',
+    isDisplay: true
+  });
+  post(
+    '/category',
+    {
+      file_num: queryOfGetAccuracy.fileNum
+    },
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 || data.status === 201) {
+        setMessage({
+          message: '指定問題ファイルへのカテゴリ更新に成功しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+      } else if (data.status === 404) {
+        setMessage({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    }
+  );
+};
+
 // 以下 EnglishBot系
 
 interface EditEnglishWordMeanButtonProps {
@@ -1675,6 +1793,83 @@ export const editEnglishWordSourceAPI = async ({
   });
 };
 
+interface AddEnglishWordSubSourceButtonProps {
+  wordId: number;
+  subSourceName: string;
+  wordSubSourceData: WordSubSourceData[];
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setModalIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setSubSourceName?: React.Dispatch<React.SetStateAction<string>>;
+  setWordSubSourceData?: React.Dispatch<React.SetStateAction<WordSubSourceData[]>>;
+}
+
+// TODO ここのAPI部分は分けたい
+export const addEnglishWordSubSourceAPI = async ({
+  wordId,
+  subSourceName,
+  wordSubSourceData,
+  setMessage,
+  setModalIsOpen,
+  setSubSourceName,
+  setWordSubSourceData
+}: AddEnglishWordSubSourceButtonProps) => {
+  if (setModalIsOpen) {
+    setModalIsOpen(false);
+  }
+  if (!subSourceName || subSourceName === '') {
+    if (setMessage) {
+      setMessage({ message: 'エラー:出典を選択して下さい', messageColor: 'error', isDisplay: true });
+    }
+    return;
+  }
+
+  await put(
+    '/english/word/subsource',
+    {
+      wordId: wordId,
+      subSource: subSourceName
+    },
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 || data.status === 201) {
+        if (setMessage) {
+          setMessage({
+            message: 'Success!! 編集に成功しました',
+            messageColor: 'success.light',
+            isDisplay: true
+          });
+        }
+
+        const editedWordSubSourceData = wordSubSourceData;
+        editedWordSubSourceData.push({
+          subSourceName: subSourceName
+        });
+        if (setWordSubSourceData) {
+          setWordSubSourceData(editedWordSubSourceData);
+        }
+
+        setSubSourceName && setSubSourceName('');
+      } else {
+        if (setMessage) {
+          setMessage({
+            message: 'エラー:外部APIとの連携に失敗しました',
+            messageColor: 'error',
+            isDisplay: true
+          });
+        }
+      }
+    }
+  ).catch((err) => {
+    console.error(`API Error2. ${JSON.stringify(err)},${err}`);
+    if (setMessage) {
+      setMessage({
+        message: 'エラー:外部APIとの連携に失敗しました',
+        messageColor: 'error',
+        isDisplay: true
+      });
+    }
+  });
+};
+
 interface GetRandomWordButtonProps {
   queryOfGetWordState: QueryOfGetWordState;
   setMessageStater?: React.Dispatch<React.SetStateAction<MessageState>>;
@@ -1694,7 +1889,13 @@ export const getRandomWordAPI = async ({
   // 送信データ作成
   const sendData: { [key: string]: string } = {};
   if (queryOfGetWordState.source) {
-    sendData.sourceId = String(queryOfGetWordState.source);
+    sendData.source = String(queryOfGetWordState.source);
+  }
+  if (queryOfGetWordState.subSource && queryOfGetWordState.subSource.startDate) {
+    sendData.startDate = getDateForSqlString(queryOfGetWordState.subSource.startDate);
+  }
+  if (queryOfGetWordState.subSource && queryOfGetWordState.subSource.endDate) {
+    sendData.endDate = getDateForSqlString(queryOfGetWordState.subSource.endDate);
   }
 
   setMessageStater({
@@ -1852,6 +2053,266 @@ export const submitEnglishBotTestAPI = async ({
   });
 };
 
+interface AddWordButtonProps {
+  inputWord: string;
+  meanRowList: meanOfAddWordDto[];
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setInputWord?: React.Dispatch<React.SetStateAction<string>>;
+  setMeanRowList?: React.Dispatch<React.SetStateAction<meanOfAddWordDto[]>>;
+}
+
+// 登録ボタン押下後。単語と意味をDBに登録
+export const addWordAPI = async ({
+  inputWord,
+  meanRowList,
+  setMessage,
+  setInputWord,
+  setMeanRowList
+}: AddWordButtonProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage || !setInputWord || !setMeanRowList) {
+    return;
+  }
+
+  if (inputWord === '') {
+    setMessage({
+      message: 'エラー:単語が入力されておりません',
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  }
+
+  for (let i = 0; i < meanRowList.length; i++) {
+    if (meanRowList[i].pos.id === -1 || (meanRowList[i].pos.id === -2 && !meanRowList[i].pos.name)) {
+      setMessage({
+        message: `エラー:${i + 1}行目の品詞を入力してください`,
+        messageColor: 'error',
+        isDisplay: true
+      });
+      return;
+    } else if (!meanRowList[i].mean || meanRowList[i].mean === '') {
+      setMessage({
+        message: `エラー:${i + 1}行目の意味を入力してください`,
+        messageColor: 'error',
+        isDisplay: true
+      });
+      return;
+    }
+  }
+
+  setMessage({
+    message: '通信中...',
+    messageColor: '#d3d3d3',
+    isDisplay: true
+  });
+  await post(
+    '/english/word/add',
+    {
+      wordName: inputWord,
+      pronounce: '',
+      meanArrayData: meanRowList.reduce((previousValue: SendToAddWordApiData[], currentValue) => {
+        if (currentValue.pos.id !== -1) {
+          previousValue.push({
+            partOfSpeechId: currentValue.pos.id,
+            sourceId: currentValue.source.id,
+            meaning: currentValue.mean || '',
+            partOfSpeechName: currentValue.pos.name,
+            sourceName: currentValue.source.name
+          });
+        }
+        return previousValue;
+      }, [])
+    },
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 || data.status === 201) {
+        setMessage({
+          message: `単語「${inputWord}」を登録しました`,
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+        setInputWord('');
+        setMeanRowList([]);
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    }
+  ).catch((err) => {
+    console.error(`API Error2(word add). ${JSON.stringify(err)},err:${err}`);
+    setMessage({
+      message: 'エラー:外部APIとの連携に失敗しました',
+      messageColor: 'error',
+      isDisplay: true
+    });
+  });
+};
+
+// 英単語検索
+interface SearchWordAPIProps {
+  query: string;
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setSearchResult?: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+}
+
+export const searchWordAPI = ({ query, setMessage, setSearchResult }: SearchWordAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage || !setSearchResult) {
+    return;
+  }
+
+  if (!query || query === '') {
+    setMessage({ message: 'エラー:検索語句を入力して下さい', messageColor: 'error' });
+    return;
+  }
+
+  setMessage({ message: '通信中...', messageColor: '#d3d3d3' });
+  get(
+    '/english/word/byname',
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200) {
+        const result: EnglishWordByNameApiResponse[] = data.body as EnglishWordByNameApiResponse[];
+        setSearchResult(result || []);
+        setMessage({
+          message: 'Success!!取得しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    },
+    {
+      name: query
+    }
+  );
+};
+
+// 例文データ登録
+interface SubmitExampleSentenseAPIProps {
+  inputExampleData: InputExampleData;
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setInputExampleData?: React.Dispatch<React.SetStateAction<InputExampleData>>;
+}
+
+export const submitExampleSentenseAPI = ({
+  inputExampleData,
+  setMessage,
+  setInputExampleData
+}: SubmitExampleSentenseAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage || !setInputExampleData) {
+    return;
+  }
+
+  if (!inputExampleData || !inputExampleData.exampleEn || inputExampleData.exampleEn === '') {
+    setMessage({
+      message: 'エラー:例文(英文)が入力されていません',
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  } else if (!inputExampleData.exampleJa || inputExampleData.exampleJa === '') {
+    setMessage({
+      message: 'エラー:例文(和文)が入力されていません',
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  } else if (!inputExampleData.meanId || inputExampleData.meanId.length === 0) {
+    setMessage({
+      message: 'エラー:単語または意味へのチェック指定がありません',
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  }
+
+  setMessage({ message: '通信中...', messageColor: '#d3d3d3' });
+  post(
+    '/english/example',
+    {
+      exampleEn: inputExampleData.exampleEn,
+      exampleJa: inputExampleData.exampleJa,
+      meanId: inputExampleData.meanId
+    },
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 || data.status === 201) {
+        setMessage({
+          message: '例文を登録しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+        setInputExampleData({});
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    }
+  );
+};
+
+// 単語検索
+interface SearchWordForDictionaryAPIProps {
+  query: string;
+  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setSearchResult?: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+}
+
+export const searchWordForDictionary = ({ query, setMessage, setSearchResult }: SearchWordForDictionaryAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessage || !setSearchResult) {
+    return;
+  }
+
+  if (!query || query === '') {
+    setMessage({ message: 'エラー:検索語句を入力して下さい', messageColor: 'error', isDisplay: true });
+    return;
+  }
+
+  setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+  get(
+    '/english/word/search',
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 && data.body?.length > 0) {
+        const result: WordApiResponse[] = data.body as WordApiResponse[];
+        setSearchResult(result || []);
+        setMessage({
+          message: 'Success!!' + result.length + '問の問題を取得しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+      } else if (data.status === 404 || data.body?.length === 0) {
+        setSearchResult([]);
+        setMessage({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setMessage({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    },
+    {
+      wordName: query
+    }
+  );
+};
+
 // 啓発本と格言系
 
 interface AddBookButtonProps {
@@ -1952,4 +2413,185 @@ export const addSayingAPI = async ({ inputSaying, setMessageStater, setInputSayi
     });
   });
   //getBook(setMessageStater, setBooklistoption);
+};
+
+interface searchSayingAPIProps {
+  queryOfSaying: string;
+  setMessageStater?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setSearchResult?: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+}
+
+export const searchSayingAPI = async ({ queryOfSaying, setMessageStater, setSearchResult }: searchSayingAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessageStater || !setSearchResult) {
+    return;
+  }
+
+  await get(
+    '/saying/search',
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 && data.body.length > 0) {
+        const res: [] = data.body as [];
+        setSearchResult(res);
+        setMessageStater({
+          message: '　',
+          messageColor: 'common.black',
+          isDisplay: false
+        });
+      } else if (data.status === 404 || data.body?.length === 0) {
+        setMessageStater({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setMessageStater({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    },
+    {
+      saying: queryOfSaying
+    }
+  ).catch((err) => {
+    console.error(`API Error2. ${JSON.stringify(err)},${err}`);
+    setMessageStater({
+      message: 'エラー:外部APIとの連携に失敗しました',
+      messageColor: 'error',
+      isDisplay: true
+    });
+  });
+};
+
+interface getSayingAPIProps {
+  id: number;
+  setMessageStater?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setEditQueryOfSaying?: React.Dispatch<React.SetStateAction<EditQueryOfSaying>>;
+}
+
+export const getSayingByIdAPI = async ({ id, setMessageStater, setEditQueryOfSaying }: getSayingAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessageStater || !setEditQueryOfSaying) {
+    return;
+  }
+
+  if (isNaN(id) || id < 0) {
+    setMessageStater({
+      message: `エラー:入力したIDが不正です:${id}`,
+      messageColor: 'error',
+      isDisplay: true
+    });
+    return;
+  }
+
+  await get(
+    `/saying/${id}`,
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200 && data.body.length > 0) {
+        const res: GetSayingByIdResponse[] = data.body as GetSayingByIdResponse[];
+        setEditQueryOfSaying({
+          id: id,
+          saying: res[0].saying,
+          explanation: res[0].explanation
+        });
+        setMessageStater({
+          message: '格言を取得しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+      } else if (data.status === 404 || data.body?.length === 0) {
+        setEditQueryOfSaying({
+          id: -1,
+          saying: ''
+        });
+        setMessageStater({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setEditQueryOfSaying({
+          id: -1,
+          saying: ''
+        });
+        setMessageStater({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    },
+    {}
+  ).catch((err) => {
+    console.error(`API Error2. ${JSON.stringify(err)},${err}`);
+    setEditQueryOfSaying({
+      id: -1,
+      saying: ''
+    });
+    setMessageStater({
+      message: 'エラー:外部APIとの連携に失敗しました',
+      messageColor: 'error',
+      isDisplay: true
+    });
+  });
+};
+
+interface editSayingAPIProps {
+  editQueryOfSaying: EditQueryOfSaying;
+  setMessageStater?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setEditQueryOfSaying?: React.Dispatch<React.SetStateAction<EditQueryOfSaying>>;
+}
+
+export const editSayingAPI = async ({
+  editQueryOfSaying,
+  setMessageStater,
+  setEditQueryOfSaying
+}: editSayingAPIProps) => {
+  // 設定ステートない場合はreturn(storybook表示用に設定)
+  if (!setMessageStater || !setEditQueryOfSaying) {
+    return;
+  }
+
+  await patch(
+    '/saying',
+    {
+      id: editQueryOfSaying.id,
+      saying: editQueryOfSaying.saying,
+      explanation: editQueryOfSaying.explanation
+    },
+    (data: ProcessingApiReponse) => {
+      if (data.status === 200) {
+        setMessageStater({
+          message: 'Success!! 編集に成功しました',
+          messageColor: 'success.light',
+          isDisplay: true
+        });
+      } else if (data.status === 404 || data.body?.length === 0) {
+        setMessageStater({
+          message: 'エラー:条件に合致するデータはありません',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      } else {
+        setMessageStater({
+          message: 'エラー:外部APIとの連携に失敗しました',
+          messageColor: 'error',
+          isDisplay: true
+        });
+      }
+    }
+  ).catch((err) => {
+    console.error(`API Error2. ${JSON.stringify(err)},${err}`);
+    setMessageStater({
+      message: 'エラー:外部APIとの連携に失敗しました',
+      messageColor: 'error',
+      isDisplay: true
+    });
+  });
+  setEditQueryOfSaying({
+    id: -1,
+    saying: ''
+  });
 };

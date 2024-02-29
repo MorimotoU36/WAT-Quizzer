@@ -1,21 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { SQL } from 'config/sql';
-import { execQuery, execTransaction } from 'lib/db/dao';
+import { SQL } from '../../config/sql';
+import { execQuery, execTransaction } from '../../lib/db/dao';
 import {
   AddEnglishWordDto,
   AddExampleDto,
+  AddWordSubSourceDto,
   AddWordTestLogDto,
   EditWordMeanDto,
   EditWordSourceDto,
+  GetWordSubSourceDto,
 } from '../../interfaces/api/request/english';
 import { TransactionQuery } from '../../interfaces/db';
+import { getDateForSqlString } from 'lib/str';
 
 @Injectable()
 export class EnglishService {
-  getHello(): string {
-    return 'Hello World!';
-  }
-
   // 品詞取得
   async getPartsofSpeechService() {
     try {
@@ -129,8 +128,7 @@ export class EnglishService {
       }
 
       //トランザクション実行
-      const result = await execTransaction(transactionQuery);
-      return { result };
+      return await execTransaction(transactionQuery);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -281,19 +279,43 @@ export class EnglishService {
   }
 
   // 単語をランダムに取得
-  async getRandomWordService(sourceId: number) {
+  async getRandomWordService(
+    source: string,
+    startDate: string,
+    endDate: string,
+  ) {
     try {
-      const sourceIdSql = !sourceId
+      const sourceIdSql = !source
         ? ''
         : `
-      LEFT OUTER JOIN
+      INNER JOIN
         mean_source ms 
-      ON
-        m.id = ms.mean_id 
-      WHERE ms.source_id = ${sourceId}
+      ON m.id = ms.mean_id 
+      AND ms.source_id = ${source}
+      `;
+      const subSourceSql =
+        !startDate && !endDate
+          ? ''
+          : `
+        INNER JOIN
+          word_subsource ws
+        ON m.word_id = ws.word_id
+        ${
+          startDate
+            ? ` AND ws.created_at >= '${getDateForSqlString(startDate)}' `
+            : ``
+        }
+        ${
+          endDate
+            ? ` AND ws.created_at <= '${getDateForSqlString(endDate)}' `
+            : ``
+        }
       `;
       // ランダムに英単語id,nameを返す
-      return await execQuery(SQL.ENGLISH.WORD.GET.RANDOM(sourceIdSql), []);
+      return await execQuery(
+        SQL.ENGLISH.WORD.GET.RANDOM(sourceIdSql, subSourceSql),
+        [],
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -396,6 +418,52 @@ export class EnglishService {
       }
       //トランザクション実行
       return await execTransaction(transactionQuery);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語のサブ出典追加
+  async addSubSourceOfWordById(req: AddWordSubSourceDto) {
+    try {
+      const { wordId, subSource } = req;
+      return await execQuery(SQL.ENGLISH.WORD.SUBSOURCE.ADD, [
+        wordId,
+        subSource,
+      ]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語のサブ出典取得
+  async getSubSourceOfWordById(id: number) {
+    try {
+      return await execQuery(SQL.ENGLISH.WORD.GET.SUBSOURCE, [id]);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語のサマリデータ取得
+  async getSummary() {
+    try {
+      return await execQuery(SQL.ENGLISH.WORD.SUMMARY.GET, []);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(

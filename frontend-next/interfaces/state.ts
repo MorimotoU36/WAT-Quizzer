@@ -78,6 +78,10 @@ export interface QueryOfIntegrateToQuizState {
   format?: string;
 }
 
+export interface QueryOfGetAccuracyState {
+  fileNum: number;
+}
+
 export interface DeleteQuizInfoState {
   fileNum?: number;
   quizNum?: number;
@@ -98,6 +102,10 @@ export interface IntegrateToQuizInfoState {
 
 export interface QueryOfGetWordState {
   source?: string;
+  subSource?: {
+    startDate?: Date;
+    endDate?: Date;
+  };
 }
 
 export interface DisplayWordTestState {
@@ -130,6 +138,10 @@ export interface WordSourceData {
   sourceName: string;
 }
 
+export interface WordSubSourceData {
+  subSourceName: string;
+}
+
 export interface SayingState {
   saying: string;
   explanation: string;
@@ -147,4 +159,11 @@ export interface InputSayingState {
 export interface DbHealthCheckState {
   status: string;
   color: string;
+}
+
+// 格言取得
+export interface EditQueryOfSaying {
+  id: number;
+  saying: string;
+  explanation?: string;
 }

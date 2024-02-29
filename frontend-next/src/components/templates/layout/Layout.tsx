@@ -33,8 +33,8 @@ const config: { [key: string]: LayoutConfig } = {
   quizzer: {
     bgColor: '#0077B6',
     sideBarContents: [
-      { name: 'トップ', link: urlEnd },
-      { name: '問題出題', link: '/quizzer' + urlEnd },
+      { name: 'トップ', link: '/quizzer' + urlEnd },
+      { name: '問題出題', link: '/quizzer/getQuiz' + urlEnd },
       { name: '問題追加', link: '/quizzer/addQuiz' + urlEnd },
       { name: '問題編集', link: '/quizzer/editQuiz' + urlEnd },
       { name: '問題検索', link: '/quizzer/searchQuiz' + urlEnd },
@@ -82,6 +82,7 @@ export const Layout = ({ title, contents, mode = 'quizzer', messageState, setMes
             {modeConfig.sideBarContents.map((value) => (
               <ListItem key={value.name}>
                 <Button
+                  attr={'no-min-width'}
                   variant="text"
                   href={value.link}
                   label={value.name}

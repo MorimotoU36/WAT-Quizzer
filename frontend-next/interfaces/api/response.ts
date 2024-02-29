@@ -67,8 +67,6 @@ export interface EnglishWordByNameApiResponse extends ApiResponse {
   meaning: string;
   partsofspeech_id: number;
   partsofspeech: string; // partofspeech.name
-  source_id: number;
-  source_name: string;
 }
 
 // 英単語（単語IDで）取得APIの返り値
@@ -91,6 +89,11 @@ export interface EnglishWordSourceByIdApiResponse extends ApiResponse {
   word_name: string;
   source_id: number;
   source_name: string;
+}
+
+// 英単語のサブ出典（単語IDで）取得APIの返り値
+export interface EnglishWordSubSourceByIdApiResponse extends ApiResponse {
+  subsource: string;
 }
 
 /// 以下、格言(saying)系
@@ -160,4 +163,10 @@ export interface EnglishBotTestFourChoiceResponse extends ApiResponse {
   dummy: {
     mean: string;
   }[];
+}
+
+// 格言取得
+export interface GetSayingByIdResponse extends ApiResponse {
+  saying: string;
+  explanation?: string;
 }

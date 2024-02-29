@@ -1,4 +1,4 @@
-import { parseStrToBool } from 'lib/str';
+import { parseStrToBool } from '../lib/str';
 
 export const SQL = {
   ANSWER_LOG: {
@@ -1352,9 +1352,7 @@ export const SQL = {
             mean.wordmean_id as wordmean_id,
             mean.meaning,
             partsofspeech.id as partsofspeech_id,
-            partsofspeech.name as partsofspeech,
-            source.id as source_id,
-            source.name as source_name
+            partsofspeech.name as partsofspeech
           FROM
             word
           INNER JOIN
@@ -1365,20 +1363,12 @@ export const SQL = {
             partsofspeech
           ON
             mean.partsofspeech_id = partsofspeech.id
-          LEFT OUTER JOIN
-            mean_source
-          ON
-            mean.id = mean_source.mean_id
-          LEFT OUTER JOIN
-            source
-          ON
-            mean_source.source_id = source.id
           WHERE
             word.name = ?
             AND word.deleted_at IS NULL
           ;
         `,
-        RANDOM: (sourceTemplate: string) => {
+        RANDOM: (sourceTemplate: string, subSourceTemplate: string) => {
           return `
             SELECT
               w.id,
@@ -1388,11 +1378,12 @@ export const SQL = {
             INNER JOIN
               (
               SELECT 
-                word_id
+                m.word_id
               FROM
                 mean m 
               ${sourceTemplate}
-              GROUP BY word_id
+              ${subSourceTemplate}
+              GROUP BY m.word_id
               ORDER BY RAND() LIMIT 1) as random_word
             ON
               w.id = random_word.word_id;
@@ -1421,6 +1412,33 @@ export const SQL = {
           WHERE
             word.id = ?
             AND word.deleted_at IS NULL
+          ;
+        `,
+        SUBSOURCE: `
+          SELECT
+            subsource
+          FROM
+            word_subsource
+          WHERE
+            word_id = ?
+            AND deleted_at IS NULL
+          ;
+        `,
+      },
+      SUBSOURCE: {
+        ADD: `
+          INSERT INTO
+            word_subsource (word_id,subsource)
+          VALUES(?,?)
+          ;
+        `,
+      },
+      SUMMARY: {
+        GET: `
+          SELECT
+            name,count
+          FROM
+            word_summarize
           ;
         `,
       },
@@ -1602,7 +1620,48 @@ export const SQL = {
           ;
         `,
       },
+      BYID: `
+        SELECT
+          saying,
+          explanation
+        FROM
+          saying
+        WHERE
+          id = ?
+          AND deleted_at IS NULL
+        ;
+      `,
+      SEARCH: (saying: string) => {
+        return `
+          SELECT
+            s.id,
+            s.saying,
+            s.explanation,
+            b.name
+          FROM
+            saying s
+          INNER JOIN
+            selfhelp_book b
+          ON
+            s.book_id = b.id
+          WHERE
+            s.saying LIKE '%${saying || ''}%'
+          AND s.deleted_at IS NULL
+          AND b.deleted_at IS NULL
+          ;
+        `;
+      },
     },
+    EDIT: `
+      UPDATE
+        saying
+      SET
+          saying = ?,
+          explanation = ?,
+          updated_at = NOW()
+      WHERE 
+          id = ? 
+    `,
   },
   SELFHELP_BOOK: {
     ADD: `
