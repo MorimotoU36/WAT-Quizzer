@@ -10,12 +10,12 @@ interface DbHealthCheckCardProps {
 export const DbHealthCheckCard = ({ dbHealthCheckState }: DbHealthCheckCardProps) => {
   return (
     <>
-      <Card variant="outlined">
+      <Card variant="outlined" attr="margin-vertical">
         <CardContent>
           <Typography variant="h6" component="span" color="common.black">
             DB接続状況：
           </Typography>
-          <Typography variant="h6" component="span" color={dbHealthCheckState.color}>
+          <Typography id="db-health" variant="h6" component="span" color={dbHealthCheckState.color}>
             {dbHealthCheckState.status}
           </Typography>
         </CardContent>

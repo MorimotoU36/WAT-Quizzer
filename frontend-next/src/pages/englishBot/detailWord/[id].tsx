@@ -2,27 +2,23 @@ import { Container, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getApiAndGetValue } from '@/common/API';
 import { WordApiResponse } from '../../../../interfaces/db';
-import { GetStaticPropsContext } from 'next';
 import { Layout } from '@/components/templates/layout/Layout';
-import {
-  MessageState,
-  PullDownOptionState,
-  WordMeanData,
-  WordSourceData,
-  WordSubSourceData
-} from '../../../../interfaces/state';
+import { PullDownOptionState, WordMeanData, WordSourceData, WordSubSourceData } from '../../../../interfaces/state';
 import { getPartOfSpeechList, getSourceList } from '@/common/response';
 import { Title } from '@/components/ui-elements/title/Title';
 import { MeaningStack } from '@/components/ui-forms/englishbot/detailWord/meaningStack/MeaningStack';
 import { getWordDetail, getWordSource, getWordSubSource } from '@/pages/api/english';
 import { SourceStack } from '@/components/ui-forms/englishbot/detailWord/sourceStack/SourceStack';
 import { SubSourceStack } from '@/components/ui-forms/englishbot/detailWord/subSourceStack/SubSourceStack';
+import { messageState } from '@/atoms/Message';
+import { useRecoilState } from 'recoil';
 
 type EachWordPageProps = {
   id: string;
+  isMock?: boolean;
 };
 
-export default function EnglishBotEachWordPage({ id }: EachWordPageProps) {
+export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps) {
   const [wordName, setWordName] = useState<string>('');
   const [meanData, setMeanData] = useState<WordMeanData[]>([]);
   const [wordSourceData, setWordSourceData] = useState<WordSourceData[]>([]);
@@ -32,20 +28,18 @@ export default function EnglishBotEachWordPage({ id }: EachWordPageProps) {
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
   const [posList, setPosList] = useState<PullDownOptionState[]>([]);
   const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionState[]>([]);
-  const [message, setMessage] = useState<MessageState>({
-    message: '　',
-    messageColor: 'common.black'
-  });
+  const [message, setMessage] = useRecoilState(messageState);
 
   useEffect(() => {
-    Promise.all([
-      getPartOfSpeechList(setMessage, setPosList),
-      getSourceList(setMessage, setSourcelistoption),
-      getWordDetail(id, setMessage, setWordName, setMeanData),
-      getWordSource(id, setMessage, setWordSourceData),
-      getWordSubSource(id, setMessage, setWordSubSourceData)
-    ]);
-  }, [id]);
+    !isMock &&
+      Promise.all([
+        getPartOfSpeechList(setMessage, setPosList),
+        getSourceList(setMessage, setSourcelistoption),
+        getWordDetail(id, setMessage, setWordName, setMeanData),
+        getWordSource(id, setMessage, setWordSourceData),
+        getWordSubSource(id, setMessage, setWordSubSourceData)
+      ]);
+  }, [id, isMock, setMessage]);
 
   const contents = () => {
     return (
@@ -59,7 +53,6 @@ export default function EnglishBotEachWordPage({ id }: EachWordPageProps) {
         <MeaningStack
           id={id}
           posList={posList}
-          sourceList={sourcelistoption}
           meanData={meanData}
           modalIsOpen={open}
           setMessage={setMessage}
@@ -90,13 +83,7 @@ export default function EnglishBotEachWordPage({ id }: EachWordPageProps) {
 
   return (
     <>
-      <Layout
-        mode="englishBot"
-        contents={contents()}
-        title={'各単語詳細'}
-        messageState={message}
-        setMessageStater={setMessage}
-      />
+      <Layout mode="englishBot" contents={contents()} title={'各単語詳細'} />
     </>
   );
 }

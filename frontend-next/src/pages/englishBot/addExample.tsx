@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-
-import { buttonStyle } from '../../styles/Pages';
-import { Button, Card, CardHeader, Container } from '@mui/material';
-import { GridRowsProp } from '@mui/x-data-grid';
+import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
 import { Title } from '@/components/ui-elements/title/Title';
-import { MessageState } from '../../../interfaces/state';
 import { AddExampleSection } from '@/components/ui-forms/englishbot/addExample/addExampleSection/AddExampleSection';
 import { SearchRelatedWordSection } from '@/components/ui-forms/englishbot/addExample/searchRelatedWordSection/SearchRelatedWordSection';
 import { submitExampleSentenseAPI } from '@/common/ButtonAPI';
+import { messageState } from '@/atoms/Message';
+import { useSetRecoilState } from 'recoil';
+import { Card } from '@/components/ui-elements/card/Card';
+import { Button } from '@/components/ui-elements/button/Button';
 
 export type InputExampleData = {
   exampleJa?: string;
@@ -16,37 +16,32 @@ export type InputExampleData = {
   meanId?: number[];
 };
 
-export default function EnglishBotAddExamplePage() {
+type Props = {
+  isMock?: boolean;
+};
+
+export default function EnglishBotAddExamplePage({ isMock }: Props) {
   const [inputExampleData, setInputExampleData] = useState<InputExampleData>({});
-  const [searchResult, setSearchResult] = useState<GridRowsProp>([] as GridRowsProp);
-  const [message, setMessage] = useState<MessageState>({
-    message: '　',
-    messageColor: 'common.black'
-  });
+  const setMessage = useSetRecoilState(messageState);
 
   const contents = () => {
     return (
       <Container>
         <Title label="Add Example Sentense"></Title>
-
-        <Card variant="outlined">
-          <CardHeader title="例文追加" />
+        <Card variant="outlined" attr="margin-vertical" header="例文追加">
           <AddExampleSection inputExampleData={inputExampleData} setInputExampleData={setInputExampleData} />
           <SearchRelatedWordSection
-            searchResult={searchResult}
             inputExampleData={inputExampleData}
             setMessage={setMessage}
-            setSearchResult={setSearchResult}
             setInputExampleData={setInputExampleData}
           />
           <Button
-            style={buttonStyle}
+            label={'登録'}
+            attr={'after-inline'}
             variant="contained"
             color="primary"
             onClick={(e) => submitExampleSentenseAPI({ inputExampleData, setMessage, setInputExampleData })}
-          >
-            登録
-          </Button>
+          />
         </Card>
       </Container>
     );
@@ -54,13 +49,7 @@ export default function EnglishBotAddExamplePage() {
 
   return (
     <>
-      <Layout
-        mode="englishBot"
-        contents={contents()}
-        title={'例文追加'}
-        messageState={message}
-        setMessageStater={setMessage}
-      />
+      <Layout mode="englishBot" contents={contents()} title={'例文追加'} />
     </>
   );
 }
