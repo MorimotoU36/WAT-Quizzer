@@ -21,8 +21,9 @@ import {
   QueryOfDeleteQuizState,
   QueryOfIntegrateToQuizState
 } from '../../../../../../interfaces/state';
-import { getIntegrateToQuiz, integrateQuiz } from '@/common/ButtonAPI';
 import { useState } from 'react';
+import { getIntegrateToQuiz } from '@/api/quiz/getIntegrateToQuizAPI';
+import { integrateQuiz } from '@/api/quiz/integrateQuizAPI';
 
 interface IntegrateToQuizFormProps {
   queryOfDeleteQuizState: QueryOfDeleteQuizState;
@@ -59,6 +60,7 @@ export const IntegrateToQuizForm = ({
             <FormControl>
               <TextField
                 label="問題番号"
+                disabled={!(queryOfDeleteQuizState.format === 'basic' || queryOfDeleteQuizState.format === 'applied')}
                 onChange={(e) => {
                   setQueryOfIntegrateToQuizState &&
                     setQueryOfIntegrateToQuizState({

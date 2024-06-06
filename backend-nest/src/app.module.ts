@@ -5,7 +5,7 @@ import { QuizModule } from './quiz/quiz.module';
 import { CategoryModule } from './category/category.module';
 import { EnglishModule } from './english/english.module';
 import { SayingModule } from './saying/saying.module';
-import { ScrapeModule } from './scrape/scrape.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { ScrapeModule } from './scrape/scrape.module';
     CategoryModule,
     EnglishModule,
     SayingModule,
-    ScrapeModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

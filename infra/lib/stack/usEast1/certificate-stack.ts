@@ -33,7 +33,7 @@ export class CertificateStack extends cdk.Stack {
     )
 
     // ACM（quizzer API用）
-    this.apiCertificate = new acm.Certificate(
+    const apiCertificate = new acm.Certificate(
       this,
       `${props.env}-quizzer-api`,
       {

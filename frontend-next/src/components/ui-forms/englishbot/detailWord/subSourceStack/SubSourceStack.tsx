@@ -3,32 +3,37 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Item } from '@/components/ui-elements/item/Item';
 import { Modal } from '@/components/ui-elements/modal/Modal';
 import { Box, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { MessageState, WordSubSourceData } from '../../../../../../interfaces/state';
+import { MessageState, WordDetailData, WordSubSourceData } from '../../../../../../interfaces/state';
 import { style } from '../Stack.style';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { addEnglishWordSubSourceAPI } from '@/common/ButtonAPI';
+import { addEnglishWordSubSourceAPI } from '@/api/englishbot/addEnglishWordSubSourceAPI';
+import { deleteEnglishWordSubSourceAPI } from '@/api/englishbot/deleteEnglishWordSubSourceAPI';
 
 interface SubSourceStackProps {
-  id: string;
-  wordSubSourceData: WordSubSourceData[];
+  wordDetail: WordDetailData;
   modalIsOpen: boolean;
   setModalIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
-  setWordSubSourceData?: React.Dispatch<React.SetStateAction<WordSubSourceData[]>>;
+  setWordDetail?: React.Dispatch<React.SetStateAction<WordDetailData>>;
 }
 
 export const SubSourceStack = ({
-  id,
-  wordSubSourceData,
+  wordDetail,
   modalIsOpen,
   setModalIsOpen,
   setMessage,
-  setWordSubSourceData
+  setWordDetail
 }: SubSourceStackProps) => {
-  const [inputSubSourceName, setInputSubSourceName] = useState<string>('');
+  const [selectedSubSource, setSelectedSubSource] = useState<WordSubSourceData>({
+    id: -1,
+    subsource: ''
+  });
 
-  const handleOpen = (x: WordSubSourceData, index: number) => {
+  const handleOpen = (x: WordSubSourceData) => {
+    if (setSelectedSubSource) {
+      setSelectedSubSource(x);
+    }
     if (setModalIsOpen) {
       setModalIsOpen(true);
     }
@@ -42,15 +47,18 @@ export const SubSourceStack = ({
         </Typography>
         <Box sx={{ width: '100%', padding: '4px' }}>
           <Stack spacing={2}>
-            {wordSubSourceData.map((x, index) => {
+            {wordDetail.word_subsource.map((x, index) => {
               return (
                 // eslint-disable-next-line react/jsx-key
                 <Item key={index}>
                   <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography component="div">
                       <Typography align="left" variant="h5" component="p">
-                        {x.subSourceName}
+                        {x.subsource}
                       </Typography>
+                    </Typography>
+                    <Typography component="div" sx={{ marginLeft: 'auto' }}>
+                      <Button label="編集" variant="outlined" onClick={(e) => handleOpen(x)}></Button>
                     </Typography>
                   </Typography>
                 </Item>
@@ -59,48 +67,66 @@ export const SubSourceStack = ({
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
               <IconButton
                 onClick={(e) =>
-                  handleOpen(
-                    {
-                      subSourceName: ''
-                    },
-                    -1
-                  )
+                  handleOpen({
+                    id: -1,
+                    subsource: ''
+                  })
                 }
               >
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
+            {/* TODO このモーダル系別コンポーネントに切り出したい。他のスタックのとこのも同様に */}
             <Modal isOpen={modalIsOpen} setIsOpen={setModalIsOpen}>
               <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h4" component="h4">
-                  サブ出典追加
+                  {'サブ出典' + (selectedSubSource.id === -1 ? '追加' : '更新')}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
                   サブ出典：
                   <TextField
                     variant="outlined"
-                    defaultValue={''}
+                    defaultValue={selectedSubSource.subsource}
                     onChange={(e) => {
-                      if (setInputSubSourceName) {
-                        setInputSubSourceName(e.target.value);
+                      if (setSelectedSubSource) {
+                        setSelectedSubSource({
+                          ...selectedSubSource,
+                          subsource: e.target.value
+                        });
                       }
                     }}
                   />
                 </Typography>
                 <Button
-                  label={'サブ出典追加'}
+                  label={'サブ出典' + (selectedSubSource.id === -1 ? '追加' : '更新')}
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
                   onClick={(e) =>
                     addEnglishWordSubSourceAPI({
-                      wordId: +id,
-                      subSourceName: inputSubSourceName,
-                      wordSubSourceData,
+                      wordDetail,
+                      subSourceData: selectedSubSource,
                       setMessage,
                       setModalIsOpen,
-                      setSubSourceName: setInputSubSourceName,
-                      setWordSubSourceData
+                      setSubSourceData: setSelectedSubSource,
+                      setWordDetail
+                    })
+                  }
+                />
+                <Button
+                  label={'サブ出典削除'}
+                  attr={'button-array'}
+                  variant="contained"
+                  color="primary"
+                  disabled={selectedSubSource.id === -1}
+                  onClick={(e) =>
+                    deleteEnglishWordSubSourceAPI({
+                      wordDetail,
+                      subSourceData: selectedSubSource,
+                      setMessage,
+                      setModalIsOpen,
+                      setSubSourceData: setSelectedSubSource,
+                      setWordDetail
                     })
                   }
                 />

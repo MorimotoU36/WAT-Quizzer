@@ -65,16 +65,17 @@ export const AppliedTabPanel = ({
           fullWidth
           maxRows={1}
           id="category"
-          value={queryOfPutQuizState.category || ''}
+          value={queryOfPutQuizState.quiz_category}
           onChange={(e) => {
             if (setQueryofPutQuizStater) {
               setQueryofPutQuizStater((prev) => ({
                 ...prev,
-                ['category']: e.target.value
+                ['quiz_category']: e.target.value
               }));
             }
           }}
         />
+        <p className={styles.notation}>※カテゴリはカンマ(,)区切りで書くこと</p>
       </Typography>
 
       <Typography variant="h6" component="h6" className={styles.messageBox}>
@@ -111,6 +112,28 @@ export const AppliedTabPanel = ({
             }
           }}
         />
+      </Typography>
+
+      <Typography variant="h6" component="h6" className={styles.messageBox}>
+        <label htmlFor="description">解説：</label>
+        <Input
+          fullWidth
+          maxRows={1}
+          id="description"
+          value={queryOfPutQuizState.explanation || ''}
+          onChange={(e) => {
+            if (setQueryofPutQuizStater) {
+              setQueryofPutQuizStater((prev) => ({
+                ...prev,
+                ['explanation']: e.target.value
+              }));
+            }
+          }}
+        />
+        <p className={styles.notation}>
+          ※選択肢を示したいときは正解文を<b>{'{c}'}</b>、ダミー選択肢１、２、３をそれぞれ<b>{'{d1},{d2},{d3}'}</b>
+          で書くこと
+        </p>
       </Typography>
     </CardContent>
   </TabPanel>

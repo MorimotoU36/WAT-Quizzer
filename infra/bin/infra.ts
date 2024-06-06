@@ -18,26 +18,22 @@ const certificateStack = new CertificateStack(app, `${env}CertificateStack`, {
   env,
   hostedZone: dnsStack.hostedZone
 })
+certificateStack.addDependency(dnsStack)
 
 const frontendStack = new FrontendStack(app, 'FrontendStack', {
   env
 })
 
-const backendStack = new BackendStack(app, 'BackendStack', {
-  env,
-  apiCertificate: certificateStack.apiCertificate,
-  hostedZone: dnsStack.hostedZone
-})
-
 const usEast1Stack = new UsEast1Stack(app, `UsEast1Stack`, {
   env,
   s3Bucket: frontendStack.s3Bucket,
-  restApi: backendStack.restApi,
   frontCertificate: certificateStack.frontCertificate,
   hostedZone: dnsStack.hostedZone
 })
-
-certificateStack.addDependency(dnsStack)
-backendStack.addDependency(certificateStack)
 usEast1Stack.addDependency(frontendStack)
-usEast1Stack.addDependency(backendStack)
+
+const backendStack = new BackendStack(app, 'BackendStack', {
+  env,
+  hostedZone: dnsStack.hostedZone
+})
+backendStack.addDependency(certificateStack)

@@ -3,20 +3,20 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Item } from '@/components/ui-elements/item/Item';
 import { Box, IconButton, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { Modal } from '@/components/ui-elements/modal/Modal';
-import { MessageState, PullDownOptionState, WordMeanData } from '../../../../../../interfaces/state';
+import { MessageState, PullDownOptionState, WordDetailData, WordMeanData } from '../../../../../../interfaces/state';
 import { style } from '../Stack.style';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { editEnglishWordMeanAPI } from '@/common/ButtonAPI';
+import { editEnglishWordMeanAPI } from '@/api/englishbot/editEnglishWordMeanAPI';
+import { deleteEnglishMeanAPI } from '@/api/englishbot/deleteEnglishMeanAPI';
 
 interface MeaningStackProps {
-  id: string;
   posList: PullDownOptionState[];
-  meanData: WordMeanData[];
+  wordDetail: WordDetailData;
   modalIsOpen: boolean;
   setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
+  setWordDetail?: React.Dispatch<React.SetStateAction<WordDetailData>>;
   setModalIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  setMeanData?: React.Dispatch<React.SetStateAction<WordMeanData[]>>;
 }
 
 // 品詞プルダウン表示、「その他」だったら入力用テキストボックスを出す
@@ -31,24 +31,26 @@ const displayPosInput = (
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
-        defaultValue={inputEditData?.partofspeechId || -1}
+        defaultValue={inputEditData?.partsofspeech.id || -1}
         label="partOfSpeech"
         key={i}
         sx={{ width: 1 }}
         onChange={(e) => {
-          const inputtedData = Object.assign({}, inputEditData);
-          inputtedData.partofspeechId = +e.target.value;
-          // TODO データ構造から見直す必要ありか
-          let posName = '';
+          let posData;
           for (let i = 0; i < posList.length; i++) {
             if (+posList[i].value === +e.target.value) {
-              posName = posList[i].label;
+              posData = posList[i];
               break;
             }
           }
-          inputtedData.partofspeechName = posName;
-          if (setInputEditData) {
-            setInputEditData(inputtedData);
+          if (setInputEditData && posData) {
+            setInputEditData({
+              ...inputEditData,
+              partsofspeech: {
+                id: +posData.value,
+                name: posData.label
+              }
+            });
           }
         }}
       >
@@ -66,32 +68,31 @@ const displayPosInput = (
 };
 
 export const MeaningStack = ({
-  id,
   posList,
-  meanData,
+  wordDetail,
   modalIsOpen,
   setMessage,
-  setModalIsOpen,
-  setMeanData
+  setWordDetail,
+  setModalIsOpen
 }: MeaningStackProps) => {
   const emptyWordMeanData = {
-    wordId: +id,
-    wordName: '',
-    wordmeanId: -1,
-    meanId: -1,
-    mean: '',
-    partofspeechId: -1,
-    partofspeechName: ''
+    partsofspeech: {
+      id: -1,
+      name: ''
+    },
+    id: -1,
+    wordmean_id: -1,
+    meaning: ''
   };
   const [inputEditData, setInputEditData] = useState<WordMeanData>(emptyWordMeanData);
-  const [meanDataIndex, setMeanDataIndex] = useState<number>(-1);
+  const [selectedMeanIndex, setSelectedMeanIndex] = useState<number>(-1); //仮
 
   const handleOpen = (x: WordMeanData, index: number) => {
-    setMeanDataIndex(index);
     if (setModalIsOpen) {
       setModalIsOpen(true);
     }
     setInputEditData(x);
+    setSelectedMeanIndex(index);
   };
   return (
     <>
@@ -101,17 +102,17 @@ export const MeaningStack = ({
         </Typography>
         <Box sx={{ width: '100%', padding: '4px' }}>
           <Stack spacing={2}>
-            {meanData.map((x, index) => {
+            {wordDetail.mean.map((x, index) => {
               return (
                 // eslint-disable-next-line react/jsx-key
-                <Item key={x.wordmeanId}>
+                <Item key={x.wordmean_id}>
                   <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography component="div">
                       <Typography align="left" sx={{ fontSize: 14 }} color="text.secondary" component="p">
-                        {`[${x.partofspeechName}]`}
+                        {`[${x.partsofspeech.name}]`}
                       </Typography>
                       <Typography align="left" variant="h5" component="p">
-                        {x.mean}
+                        {x.meaning}
                       </Typography>
                     </Typography>
                     <Typography component="div" sx={{ marginLeft: 'auto' }}>
@@ -121,15 +122,16 @@ export const MeaningStack = ({
                 </Item>
               );
             })}
+            {/* 意味の新規追加ボタン */}
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
               <IconButton
                 onClick={(e) =>
                   handleOpen(
                     {
                       ...emptyWordMeanData,
-                      wordmeanId:
-                        meanData.reduce(
-                          (previousValue, currentValue) => Math.max(previousValue, currentValue.wordmeanId),
+                      wordmean_id:
+                        wordDetail.mean.reduce(
+                          (previousValue, currentValue) => Math.max(previousValue, currentValue.wordmean_id),
                           -1
                         ) + 1
                     },
@@ -140,10 +142,11 @@ export const MeaningStack = ({
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
+            {/* 意味新規追加ボタン押すと出る意味編集モーダル */}
             <Modal isOpen={modalIsOpen} setIsOpen={setModalIsOpen}>
               <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h4" component="h4">
-                  意味編集
+                  {'意味' + (selectedMeanIndex === -1 ? '追加' : '更新')}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
                   品詞：
@@ -153,31 +156,48 @@ export const MeaningStack = ({
                   意味：
                   <TextField
                     variant="outlined"
-                    defaultValue={inputEditData?.mean || ''}
+                    defaultValue={inputEditData?.meaning || ''}
                     onChange={(e) => {
-                      const inputtedData = Object.assign({}, inputEditData);
-                      inputtedData.mean = e.target.value;
                       if (setInputEditData) {
-                        setInputEditData(inputtedData);
+                        setInputEditData({
+                          ...inputEditData,
+                          meaning: e.target.value
+                        });
                       }
                     }}
                   />
                 </Typography>
                 <Button
-                  label={'意味更新'}
+                  label={'意味' + (selectedMeanIndex === -1 ? '追加' : '更新')}
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
                   onClick={(e) =>
                     editEnglishWordMeanAPI({
-                      meanData,
-                      meanDataIndex,
+                      wordDetail,
                       inputEditData,
                       setMessage,
                       setModalIsOpen,
-                      setMeanDataIndex,
                       setInputEditData,
-                      setMeanData
+                      setWordDetail
+                    })
+                  }
+                />
+                <Button
+                  label={'意味削除'}
+                  attr={'button-array'}
+                  variant="contained"
+                  color="primary"
+                  disabled={selectedMeanIndex === -1}
+                  onClick={(e) =>
+                    deleteEnglishMeanAPI({
+                      word_id: wordDetail.id,
+                      mean_id: inputEditData.id,
+                      setMessage,
+                      setModalIsOpen,
+                      setWordDetail,
+                      setInputEditData,
+                      setSelectedMeanIndex
                     })
                   }
                 />

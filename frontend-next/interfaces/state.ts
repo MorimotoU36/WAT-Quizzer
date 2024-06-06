@@ -1,7 +1,14 @@
+// TODO stateはAPI responseの型とまとめたい　そしてこれもquizzer-libに持っていきたい
+// TODO というよりかはstateの型をAPIの型と一体化させたい
 export interface MessageState {
   message: string;
   messageColor: string;
   isDisplay?: boolean;
+}
+
+export interface LoginState {
+  username: string;
+  password: string;
 }
 
 export interface PullDownOptionState {
@@ -51,7 +58,7 @@ export interface QueryOfPutQuizState {
   formatValue?: number;
   question?: string;
   answer?: string;
-  category?: string;
+  quiz_category?: string;
   img_file?: string;
   matched_basic_quiz_id?: string;
   dummy1?: string; //四択問題のダミー選択肢１
@@ -115,38 +122,75 @@ export interface QueryOfSearchWordState {
   };
 }
 
+export interface FourChoiceData {
+  correct: {
+    mean: string;
+  };
+  dummy: {
+    mean: string;
+  }[];
+}
 export interface DisplayWordTestState {
   wordId?: number;
   wordName?: string;
-  choice?: {
-    correct: {
-      mean: string;
-    };
-    dummy: {
-      mean: string;
-    }[];
-  };
+  wordMean?: {
+    id: number;
+    word_id: number;
+    wordmean_id: number;
+    partsofspeech_id: number;
+    meaning: string;
+    created_at: Date;
+    updated_at: Date;
+    deleted_at: Date;
+  }[];
+  choice?: FourChoiceData;
+}
+
+export interface InputAddWordState {
+  wordName: string;
+  sourceId: number;
+  newSourceName?: string;
+  subSourceName: string;
 }
 
 export interface WordMeanData {
-  wordId: number;
-  wordName: string;
-  wordmeanId: number;
-  meanId: number;
-  mean: string;
-  partofspeechId: number;
-  partofspeechName: string;
+  partsofspeech: {
+    id: number;
+    name: string;
+  };
+  id: number;
+  wordmean_id: number;
+  meaning: string;
 }
 
 export interface WordSourceData {
-  wordId: number;
-  wordName: string;
-  sourceId: number;
-  sourceName: string;
+  word: {
+    id: number;
+    name: string;
+  };
+  source: {
+    id: number;
+    name: string;
+  }[];
 }
 
 export interface WordSubSourceData {
-  subSourceName: string;
+  id: number;
+  subsource: string;
+}
+
+export interface WordDetailData {
+  id: number;
+  name: string;
+  pronounce: string;
+  mean: WordMeanData[];
+  word_source: {
+    source: {
+      id: number;
+      name: string;
+    };
+  }[];
+  word_subsource: WordSubSourceData[];
 }
 
 export interface SayingState {

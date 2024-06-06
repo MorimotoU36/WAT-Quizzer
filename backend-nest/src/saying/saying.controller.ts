@@ -6,14 +6,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SayingService } from './saying.service';
 import {
-  AddBookDto,
-  AddSayingDto,
-  EditSayingDto,
-} from '../../interfaces/api/request/saying';
+  AddBookAPIRequestDto,
+  AddSayingAPIRequestDto,
+  EditSayingAPIRequestDto,
+} from 'quizzer-lib';
+// import { AuthGuard } from '../auth/auth.guard';
 
+// @UseGuards(AuthGuard)
 @Controller('saying')
 export class SayingController {
   constructor(private readonly sayingService: SayingService) {}
@@ -26,7 +29,7 @@ export class SayingController {
 
   // 啓発本追加
   @Post('/book')
-  async addBook(@Body() req: AddBookDto) {
+  async addBook(@Body() req: AddBookAPIRequestDto) {
     return await this.sayingService.addBookService(req);
   }
 
@@ -38,7 +41,7 @@ export class SayingController {
 
   // 格言追加
   @Post()
-  async addSaying(@Body() req: AddSayingDto) {
+  async addSaying(@Body() req: AddSayingAPIRequestDto) {
     return await this.sayingService.addSayingService(req);
   }
 
@@ -50,13 +53,13 @@ export class SayingController {
 
   // 格言編集
   @Patch()
-  async editSaying(@Body() req: EditSayingDto) {
+  async editSaying(@Body() req: EditSayingAPIRequestDto) {
     return await this.sayingService.editSayingService(req);
   }
 
   // 格言取得(格言ID指定)
   @Get('/:id')
   async getSayingById(@Param('id') id: number) {
-    return await this.sayingService.getSayingByIdService(id);
+    return await this.sayingService.getSayingByIdService(+id);
   }
 }

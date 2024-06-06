@@ -1,14 +1,14 @@
-import { GetAccuracyRateByCategoryServiceDto } from '../../../../../../interfaces/api/response';
+import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import { Chart } from 'react-google-charts';
 import styles from './AccuracyChart.module.css';
 
 interface AccuracyChartProps {
-  accuracyData: GetAccuracyRateByCategoryServiceDto;
+  accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
 }
 
 export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
   // データがない場合は何もしない
-  if (accuracyData.result.length === 0) {
+  if (accuracyData.result.length === 0 && accuracyData.checked_result.length === 0) {
     return <></>;
   }
 
@@ -38,7 +38,7 @@ export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
       // String(Math.round(parseFloat(category_rate[i].accuracy_rate) * 10) / 10) +
       String(Math.round(+category_rate[i].accuracy_rate * 10) / 10) + '% / ' + String(category_rate[i].count) + '問';
     visualized_data.push([
-      category_rate[i].c_category,
+      category_rate[i].category,
       // parseFloat(category_rate[i].accuracy_rate),
       +category_rate[i].accuracy_rate,
       '#76A7FA',

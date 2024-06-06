@@ -1,28 +1,33 @@
 import { Container, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getApiAndGetValue } from '@/common/API';
-import { WordApiResponse } from '../../../../interfaces/db';
+import { getApiAndGetValue } from '@/api/API';
 import { Layout } from '@/components/templates/layout/Layout';
-import { PullDownOptionState, WordMeanData, WordSourceData, WordSubSourceData } from '../../../../interfaces/state';
-import { getPartOfSpeechList, getSourceList } from '@/common/response';
+import { PullDownOptionState, WordDetailData } from '../../../../interfaces/state';
 import { Title } from '@/components/ui-elements/title/Title';
 import { MeaningStack } from '@/components/ui-forms/englishbot/detailWord/meaningStack/MeaningStack';
-import { getWordDetail, getWordSource, getWordSubSource } from '@/pages/api/english';
+import { getWordDetail } from '@/pages/api/english';
 import { SourceStack } from '@/components/ui-forms/englishbot/detailWord/sourceStack/SourceStack';
 import { SubSourceStack } from '@/components/ui-forms/englishbot/detailWord/subSourceStack/SubSourceStack';
 import { messageState } from '@/atoms/Message';
 import { useRecoilState } from 'recoil';
+import { getSourceListAPI } from '@/api/englishbot/getSourceListAPI';
+import { getPartOfSpeechListAPI } from '@/api/englishbot/getPartOfSpeechListAPI';
+import { GetWordNumResponseDto } from 'quizzer-lib';
 
 type EachWordPageProps = {
   id: string;
   isMock?: boolean;
 };
-
+// TODO dynamic routingだとファイル数膨大・単語追加のたびにデプロイ必要になるので不向き、Next.jsで何か別の使える機能ないか
 export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps) {
-  const [wordName, setWordName] = useState<string>('');
-  const [meanData, setMeanData] = useState<WordMeanData[]>([]);
-  const [wordSourceData, setWordSourceData] = useState<WordSourceData[]>([]);
-  const [wordSubSourceData, setWordSubSourceData] = useState<WordSubSourceData[]>([]);
+  const [wordDetail, setWordDetail] = useState<WordDetailData>({
+    id: -1,
+    name: '',
+    pronounce: '',
+    mean: [],
+    word_source: [],
+    word_subsource: []
+  });
   const [open, setOpen] = useState(false);
   const [subSourceModalOpen, setSubSourceModalOpen] = useState(false);
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
@@ -31,14 +36,16 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
   const [message, setMessage] = useRecoilState(messageState);
 
   useEffect(() => {
-    !isMock &&
+    if (!isMock) {
+      const accessToken = localStorage.getItem('apiAccessToken') || '';
       Promise.all([
-        getPartOfSpeechList(setMessage, setPosList),
-        getSourceList(setMessage, setSourcelistoption),
-        getWordDetail(id, setMessage, setWordName, setMeanData),
-        getWordSource(id, setMessage, setWordSourceData),
-        getWordSubSource(id, setMessage, setWordSubSourceData)
+        getPartOfSpeechListAPI(setMessage, setPosList, accessToken),
+        getSourceListAPI(setMessage, setSourcelistoption, accessToken),
+        getWordDetail(id, setMessage, setWordDetail, accessToken)
+        // getWordSource(id, setMessage, setWordSourceData),
+        // getWordSubSource(id, setMessage, setWordSubSourceData)
       ]);
+    }
   }, [id, isMock, setMessage]);
 
   const contents = () => {
@@ -47,35 +54,31 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
         <Title label="WAT Quizzer - englishBot"></Title>
 
         <Typography variant="h1" component="h1" color="common.black">
-          {wordName}
+          {wordDetail.name}
         </Typography>
 
         <MeaningStack
-          id={id}
           posList={posList}
-          meanData={meanData}
+          wordDetail={wordDetail}
           modalIsOpen={open}
           setMessage={setMessage}
+          setWordDetail={setWordDetail}
           setModalIsOpen={setOpen}
-          setMeanData={setMeanData}
         />
         <SourceStack
-          id={id}
-          meanData={meanData}
           sourceList={sourcelistoption}
-          wordSourceData={wordSourceData}
+          wordDetail={wordDetail}
           modalIsOpen={sourceModalOpen}
           setModalIsOpen={setSourceModalOpen}
           setMessage={setMessage}
-          setWordSourceData={setWordSourceData}
+          setWordDetail={setWordDetail}
         />
         <SubSourceStack
-          id={id}
-          wordSubSourceData={wordSubSourceData}
+          wordDetail={wordDetail}
           modalIsOpen={subSourceModalOpen}
           setModalIsOpen={setSubSourceModalOpen}
           setMessage={setMessage}
-          setWordSubSourceData={setWordSubSourceData}
+          setWordDetail={setWordDetail}
         />
       </Container>
     );
@@ -86,10 +89,6 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
       <Layout mode="englishBot" contents={contents()} title={'各単語詳細'} />
     </>
   );
-}
-
-export async function getAllWords() {
-  return await getApiAndGetValue('/english/word');
 }
 
 // getStaticPathsの返り値、各文書のファイルパス(dynamic routing([id])のためstring)
@@ -109,16 +108,23 @@ export async function getStaticProps({ params }: Params) {
 
 // 一番最初に実行される関数
 export async function getStaticPaths() {
-  const words: WordApiResponse[] = (await getAllWords()) as WordApiResponse[];
-  console.log('words num:', words.length);
+  const words: GetWordNumResponseDto = (await getApiAndGetValue(
+    '/english/word/num',
+    undefined,
+    'no needs'
+  )) as GetWordNumResponseDto;
+  console.log('words max id:', words._max.id);
   return {
-    paths: words.map((word) => {
-      return {
-        params: {
-          id: String(word.id)
-        }
-      };
-    }),
+    paths: new Array(words._max.id + 30)
+      .fill(0)
+      .map((_, i) => i)
+      .map((d) => {
+        return {
+          params: {
+            id: String(d + 1)
+          }
+        };
+      }),
     fallback: false
   };
 }

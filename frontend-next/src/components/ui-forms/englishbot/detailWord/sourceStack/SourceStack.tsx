@@ -3,21 +3,20 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Item } from '@/components/ui-elements/item/Item';
 import { Modal } from '@/components/ui-elements/modal/Modal';
 import { Box, IconButton, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { MessageState, PullDownOptionState, WordMeanData, WordSourceData } from '../../../../../../interfaces/state';
+import { MessageState, PullDownOptionState, WordDetailData, WordSourceData } from '../../../../../../interfaces/state';
 import { style } from '../Stack.style';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { editEnglishWordSourceAPI } from '@/common/ButtonAPI';
+import { editEnglishWordSourceAPI } from '@/api/englishbot/editEnglishWordSourceAPI';
+import { deleteEnglishWordSourceAPI } from '@/api/englishbot/deleteEnglishWordSourceAPI';
 
 interface SourceStackProps {
-  id: string;
-  meanData: WordMeanData[];
   sourceList: PullDownOptionState[];
-  wordSourceData: WordSourceData[];
+  wordDetail: WordDetailData;
   modalIsOpen: boolean;
   setModalIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
-  setWordSourceData?: React.Dispatch<React.SetStateAction<WordSourceData[]>>;
+  setWordDetail?: React.Dispatch<React.SetStateAction<WordDetailData>>;
 }
 
 // 出典プルダウン表示、「その他」だったら入力用テキストボックスを出す
@@ -56,24 +55,42 @@ const displaySourceInput = (
 };
 
 export const SourceStack = ({
-  id,
-  meanData,
   sourceList,
-  wordSourceData,
+  wordDetail,
   modalIsOpen,
   setModalIsOpen,
   setMessage,
-  setWordSourceData
+  setWordDetail
 }: SourceStackProps) => {
+  // TODO word-sourceの構造変えたらここも直したい
   const [selectedWordSourceIndex, setSelectedWordSourceIndex] = useState<number>(-1); //仮
   const [inputSourceId, setInputSourceId] = useState<number>(-1);
+  const [wordSourceData, setWordSourceData] = useState<WordSourceData>({
+    word: {
+      id: -1,
+      name: ''
+    },
+    source: []
+  });
 
-  const handleOpen = (x: WordSourceData, index: number) => {
+  useEffect(() => {
+    setWordSourceData({
+      word: {
+        id: wordDetail.id,
+        name: wordDetail.name
+      },
+      source: wordDetail.word_source.map((x) => {
+        return x.source;
+      })
+    });
+  }, [wordDetail.id, wordDetail.name, wordDetail.word_source]);
+
+  const handleOpen = (sourceId: number, index: number) => {
     if (setModalIsOpen) {
       setModalIsOpen(true);
     }
     setSelectedWordSourceIndex(index);
-    setInputSourceId(x.sourceId);
+    setInputSourceId(sourceId);
   };
   return (
     <>
@@ -83,64 +100,68 @@ export const SourceStack = ({
         </Typography>
         <Box sx={{ width: '100%', padding: '4px' }}>
           <Stack spacing={2}>
-            {wordSourceData.map((x, index) => {
+            {wordSourceData.source.map((x, index) => {
               return (
                 // eslint-disable-next-line react/jsx-key
-                <Item key={x.wordId}>
+                <Item key={x.id}>
                   <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography component="div">
                       <Typography align="left" variant="h5" component="p">
-                        {x.sourceName}
+                        {x.name}
                       </Typography>
                     </Typography>
                     <Typography component="div" sx={{ marginLeft: 'auto' }}>
-                      <Button label="編集" variant="outlined" onClick={(e) => handleOpen(x, index)} />
+                      <Button label="編集" variant="outlined" onClick={(e) => handleOpen(x.id, index)} />
                     </Typography>
                   </Typography>
                 </Item>
               );
             })}
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
-              <IconButton
-                onClick={(e) =>
-                  handleOpen(
-                    {
-                      wordId: +id,
-                      wordName: '',
-                      sourceId: -1,
-                      sourceName: ''
-                    },
-                    -1
-                  )
-                }
-              >
+              <IconButton onClick={(e) => handleOpen(-1, -1)}>
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
             <Modal isOpen={modalIsOpen} setIsOpen={setModalIsOpen}>
               <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h4" component="h4">
-                  出典編集
+                  {'出典' + (selectedWordSourceIndex === -1 ? '追加' : '更新')}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
                   出典：
                   {displaySourceInput(3, sourceList, inputSourceId, setInputSourceId)}
                 </Typography>
                 <Button
-                  label={'出典更新'}
+                  label={'出典' + (selectedWordSourceIndex === -1 ? '追加' : '更新')}
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
                   onClick={(e) =>
                     editEnglishWordSourceAPI({
-                      meanData,
-                      sourceList,
+                      wordDetail,
                       wordSourceData,
                       selectedWordSourceIndex,
                       inputSourceId,
                       setMessage,
                       setModalIsOpen,
-                      setWordSourceData
+                      setWordDetail
+                    })
+                  }
+                />
+                <Button
+                  label={'出典削除'}
+                  attr={'button-array'}
+                  variant="contained"
+                  color="primary"
+                  disabled={selectedWordSourceIndex === -1}
+                  onClick={(e) =>
+                    deleteEnglishWordSourceAPI({
+                      word_id: wordDetail.id,
+                      source_id: inputSourceId,
+                      setMessage,
+                      setModalIsOpen,
+                      setWordDetail,
+                      setSelectedWordSourceIndex
                     })
                   }
                 />
