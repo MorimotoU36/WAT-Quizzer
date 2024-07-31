@@ -6,9 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { EnglishWordService } from './word.service';
 import {
@@ -16,10 +14,15 @@ import {
   AddWordTestResultLogAPIRequestDto,
   EditWordSourceAPIRequestDto,
   EditWordMeanAPIRequestDto,
-  UpsertWordSubSourceAPIRequestDto,
+  EditWordSubSourceAPIRequestDto,
   DeleteWordSubSourceAPIRequestDto,
   DeleteWordSourceAPIRequestDto,
   DeleteMeanAPIRequestDto,
+  AddSynonymAPIRequestDto,
+  AddAntonymAPIRequestDto,
+  AddDerivativeAPIRequestDto,
+  LinkWordEtymologyAPIRequestDto,
+  AddEtymologyAPIRequestDto,
 } from 'quizzer-lib';
 // import { AuthGuard } from '../../auth/auth.guard';
 
@@ -32,9 +35,8 @@ export class EnglishWordController {
     return await this.englishWordService.getWordNumService();
   }
 
-  // TODO これパス名変えたい
   // @UseGuards(AuthGuard)
-  @Post('add')
+  @Post()
   async addWord(@Body() req: AddEnglishWordAPIRequestDto) {
     return await this.englishWordService.addWordAndMeanService(req);
   }
@@ -43,10 +45,12 @@ export class EnglishWordController {
   @Get('search')
   async searchWord(
     @Query('wordName') wordName: string,
+    @Query('meanQuery') meanQuery: string,
     @Query('subSourceName') subSourceName: string,
   ) {
     return await this.englishWordService.searchWordService(
       wordName,
+      meanQuery,
       subSourceName,
     );
   }
@@ -123,7 +127,7 @@ export class EnglishWordController {
 
   // @UseGuards(AuthGuard)
   @Post('subsource')
-  async addSubSourceOfWordById(@Body() req: UpsertWordSubSourceAPIRequestDto) {
+  async addSubSourceOfWordById(@Body() req: EditWordSubSourceAPIRequestDto) {
     return await this.englishWordService.upsertSubSourceOfWordById(req);
   }
 
@@ -145,6 +149,36 @@ export class EnglishWordController {
   @Get('summary')
   async getSummary() {
     return await this.englishWordService.getSummary();
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('synonym')
+  async addSynonym(@Body() req: AddSynonymAPIRequestDto) {
+    return await this.englishWordService.addSynonymService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('antonym')
+  async addAntonym(@Body() req: AddAntonymAPIRequestDto) {
+    return await this.englishWordService.addAntonymService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('derivative')
+  async addDerivative(@Body() req: AddDerivativeAPIRequestDto) {
+    return await this.englishWordService.addDerivativeService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('etymology')
+  async addEtymology(@Body() req: AddEtymologyAPIRequestDto) {
+    return await this.englishWordService.addEtymologyService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('etymology/link')
+  async linkWordEtymology(@Body() req: LinkWordEtymologyAPIRequestDto) {
+    return await this.englishWordService.linkWordEtymologyService(req);
   }
 
   /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */

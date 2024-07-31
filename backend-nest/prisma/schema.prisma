@@ -90,70 +90,30 @@ model example {
   created_at          DateTime       @default(now()) @db.Timestamp(6)
   updated_at          DateTime       @default(now()) @db.Timestamp(6)
   deleted_at          DateTime?      @db.Timestamp(6)
-  mean_example        mean_example[]
+  word_example        word_example[]
 }
 
-model idiom {
-  id         Int          @id @default(autoincrement())
-  word_id    Int
-  name       String       @db.VarChar(256)
-  created_at DateTime     @default(now()) @db.Timestamp(6)
-  updated_at DateTime     @default(now()) @db.Timestamp(6)
-  deleted_at DateTime?    @db.Timestamp(6)
-  word       word         @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  idiom_mean idiom_mean[]
-}
-
-model idiom_mean {
+model mean {
   id               Int           @id @default(autoincrement())
-  idiom_id         Int
-  idiommean_id     Int
+  word_id          Int
+  wordmean_id      Int
   partsofspeech_id Int
   meaning          String        @db.VarChar(256)
   created_at       DateTime      @default(now()) @db.Timestamp(6)
   updated_at       DateTime      @default(now()) @db.Timestamp(6)
   deleted_at       DateTime?     @db.Timestamp(6)
-  idiom            idiom         @relation(fields: [idiom_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   partsofspeech    partsofspeech @relation(fields: [partsofspeech_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([idiom_id, idiommean_id])
-}
-
-model mean {
-  id               Int            @id @default(autoincrement())
-  word_id          Int
-  wordmean_id      Int
-  partsofspeech_id Int
-  meaning          String         @db.VarChar(256)
-  created_at       DateTime       @default(now()) @db.Timestamp(6)
-  updated_at       DateTime       @default(now()) @db.Timestamp(6)
-  deleted_at       DateTime?      @db.Timestamp(6)
-  partsofspeech    partsofspeech  @relation(fields: [partsofspeech_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  word             word           @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  mean_example     mean_example[]
+  word             word          @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([word_id, wordmean_id])
 }
 
-model mean_example {
-  example_sentense_id Int
-  mean_id             Int
-  created_at          DateTime  @default(now()) @db.Timestamp(6)
-  updated_at          DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at          DateTime? @db.Timestamp(6)
-  example             example   @relation(fields: [example_sentense_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  mean                mean      @relation(fields: [mean_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([example_sentense_id, mean_id])
-}
-
 model partsofspeech {
-  id         Int          @id @default(autoincrement())
-  name       String       @db.VarChar(256)
-  created_at DateTime     @default(now()) @db.Timestamp(6)
-  updated_at DateTime     @default(now()) @db.Timestamp(6)
-  deleted_at DateTime?    @db.Timestamp(6)
-  idiom_mean idiom_mean[]
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(256)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
   mean       mean[]
 }
 
@@ -286,49 +246,102 @@ model word {
   updated_at            DateTime                @default(now()) @db.Timestamp(6)
   deleted_at            DateTime?               @db.Timestamp(6)
   englishbot_answer_log englishbot_answer_log[]
-  idiom                 idiom[]
   mean                  mean[]
   word_source           word_source[]
   word_subsource        word_subsource[]
   word_statistics_view  word_statistics_view?   @relation(fields: [id], references: [id])
+  word_example          word_example[]
+  synonym_original      synonym[]               @relation("synonym_original_id")
+  synonym_word          synonym[]               @relation("synonym_word_id")
+  antonym_original      antonym[]               @relation("antonym_original_id")
+  antonym_word          antonym[]               @relation("antonym_word_id")
+  derivative            derivative[]
+  word_etymology        word_etymology[]
 }
 
 model word_etymology {
-  id                      Int       @id @default(autoincrement())
-  word_etymology_group_id Int
-  word_id                 Int
-  created_at              DateTime  @default(now()) @db.Timestamp(6)
-  updated_at              DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at              DateTime? @db.Timestamp(6)
+  id           Int       @id @default(autoincrement())
+  etymology_id Int
+  word_id      Int
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at   DateTime? @db.Timestamp(6)
+  etymology    etymology @relation(fields: [etymology_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  word         word      @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([word_etymology_group_id, word_id])
+  @@unique([etymology_id, word_id])
 }
 
-model word_etymology_group {
-  id                        Int       @id @default(autoincrement())
-  word_etymology_group_name String    @db.VarChar(256)
-  created_at                DateTime  @default(now()) @db.Timestamp(6)
-  updated_at                DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at                DateTime? @db.Timestamp(6)
+model etymology {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(256)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+
+  word_etymology word_etymology[]
+
+  @@unique([name])
 }
 
-model word_similarity {
-  id                       Int       @id @default(autoincrement())
-  word_similarity_group_id Int
-  word_id                  Int
-  created_at               DateTime  @default(now()) @db.Timestamp(6)
-  updated_at               DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at               DateTime? @db.Timestamp(6)
+model word_example {
+  example_sentense_id Int
+  word_id             Int
+  created_at          DateTime  @default(now()) @db.Timestamp(6)
+  updated_at          DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at          DateTime? @db.Timestamp(6)
+  example             example   @relation(fields: [example_sentense_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  word                word      @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([word_similarity_group_id, word_id])
+  @@id([example_sentense_id, word_id])
 }
 
-model word_similarity_group {
-  id                         Int       @id @default(autoincrement())
-  word_similarity_group_name String    @db.VarChar(256)
-  created_at                 DateTime  @default(now()) @db.Timestamp(6)
-  updated_at                 DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at                 DateTime? @db.Timestamp(6)
+model synonym {
+  id               Int       @id @default(autoincrement())
+  word_id          Int
+  synonym_word_id  Int
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at       DateTime? @db.Timestamp(6)
+  synonym_original word?     @relation("synonym_original_id", fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  synonym_word     word?     @relation("synonym_word_id", fields: [synonym_word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([word_id, synonym_word_id])
+}
+
+model antonym {
+  id               Int       @id @default(autoincrement())
+  word_id          Int
+  antonym_word_id  Int
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+  deleted_at       DateTime? @db.Timestamp(6)
+  antonym_original word?     @relation("antonym_original_id", fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  antonym_word     word?     @relation("antonym_word_id", fields: [antonym_word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([word_id, antonym_word_id])
+}
+
+model derivative {
+  id                  Int              @id @default(autoincrement())
+  derivative_group_id Int
+  word_id             Int
+  created_at          DateTime         @default(now()) @db.Timestamp(6)
+  updated_at          DateTime         @default(now()) @db.Timestamp(6)
+  deleted_at          DateTime?        @db.Timestamp(6)
+  word                word             @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  derivative_group    derivative_group @relation(fields: [derivative_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([word_id])
+}
+
+model derivative_group {
+  id                    Int          @id @default(autoincrement())
+  derivative_group_name String       @db.VarChar(256)
+  created_at            DateTime     @default(now()) @db.Timestamp(6)
+  updated_at            DateTime     @default(now()) @db.Timestamp(6)
+  deleted_at            DateTime?    @db.Timestamp(6)
+  derivative            derivative[]
 }
 
 model word_source {

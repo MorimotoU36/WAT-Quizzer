@@ -66,11 +66,20 @@ export interface FourChoiceAPIResponseDto extends ApiResponse {
       id: number
       word_id: number
       wordmean_id: number
-      partsofspeech_id: number
       meaning: string
       created_at: Date
       updated_at: Date
       deleted_at: Date
+      partsofspeech: {
+        id: number
+        name: string
+      }
+    }[]
+    word_source: {
+      source: {
+        id: number
+        name: string
+      }
     }[]
   }
   correct: {

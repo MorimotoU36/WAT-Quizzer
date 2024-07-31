@@ -1,18 +1,21 @@
-import { Container, Typography } from '@mui/material';
+import { CircularProgress, Container, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getApiAndGetValue } from '@/api/API';
 import { Layout } from '@/components/templates/layout/Layout';
-import { PullDownOptionState, WordDetailData } from '../../../../interfaces/state';
+import { PullDownOptionState } from '../../../../interfaces/state';
 import { Title } from '@/components/ui-elements/title/Title';
 import { MeaningStack } from '@/components/ui-forms/englishbot/detailWord/meaningStack/MeaningStack';
-import { getWordDetail } from '@/pages/api/english';
 import { SourceStack } from '@/components/ui-forms/englishbot/detailWord/sourceStack/SourceStack';
 import { SubSourceStack } from '@/components/ui-forms/englishbot/detailWord/subSourceStack/SubSourceStack';
 import { messageState } from '@/atoms/Message';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { getSourceListAPI } from '@/api/englishbot/getSourceListAPI';
 import { getPartOfSpeechListAPI } from '@/api/englishbot/getPartOfSpeechListAPI';
-import { GetWordNumResponseDto } from 'quizzer-lib';
+import { GetWordNumResponseDto, GetWordDetailAPIResponseDto, getWordDetailAPI } from 'quizzer-lib';
+import { SynonymStack } from '@/components/ui-forms/englishbot/detailWord/synonymStack/SynonymStack';
+import { AntonymStack } from '@/components/ui-forms/englishbot/detailWord/antonymStack/AntonymStack';
+import { DerivativeStack } from '@/components/ui-forms/englishbot/detailWord/derivativeStack/DerivativeStack';
+import { EtymologyStack } from '@/components/ui-forms/englishbot/detailWord/etymologyStack/EtymologyStack';
 
 type EachWordPageProps = {
   id: string;
@@ -20,31 +23,36 @@ type EachWordPageProps = {
 };
 // TODO dynamic routingだとファイル数膨大・単語追加のたびにデプロイ必要になるので不向き、Next.jsで何か別の使える機能ないか
 export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps) {
-  const [wordDetail, setWordDetail] = useState<WordDetailData>({
+  const initWordDetailData = {
     id: -1,
     name: '',
     pronounce: '',
     mean: [],
     word_source: [],
-    word_subsource: []
-  });
-  const [open, setOpen] = useState(false);
-  const [subSourceModalOpen, setSubSourceModalOpen] = useState(false);
-  const [sourceModalOpen, setSourceModalOpen] = useState(false);
+    word_subsource: [],
+    synonym_original: [],
+    synonym_word: [],
+    antonym_original: [],
+    antonym_word: [],
+    derivative: [],
+    word_etymology: []
+  };
+  const [wordDetail, setWordDetail] = useState<GetWordDetailAPIResponseDto>(initWordDetailData);
   const [posList, setPosList] = useState<PullDownOptionState[]>([]);
   const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionState[]>([]);
-  const [message, setMessage] = useRecoilState(messageState);
+  const setMessage = useSetRecoilState(messageState);
 
   useEffect(() => {
     if (!isMock) {
       const accessToken = localStorage.getItem('apiAccessToken') || '';
       Promise.all([
         getPartOfSpeechListAPI(setMessage, setPosList, accessToken),
-        getSourceListAPI(setMessage, setSourcelistoption, accessToken),
-        getWordDetail(id, setMessage, setWordDetail, accessToken)
-        // getWordSource(id, setMessage, setWordSourceData),
-        // getWordSubSource(id, setMessage, setWordSubSourceData)
+        getSourceListAPI(setMessage, setSourcelistoption, accessToken)
       ]);
+      (async () => {
+        const result = (await getWordDetailAPI({ id })).result as GetWordDetailAPIResponseDto;
+        setWordDetail(result);
+      })();
     }
   }, [id, isMock, setMessage]);
 
@@ -53,33 +61,27 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
       <Container>
         <Title label="WAT Quizzer - englishBot"></Title>
 
-        <Typography variant="h1" component="h1" color="common.black">
-          {wordDetail.name}
-        </Typography>
+        {wordDetail.id === -1 ? (
+          <CircularProgress />
+        ) : (
+          <Typography variant="h1" component="h1" color="common.black">
+            {wordDetail.name}
+          </Typography>
+        )}
 
-        <MeaningStack
-          posList={posList}
-          wordDetail={wordDetail}
-          modalIsOpen={open}
-          setMessage={setMessage}
-          setWordDetail={setWordDetail}
-          setModalIsOpen={setOpen}
-        />
+        {/* TODO スタックは共通化できる？ */}
+        <MeaningStack posList={posList} wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
         <SourceStack
           sourceList={sourcelistoption}
           wordDetail={wordDetail}
-          modalIsOpen={sourceModalOpen}
-          setModalIsOpen={setSourceModalOpen}
           setMessage={setMessage}
           setWordDetail={setWordDetail}
         />
-        <SubSourceStack
-          wordDetail={wordDetail}
-          modalIsOpen={subSourceModalOpen}
-          setModalIsOpen={setSubSourceModalOpen}
-          setMessage={setMessage}
-          setWordDetail={setWordDetail}
-        />
+        <SubSourceStack wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
+        <SynonymStack wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
+        <AntonymStack wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
+        <DerivativeStack wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
+        <EtymologyStack wordDetail={wordDetail} setMessage={setMessage} setWordDetail={setWordDetail} />
       </Container>
     );
   };

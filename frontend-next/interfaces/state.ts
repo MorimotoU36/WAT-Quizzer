@@ -115,13 +115,6 @@ export interface QueryOfGetWordState {
   };
 }
 
-export interface QueryOfSearchWordState {
-  query: string;
-  subSource?: {
-    query?: string;
-  };
-}
-
 export interface FourChoiceData {
   correct: {
     mean: string;
@@ -137,20 +130,22 @@ export interface DisplayWordTestState {
     id: number;
     word_id: number;
     wordmean_id: number;
-    partsofspeech_id: number;
     meaning: string;
     created_at: Date;
     updated_at: Date;
     deleted_at: Date;
+    partsofspeech: {
+      id: number;
+      name: string;
+    };
+  }[];
+  wordSource?: {
+    source: {
+      id: number;
+      name: string;
+    };
   }[];
   choice?: FourChoiceData;
-}
-
-export interface InputAddWordState {
-  wordName: string;
-  sourceId: number;
-  newSourceName?: string;
-  subSourceName: string;
 }
 
 export interface WordMeanData {
@@ -177,6 +172,7 @@ export interface WordSourceData {
 export interface WordSubSourceData {
   id: number;
   subsource: string;
+  created_at: string;
 }
 
 export interface WordDetailData {

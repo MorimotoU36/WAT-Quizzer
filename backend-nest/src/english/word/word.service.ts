@@ -6,10 +6,15 @@ import {
   EditWordSourceAPIRequestDto,
   EditWordMeanAPIRequestDto,
   getRandomElementsFromArray,
-  UpsertWordSubSourceAPIRequestDto,
+  EditWordSubSourceAPIRequestDto,
   DeleteWordSubSourceAPIRequestDto,
   DeleteWordSourceAPIRequestDto,
   DeleteMeanAPIRequestDto,
+  AddSynonymAPIRequestDto,
+  AddAntonymAPIRequestDto,
+  AddDerivativeAPIRequestDto,
+  LinkWordEtymologyAPIRequestDto,
+  AddEtymologyAPIRequestDto,
 } from 'quizzer-lib';
 import { PrismaClient } from '@prisma/client';
 export const prisma: PrismaClient = new PrismaClient();
@@ -20,7 +25,7 @@ export class EnglishWordService {
   async addWordAndMeanService(req: AddEnglishWordAPIRequestDto) {
     const { inputWord, pronounce, meanArrayData } = req;
     try {
-      // //トランザクション実行準備
+      // トランザクション実行準備
       await prisma.$transaction(async (prisma) => {
         //単語追加
         const addWordResult = await prisma.word.create({
@@ -60,6 +65,16 @@ export class EnglishWordService {
             });
             sourceId = result.id;
           }
+        }
+
+        // 単語出典追加（登録されてない場合(-1)は登録しない）
+        if (sourceId !== -1) {
+          await prisma.word_source.create({
+            data: {
+              word_id: wordWillId,
+              source_id: sourceId,
+            },
+          });
         }
 
         // サブ出典追加
@@ -112,15 +127,6 @@ export class EnglishWordService {
               meaning: meanArrayData[i].meaning,
             },
           });
-          // 単語出典追加（登録されてない場合(-1)は登録しない）
-          if (sourceId !== -1) {
-            await prisma.word_source.create({
-              data: {
-                word_id: wordWillId,
-                source_id: sourceId,
-              },
-            });
-          }
         }
       });
 
@@ -138,7 +144,11 @@ export class EnglishWordService {
   }
 
   // 単語検索
-  async searchWordService(wordName: string, subSourceName: string) {
+  async searchWordService(
+    wordName: string,
+    meanQuery: string,
+    subSourceName: string,
+  ) {
     try {
       const result = await prisma.word.findMany({
         select: {
@@ -152,18 +162,33 @@ export class EnglishWordService {
           },
         },
         where: {
-          name: {
-            contains: wordName,
-          },
-          ...(subSourceName && {
-            word_subsource: {
-              every: {
-                subsource: {
-                  contains: subSourceName,
+          AND: [
+            {
+              ...(wordName && {
+                name: {
+                  contains: wordName,
                 },
-              },
+              }),
+              ...(meanQuery && {
+                mean: {
+                  some: {
+                    meaning: {
+                      contains: meanQuery,
+                    },
+                  },
+                },
+              }),
+              ...(subSourceName && {
+                word_subsource: {
+                  some: {
+                    subsource: {
+                      contains: subSourceName,
+                    },
+                  },
+                },
+              }),
             },
-          }),
+          ],
         },
         orderBy: {
           name: 'asc',
@@ -324,7 +349,33 @@ export class EnglishWordService {
         select: {
           id: true,
           name: true,
-          mean: true,
+          mean: {
+            select: {
+              id: true,
+              word_id: true,
+              wordmean_id: true,
+              meaning: true,
+              created_at: true,
+              updated_at: true,
+              deleted_at: true,
+              partsofspeech: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_source: {
+            select: {
+              source: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
         where: {
           word_source: {
@@ -362,8 +413,13 @@ export class EnglishWordService {
             id: true,
             word_id: true,
             wordmean_id: true,
-            partsofspeech_id: true,
             meaning: true,
+            partsofspeech: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
           where: {
             word_id: {
@@ -379,6 +435,7 @@ export class EnglishWordService {
           id: testWord.id,
           name: testWord.name,
           mean: testWord.mean,
+          word_source: testWord.word_source,
         },
         correct: {
           mean: getRandomElementsFromArray(testWord.mean, 1)[0].meaning,
@@ -432,7 +489,33 @@ export class EnglishWordService {
         select: {
           id: true,
           name: true,
-          mean: true,
+          mean: {
+            select: {
+              id: true,
+              word_id: true,
+              wordmean_id: true,
+              meaning: true,
+              created_at: true,
+              updated_at: true,
+              deleted_at: true,
+              partsofspeech: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_source: {
+            select: {
+              source: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
         where: {
           word_source: {
@@ -477,8 +560,13 @@ export class EnglishWordService {
             id: true,
             word_id: true,
             wordmean_id: true,
-            partsofspeech_id: true,
             meaning: true,
+            partsofspeech: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
           where: {
             word_id: {
@@ -494,6 +582,7 @@ export class EnglishWordService {
           id: lruResult.id,
           name: lruResult.name,
           mean: lruResult.mean,
+          word_source: lruResult.word_source,
         },
         correct: {
           mean: getRandomElementsFromArray(lruResult.mean, 1)[0].meaning,
@@ -625,7 +714,7 @@ export class EnglishWordService {
   }
 
   // 単語のサブ出典追加更新
-  async upsertSubSourceOfWordById(req: UpsertWordSubSourceAPIRequestDto) {
+  async upsertSubSourceOfWordById(req: EditWordSubSourceAPIRequestDto) {
     try {
       const { id, wordId, subSource } = req;
       return await prisma.word_subsource.upsert({
@@ -799,6 +888,80 @@ export class EnglishWordService {
             select: {
               id: true,
               subsource: true,
+              created_at: true,
+            },
+          },
+          synonym_original: {
+            select: {
+              word_id: true,
+              synonym_word_id: true,
+              synonym_word: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          synonym_word: {
+            select: {
+              word_id: true,
+              synonym_word_id: true,
+              synonym_original: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          antonym_original: {
+            select: {
+              word_id: true,
+              antonym_word_id: true,
+              antonym_word: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          antonym_word: {
+            select: {
+              word_id: true,
+              antonym_word_id: true,
+              antonym_original: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          derivative: {
+            select: {
+              derivative_group_id: true,
+              derivative_group: {
+                select: {
+                  derivative: {
+                    select: {
+                      word_id: true,
+                      word: {
+                        select: {
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          word_etymology: {
+            select: {
+              etymology: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -866,6 +1029,261 @@ export class EnglishWordService {
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 類義語を追加する
+  async addSynonymService(req: AddSynonymAPIRequestDto) {
+    try {
+      const { wordId, synonymWordName } = req;
+      // まず入力単語あるか確認;
+      const synonymWordData = await prisma.word.findFirst({
+        where: {
+          name: synonymWordName,
+        },
+      });
+      // 存在しない場合エラー
+      if (!synonymWordData) {
+        throw new HttpException(
+          `入力単語(${synonymWordName}})は存在しません`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // 逆の組み合わせで登録されていたらエラー出す
+      const isReverseData = await prisma.synonym.findUnique({
+        where: {
+          word_id_synonym_word_id: {
+            word_id: synonymWordData.id,
+            synonym_word_id: wordId,
+          },
+        },
+      });
+      if (isReverseData) {
+        throw new HttpException(
+          `その組み合わせはすでに登録されています`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // 類義語データ登録
+      return await prisma.synonym.create({
+        data: {
+          word_id: wordId,
+          synonym_word_id: synonymWordData.id,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 対義語を追加する
+  async addAntonymService(req: AddAntonymAPIRequestDto) {
+    try {
+      const { wordId, antonymWordName } = req;
+      // まず入力単語あるか確認;
+      const antonymWordData = await prisma.word.findFirst({
+        where: {
+          name: antonymWordName,
+        },
+      });
+      // 存在しない場合エラー
+      if (!antonymWordData) {
+        throw new HttpException(
+          `入力単語(${antonymWordName}})は存在しません`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // 逆の組み合わせで登録されていたらエラー出す
+      const isReverseData = await prisma.antonym.findUnique({
+        where: {
+          word_id_antonym_word_id: {
+            word_id: antonymWordData.id,
+            antonym_word_id: wordId,
+          },
+        },
+      });
+      if (isReverseData) {
+        throw new HttpException(
+          `その組み合わせはすでに登録されています`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // 対義語データ登録
+      return await prisma.antonym.create({
+        data: {
+          word_id: wordId,
+          antonym_word_id: antonymWordData.id,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 派生語を追加する
+  async addDerivativeService(req: AddDerivativeAPIRequestDto) {
+    try {
+      const { wordName, derivativeName } = req;
+      // まず入力単語あるか確認;
+      const derivativeData = await prisma.word.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          name: derivativeName,
+        },
+      });
+      // 存在しない場合エラー
+      if (!derivativeData) {
+        throw new HttpException(
+          `入力単語(${derivativeName}})は存在しません`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // 元単語の派生語グループIDを取得
+      const wordData = await prisma.word.findFirst({
+        select: {
+          id: true,
+          derivative: {
+            select: {
+              derivative_group_id: true,
+            },
+          },
+        },
+        where: {
+          name: wordName,
+        },
+      });
+
+      //トランザクション実行準備
+      // TODO もし元単語と派生語が既にグループIDを持っていてかつ両方違うものだった場合・・エラー起こる
+      const result = [];
+      await prisma.$transaction(async (prisma) => {
+        if (wordData.derivative.length > 0) {
+          // 元単語にすでに派生語データがあるとき -> その派生語グループに登録
+          result.push(
+            await prisma.derivative.create({
+              data: {
+                derivative_group_id: wordData.derivative[0].derivative_group_id,
+                word_id: derivativeData.id,
+              },
+            }),
+          );
+        } else {
+          // 元単語に派生語データがない時
+          // 派生語グループにデータ登録
+          const groupData = await prisma.derivative_group.create({
+            data: {
+              derivative_group_name: wordName,
+            },
+          });
+          // 元単語をそのグループにまず登録
+          result.push(
+            await prisma.derivative.create({
+              data: {
+                derivative_group_id: groupData.id,
+                word_id: wordData.id,
+              },
+            }),
+          );
+          // 入力した派生語をグループに登録
+          result.push(
+            await prisma.derivative.create({
+              data: {
+                derivative_group_id: groupData.id,
+                word_id: derivativeData.id,
+              },
+            }),
+          );
+        }
+      });
+
+      return result;
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 単語と語源を紐付けする
+  async linkWordEtymologyService(req: LinkWordEtymologyAPIRequestDto) {
+    try {
+      const { etymologyName, wordId } = req;
+      // まず入力語源名あるか確認;
+      const etymologyData = await prisma.etymology.findUnique({
+        where: {
+          name: etymologyName,
+        },
+      });
+      // 存在しない場合エラー
+      if (!etymologyData) {
+        throw new HttpException(
+          `入力語源名(${etymologyName}})は存在しません`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // 単語-語源紐付けデータ登録
+      return await prisma.word_etymology.create({
+        data: {
+          etymology_id: etymologyData.id,
+          word_id: wordId,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 語源を追加する
+  async addEtymologyService(req: AddEtymologyAPIRequestDto) {
+    try {
+      const { etymologyName } = req;
+      // 語源新規登録
+      return await prisma.etymology.create({
+        data: {
+          name: etymologyName,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
         throw new HttpException(
           error.message,
           HttpStatus.INTERNAL_SERVER_ERROR,

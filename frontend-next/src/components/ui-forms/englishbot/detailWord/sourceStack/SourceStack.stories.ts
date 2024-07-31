@@ -26,8 +26,13 @@ export const Main: Story = {
       pronounce: '発音',
       mean: [],
       word_source: [],
-      word_subsource: []
-    },
-    modalIsOpen: false
+      word_subsource: [],
+      synonym_original: [],
+      synonym_word: [],
+      antonym_original: [],
+      antonym_word: [],
+      derivative: [],
+      word_etymology: []
+    }
   }
 };
