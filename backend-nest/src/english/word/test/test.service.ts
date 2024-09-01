@@ -1,0 +1,354 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { getDateForSqlString } from 'lib/str';
+import { PrismaClient } from '@prisma/client';
+import {
+  getPastDate,
+  getPrismaPastDayRange,
+  getRandomElementsFromArray,
+  parseStrToBool,
+} from 'quizzer-lib';
+export const prisma: PrismaClient = new PrismaClient();
+
+@Injectable()
+export class EnglishWordTestService {
+  // 四択問題テストで利用するデータ（ランダム単語・ダミー選択肢）を取得する
+  async getTestDataOfFourChoice(
+    source: string,
+    startDate: string,
+    endDate: string,
+    checked: string,
+  ) {
+    try {
+      // サブ出典・日時に関するクエリ
+      const startDateQuery = startDate
+        ? {
+            gte: new Date(getDateForSqlString(startDate)),
+          }
+        : {};
+      const endDateTomorrow = new Date(getDateForSqlString(endDate));
+      endDateTomorrow.setDate(endDateTomorrow.getDate() + 1);
+      const endDateQuery = endDate
+        ? {
+            lt: endDateTomorrow,
+          }
+        : {};
+      const subSourceQuery =
+        startDate && endDate
+          ? { ...startDateQuery, ...endDateQuery }
+          : startDate
+          ? startDateQuery
+          : endDate
+          ? endDateQuery
+          : null;
+      // ランダム取得
+      const randomResult = await prisma.word.findMany({
+        select: {
+          id: true,
+          name: true,
+          checked: true,
+          mean: {
+            select: {
+              id: true,
+              word_id: true,
+              wordmean_id: true,
+              meaning: true,
+              created_at: true,
+              updated_at: true,
+              deleted_at: true,
+              partsofspeech: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_source: {
+            select: {
+              source: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_statistics_view: {
+            select: {
+              accuracy_rate: true,
+            },
+          },
+        },
+        where: {
+          word_source: {
+            ...(source &&
+              +source !== -1 && {
+                some: {},
+                every: {
+                  source_id: +source,
+                },
+              }),
+          },
+          word_subsource: {
+            ...(subSourceQuery && {
+              some: {},
+              every: {
+                created_at: subSourceQuery,
+              },
+            }),
+          },
+          ...(parseStrToBool(checked)
+            ? {
+                checked: true,
+              }
+            : {}),
+        },
+      });
+      if (randomResult.length === 0) {
+        throw new HttpException(
+          '条件に該当するデータはありません',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      // 結果からランダムに1つ取得して返す
+      const testWord = getRandomElementsFromArray(randomResult, 1)[0];
+
+      // ダミー選択肢用の意味を取得
+      const dummyOptions = getRandomElementsFromArray(
+        await prisma.mean.findMany({
+          select: {
+            id: true,
+            word_id: true,
+            wordmean_id: true,
+            meaning: true,
+            partsofspeech: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          where: {
+            word_id: {
+              not: testWord.id,
+            },
+          },
+        }),
+        3,
+      );
+
+      return {
+        word: {
+          id: testWord.id,
+          name: testWord.name,
+          mean: testWord.mean,
+          checked: testWord.checked,
+          word_source: testWord.word_source,
+          word_statistics_view: {
+            accuracy_rate:
+              testWord.word_statistics_view.accuracy_rate.toString(),
+          },
+        },
+        correct: {
+          mean: getRandomElementsFromArray(testWord.mean, 1)[0].meaning,
+        },
+        dummy: dummyOptions.map((x) => ({
+          mean: x.meaning,
+        })),
+      };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 四択問題テストで利用するデータ（ランダム単語・ダミー選択肢。LRU（最も出題されてないもの））を取得する
+  async getLRUTestDataOfFourChoice(
+    source: string,
+    startDate: string,
+    endDate: string,
+    checked: string,
+  ) {
+    try {
+      // サブ出典・日時に関するクエリ
+      const startDateQuery = startDate
+        ? {
+            gte: new Date(getDateForSqlString(startDate)),
+          }
+        : {};
+      const endDateTomorrow = new Date(getDateForSqlString(endDate));
+      endDateTomorrow.setDate(endDateTomorrow.getDate() + 1);
+      const endDateQuery = endDate
+        ? {
+            lt: endDateTomorrow,
+          }
+        : {};
+      const subSourceQuery =
+        startDate && endDate
+          ? { ...startDateQuery, ...endDateQuery }
+          : startDate
+          ? startDateQuery
+          : endDate
+          ? endDateQuery
+          : null;
+      // LRU取得
+      const lruResult = await prisma.word.findFirst({
+        select: {
+          id: true,
+          name: true,
+          checked: true,
+          mean: {
+            select: {
+              id: true,
+              word_id: true,
+              wordmean_id: true,
+              meaning: true,
+              created_at: true,
+              updated_at: true,
+              deleted_at: true,
+              partsofspeech: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_source: {
+            select: {
+              source: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          word_statistics_view: {
+            select: {
+              accuracy_rate: true,
+            },
+          },
+        },
+        where: {
+          word_source: {
+            ...(source &&
+              +source !== -1 && {
+                some: {},
+                every: {
+                  source_id: +source,
+                },
+              }),
+          },
+          word_subsource: {
+            ...(subSourceQuery && {
+              some: {},
+              every: {
+                created_at: subSourceQuery,
+              },
+            }),
+          },
+          ...(parseStrToBool(checked)
+            ? {
+                checked: true,
+              }
+            : {}),
+        },
+        orderBy: [
+          {
+            word_statistics_view: {
+              last_answer_log: {
+                sort: 'asc',
+                nulls: 'first',
+              },
+            },
+          },
+        ],
+      });
+      if (!lruResult) {
+        throw new HttpException(
+          '条件に該当するデータはありません',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      // ダミー選択肢用の意味を取得
+      const dummyOptions = getRandomElementsFromArray(
+        await prisma.mean.findMany({
+          select: {
+            id: true,
+            word_id: true,
+            wordmean_id: true,
+            meaning: true,
+            partsofspeech: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          where: {
+            word_id: {
+              not: lruResult.id,
+            },
+          },
+        }),
+        3,
+      );
+
+      return {
+        word: {
+          id: lruResult.id,
+          name: lruResult.name,
+          mean: lruResult.mean,
+          checked: lruResult.checked,
+          word_source: lruResult.word_source,
+          word_statistics_view: {
+            accuracy_rate:
+              lruResult.word_statistics_view.accuracy_rate.toString(),
+          },
+        },
+        correct: {
+          mean: getRandomElementsFromArray(lruResult.mean, 1)[0].meaning,
+        },
+        dummy: dummyOptions.map((x) => ({
+          mean: x.meaning,
+        })),
+      };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      } else if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 過去１週間各日の回答数取得
+  async getWordTestLogStatisticsPastWeek() {
+    try {
+      const result = [];
+      for (let i = 0; i < 7; i++) {
+        result.push({
+          date: getPastDate(i),
+          count: await prisma.englishbot_answer_log.count({
+            where: {
+              created_at: getPrismaPastDayRange(i),
+            },
+          }),
+        });
+      }
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+}

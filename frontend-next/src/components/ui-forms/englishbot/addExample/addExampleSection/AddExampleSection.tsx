@@ -5,25 +5,25 @@ import commonStyles from '../../../../common.module.css';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { AddExampleAPIRequestDto, submitExampleSentenseAPI } from 'quizzer-lib';
 import { Button } from '@/components/ui-elements/button/Button';
-import { MessageState } from '../../../../../../interfaces/state';
+import { messageState } from '@/atoms/Message';
+import { useSetRecoilState } from 'recoil';
 
-interface AddExampleSectionProps {
-  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
-}
+interface AddExampleSectionProps {}
 
-export const AddExampleSection = ({ setMessage }: AddExampleSectionProps) => {
+export const AddExampleSection = ({}: AddExampleSectionProps) => {
   const [addExampleData, setAddExampleData] = useState<AddExampleAPIRequestDto>({
     exampleEn: '',
     exampleJa: '',
     wordName: ''
   });
+  const setMessage = useSetRecoilState(messageState);
 
   return (
     <>
       <Card variant="outlined" attr="margin-vertical" header="例文追加">
         <CardContent>
           <Card variant="outlined">
-            <CardHeader subheader="英単語名" />
+            <CardHeader subheader="英単語名(紐づける場合)" />
             <CardContent className={commonStyles.cardContent}>
               <TextField
                 label="英単語名"
@@ -68,6 +68,21 @@ export const AddExampleSection = ({ setMessage }: AddExampleSectionProps) => {
                 id={'addExampleJaField'}
               />
             </CardContent>
+            <CardHeader subheader="解説(あれば)" />
+            <CardContent className={commonStyles.cardContent}>
+              <TextField
+                label="解説(英文法など)"
+                variant="outlined"
+                setStater={(value: string) => {
+                  setAddExampleData({
+                    ...addExampleData,
+                    explanation: value
+                  });
+                }}
+                className={['fullWidth']}
+                id={'addExplanationField'}
+              />
+            </CardContent>
           </Card>
         </CardContent>
         <Button
@@ -92,14 +107,6 @@ export const AddExampleSection = ({ setMessage }: AddExampleSectionProps) => {
                   isDisplay: true
                 });
               return;
-            } else if (addExampleData.wordName === '') {
-              setMessage &&
-                setMessage({
-                  message: 'エラー:単語または意味へのチェック指定がありません',
-                  messageColor: 'error',
-                  isDisplay: true
-                });
-              return;
             }
             setMessage && setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
             const result = await submitExampleSentenseAPI({ addExampleData });
@@ -112,13 +119,15 @@ export const AddExampleSection = ({ setMessage }: AddExampleSectionProps) => {
                 wordName: ''
               });
               // 入力データをクリア
-              // TODO javascript形式でやるんじゃなくて　コンポーネントの方に削除する関数とか組み入れてやらせたい
-              ['addExampleEnField', 'addExampleJaField', 'addExampleToWordName'].forEach((value) => {
-                const inputField = document.getElementById(value) as HTMLTextAreaElement;
-                if (inputField) {
-                  inputField.value = '';
+              // TODO javascript形式でやるんじゃなくて　コンポーネントの方に削除する関数とか組み入れてやらせたい -> これはinputのvalueにstateを指定してやるだけで良さそうなきが
+              ['addExampleEnField', 'addExampleJaField', 'addExampleToWordName', 'addExplanationField'].forEach(
+                (value) => {
+                  const inputField = document.getElementById(value) as HTMLTextAreaElement;
+                  if (inputField) {
+                    inputField.value = '';
+                  }
                 }
-              });
+              );
             }
           }}
         />

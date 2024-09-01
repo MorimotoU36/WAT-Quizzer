@@ -1,6 +1,6 @@
-import React from 'react';
-import { FormControl, FormGroup } from '@mui/material';
-import { PullDownOptionState, QueryOfGetWordState } from '../../../../../../interfaces/state';
+import React, { useState } from 'react';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, Typography } from '@mui/material';
+import { PullDownOptionState } from '../../../../../../interfaces/state';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,97 +8,160 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import styles from './GetWordQueryForm.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { RadioGroup } from '@/components/ui-parts/radioGroup/RadioGroup';
+import { Button } from '@/components/ui-elements/button/Button';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
+import {
+  getDateForSqlString,
+  getEnglishWordTestDataAPI,
+  GetEnglishWordTestDataAPIRequestDto,
+  GetEnglishWordTestDataAPIResponseDto,
+  parseStrToBool
+} from 'quizzer-lib';
 
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionState[];
-  queryOfGetWordState: QueryOfGetWordState;
-  setQueryofWordStater?: React.Dispatch<React.SetStateAction<QueryOfGetWordState>>;
-  setTestType?: React.Dispatch<React.SetStateAction<String>>;
+  setDisplayTestData?: React.Dispatch<React.SetStateAction<GetEnglishWordTestDataAPIResponseDto>>;
 }
 
-export const GetWordQueryForm = ({
-  sourcelistoption,
-  queryOfGetWordState,
-  setQueryofWordStater,
-  setTestType
-}: GetWordQueryFormProps) => {
+export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWordQueryFormProps) => {
+  const [queryOfTestData, setQueryOfTestData] = useState<GetEnglishWordTestDataAPIRequestDto>({ format: '' });
+  const setMessage = useSetRecoilState(messageState);
+  // TODO テスト形式の値の管理方法　他のファイルでプロパティ形式で管理した方が良い？ constant.tsみたいなの作って　quizzeer側にもこんなのあったよね
+  const [testType, setTestType] = useState<string>('0');
+
   return (
-    <Card attr={'through-card padding-vertical'}>
-      <FormGroup>
-        <FormControl>
-          <PullDown
-            label={'出典'}
-            optionList={sourcelistoption}
-            onChange={(e) => {
-              if (setQueryofWordStater) {
-                setQueryofWordStater({
-                  ...queryOfGetWordState,
+    <>
+      <Card attr={'through-card padding-vertical'}>
+        <FormGroup>
+          <FormControl>
+            <PullDown
+              label={'出典'}
+              optionList={sourcelistoption}
+              onChange={(e) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
                   source: String(e.target.value)
                 });
-              }
-            }}
-          />
-        </FormControl>
-        <FormControl className={styles.row}>
-          サブ出典登録日時指定：
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Start Date"
-              className={styles.datePicker}
-              onChange={(newValue) => {
-                setQueryofWordStater &&
-                  setQueryofWordStater({
-                    ...queryOfGetWordState,
-                    subSource: {
-                      ...queryOfGetWordState.subSource,
-                      startDate: newValue as Date
-                    }
-                  });
               }}
             />
-          </LocalizationProvider>
-          〜
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="End Date"
-              className={styles.datePicker}
-              onChange={(newValue) => {
-                setQueryofWordStater &&
-                  setQueryofWordStater({
-                    ...queryOfGetWordState,
-                    subSource: {
-                      ...queryOfGetWordState.subSource,
-                      endDate: newValue as Date
-                    }
+          </FormControl>
+          <FormControl className={styles.row}>
+            サブ出典登録日時指定：
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Start Date"
+                className={styles.datePicker}
+                onChange={(newValue) => {
+                  setQueryOfTestData({
+                    ...queryOfTestData,
+                    startDate: getDateForSqlString(newValue as Date)
                   });
+                }}
+              />
+            </LocalizationProvider>
+            〜
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="End Date"
+                className={styles.datePicker}
+                onChange={(newValue) => {
+                  setQueryOfTestData({
+                    ...queryOfTestData,
+                    endDate: getDateForSqlString(newValue as Date)
+                  });
+                }}
+              />
+            </LocalizationProvider>
+          </FormControl>
+          <FormControl>
+            {/**TODO 画面だと何故か右に行くので、左寄せしましょう。。 */}
+            <FormControlLabel
+              value="only-checked"
+              control={
+                <Checkbox
+                  color="primary"
+                  checked={parseStrToBool(queryOfTestData.checked || 'false')}
+                  onChange={(e) => {
+                    setQueryOfTestData({
+                      ...queryOfTestData,
+                      checked: String(e.target.checked)
+                    });
+                  }}
+                />
+              }
+              label="チェック済から出題"
+              labelPlacement="start"
+            />
+          </FormControl>
+          <FormControl>
+            テスト形式：
+            <RadioGroup
+              radioButtonProps={[
+                {
+                  value: '0',
+                  label: '単語名'
+                },
+                {
+                  value: '1',
+                  label: '四択'
+                },
+                {
+                  value: '2',
+                  label: '意味当て'
+                }
+              ]}
+              defaultValue={'0'}
+              setQueryofQuizStater={(value: string) => {
+                setTestType(value);
               }}
             />
-          </LocalizationProvider>
-        </FormControl>
-        <FormControl>
-          テスト形式：
-          <RadioGroup
-            radioButtonProps={[
-              {
-                value: '0',
-                label: '単語名'
-              },
-              {
-                value: '1',
-                label: '四択'
-              },
-              {
-                value: '2',
-                label: '意味当て'
-              }
-            ]}
-            defaultValue={'0'}
-            setQueryofQuizStater={(value: string) => {
-              setTestType && setTestType(value);
-            }}
-          />
-        </FormControl>
-      </FormGroup>
-    </Card>
+          </FormControl>
+        </FormGroup>
+      </Card>
+      {/* TODO API共通化した結果処理同じようなボタン２つ並ぶことになった　これコンポーネントまとめれないか？  */}
+      <Button
+        label={'Random Word'}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await getEnglishWordTestDataAPI({
+            getEnglishWordTestData: {
+              ...queryOfTestData,
+              format: 'random'
+            }
+          });
+          setMessage(result.message);
+          if (result.message.messageColor === 'common.black') {
+            setDisplayTestData &&
+              setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
+            setQueryOfTestData({ format: '', checked: queryOfTestData.checked });
+          }
+        }}
+      />
+      <Button
+        label={'LRU'}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await getEnglishWordTestDataAPI({
+            getEnglishWordTestData: {
+              ...queryOfTestData,
+              format: 'lru'
+            }
+          });
+          setMessage(result.message);
+          if (result.message.messageColor === 'common.black') {
+            setDisplayTestData &&
+              setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
+            setQueryOfTestData({ format: '', checked: queryOfTestData.checked });
+          }
+        }}
+      />
+    </>
   );
 };

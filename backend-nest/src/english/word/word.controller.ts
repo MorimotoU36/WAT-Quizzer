@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -10,8 +12,6 @@ import {
 } from '@nestjs/common';
 import { EnglishWordService } from './word.service';
 import {
-  AddEnglishWordAPIRequestDto,
-  AddWordTestResultLogAPIRequestDto,
   EditWordSourceAPIRequestDto,
   EditWordMeanAPIRequestDto,
   EditWordSubSourceAPIRequestDto,
@@ -23,12 +23,19 @@ import {
   AddDerivativeAPIRequestDto,
   LinkWordEtymologyAPIRequestDto,
   AddEtymologyAPIRequestDto,
+  ToggleCheckAPIRequestDto,
+  AddWordAPIRequestDto,
+  SubmitEnglishWordTestDataAPIRequestDto,
 } from 'quizzer-lib';
+import { EnglishWordTestService } from './test/test.service';
 // import { AuthGuard } from '../../auth/auth.guard';
 
 @Controller('english/word')
 export class EnglishWordController {
-  constructor(private readonly englishWordService: EnglishWordService) {}
+  constructor(
+    private readonly englishWordService: EnglishWordService,
+    private readonly englishWordTestService: EnglishWordTestService,
+  ) {}
 
   @Get('num')
   async getWordNum() {
@@ -37,7 +44,7 @@ export class EnglishWordController {
 
   // @UseGuards(AuthGuard)
   @Post()
-  async addWord(@Body() req: AddEnglishWordAPIRequestDto) {
+  async addWord(@Body() req: AddWordAPIRequestDto) {
     return await this.englishWordService.addWordAndMeanService(req);
   }
 
@@ -74,43 +81,54 @@ export class EnglishWordController {
   }
 
   // @UseGuards(AuthGuard)
-  @Get('test/fourchoice')
-  async getTestDataOfFourChoice(
+  @Get('test')
+  async getEnglishWordTestData(
+    @Query('format') format: string,
     @Query('source') source: string,
+    @Query('checked') checked: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return await this.englishWordService.getTestDataOfFourChoice(
-      source,
-      startDate,
-      endDate,
-    );
-  }
-
-  // @UseGuards(AuthGuard)
-  @Get('test/fourchoice/lru')
-  async getLRUTestDataOfFourChoice(
-    @Query('source') source: string,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ) {
-    return await this.englishWordService.getLRUTestDataOfFourChoice(
-      source,
-      startDate,
-      endDate,
-    );
+    switch (format) {
+      // TODO ここのcaseの値もどこかの定数定義ファイルなどから持ってきたい
+      case 'random':
+        return await this.englishWordTestService.getTestDataOfFourChoice(
+          source,
+          startDate,
+          endDate,
+          checked,
+        );
+      case 'lru':
+        return await this.englishWordTestService.getLRUTestDataOfFourChoice(
+          source,
+          startDate,
+          endDate,
+          checked,
+        );
+      default:
+        throw new HttpException(
+          `Error: Incorrect test format`,
+          HttpStatus.BAD_REQUEST,
+        );
+    }
   }
 
   // @UseGuards(AuthGuard)
   @Post('test/clear')
-  async wordTestCleared(@Body() req: AddWordTestResultLogAPIRequestDto) {
+  async wordTestCleared(@Body() req: SubmitEnglishWordTestDataAPIRequestDto) {
     return await this.englishWordService.wordTestClearedService(req);
   }
 
   // @UseGuards(AuthGuard)
   @Post('test/fail')
-  async wordTestFailed(@Body() req: AddWordTestResultLogAPIRequestDto) {
+  async wordTestFailed(@Body() req: SubmitEnglishWordTestDataAPIRequestDto) {
     return await this.englishWordService.wordTestFailedService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Get('test/statistics/week')
+  async getWordTestLogStatisticsPastWeek() {
+    return await this.englishWordTestService.getWordTestLogStatisticsPastWeek();
   }
 
   // @UseGuards(AuthGuard)
@@ -179,6 +197,12 @@ export class EnglishWordController {
   @Post('etymology/link')
   async linkWordEtymology(@Body() req: LinkWordEtymologyAPIRequestDto) {
     return await this.englishWordService.linkWordEtymologyService(req);
+  }
+
+  // @UseGuards(AuthGuard)
+  @Post('check/toggle')
+  async toggleCheck(@Body() req: ToggleCheckAPIRequestDto) {
+    return await this.englishWordService.toggleCheckService(req);
   }
 
   /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */

@@ -2,20 +2,31 @@ import { CircularProgress, Container, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getApiAndGetValue } from '@/api/API';
 import { Layout } from '@/components/templates/layout/Layout';
-import { PullDownOptionState } from '../../../../interfaces/state';
 import { Title } from '@/components/ui-elements/title/Title';
 import { MeaningStack } from '@/components/ui-forms/englishbot/detailWord/meaningStack/MeaningStack';
 import { SourceStack } from '@/components/ui-forms/englishbot/detailWord/sourceStack/SourceStack';
 import { SubSourceStack } from '@/components/ui-forms/englishbot/detailWord/subSourceStack/SubSourceStack';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { getSourceListAPI } from '@/api/englishbot/getSourceListAPI';
-import { getPartOfSpeechListAPI } from '@/api/englishbot/getPartOfSpeechListAPI';
-import { GetWordNumResponseDto, GetWordDetailAPIResponseDto, getWordDetailAPI } from 'quizzer-lib';
+import {
+  GetWordNumResponseDto,
+  GetWordDetailAPIResponseDto,
+  getWordDetailAPI,
+  PullDownOptionDto,
+  getPartOfSpeechListAPI,
+  apiResponsePullDownAdapter,
+  PartofSpeechApiResponse,
+  getSourceListAPI,
+  SourceApiResponse,
+  initWordDetailResponseData,
+  toggleWordCheckAPI,
+  getWordNumAPI
+} from 'quizzer-lib';
 import { SynonymStack } from '@/components/ui-forms/englishbot/detailWord/synonymStack/SynonymStack';
 import { AntonymStack } from '@/components/ui-forms/englishbot/detailWord/antonymStack/AntonymStack';
 import { DerivativeStack } from '@/components/ui-forms/englishbot/detailWord/derivativeStack/DerivativeStack';
 import { EtymologyStack } from '@/components/ui-forms/englishbot/detailWord/etymologyStack/EtymologyStack';
+import { Button } from '@/components/ui-elements/button/Button';
 
 type EachWordPageProps = {
   id: string;
@@ -23,31 +34,23 @@ type EachWordPageProps = {
 };
 // TODO dynamic routingだとファイル数膨大・単語追加のたびにデプロイ必要になるので不向き、Next.jsで何か別の使える機能ないか
 export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps) {
-  const initWordDetailData = {
-    id: -1,
-    name: '',
-    pronounce: '',
-    mean: [],
-    word_source: [],
-    word_subsource: [],
-    synonym_original: [],
-    synonym_word: [],
-    antonym_original: [],
-    antonym_word: [],
-    derivative: [],
-    word_etymology: []
-  };
-  const [wordDetail, setWordDetail] = useState<GetWordDetailAPIResponseDto>(initWordDetailData);
-  const [posList, setPosList] = useState<PullDownOptionState[]>([]);
-  const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionState[]>([]);
+  const [wordDetail, setWordDetail] = useState<GetWordDetailAPIResponseDto>(initWordDetailResponseData);
+  const [posList, setPosList] = useState<PullDownOptionDto[]>([]);
+  const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
 
   useEffect(() => {
     if (!isMock) {
       const accessToken = localStorage.getItem('apiAccessToken') || '';
       Promise.all([
-        getPartOfSpeechListAPI(setMessage, setPosList, accessToken),
-        getSourceListAPI(setMessage, setSourcelistoption, accessToken)
+        (async () => {
+          const result = await getPartOfSpeechListAPI();
+          result.result && setPosList(apiResponsePullDownAdapter(result.result as PartofSpeechApiResponse[]));
+        })(),
+        (async () => {
+          const result = await getSourceListAPI();
+          result.result && setSourcelistoption(apiResponsePullDownAdapter(result.result as SourceApiResponse[]));
+        })()
       ]);
       (async () => {
         const result = (await getWordDetailAPI({ id })).result as GetWordDetailAPIResponseDto;
@@ -64,9 +67,39 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
         {wordDetail.id === -1 ? (
           <CircularProgress />
         ) : (
-          <Typography variant="h1" component="h1" color="common.black">
-            {wordDetail.name}
-          </Typography>
+          <>
+            <Typography variant="h1" component="h1" color={'common.black'}>
+              {wordDetail.name}
+              <Typography variant="h4" component="span">
+                {wordDetail.checked ? '✅' : ''}
+              </Typography>
+            </Typography>
+            <Button
+              label={'チェック反転'}
+              attr={'button-array'}
+              variant="contained"
+              color="warning"
+              disabled={wordDetail.id === -1}
+              onClick={async (e) => {
+                setMessage({
+                  message: '通信中...',
+                  messageColor: '#d3d3d3',
+                  isDisplay: true
+                });
+                const result = await toggleWordCheckAPI({
+                  toggleCheckData: {
+                    wordId: wordDetail.id
+                  }
+                });
+                setMessage(result.message);
+                if (result.message.messageColor === 'success.light') {
+                  const newWordDetail = (await getWordDetailAPI({ id: String(wordDetail.id) }))
+                    .result as GetWordDetailAPIResponseDto;
+                  setWordDetail && setWordDetail(newWordDetail);
+                }
+              }}
+            />
+          </>
         )}
 
         {/* TODO スタックは共通化できる？ */}
@@ -110,11 +143,7 @@ export async function getStaticProps({ params }: Params) {
 
 // 一番最初に実行される関数
 export async function getStaticPaths() {
-  const words: GetWordNumResponseDto = (await getApiAndGetValue(
-    '/english/word/num',
-    undefined,
-    'no needs'
-  )) as GetWordNumResponseDto;
+  const words: GetWordNumResponseDto = (await getWordNumAPI({})).result as GetWordNumResponseDto;
   console.log('words max id:', words._max.id);
   return {
     paths: new Array(words._max.id + 30)
