@@ -24,237 +24,94 @@ export interface QueryType {
   value: (string | number)[];
 }
 
-export type FormatType = 'basic' | 'applied';
+export type getQuizProps = {
+  file_num: number;
+  quiz_num?: number;
+  min_rate?: number;
+  max_rate?: number;
+  category?: string;
+  checked?: string;
+  format: string; //'basic' | 'applied' | '4choice';
+  method?: 'random' | 'worstRate' | 'leastClear' | 'LRU' | 'review';
+};
 
 @Injectable()
 export class QuizService {
   // 問題取得
   // TODO 問題取得系API（これとランダム、ワースト、LRUなど）は全部１つにまとめたい englishbotの方も同様
-  async getQuiz(file_num: number, quiz_num: number, format = 'basic') {
-    if (file_num <= 0 || quiz_num <= 0) {
-      throw new HttpException(
-        `ファイル番号または問題番号が入力されていません`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      switch (format) {
-        case 'basic':
-          const basicResult = await prisma.quiz.findUnique({
-            where: {
-              file_num_quiz_num: {
-                file_num,
-                quiz_num,
-              },
-              deleted_at: null,
-            },
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              quiz_category: {
-                select: {
-                  category: true,
-                  deleted_at: true,
-                },
-              },
-              quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-            },
-          });
-          if (!basicResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...basicResult,
-            ...(basicResult.quiz_category && {
-              quiz_category: basicResult.quiz_category
-                .filter((x) => {
-                  return !x.deleted_at;
-                })
-                .map((x) => {
-                  return {
-                    category: x.category,
-                  };
-                }),
-            }),
-            ...(basicResult.quiz_statistics_view && {
-              quiz_statistics_view: {
-                clear_count:
-                  basicResult.quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  basicResult.quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  basicResult.quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case 'applied':
-          const appliedResult = await prisma.advanced_quiz.findUnique({
-            where: {
-              file_num_quiz_num: {
-                file_num,
-                quiz_num,
-              },
-              advanced_quiz_type_id: 1,
-              deleted_at: null,
-            },
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-              quiz_basis_advanced_linkage: {
-                select: {
-                  basis_quiz_id: true,
-                },
-              },
-            },
-          });
-          if (!appliedResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...appliedResult,
-            ...(appliedResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  appliedResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  appliedResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  appliedResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case '4choice':
-          const fcResult = await prisma.advanced_quiz.findUnique({
-            where: {
-              file_num_quiz_num: {
-                file_num,
-                quiz_num,
-              },
-              advanced_quiz_type_id: 2,
-              deleted_at: null,
-            },
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-              dummy_choice: {
-                select: {
-                  dummy_choice_sentense: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-              quiz_basis_advanced_linkage: {
-                select: {
-                  basis_quiz_id: true,
-                },
-              },
-            },
-          });
-          if (!fcResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...fcResult,
-            ...(fcResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  fcResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  fcResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  fcResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        default:
-          throw new HttpException(
-            `入力された問題形式が不正です`,
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-    } catch (error: unknown) {
-      if (error instanceof HttpException) {
-        // 404系はそのまま返す
-        throw error;
-      } else if (error instanceof Error) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  // 問題ランダム取得
-  async getRandomQuiz(
-    file_num: number,
-    min_rate: number,
-    max_rate: number,
-    category: string,
-    checked: string,
+  async getQuiz({
+    file_num,
+    quiz_num,
+    min_rate,
+    max_rate,
+    category,
+    checked,
     format = 'basic',
-  ) {
+    method,
+  }: getQuizProps) {
     try {
       switch (format) {
         case 'basic':
+          // 取得条件
+          const basicWhere =
+            // methodがある時は条件指定
+            method
+              ? {
+                  file_num,
+                  deleted_at: null,
+                  quiz_statistics_view: {
+                    accuracy_rate: {
+                      gte: min_rate || 0,
+                      lte: max_rate || 100,
+                    },
+                    ...(method === 'review' && {
+                      last_failed_answer_log: getPrismaYesterdayRange(),
+                    }),
+                  },
+                  ...(category && {
+                    category: {
+                      contains: category,
+                    },
+                  }),
+                  ...(parseStrToBool(checked)
+                    ? {
+                        checked: true,
+                      }
+                    : {}),
+                }
+              : {
+                  file_num,
+                  quiz_num,
+                  deleted_at: null,
+                };
+          const basicOrderBy =
+            method === 'worstRate'
+              ? {
+                  quiz_statistics_view: {
+                    accuracy_rate: 'asc' as const,
+                  },
+                }
+              : method === 'leastClear'
+              ? [
+                  {
+                    quiz_statistics_view: {
+                      answer_count: 'asc' as const,
+                    },
+                  },
+                  {
+                    quiz_statistics_view: {
+                      fail_count: 'desc' as const,
+                    },
+                  },
+                ]
+              : method === 'LRU'
+              ? {
+                  quiz_statistics_view: {
+                    last_answer_log: 'desc' as const,
+                  },
+                }
+              : {};
+          // データ取得
           const basicResults = await prisma.quiz.findMany({
             select: {
               id: true,
@@ -262,14 +119,14 @@ export class QuizService {
               quiz_num: true,
               quiz_sentense: true,
               answer: true,
+              img_file: true,
+              checked: true,
               quiz_category: {
                 select: {
                   category: true,
                   deleted_at: true,
                 },
               },
-              img_file: true,
-              checked: true,
               quiz_statistics_view: {
                 select: {
                   clear_count: true,
@@ -278,26 +135,8 @@ export class QuizService {
                 },
               },
             },
-            where: {
-              file_num,
-              deleted_at: null,
-              quiz_statistics_view: {
-                accuracy_rate: {
-                  gte: min_rate || 0,
-                  lte: max_rate || 100,
-                },
-              },
-              ...(category && {
-                category: {
-                  contains: category,
-                },
-              }),
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
+            where: basicWhere,
+            orderBy: basicOrderBy,
           });
           if (basicResults.length === 0) {
             throw new HttpException(
@@ -305,7 +144,10 @@ export class QuizService {
               HttpStatus.NOT_FOUND,
             );
           }
-          const basicResult = getRandomElementFromArray(basicResults);
+          const basicResult =
+            method === 'random' || method === 'review'
+              ? getRandomElementFromArray(basicResults)
+              : basicResults[0];
           return {
             ...basicResult,
             ...(basicResult.quiz_category && {
@@ -332,6 +174,61 @@ export class QuizService {
           };
           break;
         case 'applied':
+          // 取得条件
+          const appliedWhere = method
+            ? {
+                file_num,
+                advanced_quiz_type_id: 1,
+                deleted_at: null,
+                advanced_quiz_statistics_view: {
+                  accuracy_rate: {
+                    gte: min_rate || 0,
+                    lte: max_rate || 100,
+                  },
+                  ...(method === 'review' && {
+                    last_failed_answer_log: getPrismaYesterdayRange(),
+                  }),
+                },
+                ...(parseStrToBool(checked)
+                  ? {
+                      checked: true,
+                    }
+                  : {}),
+              }
+            : {
+                file_num,
+                quiz_num,
+                advanced_quiz_type_id: 1,
+                deleted_at: null,
+              };
+          const appliedOrderBy =
+            method === 'worstRate'
+              ? {
+                  advanced_quiz_statistics_view: {
+                    accuracy_rate: 'asc' as const,
+                  },
+                }
+              : method === 'leastClear'
+              ? [
+                  {
+                    advanced_quiz_statistics_view: {
+                      answer_count: 'asc' as const,
+                    },
+                  },
+                  {
+                    advanced_quiz_statistics_view: {
+                      fail_count: 'desc' as const,
+                    },
+                  },
+                ]
+              : method === 'LRU'
+              ? {
+                  advanced_quiz_statistics_view: {
+                    last_answer_log: 'desc' as const,
+                  },
+                }
+              : {};
+          // データ取得
           const appliedResults = await prisma.advanced_quiz.findMany({
             select: {
               id: true,
@@ -349,23 +246,19 @@ export class QuizService {
                   accuracy_rate: true,
                 },
               },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 1,
-              deleted_at: null,
-              advanced_quiz_statistics_view: {
-                accuracy_rate: {
-                  gte: min_rate || 0,
-                  lte: max_rate || 100,
+              advanced_quiz_explanation: {
+                select: {
+                  explanation: true,
                 },
               },
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
+              quiz_basis_advanced_linkage: {
+                select: {
+                  basis_quiz_id: true,
+                },
+              },
             },
+            where: appliedWhere,
+            orderBy: appliedOrderBy,
           });
           if (appliedResults.length === 0) {
             throw new HttpException(
@@ -373,7 +266,10 @@ export class QuizService {
               HttpStatus.NOT_FOUND,
             );
           }
-          const appliedResult = getRandomElementFromArray(appliedResults);
+          const appliedResult =
+            method === 'random' || method === 'review'
+              ? getRandomElementFromArray(appliedResults)
+              : appliedResults[0];
           return {
             ...appliedResult,
             ...(appliedResult.advanced_quiz_statistics_view && {
@@ -389,6 +285,60 @@ export class QuizService {
           };
           break;
         case '4choice':
+          // 取得条件
+          const fcWhere = method
+            ? {
+                file_num,
+                advanced_quiz_type_id: 2,
+                deleted_at: null,
+                advanced_quiz_statistics_view: {
+                  accuracy_rate: {
+                    gte: min_rate || 0,
+                    lte: max_rate || 100,
+                  },
+                  ...(method === 'review' && {
+                    last_failed_answer_log: getPrismaYesterdayRange(),
+                  }),
+                },
+                ...(parseStrToBool(checked)
+                  ? {
+                      checked: true,
+                    }
+                  : {}),
+              }
+            : {
+                file_num,
+                quiz_num,
+                advanced_quiz_type_id: 2,
+                deleted_at: null,
+              };
+          const fcOrderBy =
+            method === 'worstRate'
+              ? {
+                  advanced_quiz_statistics_view: {
+                    accuracy_rate: 'asc' as const,
+                  },
+                }
+              : method === 'leastClear'
+              ? [
+                  {
+                    advanced_quiz_statistics_view: {
+                      answer_count: 'asc' as const,
+                    },
+                  },
+                  {
+                    advanced_quiz_statistics_view: {
+                      fail_count: 'desc' as const,
+                    },
+                  },
+                ]
+              : method === 'LRU'
+              ? {
+                  advanced_quiz_statistics_view: {
+                    last_answer_log: 'desc' as const,
+                  },
+                }
+              : {};
           const fcResults = await prisma.advanced_quiz.findMany({
             select: {
               id: true,
@@ -416,23 +366,14 @@ export class QuizService {
                   explanation: true,
                 },
               },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 2,
-              deleted_at: null,
-              advanced_quiz_statistics_view: {
-                accuracy_rate: {
-                  gte: min_rate || 0,
-                  lte: max_rate || 100,
+              quiz_basis_advanced_linkage: {
+                select: {
+                  basis_quiz_id: true,
                 },
               },
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
             },
+            where: fcWhere,
+            orderBy: fcOrderBy,
           });
           if (fcResults.length === 0) {
             throw new HttpException(
@@ -440,921 +381,10 @@ export class QuizService {
               HttpStatus.NOT_FOUND,
             );
           }
-          const fcResult = getRandomElementFromArray(fcResults);
-          return {
-            ...fcResult,
-            ...(fcResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  fcResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  fcResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  fcResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        default:
-          throw new HttpException(
-            `入力された問題形式が不正です`,
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-    } catch (error: unknown) {
-      if (error instanceof HttpException) {
-        // 404系はそのまま返す
-        throw error;
-      } else if (error instanceof Error) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  // 最低正解率問題取得
-  async getWorstRateQuiz(
-    file_num: number,
-    category: string,
-    checked: string,
-    format: string,
-  ) {
-    try {
-      switch (format) {
-        case 'basic':
-          const basicResult = await prisma.quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              quiz_sentense: true,
-              answer: true,
-              quiz_category: {
-                select: {
-                  category: true,
-                  deleted_at: true,
-                },
-              },
-              img_file: true,
-              checked: true,
-              quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              deleted_at: null,
-              ...(category && {
-                category: {
-                  contains: category,
-                },
-              }),
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              quiz_statistics_view: {
-                accuracy_rate: 'asc',
-              },
-            },
-          });
-          if (!basicResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...basicResult,
-            ...(basicResult.quiz_category && {
-              quiz_category: basicResult.quiz_category
-                .filter((x) => {
-                  return !x.deleted_at;
-                })
-                .map((x) => {
-                  return {
-                    category: x.category,
-                  };
-                }),
-            }),
-            ...(basicResult.quiz_statistics_view && {
-              quiz_statistics_view: {
-                clear_count:
-                  basicResult.quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  basicResult.quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  basicResult.quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case 'applied':
-          const appliedResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 1,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              advanced_quiz_statistics_view: {
-                accuracy_rate: 'asc',
-              },
-            },
-          });
-          if (!appliedResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...appliedResult,
-            ...(appliedResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  appliedResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  appliedResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  appliedResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case '4choice':
-          const fcResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-              dummy_choice: {
-                select: {
-                  dummy_choice_sentense: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 2,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              advanced_quiz_statistics_view: {
-                accuracy_rate: 'asc',
-              },
-            },
-          });
-          if (!fcResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...fcResult,
-            ...(fcResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  fcResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  fcResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  fcResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        default:
-          throw new HttpException(
-            `入力された問題形式が不正です`,
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-    } catch (error: unknown) {
-      if (error instanceof HttpException) {
-        // 404系はそのまま返す
-        throw error;
-      } else if (error instanceof Error) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  // 最小正解数問題取得
-  // TODO 最小正解数ではなく最小回答数にした 関係事項は諸々修正
-  async getMinimumAnsweredQuiz(
-    file_num: number,
-    category: string,
-    checked: string,
-    format: string,
-  ) {
-    try {
-      switch (format) {
-        case 'basic':
-          const basicResult = await prisma.quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              quiz_sentense: true,
-              answer: true,
-              quiz_category: {
-                select: {
-                  category: true,
-                  deleted_at: true,
-                },
-              },
-              img_file: true,
-              checked: true,
-              quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              deleted_at: null,
-              ...(category && {
-                category: {
-                  contains: category,
-                },
-              }),
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: [
-              {
-                quiz_statistics_view: {
-                  answer_count: 'asc',
-                },
-              },
-              {
-                quiz_statistics_view: {
-                  fail_count: 'desc',
-                },
-              },
-            ],
-          });
-          if (!basicResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...basicResult,
-            ...(basicResult.quiz_category && {
-              quiz_category: basicResult.quiz_category
-                .filter((x) => {
-                  return !x.deleted_at;
-                })
-                .map((x) => {
-                  return {
-                    category: x.category,
-                  };
-                }),
-            }),
-            ...(basicResult.quiz_statistics_view && {
-              quiz_statistics_view: {
-                clear_count:
-                  basicResult.quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  basicResult.quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  basicResult.quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case 'applied':
-          const appliedResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 1,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: [
-              {
-                advanced_quiz_statistics_view: {
-                  answer_count: 'asc',
-                },
-              },
-              {
-                advanced_quiz_statistics_view: {
-                  fail_count: 'desc',
-                },
-              },
-            ],
-          });
-          if (!appliedResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...appliedResult,
-            ...(appliedResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  appliedResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  appliedResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  appliedResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case '4choice':
-          const fcResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                },
-              },
-              dummy_choice: {
-                select: {
-                  dummy_choice_sentense: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              advanced_quiz_type_id: 2,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: [
-              {
-                advanced_quiz_statistics_view: {
-                  answer_count: 'asc',
-                },
-              },
-              {
-                advanced_quiz_statistics_view: {
-                  fail_count: 'desc',
-                },
-              },
-            ],
-          });
-          if (!fcResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...fcResult,
-            ...(fcResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  fcResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  fcResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  fcResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        default:
-          throw new HttpException(
-            `入力された問題形式が不正です`,
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-    } catch (error: unknown) {
-      if (error instanceof HttpException) {
-        // 404系はそのまま返す
-        throw error;
-      } else if (error instanceof Error) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  // 最後に回答してから最も長い時間が経っている問題を取得
-  async getLRUQuiz(
-    file_num: number,
-    category: string,
-    checked: string,
-    format: string,
-  ) {
-    try {
-      switch (format) {
-        case 'basic':
-          const basicResult = await prisma.quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              quiz_sentense: true,
-              answer: true,
-              quiz_category: {
-                select: {
-                  category: true,
-                  deleted_at: true,
-                },
-              },
-              img_file: true,
-              checked: true,
-              quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              deleted_at: null,
-              ...(category && {
-                category: {
-                  contains: category,
-                },
-              }),
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              quiz_statistics_view: {
-                last_answer_log: 'desc',
-              },
-            },
-          });
-          if (!basicResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...basicResult,
-            ...(basicResult.quiz_category && {
-              quiz_category: basicResult.quiz_category
-                .filter((x) => {
-                  return !x.deleted_at;
-                })
-                .map((x) => {
-                  return {
-                    category: x.category,
-                  };
-                }),
-            }),
-            ...(basicResult.quiz_statistics_view && {
-              quiz_statistics_view: {
-                clear_count:
-                  basicResult.quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  basicResult.quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  basicResult.quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case 'applied':
-          const appliedResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-            },
-            where: {
-              advanced_quiz_type_id: 1,
-              file_num,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              advanced_quiz_statistics_view: {
-                last_answer_log: 'desc',
-              },
-            },
-          });
-          if (!appliedResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...appliedResult,
-            ...(appliedResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  appliedResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  appliedResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  appliedResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case '4choice':
-          const fcResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-              dummy_choice: {
-                select: {
-                  dummy_choice_sentense: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-            },
-            where: {
-              advanced_quiz_type_id: 2,
-              file_num,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-            },
-            orderBy: {
-              advanced_quiz_statistics_view: {
-                last_answer_log: 'desc',
-              },
-            },
-          });
-          if (!fcResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...fcResult,
-            ...(fcResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  fcResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  fcResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  fcResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        default:
-          throw new HttpException(
-            `入力された問題形式が不正です`,
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-    } catch (error: unknown) {
-      if (error instanceof HttpException) {
-        // 404系はそのまま返す
-        throw error;
-      } else if (error instanceof Error) {
-        throw new HttpException(
-          error.message,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    }
-  }
-
-  // 昨日間違えた問題を取得
-  async getReviewQuiz(
-    file_num: number,
-    category: string,
-    checked: string,
-    format: string,
-  ) {
-    try {
-      switch (format) {
-        case 'basic':
-          const basicResult = await prisma.quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              quiz_sentense: true,
-              answer: true,
-              quiz_category: {
-                select: {
-                  category: true,
-                  deleted_at: true,
-                },
-              },
-              img_file: true,
-              checked: true,
-              quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-            },
-            where: {
-              file_num,
-              deleted_at: null,
-              ...(category && {
-                category: {
-                  contains: category,
-                },
-              }),
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-              quiz_statistics_view: {
-                last_failed_answer_log: getPrismaYesterdayRange(),
-              },
-            },
-          });
-          if (!basicResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...basicResult,
-            ...(basicResult.quiz_category && {
-              quiz_category: basicResult.quiz_category
-                .filter((x) => {
-                  return !x.deleted_at;
-                })
-                .map((x) => {
-                  return {
-                    category: x.category,
-                  };
-                }),
-            }),
-            ...(basicResult.quiz_statistics_view && {
-              quiz_statistics_view: {
-                clear_count:
-                  basicResult.quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  basicResult.quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  basicResult.quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case 'applied':
-          const appliedResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-            },
-            where: {
-              advanced_quiz_type_id: 1,
-              file_num,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-              advanced_quiz_statistics_view: {
-                last_failed_answer_log: getPrismaYesterdayRange(),
-              },
-            },
-          });
-          if (!appliedResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
-          return {
-            ...appliedResult,
-            ...(appliedResult.advanced_quiz_statistics_view && {
-              advanced_quiz_statistics_view: {
-                clear_count:
-                  appliedResult.advanced_quiz_statistics_view.clear_count.toString(),
-                fail_count:
-                  appliedResult.advanced_quiz_statistics_view.fail_count.toString(),
-                accuracy_rate:
-                  appliedResult.advanced_quiz_statistics_view.accuracy_rate.toString(),
-              },
-            }),
-          };
-          break;
-        case '4choice':
-          const fcResult = await prisma.advanced_quiz.findFirst({
-            select: {
-              id: true,
-              file_num: true,
-              quiz_num: true,
-              advanced_quiz_type_id: true,
-              quiz_sentense: true,
-              answer: true,
-              img_file: true,
-              checked: true,
-              advanced_quiz_statistics_view: {
-                select: {
-                  clear_count: true,
-                  fail_count: true,
-                  accuracy_rate: true,
-                  last_answer_log: true,
-                },
-              },
-              dummy_choice: {
-                select: {
-                  dummy_choice_sentense: true,
-                },
-              },
-              advanced_quiz_explanation: {
-                select: {
-                  explanation: true,
-                },
-              },
-            },
-            where: {
-              advanced_quiz_type_id: 2,
-              file_num,
-              deleted_at: null,
-              ...(parseStrToBool(checked)
-                ? {
-                    checked: true,
-                  }
-                : {}),
-              advanced_quiz_statistics_view: {
-                last_failed_answer_log: getPrismaYesterdayRange(),
-              },
-            },
-          });
-          if (!fcResult) {
-            throw new HttpException(
-              `条件に合致するデータはありません`,
-              HttpStatus.NOT_FOUND,
-            );
-          }
+          const fcResult =
+            method === 'random' || method === 'review'
+              ? getRandomElementFromArray(fcResults)
+              : fcResults[0];
           return {
             ...fcResult,
             ...(fcResult.advanced_quiz_statistics_view && {
@@ -1493,17 +523,13 @@ export class QuizService {
   // 問題を１問追加
   async add(req: AddQuizAPIRequestDto) {
     try {
-      const { file_num, input_data } = req;
-      if (!file_num && !input_data) {
+      const { file_num, question, answer, category, img_file } = req;
+      if (!file_num || !question || !answer) {
         throw new HttpException(
-          `ファイル番号または問題文が入力されていません。(file_num:${file_num},input_data:${JSON.stringify(
-            input_data,
-          )})`,
+          `ファイル番号または問題文または答えが入力されていません。`,
           HttpStatus.BAD_REQUEST,
         );
       }
-
-      const { question, answer, quiz_category, img_file } = input_data;
 
       // 新問題番号を取得しINSERT
       const res = await prisma.quiz.findFirst({
@@ -1528,8 +554,8 @@ export class QuizService {
           img_file,
           checked: false,
           quiz_category: {
-            ...(quiz_category && {
-              create: quiz_category.split(',').map((x) => {
+            ...(category && {
+              create: category.split(',').map((x) => {
                 return {
                   category: x,
                 };
@@ -2478,18 +1504,20 @@ export class QuizService {
   // 応用問題を１問追加
   async addAdvancedQuiz(req: AddQuizAPIRequestDto) {
     try {
-      const { file_num, input_data } = req;
-      if (!file_num && !input_data) {
+      const {
+        file_num,
+        question,
+        answer,
+        img_file,
+        matched_basic_quiz_id,
+        explanation,
+      } = req;
+      if (!file_num || !question || !answer) {
         throw new HttpException(
-          `ファイル番号または問題文が入力されていません。(file_num:${file_num},input_data:${JSON.stringify(
-            input_data,
-          )})`,
+          `ファイル番号または問題文,答えが入力されていません。`,
           HttpStatus.BAD_REQUEST,
         );
       }
-
-      const { question, answer, img_file, matched_basic_quiz_id, explanation } =
-        input_data;
 
       // 関連する基礎問題番号リストのバリデーション・取得
       const matched_basic_quiz_id_list: number[] = [];
@@ -2575,17 +1603,8 @@ export class QuizService {
   // 四択問題を１問追加
   async addFourChoiceQuiz(req: AddQuizAPIRequestDto) {
     try {
-      const { file_num, input_data } = req;
-      if (!file_num && !input_data) {
-        throw new HttpException(
-          `ファイル番号または問題文が入力されていません。(req:${JSON.stringify(
-            req,
-          )},file_num:${file_num},input_data:${JSON.stringify(input_data)})`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const {
+        file_num,
         question,
         answer,
         img_file,
@@ -2594,9 +1613,15 @@ export class QuizService {
         dummy2,
         dummy3,
         explanation,
-      } = input_data;
+      } = req;
+      if (!file_num || !question || !answer) {
+        throw new HttpException(
+          `ファイル番号または問題文が入力されていません。`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
-      if (!dummy1 && !dummy2 && !dummy3) {
+      if (!dummy1 || !dummy2 || !dummy3) {
         throw new HttpException(
           `ダミー選択肢が3つ入力されていません。`,
           HttpStatus.BAD_REQUEST,

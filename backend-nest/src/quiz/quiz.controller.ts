@@ -35,7 +35,11 @@ export class QuizController {
     @Query('quiz_num') quiz_num: number,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getQuiz(+file_num, +quiz_num, format);
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
+      quiz_num: +quiz_num,
+      format,
+    });
   }
 
   @Get('/random')
@@ -47,14 +51,15 @@ export class QuizController {
     @Query('checked') checked: string,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getRandomQuiz(
-      +file_num,
-      +min_rate,
-      +max_rate,
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
+      min_rate: +min_rate,
+      max_rate: +max_rate,
       category,
       checked,
       format,
-    );
+      method: 'random',
+    });
   }
 
   @Get('/worst')
@@ -64,12 +69,13 @@ export class QuizController {
     @Query('checked') checked: string,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getWorstRateQuiz(
-      +file_num,
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
       category,
       checked,
       format,
-    );
+      method: 'worstRate',
+    });
   }
 
   @Get('/minimum')
@@ -79,12 +85,13 @@ export class QuizController {
     @Query('checked') checked: string,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getMinimumAnsweredQuiz(
-      +file_num,
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
       category,
       checked,
       format,
-    );
+      method: 'leastClear',
+    });
   }
 
   @Get('/lru')
@@ -94,12 +101,13 @@ export class QuizController {
     @Query('checked') checked: string,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getLRUQuiz(
-      +file_num,
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
       category,
       checked,
       format,
-    );
+      method: 'LRU',
+    });
   }
 
   @Get('/review')
@@ -109,12 +117,13 @@ export class QuizController {
     @Query('checked') checked: string,
     @Query('format') format: string,
   ) {
-    return await this.quizService.getReviewQuiz(
-      +file_num,
+    return await this.quizService.getQuiz({
+      file_num: +file_num,
       category,
       checked,
       format,
-    );
+      method: 'review',
+    });
   }
 
   @Post('/clear')
@@ -127,7 +136,7 @@ export class QuizController {
     return await this.quizService.failed(req);
   }
 
-  @Post('/add')
+  @Post('')
   async add(@Body() req: AddQuizAPIRequestDto) {
     return await this.quizService.add(req);
   }

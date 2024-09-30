@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, Typography } from '@mui/material';
-import { PullDownOptionState } from '../../../../../../interfaces/state';
+import { Checkbox, FormControl, FormControlLabel, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -16,11 +15,13 @@ import {
   getEnglishWordTestDataAPI,
   GetEnglishWordTestDataAPIRequestDto,
   GetEnglishWordTestDataAPIResponseDto,
-  parseStrToBool
+  parseStrToBool,
+  PullDownOptionDto
 } from 'quizzer-lib';
+import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 
 interface GetWordQueryFormProps {
-  sourcelistoption: PullDownOptionState[];
+  sourcelistoption: PullDownOptionDto[];
   setDisplayTestData?: React.Dispatch<React.SetStateAction<GetEnglishWordTestDataAPIResponseDto>>;
 }
 
@@ -95,6 +96,18 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
             />
           </FormControl>
           <FormControl>
+            <RangeSliderSection
+              sectionTitle={'正解率(%)指定'}
+              setStater={(value: number[] | number) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  min_rate: Array.isArray(value) ? String(value[0]) : String(value),
+                  max_rate: Array.isArray(value) ? String(value[1]) : String(value)
+                });
+              }}
+            />
+          </FormControl>
+          <FormControl>
             テスト形式：
             <RadioGroup
               radioButtonProps={[
@@ -137,7 +150,6 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
           if (result.message.messageColor === 'common.black') {
             setDisplayTestData &&
               setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
-            setQueryOfTestData({ format: '', checked: queryOfTestData.checked });
           }
         }}
       />
@@ -158,7 +170,6 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
           if (result.message.messageColor === 'common.black') {
             setDisplayTestData &&
               setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
-            setQueryOfTestData({ format: '', checked: queryOfTestData.checked });
           }
         }}
       />

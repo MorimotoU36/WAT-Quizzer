@@ -11,11 +11,6 @@ export interface LoginState {
   password: string;
 }
 
-export interface PullDownOptionState {
-  value: string;
-  label: string;
-}
-
 export interface DisplayQuizState {
   fileNum: number;
   quizNum: number;
@@ -49,22 +44,6 @@ export interface QueryOfSearchQuizState {
     question?: boolean;
     answer?: boolean;
   };
-}
-
-export interface QueryOfPutQuizState {
-  fileNum: number;
-  quizNum: number;
-  format?: string;
-  formatValue?: number;
-  question?: string;
-  answer?: string;
-  quiz_category?: string;
-  img_file?: string;
-  matched_basic_quiz_id?: string;
-  dummy1?: string; //四択問題のダミー選択肢１
-  dummy2?: string; //四択問題のダミー選択肢２
-  dummy3?: string; //四択問題のダミー選択肢３
-  explanation?: string; // 解説
 }
 
 export interface QueryOfEditQuizState {

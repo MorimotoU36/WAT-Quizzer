@@ -80,6 +80,7 @@ export class EnglishWordController {
     return await this.englishWordService.getWordByNameService(name);
   }
 
+  //TODO camel,snake混在
   // @UseGuards(AuthGuard)
   @Get('test')
   async getEnglishWordTestData(
@@ -88,22 +89,30 @@ export class EnglishWordController {
     @Query('checked') checked: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
+    @Query('min_rate') min_rate: number,
+    @Query('max_rate') max_rate: number,
   ) {
     switch (format) {
       // TODO ここのcaseの値もどこかの定数定義ファイルなどから持ってきたい
       case 'random':
-        return await this.englishWordTestService.getTestDataOfFourChoice(
+        return await this.englishWordTestService.getTestData(
+          'random',
           source,
           startDate,
           endDate,
           checked,
+          min_rate,
+          max_rate,
         );
       case 'lru':
-        return await this.englishWordTestService.getLRUTestDataOfFourChoice(
+        return await this.englishWordTestService.getTestData(
+          'lru',
           source,
           startDate,
           endDate,
           checked,
+          min_rate,
+          max_rate,
         );
       default:
         throw new HttpException(
