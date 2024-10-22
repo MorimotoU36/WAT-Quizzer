@@ -20,7 +20,6 @@ import {
   CheckQuizAPIRequestDto,
   DeleteAnswerLogOfFileApiRequestDto,
   AddCategoryToQuizAPIRequestDto,
-  parseStrToBool,
   GetQuizAPIRequestDto,
   SearchQuizAPIRequestDto,
 } from 'quizzer-lib';

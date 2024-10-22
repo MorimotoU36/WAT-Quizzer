@@ -3,11 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
-  ParseBoolPipe,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -28,8 +24,11 @@ import {
   ToggleCheckAPIRequestDto,
   AddWordAPIRequestDto,
   SubmitEnglishWordTestDataAPIRequestDto,
+  SearchWordAPIRequestDto,
+  GetEnglishWordTestDataAPIRequestDto,
 } from 'quizzer-lib';
 import { EnglishWordTestService } from './test/test.service';
+import { WordTestPipe } from './test/pipe/wordTest.pipe';
 // import { AuthGuard } from '../../auth/auth.guard';
 
 @Controller('english/word')
@@ -52,16 +51,8 @@ export class EnglishWordController {
 
   // @UseGuards(AuthGuard)
   @Get('search')
-  async searchWord(
-    @Query('wordName') wordName: string,
-    @Query('meanQuery') meanQuery: string,
-    @Query('subSourceName') subSourceName: string,
-  ) {
-    return await this.englishWordService.searchWordService(
-      wordName,
-      meanQuery,
-      subSourceName,
-    );
+  async searchWord(@Query() req: SearchWordAPIRequestDto) {
+    return await this.englishWordService.searchWordService(req);
   }
 
   // @UseGuards(AuthGuard)
@@ -86,42 +77,9 @@ export class EnglishWordController {
   // @UseGuards(AuthGuard)
   @Get('test')
   async getEnglishWordTestData(
-    @Query('format') format: string,
-    @Query('source') source: string,
-    @Query('checked', ParseBoolPipe) checked: boolean,
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-    @Query('min_rate', ParseIntPipe) min_rate: number,
-    @Query('max_rate', ParseIntPipe) max_rate: number,
+    @Query(WordTestPipe) req: GetEnglishWordTestDataAPIRequestDto,
   ) {
-    switch (format) {
-      // TODO ここのcaseの値もどこかの定数定義ファイルなどから持ってきたい
-      case 'random':
-        return await this.englishWordTestService.getTestData(
-          'random',
-          source,
-          startDate,
-          endDate,
-          checked,
-          min_rate,
-          max_rate,
-        );
-      case 'lru':
-        return await this.englishWordTestService.getTestData(
-          'lru',
-          source,
-          startDate,
-          endDate,
-          checked,
-          min_rate,
-          max_rate,
-        );
-      default:
-        throw new HttpException(
-          `Error: Incorrect test format`,
-          HttpStatus.BAD_REQUEST,
-        );
-    }
+    return await this.englishWordTestService.getTestData(req);
   }
 
   // @UseGuards(AuthGuard)
