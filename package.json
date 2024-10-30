@@ -6,7 +6,8 @@
   "workspaces": [
     "backend-nest",
     "frontend-next",
-    "quizzer-lib"
+    "quizzer-lib",
+    "batch"
   ],
   "main": "index.js",
   "scripts": {
