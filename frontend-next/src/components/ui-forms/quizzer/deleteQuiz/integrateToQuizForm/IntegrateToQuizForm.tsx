@@ -1,48 +1,35 @@
-import {
-  Card,
-  CardContent,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  Paper,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Card, CardContent, FormControl, FormGroup, FormLabel, Paper, TextField, Typography } from '@mui/material';
 import styles from '../DeleteQuizForm.module.css';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { Button } from '@/components/ui-elements/button/Button';
-import {
-  DeleteQuizInfoState,
-  IntegrateToQuizInfoState,
-  MessageState,
-  QueryOfDeleteQuizState,
-  QueryOfIntegrateToQuizState
-} from '../../../../../../interfaces/state';
 import { useState } from 'react';
-import { getIntegrateToQuiz } from '@/api/quiz/getIntegrateToQuizAPI';
-import { integrateQuiz } from '@/api/quiz/integrateQuizAPI';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
+import {
+  GetQuizAPIRequestDto,
+  initGetQuizRequestData,
+  GetQuizApiResponseDto,
+  initGetQuizResponseData,
+  getQuizAPI,
+  integrateQuizAPI,
+  GetQuizFormatApiResponseDto
+} from 'quizzer-lib';
+import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 
 interface IntegrateToQuizFormProps {
-  queryOfDeleteQuizState: QueryOfDeleteQuizState;
-  queryOfIntegrateToQuizState: QueryOfIntegrateToQuizState;
-  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
-  setQueryOfDeleteQuizState?: React.Dispatch<React.SetStateAction<QueryOfDeleteQuizState>>;
-  setQueryOfIntegrateToQuizState?: React.Dispatch<React.SetStateAction<QueryOfIntegrateToQuizState>>;
-  setDeleteQuizInfoState?: React.Dispatch<React.SetStateAction<DeleteQuizInfoState>>;
+  deleteQuizInfo: GetQuizApiResponseDto;
+  quizFormatListoption: GetQuizFormatApiResponseDto[];
+  setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
 export const IntegrateToQuizForm = ({
-  queryOfDeleteQuizState,
-  queryOfIntegrateToQuizState,
-  setMessage,
-  setQueryOfDeleteQuizState,
-  setQueryOfIntegrateToQuizState,
-  setDeleteQuizInfoState
+  deleteQuizInfo,
+  quizFormatListoption,
+  setDeleteQuizInfo
 }: IntegrateToQuizFormProps) => {
-  const [integrateToQuizInfoState, setIntegrateToQuizInfoState] = useState<IntegrateToQuizInfoState>({});
+  const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
+  const [getQuizResponseData, setQuizResponseData] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
+  const setMessage = useSetRecoilState(messageState);
 
   return (
     <Paper variant="outlined" className={styles.form}>
@@ -53,36 +40,39 @@ export const IntegrateToQuizForm = ({
           </Typography>
 
           <FormGroup>
-            <FormControl disabled>
-              <PullDown label={'問題ファイル'} optionList={[{ value: -1, label: '同左' }]} onChange={(e) => {}} />
-            </FormControl>
-
+            <PullDown label={'問題ファイル'} optionList={[{ value: -1, label: '同左' }]} onChange={(e) => {}} />
             <FormControl>
               <TextField
                 label="問題番号"
-                disabled={!(queryOfDeleteQuizState.format === 'basic' || queryOfDeleteQuizState.format === 'applied')}
                 onChange={(e) => {
-                  setQueryOfIntegrateToQuizState &&
-                    setQueryOfIntegrateToQuizState({
-                      ...queryOfIntegrateToQuizState,
-                      quizNum: Number(e.target.value)
-                    });
+                  setQuizRequestData({
+                    ...getQuizRequestData,
+                    file_num: deleteQuizInfo.file_num,
+                    quiz_num: +e.target.value
+                  });
                 }}
               />
             </FormControl>
 
             <FormControl>
-              <FormLabel id="demo-row-radio-buttons-group-label">問題種別</FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                value={queryOfIntegrateToQuizState.format}
-                defaultValue={queryOfIntegrateToQuizState.format}
-              >
-                <FormControlLabel disabled value="basic" control={<Radio />} label="基礎問題" />
-                <FormControlLabel disabled value="applied" control={<Radio />} label="応用問題" />
-              </RadioGroup>
+              <RadioGroupSection
+                sectionTitle={'問題種別'}
+                radioGroupProps={{
+                  radioButtonProps: quizFormatListoption.map((x) => {
+                    return {
+                      value: String(x.id),
+                      label: x.name
+                    };
+                  }),
+                  defaultValue: '1',
+                  setQueryofQuizStater: (value: string) => {
+                    setQuizRequestData({
+                      ...getQuizRequestData,
+                      format_id: +value
+                    });
+                  }
+                }}
+              />
             </FormControl>
           </FormGroup>
 
@@ -91,34 +81,49 @@ export const IntegrateToQuizForm = ({
             attr={'button-array'}
             variant="contained"
             color="primary"
-            disabled={queryOfIntegrateToQuizState.format !== 'basic'}
-            onClick={(e) =>
-              getIntegrateToQuiz({ queryOfIntegrateToQuizState, setMessage, setIntegrateToQuizInfoState })
-            }
+            disabled={getQuizRequestData.file_num === -1}
+            onClick={async (e) => {
+              setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+              const result = await getQuizAPI({
+                getQuizRequestData: {
+                  ...getQuizRequestData,
+                  file_num: deleteQuizInfo.file_num
+                }
+              });
+              setMessage(result.message);
+              if (result.result) {
+                setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+              }
+            }}
           />
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            ファイル：{integrateToQuizInfoState.fileNum}
+            ファイル：{getQuizResponseData.file_num === -1 ? '' : getQuizResponseData.file_num}
           </Typography>
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            問題番号：{integrateToQuizInfoState.quizNum}
+            問題番号：{getQuizResponseData.quiz_num === -1 ? '' : getQuizResponseData.quiz_num}
           </Typography>
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            問題　　：{integrateToQuizInfoState.sentense}
+            問題　　：{getQuizResponseData.quiz_sentense}
           </Typography>
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            答え　　：{integrateToQuizInfoState.answer}
+            答え　　：{getQuizResponseData.answer}
           </Typography>
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            カテゴリ：{integrateToQuizInfoState.category}
+            カテゴリ：
+            {getQuizResponseData.quiz_category
+              ?.map((x) => {
+                return x.category;
+              })
+              .join(',')}
           </Typography>
 
           <Typography variant="h6" component="h6" className={styles.questionInfo}>
-            画像　　：{integrateToQuizInfoState.image}
+            画像　　：{getQuizResponseData.img_file}
           </Typography>
         </CardContent>
       </Card>
@@ -128,18 +133,22 @@ export const IntegrateToQuizForm = ({
         attr={'button-array'}
         variant="contained"
         color="primary"
-        disabled={queryOfIntegrateToQuizState.format !== 'basic'}
-        onClick={(e) =>
-          integrateQuiz({
-            queryOfDeleteQuizState,
-            queryOfIntegrateToQuizState,
-            setMessage,
-            setQueryOfDeleteQuizState,
-            setQueryOfIntegrateToQuizState,
-            setDeleteQuizInfoState,
-            setIntegrateToQuizInfoState
-          })
-        }
+        disabled={getQuizResponseData.quiz_num === -1}
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await integrateQuizAPI({
+            integrateToQuizAPIRequestData: {
+              fromQuizId: deleteQuizInfo.id,
+              toQuizId: getQuizResponseData.id
+            }
+          });
+          setMessage(result.message);
+          if (result.message.messageColor === 'success.light') {
+            setQuizRequestData(initGetQuizRequestData);
+            setQuizResponseData(initGetQuizResponseData);
+            setDeleteQuizInfo(initGetQuizResponseData);
+          }
+        }}
       />
     </Paper>
   );

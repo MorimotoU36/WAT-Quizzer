@@ -1,8 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  AddQuizFileAPIRequestDto,
-  DeleteQuizFileAPIRequestDto,
-} from 'quizzer-lib';
+import { AddQuizFileApiRequest, DeleteQuizFileApiRequest } from 'quizzer-lib';
 import { PrismaClient } from '@prisma/client';
 export const prisma: PrismaClient = new PrismaClient();
 
@@ -39,14 +36,10 @@ export class QuizFileService {
         file_num: true,
         file_name: true,
         file_nickname: true,
-        basic_quiz_count: true,
-        basic_clear: true,
-        basic_fail: true,
-        basic_accuracy_rate: true,
-        advanced_quiz_count: true,
-        advanced_clear: true,
-        advanced_fail: true,
-        advanced_accuracy_rate: true,
+        count: true,
+        clear: true,
+        fail: true,
+        accuracy_rate: true,
       },
       orderBy: {
         file_num: 'asc',
@@ -56,14 +49,13 @@ export class QuizFileService {
     return result.map((x) => {
       return {
         ...x,
-        basic_quiz_count: Number(x.basic_quiz_count),
-        advanced_quiz_count: Number(x.advanced_quiz_count),
+        count: Number(x.count),
       };
     });
   }
 
   // ファイル追加
-  async addFile(req: AddQuizFileAPIRequestDto) {
+  async addFile(req: AddQuizFileApiRequest) {
     try {
       const { file_name, file_nickname } = req;
       // ファイル追加
@@ -84,7 +76,7 @@ export class QuizFileService {
   }
 
   // ファイル削除（とりあえず基礎問題のみ）
-  async deleteFile(req: DeleteQuizFileAPIRequestDto) {
+  async deleteFile(req: DeleteQuizFileApiRequest) {
     try {
       const { file_id } = req;
 
@@ -93,7 +85,6 @@ export class QuizFileService {
         // 指定ファイルの問題全削除
         await prisma.quiz.updateMany({
           data: {
-            updated_at: new Date(),
             deleted_at: new Date(),
           },
           where: {
@@ -107,7 +98,9 @@ export class QuizFileService {
             deleted_at: new Date(),
           },
           where: {
-            file_num: file_id,
+            quiz: {
+              file_num: file_id,
+            },
             deleted_at: null,
           },
         });
@@ -115,7 +108,6 @@ export class QuizFileService {
         // 指定ファイル削除
         await prisma.quiz_file.update({
           data: {
-            updated_at: new Date(),
             deleted_at: new Date(),
           },
           where: {

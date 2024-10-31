@@ -1,7 +1,5 @@
-import { ProcessingApiReponse } from '../interfaces'
-import { getApiKey } from '../../lib/aws/secrets'
-import { Message } from '../common/message'
-import { ApiResult } from './'
+import { getApiKey } from '../lib/aws/secrets'
+import { ApiResult, ProcessingApiReponse } from './'
 
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 
@@ -10,7 +8,7 @@ export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 export const get = async (
   path: string,
   func: (data: ProcessingApiReponse) => ApiResult,
-  queryParam?: { [key: string]: string | number },
+  queryParam?: { [key: string]: string | number | boolean },
   bodyData?: object,
   accessToken?: string
 ) => {
@@ -119,11 +117,11 @@ export const post = async (
 export const put = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => void,
+  func: (data: ProcessingApiReponse) => ApiResult,
   accessToken?: string
 ) => {
   const key = await getApiKey()
-  await fetch(baseURL + path, {
+  return await fetch(baseURL + path, {
     method: 'PUT',
     body: JSON.stringify(jsondata),
     headers: {
@@ -142,7 +140,13 @@ export const put = async (
     )
     .then(func)
     .catch((error) => {
-      console.error(`PUT(${path}): ${error}`)
+      return {
+        message: {
+          message: String(error.message),
+          messageColor: 'error',
+          isDisplay: true
+        }
+      } as ApiResult
     })
 }
 

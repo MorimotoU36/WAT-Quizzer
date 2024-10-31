@@ -1,10 +1,20 @@
-import { ApiResponse } from '../../..'
+import { ApiResponse } from '../../api'
 
-// TODO numberにできるところはそうしたい
 export interface GetQuizAPIRequestDto {
   file_num: number
   quiz_num?: number
-  format: string
+  format_id?: number
+  min_rate?: number
+  max_rate?: number
+  category?: string
+  checked?: boolean //booleanにしたい
+}
+
+//API側で受け取った時のDTO（Pipeで上に変換する）
+export interface GetQuizAPIRequestReceivedDto {
+  file_num: string
+  quiz_num?: string
+  format_id?: string
   min_rate?: string
   max_rate?: string
   category?: string
@@ -13,8 +23,7 @@ export interface GetQuizAPIRequestDto {
 
 // 問題取得APIのレスポンス（基礎応用込み）、フォーマット込み
 export interface GetQuizApiResponseDto extends ApiResponse {
-  format: string
-  format_value?: number
+  format_id?: number
 
   id: number
   file_num: number
@@ -23,6 +32,9 @@ export interface GetQuizApiResponseDto extends ApiResponse {
   answer: string
   img_file?: string
   checked?: boolean
+  quiz_format?: {
+    name: string
+  }
   quiz_statistics_view?: {
     clear_count: number
     fail_count: number
@@ -32,15 +44,18 @@ export interface GetQuizApiResponseDto extends ApiResponse {
     category: string
     deleted_at?: string
   }[]
-  advanced_quiz_statistics_view?: {
-    clear_count: number
-    fail_count: number
-    accuracy_rate: number
-  }
-  dummy_choice?: {
+  quiz_dummy_choice?: {
     dummy_choice_sentense: string // TODO テーブルごとの型なので本当は望ましくない getQuiz専用のAPI返り値型を作るべき
   }[]
-  advanced_quiz_explanation?: {
+  quiz_basis_linkage?: {
+    basis_quiz_id: number
+    advanced_quiz_id: number
+  }[]
+  quiz_advanced_linkage?: {
+    basis_quiz_id: number
+    advanced_quiz_id: number
+  }[]
+  quiz_explanation?: {
     explanation: string
   }
   quiz_basis_advanced_linkage?: {

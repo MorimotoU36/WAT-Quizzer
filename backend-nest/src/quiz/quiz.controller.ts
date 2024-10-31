@@ -16,12 +16,15 @@ import {
   AddQuizAPIRequestDto,
   EditQuizAPIRequestDto,
   DeleteQuizAPIRequestDto,
-  IntegrateQuizAPIRequestDto,
-  UpdateCategoryOfQuizAPIRequestDto,
-  RemoveCategoryOfQuizAPIRequestDto,
+  IntegrateToQuizAPIRequestDto,
   CheckQuizAPIRequestDto,
-  DeleteAnswerLogAPIRequestDto,
+  DeleteAnswerLogOfFileApiRequestDto,
+  AddCategoryToQuizAPIRequestDto,
+  GetQuizAPIRequestDto,
+  SearchQuizAPIRequestDto,
 } from 'quizzer-lib';
+import { GetQuizPipe } from './pipe/getQuiz.pipe';
+import { SearchQuizPipe } from './pipe/searchQuiz.pipe';
 // import { AuthGuard } from '../auth/auth.guard';
 
 // @UseGuards(AuthGuard)
@@ -30,100 +33,33 @@ export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Get()
-  async getQuiz(
-    @Query('file_num') file_num: number,
-    @Query('quiz_num') quiz_num: number,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      quiz_num: +quiz_num,
-      format,
-    });
+  async getQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req);
   }
 
   @Get('/random')
-  async getRandomQuiz(
-    @Query('file_num') file_num: number,
-    @Query('min_rate') min_rate: number,
-    @Query('max_rate') max_rate: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      min_rate: +min_rate,
-      max_rate: +max_rate,
-      category,
-      checked,
-      format,
-      method: 'random',
-    });
+  async getRandomQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'random');
   }
 
   @Get('/worst')
-  async getWorstRateQuiz(
-    @Query('file_num') file_num: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      category,
-      checked,
-      format,
-      method: 'worstRate',
-    });
+  async getWorstRateQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'worstRate');
   }
 
   @Get('/minimum')
-  async getMinimumAnsweredQuiz(
-    @Query('file_num') file_num: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      category,
-      checked,
-      format,
-      method: 'leastClear',
-    });
+  async getMinimumAnsweredQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'leastClear');
   }
 
   @Get('/lru')
-  async getLRUQuiz(
-    @Query('file_num') file_num: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      category,
-      checked,
-      format,
-      method: 'LRU',
-    });
+  async getLRUQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'LRU');
   }
 
   @Get('/review')
-  async getReviewQuiz(
-    @Query('file_num') file_num: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.getQuiz({
-      file_num: +file_num,
-      category,
-      checked,
-      format,
-      method: 'review',
-    });
+  async getReviewQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'review');
   }
 
   @Post('/clear')
@@ -147,28 +83,8 @@ export class QuizController {
   }
 
   @Get('/search')
-  async search(
-    @Query('file_num') file_num: number,
-    @Query('min_rate') min_rate: number,
-    @Query('max_rate') max_rate: number,
-    @Query('category') category: string,
-    @Query('checked') checked: string,
-    @Query('query') query: string,
-    @Query('searchInOnlySentense') searchInOnlySentense: string,
-    @Query('searchInOnlyAnswer') searchInOnlyAnswer: string,
-    @Query('format') format: string,
-  ) {
-    return await this.quizService.search(
-      +file_num,
-      +min_rate,
-      +max_rate,
-      category,
-      checked,
-      query,
-      searchInOnlySentense,
-      searchInOnlyAnswer,
-      format,
-    );
+  async search(@Query(SearchQuizPipe) req: SearchQuizAPIRequestDto) {
+    return await this.quizService.search(req);
   }
 
   @Delete()
@@ -177,19 +93,17 @@ export class QuizController {
   }
 
   @Post('/integrate')
-  async integrate(@Body() req: IntegrateQuizAPIRequestDto) {
+  async integrate(@Body() req: IntegrateToQuizAPIRequestDto) {
     return await this.quizService.integrate(req);
   }
 
   @Post('/category')
-  async addCategoryToQuiz(@Body() body: UpdateCategoryOfQuizAPIRequestDto) {
+  async addCategoryToQuiz(@Body() body: AddCategoryToQuizAPIRequestDto) {
     return await this.quizService.addCategoryToQuiz(body);
   }
 
   @Put('/category')
-  async removeCategoryFromQuiz(
-    @Body() body: RemoveCategoryOfQuizAPIRequestDto,
-  ) {
+  async removeCategoryFromQuiz(@Body() body: AddCategoryToQuizAPIRequestDto) {
     return await this.quizService.removeCategoryFromQuiz(body);
   }
 
@@ -209,18 +123,13 @@ export class QuizController {
   }
 
   @Patch('/answer_log/file')
-  async deleteAnswerLogByFile(@Body() req: DeleteAnswerLogAPIRequestDto) {
+  async deleteAnswerLogByFile(@Body() req: DeleteAnswerLogOfFileApiRequestDto) {
     return await this.quizService.deleteAnswerLogByFile(req);
   }
 
-  @Post('/advanced')
-  async addAdvanceQuiz(@Body() req: AddQuizAPIRequestDto) {
-    return await this.quizService.addAdvancedQuiz(req);
-  }
-
-  @Post('/advanced/4choice')
-  async addFourChoiceQuiz(@Body() req: AddQuizAPIRequestDto) {
-    return await this.quizService.addFourChoiceQuiz(req);
+  @Get('format')
+  async getQuizFormatList() {
+    return await this.quizService.getQuizFormatList();
   }
 
   @Get('/statistics/week')

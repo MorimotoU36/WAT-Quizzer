@@ -4,72 +4,26 @@ generator client {
   binaryTargets   = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
+generator erd {
+  provider                  = "prisma-erd-generator"
+  output                    = "ERD.md"
+  theme                     = "forest"
+  includeRelationFromFields = "true"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model advanced_quiz {
-  id                            Int                            @id @default(autoincrement())
-  file_num                      Int
-  quiz_num                      Int
-  advanced_quiz_type_id         Int
-  quiz_sentense                 String                         @unique @db.VarChar(256)
-  answer                        String                         @db.VarChar(256)
-  img_file                      String?                        @db.VarChar(128)
-  checked                       Boolean?                       @default(false)
-  created_at                    DateTime                       @default(now()) @db.Timestamp(6)
-  updated_at                    DateTime                       @default(now()) @db.Timestamp(6)
-  deleted_at                    DateTime?                      @db.Timestamp(6)
-  advanced_quiz_type            advanced_quiz_type             @relation(fields: [advanced_quiz_type_id], references: [id])
-  quiz_file                     quiz_file                      @relation(fields: [file_num], references: [file_num])
-  advanced_quiz_explanation     advanced_quiz_explanation?
-  dummy_choice                  dummy_choice[]
-  quiz_basis_advanced_linkage   quiz_basis_advanced_linkage[]
-  advanced_quiz_statistics_view advanced_quiz_statistics_view? @relation(fields: [id], references: [id])
-
-  @@unique([file_num, quiz_num])
-}
-
-model advanced_quiz_explanation {
-  id               Int           @id @default(autoincrement())
-  advanced_quiz_id Int           @unique
-  explanation      String
-  created_at       DateTime      @default(now()) @db.Timestamp(6)
-  updated_at       DateTime      @default(now()) @db.Timestamp(6)
-  deleted_at       DateTime?     @db.Timestamp(6)
-  advanced_quiz    advanced_quiz @relation(fields: [advanced_quiz_id], references: [id])
-}
-
-model advanced_quiz_type {
-  id            Int             @id @default(autoincrement())
-  type_name     String          @unique @db.VarChar(256)
-  type_nickname String          @db.VarChar(256)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime        @default(now()) @db.Timestamp(6)
-  deleted_at    DateTime?       @db.Timestamp(6)
-  advanced_quiz advanced_quiz[]
-}
-
 model answer_log {
-  id             Int       @id @default(autoincrement())
-  quiz_format_id Int
-  file_num       Int
-  quiz_num       Int
-  is_corrected   Boolean?
-  created_at     DateTime  @default(now()) @db.Timestamp(6)
-  updated_at     DateTime  @default(now()) @db.Timestamp(6)
-  deleted_at     DateTime? @db.Timestamp(6)
-}
-
-model dummy_choice {
-  id                    Int           @id @default(autoincrement())
-  advanced_quiz_id      Int
-  dummy_choice_sentense String        @db.VarChar(256)
-  created_at            DateTime      @default(now()) @db.Timestamp(6)
-  updated_at            DateTime      @default(now()) @db.Timestamp(6)
-  deleted_at            DateTime?     @db.Timestamp(6)
-  advanced_quiz         advanced_quiz @relation(fields: [advanced_quiz_id], references: [id])
+  id           Int       @id @default(autoincrement())
+  is_corrected Boolean?
+  created_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime? @db.Timestamp(6)
+  quiz_id      Int
+  quiz         quiz      @relation(fields: [quiz_id], references: [id])
 }
 
 model englishbot_answer_log {
@@ -77,7 +31,7 @@ model englishbot_answer_log {
   word_id    Int
   result     Boolean?
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
   test_type  Int       @default(0)
   word       word      @relation(fields: [word_id], references: [id])
@@ -88,7 +42,7 @@ model example {
   en_example_sentense String                @db.VarChar(256)
   ja_example_sentense String                @db.VarChar(256)
   created_at          DateTime              @default(now()) @db.Timestamp(6)
-  updated_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt
   deleted_at          DateTime?             @db.Timestamp(6)
   example_explanation example_explanation[]
   word_example        word_example[]
@@ -99,7 +53,7 @@ model example_explanation {
   example_id  Int
   explanation String    @db.VarChar(256)
   created_at  DateTime  @default(now()) @db.Timestamp(6)
-  updated_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
   deleted_at  DateTime? @db.Timestamp(6)
   example     example   @relation(fields: [example_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -111,7 +65,7 @@ model mean {
   partsofspeech_id Int
   meaning          String        @db.VarChar(256)
   created_at       DateTime      @default(now()) @db.Timestamp(6)
-  updated_at       DateTime      @default(now()) @db.Timestamp(6)
+  updated_at       DateTime      @updatedAt
   deleted_at       DateTime?     @db.Timestamp(6)
   partsofspeech    partsofspeech @relation(fields: [partsofspeech_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   word             word          @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -123,54 +77,58 @@ model partsofspeech {
   id         Int       @id @default(autoincrement())
   name       String    @db.VarChar(256)
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
   mean       mean[]
 }
 
 model quiz {
-  id                          Int                           @id @default(autoincrement())
-  file_num                    Int
-  quiz_num                    Int
-  quiz_sentense               String                        @unique @db.VarChar(256)
-  answer                      String                        @db.VarChar(256)
-  img_file                    String?                       @db.VarChar(128)
-  checked                     Boolean?                      @default(false)
-  created_at                  DateTime                      @default(now()) @db.Timestamp(6)
-  updated_at                  DateTime                      @default(now()) @db.Timestamp(6)
-  deleted_at                  DateTime?                     @db.Timestamp(6)
-  quiz_basis_advanced_linkage quiz_basis_advanced_linkage[]
-  quiz_category               quiz_category[]
-  quiz_statistics_view        quiz_statistics_view?         @relation(fields: [id], references: [id])
+  id                    Int                           @id @default(autoincrement())
+  file_num              Int
+  quiz_num              Int
+  quiz_sentense         String                        @unique @db.VarChar(256)
+  answer                String                        @db.VarChar(256)
+  img_file              String?                       @db.VarChar(128)
+  checked               Boolean?                      @default(false)
+  created_at            DateTime                      @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                      @updatedAt
+  deleted_at            DateTime?                     @db.Timestamp(6)
+  format_id             Int
+  answer_log            answer_log[]
+  quiz_format           quiz_format                   @relation(fields: [format_id], references: [id])
+  quiz_advanced_linkage quiz_basis_advanced_linkage[] @relation("advanced")
+  quiz_basis_linkage    quiz_basis_advanced_linkage[] @relation("basis")
+  quiz_category         quiz_category[]
+  quiz_dummy_choice     quiz_dummy_choice[]
+  quiz_explanation      quiz_explanation?
+  quiz_statistics_view  quiz_statistics_view?         @relation(fields: [id], references: [id])
 
   @@unique([file_num, quiz_num])
 }
 
 model quiz_basis_advanced_linkage {
-  id               Int           @id @default(autoincrement())
-  file_num         Int
-  basis_quiz_id    Int
-  advanced_quiz_id Int
-  created_at       DateTime      @default(now()) @db.Timestamp(6)
-  updated_at       DateTime      @default(now()) @db.Timestamp(6)
-  deleted_at       DateTime?     @db.Timestamp(6)
-  advanced_quiz    advanced_quiz @relation(fields: [advanced_quiz_id], references: [id])
-  quiz             quiz          @relation(fields: [basis_quiz_id], references: [id])
+  id                 Int       @id @default(autoincrement())
+  basis_quiz_id      Int
+  advanced_quiz_id   Int
+  created_at         DateTime  @default(now()) @db.Timestamp(6)
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime? @db.Timestamp(6)
+  quiz_advanced_link quiz      @relation("advanced", fields: [advanced_quiz_id], references: [id])
+  quiz_basis_link    quiz      @relation("basis", fields: [basis_quiz_id], references: [id])
 
   @@unique([basis_quiz_id, advanced_quiz_id])
 }
 
 model quiz_category {
   id         Int       @id @default(autoincrement())
-  file_num   Int
-  quiz_num   Int
   category   String?   @db.VarChar(256)
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
-  quiz       quiz      @relation(fields: [file_num, quiz_num], references: [file_num, quiz_num])
+  quiz_id    Int
+  quiz       quiz      @relation(fields: [quiz_id], references: [id])
 
-  @@unique([file_num, quiz_num, category])
+  @@unique([quiz_id, category])
 }
 
 model quiz_dependency {
@@ -178,26 +136,46 @@ model quiz_dependency {
   preliminary_quiz_id Int
   quiz_id             Int
   created_at          DateTime  @default(now()) @db.Timestamp(6)
-  updated_at          DateTime  @default(now()) @db.Timestamp(6)
+  updated_at          DateTime  @updatedAt
   deleted_at          DateTime? @db.Timestamp(6)
 }
 
+model quiz_dummy_choice {
+  id                    Int       @id @default(autoincrement())
+  quiz_id               Int
+  dummy_choice_sentense String    @db.VarChar(256)
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @updatedAt
+  deleted_at            DateTime? @db.Timestamp(6)
+  quiz                  quiz      @relation(fields: [quiz_id], references: [id])
+}
+
+model quiz_explanation {
+  id          Int       @id @default(autoincrement())
+  quiz_id     Int       @unique
+  explanation String
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Timestamp(6)
+  quiz        quiz      @relation(fields: [quiz_id], references: [id])
+}
+
 model quiz_file {
-  file_num      Int             @id @default(autoincrement())
-  file_name     String          @unique @db.VarChar(256)
-  file_nickname String          @unique @db.VarChar(256)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime        @default(now()) @db.Timestamp(6)
-  deleted_at    DateTime?       @db.Timestamp(6)
-  advanced_quiz advanced_quiz[]
+  file_num      Int       @id @default(autoincrement())
+  file_name     String    @unique @db.VarChar(256)
+  file_nickname String    @unique @db.VarChar(256)
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime? @db.Timestamp(6)
 }
 
 model quiz_format {
   id         Int       @id @default(autoincrement())
   name       String    @unique @db.VarChar(256)
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
+  quiz       quiz[]
 }
 
 model quiz_similarity {
@@ -205,7 +183,7 @@ model quiz_similarity {
   similarity_group_id Int
   quiz_id             Int
   created_at          DateTime  @default(now()) @db.Timestamp(6)
-  updated_at          DateTime  @default(now()) @db.Timestamp(6)
+  updated_at          DateTime  @updatedAt
   deleted_at          DateTime? @db.Timestamp(6)
 
   @@unique([similarity_group_id, quiz_id])
@@ -215,7 +193,7 @@ model quiz_similarity_group {
   id                    Int       @id @default(autoincrement())
   similarity_group_name String    @db.VarChar(256)
   created_at            DateTime  @default(now()) @db.Timestamp(6)
-  updated_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @updatedAt
   deleted_at            DateTime? @db.Timestamp(6)
 }
 
@@ -226,7 +204,7 @@ model saying {
   saying         String        @unique @db.VarChar(256)
   explanation    String
   created_at     DateTime      @default(now()) @db.Timestamp(6)
-  updated_at     DateTime      @default(now()) @db.Timestamp(6)
+  updated_at     DateTime      @updatedAt
   deleted_at     DateTime?     @db.Timestamp(6)
   selfhelp_book  selfhelp_book @relation(fields: [book_id], references: [id])
 }
@@ -235,7 +213,7 @@ model selfhelp_book {
   id         Int       @id @default(autoincrement())
   name       String    @db.VarChar(256)
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
   saying     saying[]
 }
@@ -244,7 +222,7 @@ model source {
   id          Int           @id @default(autoincrement())
   name        String        @db.VarChar(256)
   created_at  DateTime      @default(now()) @db.Timestamp(6)
-  updated_at  DateTime      @default(now()) @db.Timestamp(6)
+  updated_at  DateTime      @updatedAt
   deleted_at  DateTime?     @db.Timestamp(6)
   word_source word_source[]
 }
@@ -254,7 +232,7 @@ model word {
   name                  String                  @unique @db.VarChar(256)
   pronounce             String                  @db.VarChar(256)
   created_at            DateTime                @default(now()) @db.Timestamp(6)
-  updated_at            DateTime                @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                @updatedAt
   deleted_at            DateTime?               @db.Timestamp(6)
   checked               Boolean                 @default(false)
   antonym_word          antonym[]               @relation("antonym_word_id")
@@ -276,7 +254,7 @@ model word_etymology {
   etymology_id Int
   word_id      Int
   created_at   DateTime  @default(now()) @db.Timestamp(6)
-  updated_at   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at   DateTime  @updatedAt
   deleted_at   DateTime? @db.Timestamp(6)
   etymology    etymology @relation(fields: [etymology_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   word         word      @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -288,7 +266,7 @@ model etymology {
   id             Int              @id @default(autoincrement())
   name           String           @unique @db.VarChar(256)
   created_at     DateTime         @default(now()) @db.Timestamp(6)
-  updated_at     DateTime         @default(now()) @db.Timestamp(6)
+  updated_at     DateTime         @updatedAt
   deleted_at     DateTime?        @db.Timestamp(6)
   word_etymology word_etymology[]
 }
@@ -297,7 +275,7 @@ model word_example {
   example_sentense_id Int
   word_id             Int
   created_at          DateTime  @default(now()) @db.Timestamp(6)
-  updated_at          DateTime  @default(now()) @db.Timestamp(6)
+  updated_at          DateTime  @updatedAt
   deleted_at          DateTime? @db.Timestamp(6)
   example             example   @relation(fields: [example_sentense_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   word                word      @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -310,7 +288,7 @@ model synonym {
   word_id          Int
   synonym_word_id  Int
   created_at       DateTime  @default(now()) @db.Timestamp(6)
-  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @updatedAt
   deleted_at       DateTime? @db.Timestamp(6)
   synonym_word     word      @relation("synonym_word_id", fields: [synonym_word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   synonym_original word      @relation("synonym_original_id", fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -323,7 +301,7 @@ model antonym {
   word_id          Int
   antonym_word_id  Int
   created_at       DateTime  @default(now()) @db.Timestamp(6)
-  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @updatedAt
   deleted_at       DateTime? @db.Timestamp(6)
   antonym_word     word      @relation("antonym_word_id", fields: [antonym_word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   antonym_original word      @relation("antonym_original_id", fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -336,7 +314,7 @@ model derivative {
   derivative_group_id Int
   word_id             Int              @unique
   created_at          DateTime         @default(now()) @db.Timestamp(6)
-  updated_at          DateTime         @default(now()) @db.Timestamp(6)
+  updated_at          DateTime         @updatedAt
   deleted_at          DateTime?        @db.Timestamp(6)
   derivative_group    derivative_group @relation(fields: [derivative_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   word                word             @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -346,7 +324,7 @@ model derivative_group {
   id                    Int          @id @default(autoincrement())
   derivative_group_name String       @db.VarChar(256)
   created_at            DateTime     @default(now()) @db.Timestamp(6)
-  updated_at            DateTime     @default(now()) @db.Timestamp(6)
+  updated_at            DateTime     @updatedAt
   deleted_at            DateTime?    @db.Timestamp(6)
   derivative            derivative[]
 }
@@ -356,7 +334,7 @@ model word_source {
   word_id    Int
   source_id  Int
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
   source     source    @relation(fields: [source_id], references: [id])
   word       word      @relation(fields: [word_id], references: [id])
@@ -369,41 +347,11 @@ model word_subsource {
   word_id    Int
   subsource  String    @db.VarChar(256)
   created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
   deleted_at DateTime? @db.Timestamp(6)
   word       word      @relation(fields: [word_id], references: [id])
 
   @@unique([word_id, subsource])
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view advanced_quiz_statistics_view {
-  id                     Int             @unique
-  clear_count            BigInt?
-  fail_count             BigInt?
-  answer_count           BigInt?
-  accuracy_rate          BigInt?
-  last_answer_log        DateTime?       @db.Timestamp(6)
-  last_failed_answer_log DateTime?       @db.Timestamp(6)
-  advanced_quiz          advanced_quiz[]
-}
-
-/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-view advanced_quiz_view {
-  id                    Int       @unique
-  file_num              Int?
-  quiz_num              Int?
-  advanced_quiz_type_id Int?
-  quiz_sentense         String?   @db.VarChar(256)
-  answer                String?   @db.VarChar(256)
-  img_file              String?   @db.VarChar(128)
-  checked               Boolean?
-  clear_count           BigInt?
-  fail_count            BigInt?
-  created_at            DateTime? @db.Timestamp(6)
-  updated_at            DateTime? @db.Timestamp(6)
-  deleted_at            DateTime? @db.Timestamp(6)
-  accuracy_rate         BigInt?
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -420,17 +368,13 @@ view category_view {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view quiz_file_view {
-  file_num               Int      @unique
-  file_name              String?  @db.VarChar(256)
-  file_nickname          String?  @db.VarChar(256)
-  basic_quiz_count       BigInt?
-  basic_clear            Decimal? @db.Decimal
-  basic_fail             Decimal? @db.Decimal
-  basic_accuracy_rate    Decimal? @db.Decimal
-  advanced_quiz_count    BigInt?
-  advanced_clear         Decimal? @db.Decimal
-  advanced_fail          Decimal? @db.Decimal
-  advanced_accuracy_rate Decimal? @db.Decimal
+  file_num      Int      @unique
+  file_name     String?  @db.VarChar(256)
+  file_nickname String?  @db.VarChar(256)
+  count         BigInt?
+  clear         Decimal? @db.Decimal
+  fail          Decimal? @db.Decimal
+  accuracy_rate Decimal? @db.Decimal
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

@@ -1,8 +1,19 @@
 // 英単語テストデータ取得APIリクエスト型
 export interface GetEnglishWordTestDataAPIRequestDto {
-  format: string
-  checked?: string
+  format: 'random' | 'lru'
   source?: string
+  checked?: boolean
+  startDate?: string
+  endDate?: string
+  min_rate?: number
+  max_rate?: number
+}
+
+//API側で受け取った時のDTO（Pipeで上に変換する）
+export interface GetEnglishWordTestDataAPIRequestReceivedDto {
+  format: 'random' | 'lru'
+  source?: string
+  checked?: string
   startDate?: string
   endDate?: string
   min_rate?: string

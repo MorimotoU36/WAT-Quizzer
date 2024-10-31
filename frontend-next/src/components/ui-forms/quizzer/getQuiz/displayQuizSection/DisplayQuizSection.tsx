@@ -5,12 +5,12 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import {
-  checkQuizAPI,
   clearQuizAPI,
   failQuizAPI,
   generateQuizSentense,
   GetQuizApiResponseDto,
-  initGetQuizResponseData
+  initGetQuizResponseData,
+  reverseCheckQuizAPI
 } from 'quizzer-lib';
 
 interface DisplayQuizSectionProps {
@@ -63,13 +63,14 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
               {displayQuiz.answer}
             </Typography>
             <Typography variant="subtitle2" component="h3">
-              {'解説：' + displayQuiz.advanced_quiz_explanation?.explanation}
+              {'解説：' + displayQuiz.quiz_explanation?.explanation}
             </Typography>
             <Button
               label={'正解!!'}
               attr={'button-array'}
               variant="contained"
               color="primary"
+              disabled={getQuizResponseData.quiz_num === -1}
               onClick={async (e) => {
                 setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
                 const result = await clearQuizAPI({
@@ -88,6 +89,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
               attr={'button-array'}
               variant="contained"
               color="secondary"
+              disabled={getQuizResponseData.quiz_num === -1}
               onClick={async (e) => {
                 setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
                 const result = await failQuizAPI({
@@ -106,9 +108,10 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
               attr={'button-array'}
               variant="contained"
               color="warning"
+              disabled={getQuizResponseData.quiz_num === -1}
               onClick={async (e) => {
                 setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-                const result = await checkQuizAPI({
+                const result = await reverseCheckQuizAPI({
                   getQuizResponseData
                 });
                 setMessage(result.message);

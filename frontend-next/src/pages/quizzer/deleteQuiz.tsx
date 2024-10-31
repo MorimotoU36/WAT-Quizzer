@@ -2,84 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
 import { Title } from '@/components/ui-elements/title/Title';
-import { DeleteQuizInfoState, QueryOfDeleteQuizState, QueryOfIntegrateToQuizState } from '../../../interfaces/state';
 import { DeleteQuizForm } from '@/components/ui-forms/quizzer/deleteQuiz/deleteQuizForm/DeleteQuizForm';
 import { IntegrateToQuizForm } from '@/components/ui-forms/quizzer/deleteQuiz/integrateToQuizForm/IntegrateToQuizForm';
-import { messageState } from '@/atoms/Message';
-import { useRecoilState } from 'recoil';
 import {
-  PullDownOptionDto,
-  getQuizFileListAPI,
-  quizFileListAPIResponseToPullDownAdapter,
-  GetQuizFileApiResponseDto
+  GetQuizApiResponseDto,
+  GetQuizFormatApiResponseDto,
+  getQuizFormatListAPI,
+  initGetQuizResponseData
 } from 'quizzer-lib';
+import { messageState } from '@/atoms/Message';
+import { useSetRecoilState } from 'recoil';
 
 type Props = {
   isMock?: boolean;
 };
 
 export default function DeleteQuizPage({ isMock }: Props) {
-  const [queryOfDeleteQuizState, setQueryOfDeleteQuizState] = useState<QueryOfDeleteQuizState>({
-    fileNum: -1,
-    quizNum: -1,
-    format: 'basic'
-  });
-  const [queryOfIntegrateToQuizState, setQueryOfIntegrateToQuizState] = useState<QueryOfIntegrateToQuizState>({
-    fileNum: -1,
-    quizNum: -1,
-    format: 'basic'
-  });
-  const [deleteQuizInfoState, setDeleteQuizInfoState] = useState<DeleteQuizInfoState>({});
-  const [message, setMessage] = useRecoilState(messageState);
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const [deleteQuizInfo, setDeleteQuizInfo] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
+  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const setMessage = useSetRecoilState(messageState);
 
+  // 問題形式リスト取得
   useEffect(() => {
-    if (!isMock) {
-      (async () => {
-        setMessage({
-          message: '通信中...',
-          messageColor: '#d3d3d3',
-          isDisplay: true
-        });
-        const result = await getQuizFileListAPI();
-        setMessage(result.message);
-        const pullDownOption = result.result
-          ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-          : [];
-        setFilelistoption(pullDownOption);
-      })();
-    }
-  }, [isMock, setMessage]);
+    // TODO これ　別関数にしたい
+    (async () => {
+      setMessage({
+        message: '通信中...',
+        messageColor: '#d3d3d3',
+        isDisplay: true
+      });
+      const result = await getQuizFormatListAPI();
+      setMessage(result.message);
+      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
+    })();
+  }, [setMessage]);
 
   const contents = () => {
     return (
       <Container>
         <Title label="WAT Quizzer"></Title>
         <DeleteQuizForm
-          queryOfDeleteQuizState={queryOfDeleteQuizState}
-          queryOfIntegrateToQuizState={queryOfIntegrateToQuizState}
-          deleteQuizInfoState={deleteQuizInfoState}
-          filelistoption={filelistoption}
-          setMessage={setMessage}
-          setQueryOfDeleteQuizState={setQueryOfDeleteQuizState}
-          setDeleteQuizInfoState={setDeleteQuizInfoState}
-          setQueryOfIntegrateToQuizState={setQueryOfIntegrateToQuizState}
+          deleteQuizInfo={deleteQuizInfo}
+          quizFormatListoption={quizFormatListoption}
+          setDeleteQuizInfo={setDeleteQuizInfo}
         />
         <IntegrateToQuizForm
-          queryOfDeleteQuizState={queryOfDeleteQuizState}
-          queryOfIntegrateToQuizState={queryOfIntegrateToQuizState}
-          setMessage={setMessage}
-          setQueryOfDeleteQuizState={setQueryOfDeleteQuizState}
-          setQueryOfIntegrateToQuizState={setQueryOfIntegrateToQuizState}
-          setDeleteQuizInfoState={setDeleteQuizInfoState}
+          deleteQuizInfo={deleteQuizInfo}
+          quizFormatListoption={quizFormatListoption}
+          setDeleteQuizInfo={setDeleteQuizInfo}
         />
       </Container>
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'問題削除'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'問題削除'} />;
 }

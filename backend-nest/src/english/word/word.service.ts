@@ -14,6 +14,7 @@ import {
   ToggleCheckAPIRequestDto,
   AddWordAPIRequestDto,
   SubmitEnglishWordTestDataAPIRequestDto,
+  SearchWordAPIRequestDto,
 } from 'quizzer-lib';
 import { PrismaClient } from '@prisma/client';
 export const prisma: PrismaClient = new PrismaClient();
@@ -143,12 +144,9 @@ export class EnglishWordService {
   }
 
   // 単語検索
-  async searchWordService(
-    wordName: string,
-    meanQuery: string,
-    subSourceName: string,
-  ) {
+  async searchWordService(req: SearchWordAPIRequestDto) {
     try {
+      const { wordName, meanQuery, subSourceName } = req;
       const result = await prisma.word.findMany({
         select: {
           id: true,
@@ -379,7 +377,6 @@ export class EnglishWordService {
             await prisma.word_source.update({
               data: {
                 source_id: newSourceId,
-                updated_at: new Date(),
               },
               where: {
                 word_id_source_id: {
@@ -711,7 +708,6 @@ export class EnglishWordService {
           data: {
             partsofspeech_id: partofspeechId,
             meaning,
-            updated_at: new Date(),
           },
           where: {
             word_id_wordmean_id: {

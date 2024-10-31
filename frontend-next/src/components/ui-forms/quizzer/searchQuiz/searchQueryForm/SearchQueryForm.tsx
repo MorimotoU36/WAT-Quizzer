@@ -1,212 +1,245 @@
-import React from 'react';
-import { MessageState, QueryOfSearchQuizState } from '../../../../../../interfaces/state';
+import React, { useEffect, useState } from 'react';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
-import { get } from '@/api/API';
-import { GetCategoryAPIResponseDto, ProcessingApiReponse, PullDownOptionDto } from 'quizzer-lib';
+import {
+  GetCategoryAPIResponseDto,
+  getCategoryListAPI,
+  getCategoryListAPIResponseToPullDownAdapter,
+  GetQuizApiResponseDto,
+  GetQuizFileApiResponseDto,
+  getQuizFileListAPI,
+  GetQuizFormatApiResponseDto,
+  getQuizFormatListAPI,
+  initQuizFormatListData,
+  PullDownOptionDto,
+  quizFileListAPIResponseToPullDownAdapter,
+  searchQuizAPI,
+  SearchQuizAPIRequestDto
+} from 'quizzer-lib';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
+import { Button } from '@/components/ui-elements/button/Button';
+import { GridRowsProp } from '@mui/x-data-grid';
 
 interface SearchQueryFormProps {
-  filelistoption: PullDownOptionDto[];
-  categorylistoption: PullDownOptionDto[];
-  queryOfSearchQuizState: QueryOfSearchQuizState;
-  setMessage?: React.Dispatch<React.SetStateAction<MessageState>>;
-  setCategorylistoption?: React.Dispatch<React.SetStateAction<PullDownOptionDto[]>>;
-  setQueryofSearchQuizState?: React.Dispatch<React.SetStateAction<QueryOfSearchQuizState>>;
+  searchQuizRequestData: SearchQuizAPIRequestDto;
+  setSearchResult: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+  setSearchQuizRequestData: React.Dispatch<React.SetStateAction<SearchQuizAPIRequestDto>>;
 }
 
 export const SearchQueryForm = ({
-  filelistoption,
-  categorylistoption,
-  queryOfSearchQuizState,
-  setMessage,
-  setCategorylistoption,
-  setQueryofSearchQuizState
+  searchQuizRequestData,
+  setSearchResult,
+  setSearchQuizRequestData
 }: SearchQueryFormProps) => {
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    if (!setMessage || !setCategorylistoption || !setQueryofSearchQuizState) {
-      return;
-    }
+  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
+  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([
+    initQuizFormatListData
+  ]);
 
-    setMessage({
-      message: '通信中...',
-      messageColor: '#d3d3d3'
-    });
-    get(
-      '/category',
-      (data: ProcessingApiReponse) => {
-        if (data.status === 200) {
-          const res: GetCategoryAPIResponseDto[] = data.body as GetCategoryAPIResponseDto[];
-          let categorylist: PullDownOptionDto[] = [];
-          for (var i = 0; i < res.length; i++) {
-            categorylist.push({
-              value: res[i].category,
-              label: res[i].category
-            });
-          }
-          setQueryofSearchQuizState({
-            ...queryOfSearchQuizState,
-            fileNum: +e.target.value
-          });
-          setCategorylistoption(categorylist);
-          setMessage({
-            message: '　',
-            messageColor: 'commmon.black'
-          });
-        } else {
-          setMessage({
-            message: 'エラー:外部APIとの連携に失敗しました',
-            messageColor: 'error'
-          });
-        }
-      },
-      {
-        file_num: String(e.target.value)
-      }
-    );
+  const setMessage = useSetRecoilState(messageState);
+
+  useEffect(() => {
+    (async () => {
+      setMessage({
+        message: '通信中...',
+        messageColor: '#d3d3d3',
+        isDisplay: true
+      });
+      const result = await getQuizFileListAPI();
+      setMessage(result.message);
+      const pullDownOption = result.result
+        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
+        : [];
+      setFilelistoption(pullDownOption);
+    })();
+  }, [setMessage]);
+
+  // 問題形式リスト取得
+  useEffect(() => {
+    // TODO これ　別関数にしたい
+    (async () => {
+      setMessage({
+        message: '通信中...',
+        messageColor: '#d3d3d3',
+        isDisplay: true
+      });
+      const result = await getQuizFormatListAPI();
+      setMessage(result.message);
+      setQuizFormatListoption(
+        result.result ? [initQuizFormatListData, ...(result.result as GetQuizFormatApiResponseDto[])] : []
+      );
+    })();
+  }, [setMessage]);
+
+  const selectedFileChange = (e: SelectChangeEvent<number>) => {
+    // TODO カテゴリリスト取得 これ　別関数にしたい　というよりこのselectedFileChangeをlibとかに持ってきたい getQuizにもこの関数あるので
+    (async () => {
+      setMessage({
+        message: '通信中...',
+        messageColor: '#d3d3d3',
+        isDisplay: true
+      });
+      const result = await getCategoryListAPI({ getCategoryListData: { file_num: String(e.target.value) } });
+      setSearchQuizRequestData({
+        ...searchQuizRequestData,
+        file_num: +e.target.value
+      });
+      setMessage(result.message);
+      const pullDownOption = result.result
+        ? getCategoryListAPIResponseToPullDownAdapter(result.result as GetCategoryAPIResponseDto[])
+        : [];
+      setCategorylistoption(pullDownOption);
+    })();
   };
 
   return (
-    <FormGroup>
-      <FormControl>
+    <>
+      <FormGroup>
         <PullDown label={'問題ファイル'} optionList={filelistoption} onChange={selectedFileChange} />
-      </FormControl>
-
-      <FormControl>
-        <TextField
-          label="検索語句"
-          setStater={(value: string) => {
-            if (setQueryofSearchQuizState) {
-              setQueryofSearchQuizState({
-                ...queryOfSearchQuizState,
+        <FormControl>
+          <TextField
+            label="検索語句"
+            setStater={(value: string) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
                 query: value
               });
+            }}
+          />
+        </FormControl>
+
+        <FormGroup row>
+          検索対象：
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={(e) => {
+                  setSearchQuizRequestData({
+                    ...searchQuizRequestData,
+                    searchInOnlySentense: e.target.checked
+                  });
+                }}
+                name="checkedA"
+              />
             }
-          }}
-        />
-      </FormControl>
-
-      <FormGroup row>
-        検索対象：
-        <FormControlLabel
-          control={
-            <Checkbox
-              onChange={(e) => {
-                if (setQueryofSearchQuizState) {
-                  setQueryofSearchQuizState({
-                    ...queryOfSearchQuizState,
-                    cond: {
-                      ...queryOfSearchQuizState.cond,
-                      question: e.target.checked
-                    }
+            label="問題"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                onChange={(e) => {
+                  setSearchQuizRequestData({
+                    ...searchQuizRequestData,
+                    searchInOnlyAnswer: e.target.checked
                   });
-                }
-              }}
-              name="checkedA"
-            />
-          }
-          label="問題"
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              onChange={(e) => {
-                if (setQueryofSearchQuizState) {
-                  setQueryofSearchQuizState({
-                    ...queryOfSearchQuizState,
-                    cond: {
-                      ...queryOfSearchQuizState.cond,
-                      answer: e.target.checked
-                    }
-                  });
-                }
-              }}
-              name="checkedB"
-            />
-          }
-          label="答え"
-        />
-      </FormGroup>
+                }}
+                name="checkedB"
+              />
+            }
+            label="答え"
+          />
+        </FormGroup>
 
-      <FormControl>
         <PullDown
           label={'カテゴリ'}
           optionList={categorylistoption}
           onChange={(e) => {
-            if (setQueryofSearchQuizState) {
-              setQueryofSearchQuizState({
-                ...queryOfSearchQuizState,
-                category: String(e.target.value)
-              });
-            }
+            setSearchQuizRequestData({
+              ...searchQuizRequestData,
+              category: String(e.target.value)
+            });
           }}
         />
-      </FormControl>
 
-      <FormControl>
-        <RangeSliderSection
-          sectionTitle={'正解率(%)指定'}
-          setStater={(value: number[] | number) => {
-            if (setQueryofSearchQuizState) {
-              setQueryofSearchQuizState({
-                ...queryOfSearchQuizState,
-                minRate: Array.isArray(value) ? value[0] : value,
-                maxRate: Array.isArray(value) ? value[1] : value
+        <FormControl>
+          <RangeSliderSection
+            sectionTitle={'正解率(%)指定'}
+            setStater={(value: number[] | number) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                min_rate: Array.isArray(value) ? value[0] : value,
+                max_rate: Array.isArray(value) ? value[1] : value
               });
-            }
-          }}
-        />
-      </FormControl>
+            }}
+          />
+        </FormControl>
 
-      <FormControl>
-        <RadioGroupSection
-          sectionTitle={'問題種別'}
-          radioGroupProps={{
-            radioButtonProps: [
-              {
-                value: 'basic',
-                label: '基礎問題'
-              },
-              {
-                value: 'applied',
-                label: '応用問題'
-              }
-            ],
-            defaultValue: 'basic',
-            setQueryofQuizStater: (value: string) => {
-              if (setQueryofSearchQuizState) {
-                setQueryofSearchQuizState({
-                  ...queryOfSearchQuizState,
-                  format: value
+        <FormControl>
+          <RadioGroupSection
+            sectionTitle={'問題種別'}
+            radioGroupProps={{
+              radioButtonProps: quizFormatListoption.map((x) => {
+                return {
+                  value: String(x.id),
+                  label: x.name
+                };
+              }),
+              defaultValue: '-1',
+              setQueryofQuizStater: (value: string) => {
+                setSearchQuizRequestData({
+                  ...searchQuizRequestData,
+                  format_id: +value
                 });
               }
-            }
-          }}
-        />
-      </FormControl>
+            }}
+          />
+        </FormControl>
 
-      <FormControl>
-        <FormControlLabel
-          value="only-checked"
-          control={
-            <Checkbox
-              color="primary"
-              onChange={(e) => {
-                if (setQueryofSearchQuizState) {
-                  setQueryofSearchQuizState({
-                    ...queryOfSearchQuizState,
+        <FormControl>
+          <FormControlLabel
+            value="only-checked"
+            control={
+              <Checkbox
+                color="primary"
+                onChange={(e) => {
+                  setSearchQuizRequestData({
+                    ...searchQuizRequestData,
                     checked: e.target.checked
                   });
-                }
-              }}
-            />
+                }}
+              />
+            }
+            label="チェック済のみ検索"
+            labelPlacement="start"
+          />
+        </FormControl>
+      </FormGroup>
+      <Button
+        label={'検索'}
+        disabled={searchQuizRequestData.file_num === -1}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await searchQuizAPI({ searchQuizRequestData });
+          setMessage(result.message);
+          if (result.result) {
+            const apiResult = (result.result as GetQuizApiResponseDto[]).map((x) => {
+              return {
+                ...x,
+                category: x.quiz_category
+                  ? x.quiz_category
+                      .filter((x) => {
+                        return !x.deleted_at;
+                      })
+                      .map((x) => {
+                        return x.category;
+                      })
+                      .join(',')
+                  : '',
+                format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : ''
+              };
+            });
+            setSearchResult(apiResult);
           }
-          label="チェック済のみ検索"
-          labelPlacement="start"
-        />
-      </FormControl>
-    </FormGroup>
+        }}
+      />
+    </>
   );
 };

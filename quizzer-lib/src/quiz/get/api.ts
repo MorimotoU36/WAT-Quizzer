@@ -1,6 +1,6 @@
 import { GetQuizAPIRequestDto, GetQuizApiResponseDto } from '.'
-import { ProcessingApiSingleReponse } from '../../..'
-import { ApiResult, get } from '../../api'
+import { errorMessage, MESSAGES, successMessage } from '../../..'
+import { ApiResult, get, ProcessingApiReponse } from '../../api'
 
 interface GetQuizAPIProps {
   getQuizRequestData: GetQuizAPIRequestDto
@@ -12,24 +12,18 @@ export const getQuizAPI = async ({
   getQuizMethod
 }: GetQuizAPIProps): Promise<ApiResult> => {
   if (getQuizRequestData.file_num === -1) {
-    return {
-      message: {
-        message: 'エラー:問題ファイルを選択して下さい',
-        messageColor: 'error',
-        isDisplay: true
-      }
-    }
+    return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   } else if (
     !getQuizMethod &&
     (!getQuizRequestData.quiz_num || getQuizRequestData.quiz_num === -1)
   ) {
-    return {
-      message: {
-        message: 'エラー:問題番号を入力して下さい',
-        messageColor: 'error',
-        isDisplay: true
-      }
-    }
+    return { message: errorMessage(MESSAGES.ERROR.MSG00002) }
+  }
+  if (getQuizRequestData.format_id === -1) {
+    delete getQuizRequestData.format_id
+  }
+  if (getQuizRequestData.category === '-1') {
+    delete getQuizRequestData.category
   }
 
   const path =
@@ -46,33 +40,17 @@ export const getQuizAPI = async ({
       : '/quiz'
   const result = await get(
     path,
-    (data: ProcessingApiSingleReponse) => {
+    (data: ProcessingApiReponse) => {
       if (data.status === 404) {
-        return {
-          message: {
-            message: 'エラー:条件に合致するデータはありません',
-            messageColor: 'error',
-            isDisplay: true
-          }
-        }
+        return { message: errorMessage(MESSAGES.ERROR.MSG00003) }
       } else if (data.status === 200) {
         const result: GetQuizApiResponseDto = data.body as GetQuizApiResponseDto
         return {
-          message: {
-            message: '問題を取得しました',
-            messageColor: 'success.light',
-            isDisplay: true
-          },
+          message: successMessage(MESSAGES.SUCCESS.MSG00001),
           result
         }
       } else {
-        return {
-          message: {
-            message: 'エラー:外部APIとの連携に失敗しました',
-            messageColor: 'error',
-            isDisplay: true
-          }
-        }
+        return { message: errorMessage(MESSAGES.ERROR.MSG00004) }
       }
     },
     { ...getQuizRequestData }

@@ -1,28 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { getDateForSqlString } from 'lib/str';
 import { PrismaClient } from '@prisma/client';
 import {
+  getDateForSqlString,
+  GetEnglishWordTestDataAPIRequestDto,
   getPastDate,
   getPrismaPastDayRange,
   getRandomElementsFromArray,
   getRandomInt,
-  parseStrToBool,
 } from 'quizzer-lib';
 export const prisma: PrismaClient = new PrismaClient();
 
 @Injectable()
 export class EnglishWordTestService {
   // 英単語テストで利用するデータ（単語データ・四択ダミー選択肢）を取得する
-  async getTestData(
-    format: 'random' | 'lru',
-    source: string,
-    startDate?: string,
-    endDate?: string,
-    checked?: string,
-    min_rate?: number,
-    max_rate?: number,
-  ) {
+  async getTestData(req: GetEnglishWordTestDataAPIRequestDto) {
     try {
+      const {
+        format,
+        source,
+        startDate,
+        endDate,
+        checked,
+        min_rate,
+        max_rate,
+      } = req;
       // サブ出典・日時に関するクエリ
       const startDateQuery = startDate
         ? {
@@ -69,7 +70,7 @@ export class EnglishWordTestService {
             lte: max_rate || 100,
           },
         },
-        ...(parseStrToBool(checked)
+        ...(checked
           ? {
               checked: true,
             }

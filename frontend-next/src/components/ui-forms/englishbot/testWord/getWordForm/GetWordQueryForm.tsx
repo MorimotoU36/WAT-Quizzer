@@ -26,7 +26,7 @@ interface GetWordQueryFormProps {
 }
 
 export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWordQueryFormProps) => {
-  const [queryOfTestData, setQueryOfTestData] = useState<GetEnglishWordTestDataAPIRequestDto>({ format: '' });
+  const [queryOfTestData, setQueryOfTestData] = useState<GetEnglishWordTestDataAPIRequestDto>({ format: 'random' });
   const setMessage = useSetRecoilState(messageState);
   // TODO テスト形式の値の管理方法　他のファイルでプロパティ形式で管理した方が良い？ constant.tsみたいなの作って　quizzeer側にもこんなのあったよね
   const [testType, setTestType] = useState<string>('0');
@@ -35,18 +35,16 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
     <>
       <Card attr={'through-card padding-vertical'}>
         <FormGroup>
-          <FormControl>
-            <PullDown
-              label={'出典'}
-              optionList={sourcelistoption}
-              onChange={(e) => {
-                setQueryOfTestData({
-                  ...queryOfTestData,
-                  source: String(e.target.value)
-                });
-              }}
-            />
-          </FormControl>
+          <PullDown
+            label={'出典'}
+            optionList={sourcelistoption}
+            onChange={(e) => {
+              setQueryOfTestData({
+                ...queryOfTestData,
+                source: String(e.target.value)
+              });
+            }}
+          />
           <FormControl className={styles.row}>
             サブ出典登録日時指定：
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -82,11 +80,11 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
               control={
                 <Checkbox
                   color="primary"
-                  checked={parseStrToBool(queryOfTestData.checked || 'false')}
+                  checked={queryOfTestData.checked || false}
                   onChange={(e) => {
                     setQueryOfTestData({
                       ...queryOfTestData,
-                      checked: String(e.target.checked)
+                      checked: e.target.checked
                     });
                   }}
                 />
@@ -101,8 +99,8 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
               setStater={(value: number[] | number) => {
                 setQueryOfTestData({
                   ...queryOfTestData,
-                  min_rate: Array.isArray(value) ? String(value[0]) : String(value),
-                  max_rate: Array.isArray(value) ? String(value[1]) : String(value)
+                  min_rate: Array.isArray(value) ? value[0] : value,
+                  max_rate: Array.isArray(value) ? value[1] : value
                 });
               }}
             />
