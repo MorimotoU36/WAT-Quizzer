@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import {
@@ -25,6 +27,8 @@ import {
 } from 'quizzer-lib';
 import { GetQuizPipe } from './pipe/getQuiz.pipe';
 import { SearchQuizPipe } from './pipe/searchQuiz.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 // import { AuthGuard } from '../auth/auth.guard';
 
 // @UseGuards(AuthGuard)
@@ -135,5 +139,11 @@ export class QuizController {
   @Get('/statistics/week')
   async getAnswerLogStatisticsPastWeek() {
     return await this.quizService.getAnswerLogStatisticsPastWeek();
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return await this.quizService.uploadFile(file);
   }
 }
