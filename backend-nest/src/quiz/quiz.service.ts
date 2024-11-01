@@ -16,10 +16,9 @@ import {
   GetQuizAPIRequestDto,
   SearchQuizAPIRequestDto,
   xor,
+  parseCsv,
 } from 'quizzer-lib';
 import { PrismaClient } from '@prisma/client';
-import { Readable } from 'stream';
-import { parse, ParseResult } from 'papaparse';
 export const prisma: PrismaClient = new PrismaClient();
 
 export interface QueryType {
@@ -1124,30 +1123,11 @@ export class QuizService {
     });
   }
 
-  async parseCsv<T>(file: Express.Multer.File): Promise<ParseResult<T>> {
-    const stream = Readable.from(file.buffer);
-    return new Promise((resolve, reject) => {
-      parse(stream, {
-        header: false,
-        skipEmptyLines: true,
-        transform: (value: string): string => {
-          return value.trim();
-        },
-        complete: (results: ParseResult<T>) => {
-          return resolve(results);
-        },
-        error: (error: Error) => {
-          return reject(error);
-        },
-      });
-    });
-  }
-
   // アップロードされた問題CSVを登録
   // TODO csvのバリデーション処理
   async uploadFile(file: Express.Multer.File) {
     try {
-      const csvData = await this.parseCsv<string>(file);
+      const csvData = await parseCsv<string>(file);
       // トランザクション
       await prisma.$transaction(async (prisma) => {
         // csvデータ１行ずつ読み込み
