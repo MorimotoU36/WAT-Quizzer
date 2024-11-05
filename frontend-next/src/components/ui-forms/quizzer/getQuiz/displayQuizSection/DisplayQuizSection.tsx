@@ -12,6 +12,7 @@ import {
   initGetQuizResponseData,
   reverseCheckQuizAPI
 } from 'quizzer-lib';
+import { Chip } from '@/components/ui-elements/chip/Chip';
 
 interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
@@ -21,6 +22,7 @@ interface DisplayQuizSectionProps {
 export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
+  // TODO 型定義したい
   const displayQuiz = useMemo(() => {
     return {
       ...getQuizResponseData,
@@ -50,6 +52,10 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
+          {displayQuiz.quiz_category &&
+            displayQuiz.quiz_category.map((category) => {
+              return <Chip label={category.category} />;
+            })}
         </CardContent>
 
         <CardActions>
