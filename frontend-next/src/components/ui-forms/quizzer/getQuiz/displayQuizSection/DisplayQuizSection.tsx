@@ -13,6 +13,7 @@ import {
   reverseCheckQuizAPI
 } from 'quizzer-lib';
 import { Chip } from '@/components/ui-elements/chip/Chip';
+import styles from './DisplayQuizSection.module.css';
 
 interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
@@ -56,6 +57,9 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
             displayQuiz.quiz_category.map((category) => {
               return <Chip label={category.category} />;
             })}
+          <Typography variant="subtitle2" className={styles.count}>
+            {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}
+          </Typography>
         </CardContent>
 
         <CardActions>

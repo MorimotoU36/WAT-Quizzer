@@ -23,6 +23,7 @@ export interface GetQuizAPIRequestReceivedDto {
 
 // 問題取得APIのレスポンス（基礎応用込み）、フォーマット込み
 export interface GetQuizApiResponseDto extends ApiResponse {
+  count?: number
   format_id?: number
 
   id: number

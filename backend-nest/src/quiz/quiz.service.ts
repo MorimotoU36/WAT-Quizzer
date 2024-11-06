@@ -188,6 +188,7 @@ export class QuizService {
             accuracy_rate: result.quiz_statistics_view.accuracy_rate.toString(),
           },
         }),
+        count: results.length,
       };
     } catch (error: unknown) {
       if (error instanceof HttpException) {
