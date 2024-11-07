@@ -58,6 +58,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
           <FormGroup>
             <PullDown
               label={'問題ファイル'}
+              value={getQuizRequestData.file_num}
               optionList={filelistoption}
               onChange={(e) => {
                 setQuizRequestData({
@@ -70,6 +71,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
             <FormControl>
               <TextField
                 label="問題番号"
+                value={getQuizRequestData.quiz_num === -1 ? '' : getQuizRequestData.quiz_num}
                 onChange={(e) => {
                   setQuizRequestData({
                     ...getQuizRequestData,

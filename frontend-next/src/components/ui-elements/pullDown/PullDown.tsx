@@ -10,22 +10,28 @@ interface PullDownProps {
   }[];
   label?: string;
   className?: string;
+  value?: number;
   onChange?: (e: SelectChangeEvent<number>) => void;
 }
 
-export const PullDown = ({ optionList, label, className, onChange }: PullDownProps) => {
+export const PullDown = ({ optionList, label, className, value, onChange }: PullDownProps) => {
+  const selectProps = {
+    className: styles.pulldown,
+    labelId: `quiz-file-name-${getRandomStr()}`,
+    id: `quiz-file-id-${getRandomStr()}`,
+    defaultValue: -1,
+    onChange,
+    ...(value && {
+      value
+    })
+  };
+
   return (
     <FormControl disabled={optionList.length <= 1 ? true : false}>
       <InputLabel id={`quiz-file-input-${getRandomStr()}`} className={styles.pulldown}>
         {label}
       </InputLabel>
-      <Select
-        className={styles.pulldown}
-        labelId={`quiz-file-name-${getRandomStr()}`}
-        id={`quiz-file-id-${getRandomStr()}`}
-        defaultValue={-1}
-        onChange={onChange}
-      >
+      <Select {...selectProps}>
         <MenuItem value={-1} key={-1}>
           選択なし
         </MenuItem>

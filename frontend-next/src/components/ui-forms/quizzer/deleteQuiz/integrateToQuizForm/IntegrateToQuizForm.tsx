@@ -44,6 +44,7 @@ export const IntegrateToQuizForm = ({
             <FormControl>
               <TextField
                 label="問題番号"
+                value={getQuizRequestData.quiz_num === -1 ? '' : getQuizRequestData.quiz_num}
                 onChange={(e) => {
                   setQuizRequestData({
                     ...getQuizRequestData,
