@@ -41,6 +41,10 @@ jobs:
         sam build
         sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID
 
+    - name: Setup quizzer-lib
+      id: setup-quizzer-lib
+      run: cd ./quizzer-lib && npm ci && npm run build
+
     - name: Setup dependencies(all)
       id: setup-dependencies
       run: npm ci --production
