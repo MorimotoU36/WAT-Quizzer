@@ -43,7 +43,7 @@ jobs:
 
     - name: Setup quizzer-lib
       id: setup-quizzer-lib
-      run: cd ./quizzer-lib && npm install && npm run build
+      run: cd ./quizzer-lib && npm ci && npm run build
 
     - name: Setup dependencies(all)
       id: setup-dependencies
