@@ -3,6 +3,7 @@ import {
   GetSecretValueCommand
 } from '@aws-sdk/client-secrets-manager'
 
+// TODO これ消す　APIkeyはsecrets manager使ってないし　というよりcognito依存方式に切り替えたい
 export const getApiKey = async () => {
   if (process.env.NEXT_PUBLIC_API_KEY_VALUE) {
     return process.env.NEXT_PUBLIC_API_KEY_VALUE || ''

@@ -17,7 +17,8 @@ RUN npm install --production
 WORKDIR ${LAMBDA_TASK_ROOT}/quizzer-lib
 
 COPY ./quizzer-lib ./
-
+# TODO libでは--productionつけてできるようにしたい　外したらエラーになる？
+RUN npm install
 RUN npm run build
 
 # アプリケーションディレクトリを作成する

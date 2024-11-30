@@ -24,8 +24,7 @@ export const reverseCheckQuizAPI = async ({
   const result = await post(
     '/quiz/check',
     {
-      file_num: getQuizResponseData.file_num,
-      quiz_num: getQuizResponseData.quiz_num
+      quiz_id: getQuizResponseData.id
     },
     (data: ProcessingApiReponse) => {
       if (data.status === 200 || data.status === 201) {

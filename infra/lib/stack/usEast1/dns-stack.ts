@@ -28,7 +28,5 @@ export class DnsStack extends cdk.Stack {
         hostedZoneId: process.env.HOSTZONE_ID || ''
       }
     ) as route53.HostedZone
-
-    //this.hostedZone.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
   }
 }

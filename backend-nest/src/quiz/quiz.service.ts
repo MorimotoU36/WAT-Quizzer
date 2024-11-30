@@ -17,6 +17,8 @@ import {
   SearchQuizAPIRequestDto,
   xor,
 } from 'quizzer-lib';
+import { Readable } from 'stream';
+import { parse, ParseResult } from 'papaparse';
 import { PrismaClient } from '@prisma/client';
 export const prisma: PrismaClient = new PrismaClient();
 
@@ -187,6 +189,7 @@ export class QuizService {
             accuracy_rate: result.quiz_statistics_view.accuracy_rate.toString(),
           },
         }),
+        count: results.length,
       };
     } catch (error: unknown) {
       if (error instanceof HttpException) {
@@ -1120,5 +1123,120 @@ export class QuizService {
         id: 'asc',
       },
     });
+  }
+
+  parseCsv = async <T>(file: Express.Multer.File): Promise<ParseResult<T>> => {
+    const stream = Readable.from(file.buffer);
+    return new Promise((resolve, reject) => {
+      parse(stream, {
+        header: false,
+        skipEmptyLines: true,
+        transform: (value: string): string => {
+          return value.trim();
+        },
+        complete: (results: ParseResult<T>) => {
+          return resolve(results);
+        },
+        error: (error: Error) => {
+          return reject(error);
+        },
+      });
+    });
+  };
+
+  // アップロードされた問題CSVを登録
+  // TODO csvのバリデーション処理
+  async uploadFile(file: Express.Multer.File) {
+    try {
+      const csvData = await this.parseCsv<string>(file);
+      // トランザクション
+      await prisma.$transaction(
+        async (prisma) => {
+          // csvデータ１行ずつ読み込み
+          for (const row of csvData.data) {
+            // (問題ファイル番号,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説) でない場合終了
+            if (row.length !== 7) {
+              throw new HttpException(
+                `CSVの形式が正しくありません(${row})`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+            const [
+              file_num,
+              question,
+              answer,
+              dummy1,
+              dummy2,
+              dummy3,
+              explanation,
+            ] = row;
+            // バリデーション
+            if (isNaN(+file_num)) {
+              throw new HttpException(
+                `CSVの形式が正しくありません(${row})`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+            // 問題データ登録
+            // 新問題番号を取得しINSERT
+            const res = await prisma.quiz.findFirst({
+              select: {
+                quiz_num: true,
+              },
+              where: {
+                file_num: +file_num,
+              },
+              orderBy: {
+                quiz_num: 'desc',
+              },
+              take: 1,
+            });
+            const new_quiz_num: number =
+              res && res.quiz_num ? res.quiz_num + 1 : 1;
+            await prisma.quiz.create({
+              data: {
+                format_id: 3, // 四択問題
+                file_num: +file_num,
+                quiz_num: new_quiz_num,
+                quiz_sentense: question,
+                answer,
+                // img_file,
+                checked: false,
+                // カテゴリはとりあえず今はなしで
+                quiz_explanation: {
+                  ...(explanation && {
+                    create: {
+                      explanation,
+                    },
+                  }),
+                },
+                //  関連問題設定もとりあえず今は無しで
+                quiz_dummy_choice: {
+                  createMany: {
+                    data: [
+                      { dummy_choice_sentense: dummy1 },
+                      { dummy_choice_sentense: dummy2 },
+                      { dummy_choice_sentense: dummy3 },
+                    ],
+                  },
+                },
+              },
+            });
+          }
+        },
+        {
+          maxWait: 5000, // default: 2000
+          timeout: 10000, // default: 5000
+        },
+      );
+      return { result: 'All Registered!!' };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
   }
 }
