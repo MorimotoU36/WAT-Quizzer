@@ -141,6 +141,7 @@ export class QuizService {
           quiz_dummy_choice: {
             select: {
               dummy_choice_sentense: true,
+              is_corrected: true,
             },
           },
           quiz_basis_linkage: {

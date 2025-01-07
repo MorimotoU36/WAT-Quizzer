@@ -42,11 +42,13 @@ export interface GetQuizApiResponseDto extends ApiResponse {
     accuracy_rate: number
   }
   quiz_category?: {
+    // TODO 一個ずつ型定義ではなく　index.d.tsから型取ってきてそれを使うようにしたい　でないとDB定義変えるたびにここも変える必要ありで面倒
     category: string
     deleted_at?: string
   }[]
   quiz_dummy_choice?: {
     dummy_choice_sentense: string // TODO テーブルごとの型なので本当は望ましくない getQuiz専用のAPI返り値型を作るべき
+    is_corrected: boolean
   }[]
   quiz_basis_linkage?: {
     basis_quiz_id: number
