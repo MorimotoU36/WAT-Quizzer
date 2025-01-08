@@ -77,7 +77,10 @@ export const generateQuizSentense = (
     return {
       quiz_sentense:
         res.file_num !== -1 && res.quiz_num !== -1
-          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense}${
+          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense.replaceAll(
+              '\\n',
+              '\n'
+            )}${
               res.quiz_statistics_view?.accuracy_rate
                 ? '(正解率' +
                   Number(res.quiz_statistics_view.accuracy_rate).toFixed(2) +
