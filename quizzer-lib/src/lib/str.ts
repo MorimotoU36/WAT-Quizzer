@@ -51,7 +51,7 @@ export const generateQuizSentense = (
 > => {
   // 四択の場合
   if (res.format_id === 3) {
-    const choices = []
+    const choices: string[] = []
     choices.push(res.answer)
     if (res.quiz_dummy_choice) {
       for (let i = 0; i < res.quiz_dummy_choice.length; i++) {
@@ -59,25 +59,45 @@ export const generateQuizSentense = (
       }
     }
     // 選択肢の配列をランダムに並び替える
-    const choiceName = ['A', 'B', 'C', 'D']
+    // TODO 多肢多答対応で書き換えたがもっと効率化できそうな気する　リファクタしてみて
+    const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const choiceName = alphabets.substring(0, choices.length).split('')
     choiceName.sort((a, b) => 0.5 - Math.random())
+    // 答えの文作成
+    const answer =
+      res.quiz_dummy_choice &&
+      res.quiz_dummy_choice.filter((value) => value.is_corrected).length
+        ? `${choiceName[0]}${res.quiz_dummy_choice
+            .map((value, index) => {
+              return value.is_corrected ? ',' + choiceName[index + 1] : ''
+            })
+            .join('')}`
+        : `${choiceName[0]}: ${res.answer}`
 
     return {
       quiz_sentense:
         res.file_num !== -1 && res.quiz_num !== -1
-          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense}${
+          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense.replaceAll(
+              '\\n',
+              '\n'
+            )}${
               res.quiz_statistics_view?.accuracy_rate
                 ? '(正解率' +
                   Number(res.quiz_statistics_view.accuracy_rate).toFixed(2) +
                   '%)'
                 : ''
             }
-        A: ${choices[choiceName.indexOf('A')]}
-        B: ${choices[choiceName.indexOf('B')]}
-        C: ${choices[choiceName.indexOf('C')]}
-        D: ${choices[choiceName.indexOf('D')]}`
+        ` +
+            alphabets
+              .substring(0, choices.length)
+              .split('')
+              .map((value) => {
+                return `${value}: ${choices[choiceName.indexOf(value)]}
+          `
+              })
+              .join('')
           : '',
-      answer: `${choiceName[0]}: ${res.answer}`,
+      answer,
       quiz_explanation: {
         explanation: res.quiz_explanation
           ? res.quiz_explanation.explanation
@@ -92,7 +112,10 @@ export const generateQuizSentense = (
     return {
       quiz_sentense:
         res.file_num !== -1 && res.quiz_num !== -1
-          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense}${
+          ? `[${res.file_num}-${res.quiz_num}]${res.quiz_sentense.replaceAll(
+              '\\n',
+              '\n'
+            )}${
               res.quiz_statistics_view
                 ? '(正解率' +
                   Number(
