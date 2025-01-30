@@ -149,7 +149,8 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
                 label: x.name
               };
             }),
-            defaultValue: '1',
+            // TODO '-1'直指定じゃなく　initRequestの値を入れる様にしたい　二重管理になるので
+            defaultValue: '-1',
             setQueryofQuizStater: (value: string) => {
               setQuizRequestData({
                 ...getQuizRequestData,
