@@ -32,6 +32,11 @@
   height: 200px;
 }
 
+.rect-600 {
+  width: 600px;
+  height: 300px;
+}
+
 .auto {
   width: auto;
   height: auto;
