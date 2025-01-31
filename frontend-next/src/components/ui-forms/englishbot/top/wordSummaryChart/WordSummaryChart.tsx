@@ -1,36 +1,42 @@
-import Chart from 'react-google-charts';
-import styles from '../../../../Chart.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { WordSummaryApiResponse } from 'quizzer-lib';
 import { CircularProgress } from '@mui/material';
-
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
+ChartJS.register(ArcElement, Tooltip, Legend);
 interface WordSummaryChartProps {
   wordSummaryData: WordSummaryApiResponse[];
 }
 
 export const WordSummaryChart = ({ wordSummaryData }: WordSummaryChartProps) => {
-  const data: [string, string | number][] = wordSummaryData
-    .filter((x) => {
-      return x.name !== 'all';
-    })
-    .map((x) => {
-      return [x.name, +x.count];
-    });
-  const sum = data.reduce((accumulator, currentValue) => accumulator + +currentValue[1], 0);
-  data.unshift(['word/idiom', 'num']);
+  const data = {
+    labels: wordSummaryData.filter((x) => x.name !== 'all').map((x) => x.name),
+    datasets: [
+      {
+        label: '個数',
+        data: wordSummaryData.filter((x) => x.name !== 'all').map((x) => +x.count),
+        backgroundColor: ['red', 'blue'],
+        borderWidth: 1
+      }
+    ]
+  };
+
   const options = {
-    title: `単熟語登録数:${sum}`,
-    pieHole: 0.4,
-    is3D: false
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const
+      },
+      title: {
+        display: true,
+        text: '単熟語登録数'
+      }
+    }
   };
 
   return (
-    <Card variant="outlined" attr="rect-400 margin-vertical">
-      {data.length > 0 ? (
-        <Chart chartType="PieChart" data={data} options={options} className={styles.chart} />
-      ) : (
-        <CircularProgress />
-      )}
+    <Card variant="outlined" attr="square-200 margin-vertical">
+      {wordSummaryData.length > 0 ? <Doughnut data={data} options={options} /> : <CircularProgress />}
     </Card>
   );
 };
