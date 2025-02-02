@@ -1,11 +1,13 @@
 import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
-import { Chart } from 'react-google-charts';
-import styles from './AccuracyChart.module.css';
 import React from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import styles from './AccuracyChart.module.css';
 
 interface AccuracyChartProps {
   accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
 }
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
   // データがない場合は何もしない
@@ -13,66 +15,46 @@ export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
     return <></>;
   }
 
-  let visualized_data = [];
-  visualized_data.push(
-    ['Name', 'Accuracy_Rate', { role: 'style' }, { role: 'annotation' }]
-    // ["Copper", 8.94, "#b87333", null],
-    // ["Silver", 10.49, "silver", null],
-    // ["Gold", 19.3, "gold", null],
-    // ["Platinum", 21.45, "color: #e5e4e2", null],
-  );
+  const data = {
+    labels: [
+      ...accuracyData.checked_result.map((x) => '(チェック済問題)'),
+      ...accuracyData.result.map((x) => x.category)
+    ],
+    datasets: [
+      {
+        data: [
+          ...accuracyData.checked_result.map((x) => +x.accuracy_rate),
+          ...accuracyData.result.map((x) => +x.accuracy_rate)
+        ],
+        backgroundColor: [
+          ...accuracyData.checked_result.map((x) => 'lime'),
+          ...accuracyData.result.map((x) => 'royalblue')
+        ],
+        categoryPercentage: 1, // **カテゴリごとの間隔**
+        barPercentage: 0.5 // **棒の太さ**
+      }
+    ]
+  };
 
-  // チェック済データ追加
-  let checked_rate = accuracyData.checked_result;
-  for (let i = 0; i < checked_rate.length; i++) {
-    let annotation_i =
-      // String(Math.round(parseFloat(checked_rate[i].accuracy_rate) * 10) / 10) +
-      String(Math.round(+checked_rate[i].accuracy_rate * 10) / 10) + '% / ' + String(checked_rate[i].count) + '問';
-    // visualized_data.push(['(チェック済問題)', parseFloat(checked_rate[i].accuracy_rate), '#32CD32', annotation_i]);
-    visualized_data.push(['(チェック済問題)', +checked_rate[i].accuracy_rate, '#32CD32', annotation_i]);
-  }
+  // グラフ領域の縦の長さ（＝50 * データの個数）
+  // TODO データたくさんある場合は見やすいが　１個の時は逆に見にくかった　ここの計算式を策定してほしい
+  const graph_height = 50 * data.datasets[0].data.length;
 
-  // カテゴリ毎のデータ追加
-  let category_rate = accuracyData.result;
-  for (let i = 0; i < category_rate.length; i++) {
-    let annotation_i =
-      // String(Math.round(parseFloat(category_rate[i].accuracy_rate) * 10) / 10) +
-      String(Math.round(+category_rate[i].accuracy_rate * 10) / 10) + '% / ' + String(category_rate[i].count) + '問';
-    visualized_data.push([
-      category_rate[i].category,
-      // parseFloat(category_rate[i].accuracy_rate),
-      +category_rate[i].accuracy_rate,
-      '#76A7FA',
-      annotation_i
-    ]);
-  }
-
-  // グラフ領域の縦の長さ（＝40 * データの個数）
-  let graph_height = 40 * visualized_data.length;
-
-  // TODO こういう設定値はどこか設定用のファイルに保存しておきたい
   const options = {
-    height: graph_height,
-    legend: { position: 'none' },
-    chartArea: {
-      left: '15%',
-      top: 10,
-      width: '75%',
-      height: graph_height - 50
+    indexAxis: 'y' as const,
+    plugins: {
+      title: {
+        display: false
+      },
+      legend: {
+        display: false // **凡例を非表示**
+      }
     },
-    hAxis: {
-      minValue: 0,
-      maxValue: 1
-    }
+    maintainAspectRatio: false
   };
   return (
-    <Chart
-      chartType="BarChart"
-      width="100%"
-      height="100%"
-      data={visualized_data}
-      options={options}
-      className={styles.chart}
-    />
+    <div style={{ height: `${graph_height}px` }} className={styles.chart}>
+      <Bar options={options} data={data} />
+    </div>
   );
 };

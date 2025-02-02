@@ -112,10 +112,10 @@ erDiagram
     Int id "🗝️"
     Int quiz_id 
     String dummy_choice_sentense 
-    Boolean is_corrected 
     DateTime created_at 
     DateTime updated_at 
     DateTime deleted_at "❓"
+    Boolean is_corrected 
     }
   
 
@@ -312,6 +312,7 @@ erDiagram
     BigInt count "❓"
     Decimal clear "❓"
     Decimal fail "❓"
+    Decimal not_answered "❓"
     Decimal accuracy_rate "❓"
     }
   
@@ -337,6 +338,7 @@ erDiagram
     Boolean checked "❓"
     BigInt clear_count "❓"
     BigInt fail_count "❓"
+    Boolean not_answered "❓"
     DateTime created_at "❓"
     DateTime updated_at "❓"
     DateTime deleted_at "❓"

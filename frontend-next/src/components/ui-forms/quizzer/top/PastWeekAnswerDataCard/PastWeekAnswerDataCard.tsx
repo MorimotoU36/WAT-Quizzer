@@ -1,10 +1,12 @@
-import Chart from 'react-google-charts';
-import styles from '../../../../Chart.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { useEffect, useState } from 'react';
 import { getQuizStatisticsWeekDataAPI, QuizStatisticsWeekApiResponse } from 'quizzer-lib';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { CircularProgress } from '@mui/material';
 
 interface PastWeekAnswerDataCardProps {}
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const PastWeekAnswerDataCard = ({}: PastWeekAnswerDataCardProps) => {
   const [quizStatisticsWeekData, setQuizStatisticsWeekData] = useState<QuizStatisticsWeekApiResponse[]>([]);
@@ -16,25 +18,37 @@ export const PastWeekAnswerDataCard = ({}: PastWeekAnswerDataCardProps) => {
     })();
   }, []);
 
-  const data: [string, string | number][] = quizStatisticsWeekData.map((x) => {
-    return [x.date, x.count];
-  });
-  data.unshift(['日', '解答数']);
+  const data = {
+    labels: quizStatisticsWeekData.map((x) => {
+      return x.date;
+    }),
+    datasets: [
+      {
+        label: '解答数',
+        data: quizStatisticsWeekData.map((x) => {
+          return x.count;
+        }),
+        backgroundColor: 'royalblue'
+      }
+    ]
+  };
+
   const options = {
-    chart: {
-      title: 'quizzer過去１週間解答数統計',
-      subtitle: '日,解答数'
-    },
-    vAxis: {
-      viewWindow: {
-        min: 0
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const
+      },
+      title: {
+        display: true,
+        text: '過去１週間の回答数'
       }
     }
   };
 
   return (
     <Card variant="outlined" attr="margin-vertical">
-      <Chart chartType="Bar" data={data} options={options} className={styles.quiz_stat_week} />
+      {quizStatisticsWeekData.length > 0 ? <Bar options={options} data={data} /> : <CircularProgress />}
     </Card>
   );
 };

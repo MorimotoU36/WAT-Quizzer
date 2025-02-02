@@ -1,32 +1,48 @@
 import { Card } from '@/components/ui-elements/card/Card';
 import { GetPastWeekTestStatisticsAPIResponseDto } from 'quizzer-lib';
 import { CircularProgress } from '@mui/material';
-import { Chart } from 'react-google-charts';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
 interface TestLogPastWeekChartProps {
   wordTestPastWeekStatisticsData: GetPastWeekTestStatisticsAPIResponseDto[];
 }
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
 export const TestLogPastWeekChart = ({ wordTestPastWeekStatisticsData }: TestLogPastWeekChartProps) => {
-  const data = [
-    ['Day', 'count'],
-    ...wordTestPastWeekStatisticsData.map((x) => {
-      return [x.date, x.count];
-    })
-  ];
+  const data = {
+    labels: wordTestPastWeekStatisticsData.map((x) => {
+      return x.date;
+    }),
+    datasets: [
+      {
+        label: '解答数',
+        data: wordTestPastWeekStatisticsData.map((x) => {
+          return x.count;
+        }),
+        backgroundColor: 'royalblue'
+      }
+    ]
+  };
 
   const options = {
-    title: '過去１週間の回答数',
-    legend: { position: 'top' }
+    indexAxis: 'y' as const,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const
+      },
+      title: {
+        display: true,
+        text: '過去１週間の回答数'
+      }
+    }
   };
 
   return (
-    <Card variant="outlined" attr="rect-400 margin-vertical">
-      {wordTestPastWeekStatisticsData.length > 0 ? (
-        <Chart chartType="BarChart" width="100%" height="100%" data={data} options={options} />
-      ) : (
-        <CircularProgress />
-      )}
+    <Card variant="outlined" attr="rect-600 margin-vertical">
+      {wordTestPastWeekStatisticsData.length > 0 ? <Bar options={options} data={data} /> : <CircularProgress />}
     </Card>
   );
 };

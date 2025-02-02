@@ -8,5 +8,6 @@ export interface QuizFileStatisticsApiResponse extends ApiResponse {
   count: number
   clear: number
   fail: number
+  not_answered: number
   accuracy_rate: bigint
 }

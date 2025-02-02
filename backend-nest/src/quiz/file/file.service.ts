@@ -39,6 +39,7 @@ export class QuizFileService {
         count: true,
         clear: true,
         fail: true,
+        not_answered: true,
         accuracy_rate: true,
       },
       orderBy: {
