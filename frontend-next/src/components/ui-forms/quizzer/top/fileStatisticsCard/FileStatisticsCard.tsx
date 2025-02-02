@@ -37,6 +37,11 @@ export const FileStatisticsCard = ({}: FileStatisticsCardProps) => {
         label: '不正解数',
         data: quizFileStatisticsData.map((x) => x.fail),
         backgroundColor: 'black'
+      },
+      {
+        label: '未解答数',
+        data: quizFileStatisticsData.map((x) => x.not_answered),
+        backgroundColor: 'dimgray'
       }
     ]
   };
