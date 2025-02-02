@@ -9,8 +9,7 @@ export const get = async (
   path: string,
   func: (data: ProcessingApiReponse) => ApiResult,
   queryParam?: { [key: string]: string | number | boolean },
-  bodyData?: object,
-  accessToken?: string
+  bodyData?: object
 ) => {
   const key = await getApiKey()
   const query = queryParam
@@ -29,9 +28,6 @@ export const get = async (
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
     headers: {
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (accessToken || localStorage.getItem('apiAccessToken'))
-      // })
       'x-api-key': key
     }
   })
@@ -56,8 +52,7 @@ export const get = async (
 
 export const getApiAndGetValue = async (
   path: string,
-  queryParam?: { [key: string]: string },
-  accessToken?: string
+  queryParam?: { [key: string]: string }
 ) => {
   const key = await getApiKey()
   const query = queryParam ? `?${new URLSearchParams(queryParam)}` : ''
@@ -66,9 +61,6 @@ export const getApiAndGetValue = async (
     method: 'GET',
     headers: {
       'x-api-key': key
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (accessToken || localStorage.getItem('apiAccessToken'))
-      // })
     }
   })
     .catch((error) => {
@@ -81,8 +73,7 @@ export const getApiAndGetValue = async (
 export const post = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult,
-  accessToken?: string
+  func: (data: ProcessingApiReponse) => ApiResult
 ) => {
   const key = await getApiKey()
   return await fetch(baseURL + path, {
@@ -91,9 +82,6 @@ export const post = async (
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (sessionStorage.getItem('apiAccessToken') || localStorage.getItem('apiAccessToken'))
-      // })
     }
   })
     .then((response) =>
@@ -117,8 +105,7 @@ export const post = async (
 export const put = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult,
-  accessToken?: string
+  func: (data: ProcessingApiReponse) => ApiResult
 ) => {
   const key = await getApiKey()
   return await fetch(baseURL + path, {
@@ -127,9 +114,6 @@ export const put = async (
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (sessionStorage.getItem('apiAccessToken') || localStorage.getItem('apiAccessToken'))
-      // })
     }
   })
     .then((response) =>
@@ -153,8 +137,7 @@ export const put = async (
 export const del = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult,
-  accessToken?: string
+  func: (data: ProcessingApiReponse) => ApiResult
 ) => {
   const key = await getApiKey()
   return await fetch(baseURL + path, {
@@ -163,9 +146,6 @@ export const del = async (
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (sessionStorage.getItem('apiAccessToken') || localStorage.getItem('apiAccessToken'))
-      // })
     }
   })
     .then((response) =>
@@ -189,8 +169,7 @@ export const del = async (
 export const patch = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult,
-  accessToken?: string
+  func: (data: ProcessingApiReponse) => ApiResult
 ) => {
   const key = await getApiKey()
   return await fetch(baseURL + path, {
@@ -199,9 +178,6 @@ export const patch = async (
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key
-      // ...(process.env.NEXT_PUBLIC_APP_ENV === 'local' && {
-      //   Authorization: 'Bearer ' + (sessionStorage.getItem('apiAccessToken') || localStorage.getItem('apiAccessToken'))
-      // })
     }
   })
     .then((response) =>
