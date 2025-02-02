@@ -8,6 +8,14 @@ SELECT
   quiz.checked,
   COALESCE(corrected_data.clear_count, (0) :: bigint) AS clear_count,
   COALESCE(incorrected_data.fail_count, (0) :: bigint) AS fail_count,
+  CASE
+    WHEN (
+      (
+        COALESCE(corrected_data.clear_count, (0) :: bigint) + COALESCE(incorrected_data.fail_count, (0) :: bigint)
+      ) = 0
+    ) THEN TRUE
+    ELSE false
+  END AS not_answered,
   quiz.created_at,
   quiz.updated_at,
   quiz.deleted_at,

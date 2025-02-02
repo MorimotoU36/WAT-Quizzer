@@ -5,6 +5,7 @@ SELECT
   COALESCE(q.count, (0) :: bigint) AS count,
   COALESCE(q.clear, (0) :: numeric) AS clear,
   COALESCE(q.fail, (0) :: numeric) AS fail,
+  COALESCE((q.not_answered) :: numeric, (0) :: numeric) AS not_answered,
   CASE
     WHEN (
       (
@@ -25,7 +26,13 @@ FROM
         quiz_view.file_num,
         count(*) AS count,
         sum(quiz_view.clear_count) AS clear,
-        sum(quiz_view.fail_count) AS fail
+        sum(quiz_view.fail_count) AS fail,
+        count(
+          CASE
+            WHEN quiz_view.not_answered THEN 1
+            ELSE NULL :: integer
+          END
+        ) AS not_answered
       FROM
         quiz_view
       WHERE
