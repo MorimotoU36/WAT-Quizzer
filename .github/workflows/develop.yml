@@ -38,7 +38,9 @@ jobs:
     # SAM APIビルド・デプロイ
     - name: Build & Deploy API
       run: |
+        cd ./infra
         sam build
+        export PRISMA_CLI_BINARY_TARGETS="native,rhel-openssl-1.0.x,rhel-openssl-3.0.x"
         sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID
 
     - name: Setup quizzer-lib

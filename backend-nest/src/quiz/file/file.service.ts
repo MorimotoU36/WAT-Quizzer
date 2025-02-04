@@ -1,7 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AddQuizFileApiRequest, DeleteQuizFileApiRequest } from 'quizzer-lib';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
+import {
+  AddQuizFileApiRequest,
+  DeleteQuizFileApiRequest,
+  prisma,
+  QuizFileStatisticsApiResponse,
+} from 'quizzer-lib';
 
 export interface QueryType {
   query: string;
@@ -30,7 +33,7 @@ export class QuizFileService {
   }
 
   // ファイル統計ビューデータ取得
-  async getFileStatisticsData() {
+  async getFileStatisticsData(): Promise<QuizFileStatisticsApiResponse[]> {
     const result = await prisma.quiz_file_view.findMany({
       select: {
         file_num: true,
@@ -51,6 +54,10 @@ export class QuizFileService {
       return {
         ...x,
         count: Number(x.count),
+        clear: Number(x.clear),
+        fail: Number(x.fail),
+        not_answered: Number(x.not_answered),
+        accuracy_rate: Number(x.accuracy_rate),
       };
     });
   }

@@ -16,11 +16,10 @@ import {
   GetQuizAPIRequestDto,
   SearchQuizAPIRequestDto,
   xor,
+  prisma,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
 
 export interface QueryType {
   query: string;

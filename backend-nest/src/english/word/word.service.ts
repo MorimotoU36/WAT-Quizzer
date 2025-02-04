@@ -15,9 +15,9 @@ import {
   AddWordAPIRequestDto,
   SubmitEnglishWordTestDataAPIRequestDto,
   SearchWordAPIRequestDto,
+  prisma,
+  GetWordNumResponseDto,
 } from 'quizzer-lib';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
 
 @Injectable()
 export class EnglishWordService {
@@ -728,7 +728,7 @@ export class EnglishWordService {
   }
 
   // 現在登録されている単語の最大idを取得
-  async getWordNumService() {
+  async getWordNumService(): Promise<GetWordNumResponseDto> {
     try {
       return await prisma.word.aggregate({
         _max: {

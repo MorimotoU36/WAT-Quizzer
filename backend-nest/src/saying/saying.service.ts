@@ -4,9 +4,8 @@ import {
   AddSayingAPIRequestDto,
   EditSayingAPIRequestDto,
   getRandomElementFromArray,
+  prisma,
 } from 'quizzer-lib';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
 
 @Injectable()
 export class SayingService {
