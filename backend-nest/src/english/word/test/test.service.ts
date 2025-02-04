@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
 import {
   getDateForSqlString,
   GetEnglishWordTestDataAPIRequestDto,
@@ -7,8 +6,8 @@ import {
   getPrismaPastDayRange,
   getRandomElementsFromArray,
   getRandomInt,
+  prisma,
 } from 'quizzer-lib';
-export const prisma: PrismaClient = new PrismaClient();
 
 @Injectable()
 export class EnglishWordTestService {
@@ -151,7 +150,7 @@ export class EnglishWordTestService {
 
       // ダミー選択肢用の意味を取得
       const dummyOptions = getRandomElementsFromArray(
-        await prisma.mean.findMany({
+        (await prisma.mean.findMany({
           select: {
             id: true,
             word_id: true,
@@ -169,7 +168,7 @@ export class EnglishWordTestService {
               not: result.id,
             },
           },
-        }),
+        })) as any[],
         3,
       );
 
@@ -185,7 +184,7 @@ export class EnglishWordTestService {
           },
         },
         correct: {
-          mean: getRandomElementsFromArray(result.mean, 1)[0].meaning,
+          mean: getRandomElementsFromArray(result.mean as any[], 1)[0].meaning,
         },
         dummy: dummyOptions.map((x) => ({
           mean: x.meaning,

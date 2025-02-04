@@ -1,13 +1,13 @@
 import { Handler, Context } from 'aws-lambda';
 import { Server } from 'http';
 import { createServer, proxy } from 'aws-serverless-express';
-import { eventContext } from 'aws-serverless-express/middleware';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 // import express from 'express';
 import * as express from 'express';
-import { ValidationPipe } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+dotenv.config();
 // import * as cookieParser from 'cookie-parser';
 // import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -52,20 +52,19 @@ export const handler: Handler = async (event: any, context: Context) => {
 };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    const app = await NestFactory.create(AppModule);
 
-  // const config = new DocumentBuilder().build();
-  // const document = SwaggerModule.createDocument(app, config);
-  // SwaggerModule.setup('api', app, document);
-  // app.use(cookieParser());
-  app.enableCors({
-    origin: '*',
-    allowedHeaders:
-      'Origin, X-Requested-With, Content-Type, Accept, x-api-key, Authorization',
-  });
-  await app.listen(4000);
+    app.enableCors({
+      origin: '*',
+      allowedHeaders:
+        'Origin, X-Requested-With, Content-Type, Accept, x-api-key, Authorization',
+    });
+    await app.listen(4000);
+  } catch (error) {
+    console.error('Error during bootstrap:', error);
+  }
 }
-
-if (process.env.APP_ENV == 'local') {
+if (process.env.APP_ENV === 'local') {
   bootstrap();
 }
