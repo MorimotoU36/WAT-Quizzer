@@ -35,12 +35,6 @@ jobs:
     - name: Setup aws-sam
       uses: aws-actions/setup-sam@v2
 
-    # SAM APIビルド・デプロイ
-    - name: Build & Deploy API
-      run: |
-        sam build
-        sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID
-
     - name: Setup quizzer-lib
       id: setup-quizzer-lib
       run: cd ./quizzer-lib && npm ci && npm run build
@@ -52,6 +46,13 @@ jobs:
     - name: Setup dependencies(infra)
       id: setup-infra-dependencies
       run: cd ./infra && npm ci --production
+
+    # SAM APIビルド・デプロイ
+    - name: Build & Deploy API
+      run: |
+        cd ./infra
+        sam build
+        sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID
 
     # frontendをビルド
     - name: Next.js Build and Export(Frontend)
