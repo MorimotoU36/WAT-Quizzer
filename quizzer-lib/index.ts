@@ -7,3 +7,6 @@ export * from './src/english'
 export * from './src/saying'
 export * from './src/quiz'
 export * from './src/category'
+
+// prisma
+export * from './prisma'
