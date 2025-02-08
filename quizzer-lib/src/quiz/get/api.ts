@@ -19,12 +19,15 @@ export const getQuizAPI = async ({
   ) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00002) }
   }
-  if (getQuizRequestData.format_id === -1) {
-    delete getQuizRequestData.format_id
-  }
   if (getQuizRequestData.category === '-1') {
     delete getQuizRequestData.category
   }
+  const format_id = getQuizRequestData.format_id
+    ? Object.entries(getQuizRequestData.format_id)
+        .filter((x) => x[1])
+        .map((x) => x[0])
+        .join(',')
+    : ''
 
   const path =
     getQuizMethod === 'random'
@@ -53,7 +56,7 @@ export const getQuizAPI = async ({
         return { message: errorMessage(MESSAGES.ERROR.MSG00004) }
       }
     },
-    { ...getQuizRequestData }
+    { ...getQuizRequestData, format_id }
   )
   return result
 }
