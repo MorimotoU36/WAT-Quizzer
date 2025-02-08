@@ -1,0 +1,7 @@
+.checkboxGroup {
+    display: inline-block;
+}
+
+.checkboxGroupLabel {
+    margin-right: 16px;
+}

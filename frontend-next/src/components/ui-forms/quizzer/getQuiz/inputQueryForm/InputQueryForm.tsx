@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -18,6 +18,7 @@ import {
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -155,24 +156,16 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
         />
       </FormControl>
 
-      {/**TODO  問題種別用にチェックボックスのコンポーネント作ったのでそれ使って欲しい*/}
-      {/**TODO  これ右よせになってるから左寄せにする */}
       <FormControl>
-        <FormControlLabel
+        <Checkbox
           value="only-checked"
-          control={
-            <Checkbox
-              color="primary"
-              onChange={(e) => {
-                setQuizRequestData({
-                  ...getQuizRequestData,
-                  checked: e.target.checked
-                });
-              }}
-            />
-          }
           label="チェック済から出題"
-          labelPlacement="start"
+          onChange={(e) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              checked: e.target.checked
+            });
+          }}
         />
       </FormControl>
     </FormGroup>
