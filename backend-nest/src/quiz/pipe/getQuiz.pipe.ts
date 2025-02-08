@@ -16,7 +16,6 @@ export class GetQuizPipe
         switch (key) {
           case 'file_num':
           case 'quiz_num':
-          case 'format_id':
           case 'min_rate':
           case 'max_rate':
             if (cur[1] === '-1' || isNaN(parseInt(cur[1]))) {
@@ -26,6 +25,13 @@ export class GetQuizPipe
             }
           case 'checked':
             return { ...acc, [key]: parseStrToBool(cur[1]) };
+          case 'format_id':
+            return {
+              ...acc,
+              [key]: cur[1].split(',').reduce((accummulate, currentValue) => {
+                return { ...accummulate, [currentValue]: true };
+              }, {}),
+            };
           default:
             if (cur[1] === '-1') {
               return { ...acc };
