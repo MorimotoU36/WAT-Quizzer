@@ -593,7 +593,14 @@ export class QuizService {
           checked: true,
         },
         where: {
-          format_id,
+          // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
+          ...(format_id && {
+            format_id: {
+              in: Object.entries(format_id)
+                .filter((x) => x[1])
+                .map((x) => +x[0]),
+            },
+          }),
           file_num,
           deleted_at: null,
           quiz_statistics_view: {
