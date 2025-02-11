@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -22,6 +22,7 @@ import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
 import { GridRowsProp } from '@mui/x-data-grid';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -112,7 +113,8 @@ export const SearchQueryForm = ({
           検索対象：
           <FormControlLabel
             control={
-              <Checkbox
+              /**TODO ここ　muiじゃなくて作ったcheckboxコンポーネントにして */
+              <MuiCheckBox
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
@@ -126,7 +128,7 @@ export const SearchQueryForm = ({
           />
           <FormControlLabel
             control={
-              <Checkbox
+              <MuiCheckBox
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
@@ -186,21 +188,15 @@ export const SearchQueryForm = ({
         </FormControl>
 
         <FormControl>
-          <FormControlLabel
+          <Checkbox
             value="only-checked"
-            control={
-              <Checkbox
-                color="primary"
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    checked: e.target.checked
-                  });
-                }}
-              />
-            }
             label="チェック済のみ検索"
-            labelPlacement="start"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                checked: e.target.checked
+              });
+            }}
           />
         </FormControl>
       </FormGroup>
