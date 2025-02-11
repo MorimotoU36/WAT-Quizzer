@@ -1,7 +1,7 @@
 export interface SearchQuizAPIRequestDto {
   query: string
   file_num: number
-  format_id?: number
+  format_id?: { [key: string]: boolean }
   min_rate?: number
   max_rate?: number
   category?: string
