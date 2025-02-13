@@ -117,7 +117,10 @@ export class QuizService {
           : method === 'LRU'
           ? {
               quiz_statistics_view: {
-                last_answer_log: 'desc' as const,
+                last_answer_log: {
+                  sort: 'asc' as const,
+                  nulls: 'first' as const,
+                },
               },
             }
           : {};
