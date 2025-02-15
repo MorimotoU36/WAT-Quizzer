@@ -10,4 +10,5 @@ export interface QuizFileStatisticsApiResponse extends ApiResponse {
   fail: number
   not_answered: number
   accuracy_rate: number // TODO
+  process_rate: number // TODO
 }

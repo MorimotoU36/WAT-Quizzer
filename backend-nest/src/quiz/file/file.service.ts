@@ -44,6 +44,7 @@ export class QuizFileService {
         fail: true,
         not_answered: true,
         accuracy_rate: true,
+        process_rate: true,
       },
       orderBy: {
         file_num: 'asc',
@@ -58,6 +59,7 @@ export class QuizFileService {
         fail: Number(x.fail),
         not_answered: Number(x.not_answered),
         accuracy_rate: Number(x.accuracy_rate),
+        process_rate: Number(x.process_rate),
       };
     });
   }
