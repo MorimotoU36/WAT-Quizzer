@@ -314,6 +314,7 @@ erDiagram
     Decimal fail "❓"
     Decimal not_answered "❓"
     Decimal accuracy_rate "❓"
+    Decimal process_rate "❓"
     }
   
 

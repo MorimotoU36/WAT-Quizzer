@@ -17,7 +17,19 @@ SELECT
         COALESCE(q.clear, (0) :: numeric) + COALESCE(q.fail, (0) :: numeric)
       )
     )
-  END AS accuracy_rate
+  END AS accuracy_rate,
+  CASE
+    WHEN (
+      COALESCE((q.count) :: numeric, (0) :: numeric) = (0) :: numeric
+    ) THEN (0) :: numeric
+    ELSE (
+      (
+        (100) :: numeric * (
+          COALESCE(q.clear, (0) :: numeric) + COALESCE(q.fail, (0) :: numeric)
+        )
+      ) / COALESCE((q.count) :: numeric, (0) :: numeric)
+    )
+  END AS process_rate
 FROM
   (
     quiz_file qf

@@ -378,6 +378,7 @@ view quiz_file_view {
   fail          Decimal? @db.Decimal
   not_answered  Decimal? @db.Decimal
   accuracy_rate Decimal? @db.Decimal
+  process_rate  Decimal? @db.Decimal
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
