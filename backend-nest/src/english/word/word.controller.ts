@@ -176,12 +176,14 @@ export class EnglishWordController {
 
   /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */
   // @UseGuards(AuthGuard)
+  // TODO これ /word/:id/source の方がいいはず　直して
   @Get('source/:id')
   async getSourceOfWordById(@Param('id') id: string) {
     return await this.englishWordService.getSourceOfWordById(+id);
   }
 
   // @UseGuards(AuthGuard)
+  // TODO これも /word/:id/subsourceにする
   @Get('subsource/:id')
   async getSubSourceOfWordById(@Param('id') id: string) {
     return await this.englishWordService.getSubSourceOfWordById(+id);

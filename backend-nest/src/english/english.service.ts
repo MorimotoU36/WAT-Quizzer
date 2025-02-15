@@ -262,4 +262,47 @@ export class EnglishService {
       }
     }
   }
+
+  // 例文テスト取得
+  async registerWordsToSource(sourceId: number, words: string[]) {
+    try {
+      const unregisteredWord = [];
+      //トランザクション実行
+      await prisma.$transaction(async (prisma) => {
+        for (const wordName of words) {
+          const wordId = (
+            await prisma.word.findFirst({
+              where: {
+                name: wordName,
+              },
+            })
+          ).id;
+
+          // ない場合はスルー
+          if (!wordId) {
+            unregisteredWord.push(wordName);
+            continue;
+          }
+
+          await prisma.word_source.create({
+            data: {
+              word_id: +wordId,
+              source_id: sourceId,
+            },
+          });
+        }
+      });
+      return {
+        result: 'All Registered!',
+        unregisteredWord,
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
 }

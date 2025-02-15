@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   ParseBoolPipe,
   Post,
   Query,
@@ -53,5 +54,15 @@ export class EnglishController {
   @Get('/example/test')
   async getExampleTest() {
     return await this.englishService.getExampleTestService();
+  }
+
+  /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */
+  // バッチ用
+  @Post('source/:id/words')
+  async registerWordsToSource(
+    @Param('id') id: string,
+    @Body('words') words: string[], // wordIds を配列で受け取る
+  ) {
+    return await this.englishService.registerWordsToSource(+id, words);
   }
 }
