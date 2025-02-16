@@ -58,6 +58,5 @@ echo "✅ $OUTPUT_FILE に平均行数を保存しました。"
 # Git に追加 & コミット & プッシュ
 git add "$OUTPUT_FILE"
 git commit -m "Update average lines count"
-git push
 
-echo "🚀 Git にコミット & プッシュしました。"
+echo "🚀 コミットしました。"
