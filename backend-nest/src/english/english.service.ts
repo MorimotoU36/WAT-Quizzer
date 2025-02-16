@@ -263,40 +263,63 @@ export class EnglishService {
     }
   }
 
-  // 例文テスト取得
+  // 出典に単語リスト一挙登録（バッチ用）
   async registerWordsToSource(sourceId: number, words: string[]) {
     try {
       const unregisteredWord = [];
+      const alreadyRegisteredWord = [];
+      const registerWord = [];
       //トランザクション実行
       await prisma.$transaction(async (prisma) => {
         for (const wordName of words) {
-          const wordId = (
-            await prisma.word.findFirst({
-              where: {
-                name: wordName,
-              },
-            })
-          ).id;
+          // 入力単語が実在するかチェック
+          const wordData = await prisma.word.findFirst({
+            where: {
+              name: wordName,
+            },
+          });
 
           // ない場合はスルー
-          if (!wordId) {
+          if (!wordData) {
             unregisteredWord.push(wordName);
             continue;
           }
 
+          // 出典・単語の組み合わせが既に登録されているかチェック
+          const wordSourceData = await prisma.word_source.findUnique({
+            where: {
+              word_id_source_id: {
+                word_id: wordData.id,
+                source_id: sourceId,
+              },
+            },
+          });
+
+          // 既にある場合はスルー
+          if (wordSourceData) {
+            alreadyRegisteredWord.push(wordName);
+            continue;
+          }
+
+          // 登録
           await prisma.word_source.create({
             data: {
-              word_id: +wordId,
+              word_id: +wordData.id,
               source_id: sourceId,
             },
           });
+
+          registerWord.push(wordName);
         }
       });
       return {
-        result: 'All Registered!',
+        result: `${registerWord.length} Registered!`,
+        registerWord,
         unregisteredWord,
+        alreadyRegisteredWord,
       };
     } catch (error: unknown) {
+      console.log(error);
       if (error instanceof Error) {
         throw new HttpException(
           error.message,

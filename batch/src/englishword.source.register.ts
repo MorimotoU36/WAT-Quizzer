@@ -49,25 +49,23 @@ try {
       // ファイルの内容を1行ごとに分割
       const lines = data.split(/\r?\n/).filter((line) => line.trim() !== '') // 空行を除外
       const sourceId = lines[0]
-      const wordNames = lines.slice(1)
+      const words = lines.slice(1)
 
       console.log(`読み込んだ行数: ${lines.length} 行`)
-
       // 送信
       try {
-        const response = await fetch(
-          baseURL + `/english/source/${sourceId}/words`,
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              words: wordNames
-            }),
-            headers: {
-              'x-api-key': key
-            }
-          }
-        )
-        console.log(`✅ 送信成功:`, response)
+        const response = await fetch(baseURL + `/english/source/words`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key
+          },
+          body: JSON.stringify({
+            sourceId,
+            words
+          })
+        })
+        console.log(`✅ 送信成功:`, await response.json())
       } catch (error) {
         console.error(`❌ 送信失敗: `, error.response?.data || error.message)
       }

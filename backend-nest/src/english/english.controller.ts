@@ -2,15 +2,14 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   ParseBoolPipe,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { EnglishService } from './english.service';
 import {
   AddExampleAPIRequestDto,
+  RegisterWordsToSourceDto,
   SubmitAssociationExampleAPIRequestDto,
 } from 'quizzer-lib';
 // import { AuthGuard } from '../auth/auth.guard';
@@ -58,11 +57,13 @@ export class EnglishController {
 
   /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */
   // バッチ用
-  @Post('source/:id/words')
+  @Post('source/words')
   async registerWordsToSource(
-    @Param('id') id: string,
-    @Body('words') words: string[], // wordIds を配列で受け取る
+    @Body() registerWordsToSourceDto: RegisterWordsToSourceDto,
   ) {
-    return await this.englishService.registerWordsToSource(+id, words);
+    return await this.englishService.registerWordsToSource(
+      +registerWordsToSourceDto.sourceId,
+      registerWordsToSourceDto.words,
+    );
   }
 }
