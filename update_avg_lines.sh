@@ -22,7 +22,7 @@ count_lines() {
 # 指定したディレクトリ以下のすべてのファイルを取得（無視リスト適用）
 get_all_files() {
     find . -type f | while read -r file; do
-        # 無視リストに含まれるディレクトリがパスにあればスキップ
+        # 無視リストに含まれる値がパスにあればスキップ
         for ignore in "${IGNORE_DIRS[@]}"; do
             if [[ "$file" == *"$ignore"* ]]; then
                 continue 2 # 次のファイルへ
@@ -52,8 +52,8 @@ else
 fi
 
 # 平均行数をファイルに保存
-echo "$(date "+%Y-%m-%d %H:%M:%S") 平均行数: ${average_lines} 行" >>"$OUTPUT_FILE"
-echo "✅ $OUTPUT_FILE に平均行数を保存しました。"
+echo -e "$(date "+%Y-%m-%d %H:%M:%S") 平均行数: ${average_lines} 行\tファイル数: ${file_count}" >>"$OUTPUT_FILE"
+echo "✅ $OUTPUT_FILE に平均行数 ${average_lines} 行を保存しました。"
 
 # Git に追加 & コミット & プッシュ
 git add "$OUTPUT_FILE"
