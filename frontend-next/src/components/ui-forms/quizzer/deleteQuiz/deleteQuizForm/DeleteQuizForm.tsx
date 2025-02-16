@@ -80,27 +80,6 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
                 }}
               />
             </FormControl>
-
-            <FormControl>
-              <RadioGroupSection
-                sectionTitle={'問題種別'}
-                radioGroupProps={{
-                  radioButtonProps: quizFormatListoption.map((x) => {
-                    return {
-                      value: String(x.id),
-                      label: x.name
-                    };
-                  }),
-                  defaultValue: '1',
-                  setQueryofQuizStater: (value: string) => {
-                    setQuizRequestData({
-                      ...getQuizRequestData,
-                      format_id: +value
-                    });
-                  }
-                }}
-              />
-            </FormControl>
           </FormGroup>
 
           <Button
@@ -160,8 +139,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
           const result = await deleteQuiz({
             deleteQuizAPIRequestData: {
               file_num: deleteQuizInfo.file_num,
-              quiz_num: deleteQuizInfo.quiz_num,
-              format_id: deleteQuizInfo.format_id
+              quiz_num: deleteQuizInfo.quiz_num
             }
           });
           setMessage(result.message);

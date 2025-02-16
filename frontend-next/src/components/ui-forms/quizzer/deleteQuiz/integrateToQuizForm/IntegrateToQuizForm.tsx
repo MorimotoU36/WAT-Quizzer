@@ -54,27 +54,6 @@ export const IntegrateToQuizForm = ({
                 }}
               />
             </FormControl>
-
-            <FormControl>
-              <RadioGroupSection
-                sectionTitle={'問題種別'}
-                radioGroupProps={{
-                  radioButtonProps: quizFormatListoption.map((x) => {
-                    return {
-                      value: String(x.id),
-                      label: x.name
-                    };
-                  }),
-                  defaultValue: '1',
-                  setQueryofQuizStater: (value: string) => {
-                    setQuizRequestData({
-                      ...getQuizRequestData,
-                      format_id: +value
-                    });
-                  }
-                }}
-              />
-            </FormControl>
           </FormGroup>
 
           <Button
