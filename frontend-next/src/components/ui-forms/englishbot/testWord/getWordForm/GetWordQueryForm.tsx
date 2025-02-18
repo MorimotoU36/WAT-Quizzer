@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup } from '@mui/material';
+import { FormControl, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -15,10 +15,10 @@ import {
   getEnglishWordTestDataAPI,
   GetEnglishWordTestDataAPIRequestDto,
   GetEnglishWordTestDataAPIResponseDto,
-  parseStrToBool,
   PullDownOptionDto
 } from 'quizzer-lib';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionDto[];
@@ -74,23 +74,15 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
             </LocalizationProvider>
           </FormControl>
           <FormControl>
-            {/**TODO 画面だと何故か右に行くので、左寄せしましょう。。 */}
-            <FormControlLabel
+            <Checkbox
               value="only-checked"
-              control={
-                <Checkbox
-                  color="primary"
-                  checked={queryOfTestData.checked || false}
-                  onChange={(e) => {
-                    setQueryOfTestData({
-                      ...queryOfTestData,
-                      checked: e.target.checked
-                    });
-                  }}
-                />
-              }
               label="チェック済から出題"
-              labelPlacement="start"
+              onChange={(e) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  checked: e.target.checked
+                });
+              }}
             />
           </FormControl>
           <FormControl>
