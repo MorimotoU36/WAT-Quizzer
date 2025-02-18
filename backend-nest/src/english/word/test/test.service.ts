@@ -49,10 +49,7 @@ export class EnglishWordTestService {
         word_source: {
           ...(source &&
             +source !== -1 && {
-              some: {},
-              every: {
-                source_id: +source,
-              },
+              some: { source_id: +source },
             }),
         },
         word_subsource: {
