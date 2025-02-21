@@ -94,6 +94,8 @@ export const SynonymStack = ({ wordDetail, setMessage, setWordDetail }: SynonymS
                 <Typography sx={{ mt: 2 }}>
                   類義語名：
                   <TextField
+                    error={addSynonymData.synonymWordName === wordDetail.name}
+                    helperText={addSynonymData.synonymWordName === wordDetail.name ? '元の単語は入力できません' : ' '}
                     variant="outlined"
                     defaultValue={addSynonymData.synonymWordName}
                     onChange={(e) => {
@@ -109,6 +111,7 @@ export const SynonymStack = ({ wordDetail, setMessage, setWordDetail }: SynonymS
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
+                  disabled={addSynonymData.synonymWordName === wordDetail.name}
                   onClick={async (e) => {
                     setSynonymModalOpen(false);
                     const result = await addSynonymAPI({

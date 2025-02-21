@@ -83,6 +83,8 @@ export const DerivativeStack = ({ wordDetail, setMessage, setWordDetail }: Deriv
                 <Typography sx={{ mt: 2 }}>
                   派生語名：
                   <TextField
+                    error={addDerivativeData.derivativeName === wordDetail.name}
+                    helperText={addDerivativeData.derivativeName === wordDetail.name ? '元の単語は入力できません' : ' '}
                     variant="outlined"
                     defaultValue={addDerivativeData.derivativeName}
                     onChange={(e) => {
@@ -98,6 +100,7 @@ export const DerivativeStack = ({ wordDetail, setMessage, setWordDetail }: Deriv
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
+                  disabled={addDerivativeData.derivativeName === wordDetail.name}
                   onClick={async (e) => {
                     setDerivativeModalOpen(false);
                     const result = await addDerivativeAPI({
