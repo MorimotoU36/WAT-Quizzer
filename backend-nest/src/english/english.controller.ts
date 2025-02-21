@@ -55,7 +55,11 @@ export class EnglishController {
     return await this.englishService.getExampleTestService();
   }
 
-  /* 注 以下APIは一番最後に置くこと パスが上書きされて全てこのAPIが使われてしまうため */
+  @Get('source/statistics')
+  async getSourceStatistics() {
+    return await this.englishService.getSourceStatisticsData();
+  }
+
   // バッチ用
   @Post('source/words')
   async registerWordsToSource(

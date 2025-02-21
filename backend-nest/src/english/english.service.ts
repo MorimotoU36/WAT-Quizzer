@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   AddExampleAPIRequestDto,
+  SourceStatisticsApiResponse,
   SubmitAssociationExampleAPIRequestDto,
   prisma,
 } from 'quizzer-lib';
@@ -327,5 +328,36 @@ export class EnglishService {
         );
       }
     }
+  }
+
+  // 出典統計ビューデータ取得
+  async getSourceStatisticsData(): Promise<SourceStatisticsApiResponse[]> {
+    const result = await prisma.source_statistics_view.findMany({
+      // TODO この下も prismaの型(index.d.ts)から取ってこれるのではないか？
+      select: {
+        id: true,
+        name: true,
+        clear_count: true,
+        fail_count: true,
+        count: true,
+        not_answered: true,
+        accuracy_rate: true,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    return result.map((x) => {
+      // TODO ここも　いちいち属性指定では面倒 prisaの型定義を使えたりしないか
+      return {
+        ...x,
+        count: Number(x.count),
+        clear_count: Number(x.clear_count),
+        fail_count: Number(x.fail_count),
+        not_answered: Number(x.not_answered),
+        accuracy_rate: Number(x.accuracy_rate),
+      };
+    });
   }
 }
