@@ -427,3 +427,13 @@ view word_statistics_view {
   last_answer_log DateTime? @db.Timestamp(6)
   word            word[]
 }
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view source_statistics_view {
+  id           Int      @unique
+  name         String?  @db.VarChar(256)
+  clear_count  Decimal? @db.Decimal
+  fail_count   Decimal? @db.Decimal
+  count        BigInt?
+  not_answered BigInt?
+}

@@ -362,6 +362,16 @@ erDiagram
     DateTime last_answer_log "❓"
     }
   
+
+  "source_statistics_view" {
+    Int id 
+    String name "❓"
+    Decimal clear_count "❓"
+    Decimal fail_count "❓"
+    BigInt count "❓"
+    BigInt not_answered "❓"
+    }
+  
     "answer_log" o|--|| "quiz" : "quiz"
     "englishbot_answer_log" o|--|| "word" : "word"
     "example" o{--}o "example_explanation" : "example_explanation"
