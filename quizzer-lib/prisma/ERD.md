@@ -370,6 +370,7 @@ erDiagram
     Decimal fail_count "❓"
     BigInt count "❓"
     BigInt not_answered "❓"
+    Decimal accuracy_rate "❓"
     }
   
     "answer_log" o|--|| "quiz" : "quiz"
