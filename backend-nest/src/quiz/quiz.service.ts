@@ -1245,6 +1245,7 @@ export class QuizService {
                 },
               },
             });
+            console.log(`OK: ${row[0]}`);
           }
         },
         {
@@ -1254,6 +1255,7 @@ export class QuizService {
       );
       return { result: 'All Registered!!' };
     } catch (error: unknown) {
+      console.error(error);
       if (error instanceof Error) {
         throw new HttpException(
           error.message,
