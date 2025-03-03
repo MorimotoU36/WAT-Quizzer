@@ -14,6 +14,7 @@ interface SearchQuizButtonProps {
 export const searchQuizAPI = async ({
   searchQuizRequestData
 }: SearchQuizButtonProps): Promise<ApiResult> => {
+  console.log('searchQuizRequestData', searchQuizRequestData)
   if (searchQuizRequestData.file_num === -1) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   }
@@ -21,9 +22,12 @@ export const searchQuizAPI = async ({
   if (searchQuizRequestData.category === '-1') {
     delete searchQuizRequestData.category
   }
-  if (searchQuizRequestData.format_id === -1) {
-    delete searchQuizRequestData.format_id
-  }
+  const format_id = searchQuizRequestData.format_id
+    ? Object.entries(searchQuizRequestData.format_id)
+        .filter((x) => x[1])
+        .map((x) => x[0])
+        .join(',')
+    : ''
 
   const result = await get(
     '/quiz/search',
@@ -48,7 +52,8 @@ export const searchQuizAPI = async ({
       }
     },
     {
-      ...searchQuizRequestData
+      ...searchQuizRequestData,
+      format_id
     }
   )
   return result

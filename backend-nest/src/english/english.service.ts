@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   AddExampleAPIRequestDto,
+  SourceStatisticsApiResponse,
   SubmitAssociationExampleAPIRequestDto,
+  prisma,
 } from 'quizzer-lib';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
 
 @Injectable()
 export class EnglishService {
@@ -262,5 +262,102 @@ export class EnglishService {
         );
       }
     }
+  }
+
+  // 出典に単語リスト一挙登録（バッチ用）
+  async registerWordsToSource(sourceId: number, words: string[]) {
+    try {
+      const unregisteredWord = [];
+      const alreadyRegisteredWord = [];
+      const registerWord = [];
+      //トランザクション実行
+      await prisma.$transaction(async (prisma) => {
+        for (const wordName of words) {
+          // 入力単語が実在するかチェック
+          const wordData = await prisma.word.findFirst({
+            where: {
+              name: wordName,
+            },
+          });
+
+          // ない場合はスルー
+          if (!wordData) {
+            unregisteredWord.push(wordName);
+            continue;
+          }
+
+          // 出典・単語の組み合わせが既に登録されているかチェック
+          const wordSourceData = await prisma.word_source.findUnique({
+            where: {
+              word_id_source_id: {
+                word_id: wordData.id,
+                source_id: sourceId,
+              },
+            },
+          });
+
+          // 既にある場合はスルー
+          if (wordSourceData) {
+            alreadyRegisteredWord.push(wordName);
+            continue;
+          }
+
+          // 登録
+          await prisma.word_source.create({
+            data: {
+              word_id: +wordData.id,
+              source_id: sourceId,
+            },
+          });
+
+          registerWord.push(wordName);
+        }
+      });
+      return {
+        result: `${registerWord.length} Registered!`,
+        registerWord,
+        unregisteredWord,
+        alreadyRegisteredWord,
+      };
+    } catch (error: unknown) {
+      console.log(error);
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 出典統計ビューデータ取得
+  async getSourceStatisticsData(): Promise<SourceStatisticsApiResponse[]> {
+    const result = await prisma.source_statistics_view.findMany({
+      // TODO この下も prismaの型(index.d.ts)から取ってこれるのではないか？
+      select: {
+        id: true,
+        name: true,
+        clear_count: true,
+        fail_count: true,
+        count: true,
+        not_answered: true,
+        accuracy_rate: true,
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    return result.map((x) => {
+      // TODO ここも　いちいち属性指定では面倒 prisaの型定義を使えたりしないか
+      return {
+        ...x,
+        count: Number(x.count),
+        clear_count: Number(x.clear_count),
+        fail_count: Number(x.fail_count),
+        not_answered: Number(x.not_answered),
+        accuracy_rate: Number(x.accuracy_rate),
+      };
+    });
   }
 }

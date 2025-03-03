@@ -14,6 +14,7 @@ import {
 } from 'quizzer-lib';
 import { RandomWordDisplay } from '@/components/ui-forms/englishbot/top/randomWordDisplay/RandomWordDisplay';
 import { TestLogPastWeekChart } from '@/components/ui-forms/englishbot/top/testLogPastWeekCharrt/TestLogPastWeekChart';
+import { SourceStatisticsCard } from '@/components/ui-forms/englishbot/top/sourceStatisticsCard/SourceStatisticsCard';
 
 type Props = {
   isMock?: boolean;
@@ -58,6 +59,7 @@ export default function EnglishBotTopPage({ isMock }: Props) {
       <Container>
         <WordSummaryChart wordSummaryData={wordSummaryData} />
         <RandomWordDisplay wordData={randomWord} />
+        <SourceStatisticsCard />
         <TestLogPastWeekChart wordTestPastWeekStatisticsData={wordTestPastWeekStatisticsData} />
       </Container>
     );

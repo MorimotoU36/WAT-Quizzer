@@ -75,6 +75,9 @@ export const FileStatisticsCard = ({}: FileStatisticsCardProps) => {
           optionList={filelistoption}
           onChange={(e) => setSelectedFile(+e.target.value)}
         />
+        <p>
+          {selectedFileStaticsData?.process_rate ? `進捗率:${selectedFileStaticsData?.process_rate.toFixed(2)}%` : ''}
+        </p>
         <Card variant="outlined" attr="rect-600 margin-vertical">
           {quizFileStatisticsData.length > 0 ? <Doughnut data={data} options={options} /> : <CircularProgress />}
         </Card>

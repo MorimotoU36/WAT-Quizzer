@@ -94,6 +94,8 @@ export const AntonymStack = ({ wordDetail, setMessage, setWordDetail }: AntonymS
                 <Typography sx={{ mt: 2 }}>
                   対義語名：
                   <TextField
+                    error={addAntonymData.antonymWordName === wordDetail.name}
+                    helperText={addAntonymData.antonymWordName === wordDetail.name ? '元の単語は入力できません' : ' '}
                     variant="outlined"
                     defaultValue={addAntonymData.antonymWordName}
                     onChange={(e) => {
@@ -109,6 +111,7 @@ export const AntonymStack = ({ wordDetail, setMessage, setWordDetail }: AntonymS
                   attr={'button-array'}
                   variant="contained"
                   color="primary"
+                  disabled={addAntonymData.antonymWordName === wordDetail.name}
                   onClick={async (e) => {
                     setAntonymModalOpen(false);
                     const result = await addAntonymAPI({

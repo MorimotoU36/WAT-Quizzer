@@ -85,27 +85,6 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
             }}
           />
         </FormControl>
-
-        <FormControl>
-          <RadioGroupSection
-            sectionTitle={'問題種別'}
-            radioGroupProps={{
-              radioButtonProps: quizFormatListoption.map((x) => {
-                return {
-                  value: String(x.id),
-                  label: x.name
-                };
-              }),
-              defaultValue: '1',
-              setQueryofQuizStater: (value: string) => {
-                setQuizRequestData((prev: any) => ({
-                  ...prev,
-                  format_id: +value
-                }));
-              }
-            }}
-          />
-        </FormControl>
       </FormGroup>
 
       <Button

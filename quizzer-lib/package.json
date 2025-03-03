@@ -5,7 +5,7 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx prisma format && npx prisma generate && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.687.0",
+    "@prisma/client": "^6.3.0",
+    "prisma": "^6.3.0",
+    "prisma-erd-generator": "^2.0.4",
     "undici-types": "^6.21.0"
   }
 }

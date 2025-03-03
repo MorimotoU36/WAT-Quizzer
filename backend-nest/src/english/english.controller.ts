@@ -5,11 +5,11 @@ import {
   ParseBoolPipe,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { EnglishService } from './english.service';
 import {
   AddExampleAPIRequestDto,
+  RegisterWordsToSourceDto,
   SubmitAssociationExampleAPIRequestDto,
 } from 'quizzer-lib';
 // import { AuthGuard } from '../auth/auth.guard';
@@ -53,5 +53,21 @@ export class EnglishController {
   @Get('/example/test')
   async getExampleTest() {
     return await this.englishService.getExampleTestService();
+  }
+
+  @Get('source/statistics')
+  async getSourceStatistics() {
+    return await this.englishService.getSourceStatisticsData();
+  }
+
+  // バッチ用
+  @Post('source/words')
+  async registerWordsToSource(
+    @Body() registerWordsToSourceDto: RegisterWordsToSourceDto,
+  ) {
+    return await this.englishService.registerWordsToSource(
+      +registerWordsToSourceDto.sourceId,
+      registerWordsToSourceDto.words,
+    );
   }
 }

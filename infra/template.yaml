@@ -73,7 +73,7 @@ Resources:
               ApiKeyRequired: true
     Metadata: # Manage esbuild properties
       DockerTag: nodejs20.x-v1
-      DockerContext: ./
+      DockerContext: ../
       Dockerfile: Dockerfile
 
 Outputs:

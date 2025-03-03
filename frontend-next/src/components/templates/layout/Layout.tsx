@@ -28,6 +28,7 @@ interface LayoutProps {
 
 const urlEnd = process.env.NEXT_PUBLIC_URL_END || '';
 const config: { [key: string]: LayoutConfig } = {
+  // TODO これはプロパティファイルにおきたい
   quizzer: {
     bgColor: '#0077B6',
     sideBarContents: [

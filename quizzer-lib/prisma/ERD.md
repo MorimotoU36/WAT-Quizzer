@@ -314,6 +314,7 @@ erDiagram
     Decimal fail "❓"
     Decimal not_answered "❓"
     Decimal accuracy_rate "❓"
+    Decimal process_rate "❓"
     }
   
 
@@ -359,6 +360,17 @@ erDiagram
     BigInt fail_count "❓"
     BigInt accuracy_rate "❓"
     DateTime last_answer_log "❓"
+    }
+  
+
+  "source_statistics_view" {
+    Int id 
+    String name "❓"
+    Decimal clear_count "❓"
+    Decimal fail_count "❓"
+    BigInt count "❓"
+    BigInt not_answered "❓"
+    Decimal accuracy_rate "❓"
     }
   
     "answer_log" o|--|| "quiz" : "quiz"

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import {
   GetCategoryAPIResponseDto,
   getCategoryListAPI,
@@ -13,7 +12,6 @@ import {
   getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
-  initQuizFormatListData,
   PullDownOptionDto,
   quizFileListAPIResponseToPullDownAdapter,
   searchQuizAPI,
@@ -23,6 +21,8 @@ import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
 import { GridRowsProp } from '@mui/x-data-grid';
+import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -37,9 +37,7 @@ export const SearchQueryForm = ({
 }: SearchQueryFormProps) => {
   const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([
-    initQuizFormatListData
-  ]);
+  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
 
   const setMessage = useSetRecoilState(messageState);
 
@@ -70,9 +68,7 @@ export const SearchQueryForm = ({
       });
       const result = await getQuizFormatListAPI();
       setMessage(result.message);
-      setQuizFormatListoption(
-        result.result ? [initQuizFormatListData, ...(result.result as GetQuizFormatApiResponseDto[])] : []
-      );
+      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
     })();
   }, [setMessage]);
 
@@ -117,7 +113,8 @@ export const SearchQueryForm = ({
           検索対象：
           <FormControlLabel
             control={
-              <Checkbox
+              /**TODO ここ　muiじゃなくて作ったcheckboxコンポーネントにして */
+              <MuiCheckBox
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
@@ -131,7 +128,7 @@ export const SearchQueryForm = ({
           />
           <FormControlLabel
             control={
-              <Checkbox
+              <MuiCheckBox
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
@@ -170,42 +167,36 @@ export const SearchQueryForm = ({
         </FormControl>
 
         <FormControl>
-          <RadioGroupSection
-            sectionTitle={'問題種別'}
-            radioGroupProps={{
-              radioButtonProps: quizFormatListoption.map((x) => {
-                return {
-                  value: String(x.id),
-                  label: x.name
-                };
-              }),
-              defaultValue: '-1',
-              setQueryofQuizStater: (value: string) => {
-                setSearchQuizRequestData({
-                  ...searchQuizRequestData,
-                  format_id: +value
-                });
-              }
+          <CheckboxGroup
+            checkboxProps={quizFormatListoption.map((x) => {
+              return {
+                value: String(x.id),
+                label: x.name
+              };
+            })}
+            setQueryofQuizStater={(checkBoxValue, checked) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                format_id: {
+                  ...searchQuizRequestData.format_id,
+                  [checkBoxValue]: checked
+                }
+              });
             }}
+            label={'問題種別'}
           />
         </FormControl>
 
         <FormControl>
-          <FormControlLabel
+          <Checkbox
             value="only-checked"
-            control={
-              <Checkbox
-                color="primary"
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    checked: e.target.checked
-                  });
-                }}
-              />
-            }
             label="チェック済のみ検索"
-            labelPlacement="start"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                checked: e.target.checked
+              });
+            }}
           />
         </FormControl>
       </FormGroup>

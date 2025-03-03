@@ -16,11 +16,10 @@ import {
   GetQuizAPIRequestDto,
   SearchQuizAPIRequestDto,
   xor,
+  prisma,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
-import { PrismaClient } from '@prisma/client';
-export const prisma: PrismaClient = new PrismaClient();
 
 export interface QueryType {
   query: string;
@@ -50,7 +49,14 @@ export class QuizService {
         method
           ? {
               file_num,
-              format_id,
+              // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
+              ...(format_id && {
+                format_id: {
+                  in: Object.entries(format_id)
+                    .filter((x) => x[1])
+                    .map((x) => +x[0]),
+                },
+              }),
               deleted_at: null,
               quiz_statistics_view: {
                 accuracy_rate: {
@@ -79,7 +85,13 @@ export class QuizService {
           : {
               file_num,
               quiz_num,
-              format_id,
+              ...(format_id && {
+                format_id: {
+                  in: Object.entries(format_id)
+                    .filter((x) => x[1])
+                    .map((x) => +x[0]),
+                },
+              }),
               deleted_at: null,
             };
       const orderBy =
@@ -105,7 +117,10 @@ export class QuizService {
           : method === 'LRU'
           ? {
               quiz_statistics_view: {
-                last_answer_log: 'desc' as const,
+                last_answer_log: {
+                  sort: 'asc' as const,
+                  nulls: 'first' as const,
+                },
               },
             }
           : {};
@@ -581,7 +596,14 @@ export class QuizService {
           checked: true,
         },
         where: {
-          format_id,
+          // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
+          ...(format_id && {
+            format_id: {
+              in: Object.entries(format_id)
+                .filter((x) => x[1])
+                .map((x) => +x[0]),
+            },
+          }),
           file_num,
           deleted_at: null,
           quiz_statistics_view: {

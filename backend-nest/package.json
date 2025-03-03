@@ -7,8 +7,7 @@
   "main": "dist/src/main.js",
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npx prisma format && npx prisma generate && nest build",
-    "build:sam": "sam build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -31,7 +30,6 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^9.4.3",
-    "@prisma/client": "^5.14.0",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
     "amazon-cognito-identity-js": "^6.3.12",
@@ -52,8 +50,6 @@
     "nats": "^2.26.0",
     "papaparse": "^5.4.1",
     "patch-package": "^8.0.0",
-    "prisma": "^5.14.0",
-    "prisma-erd-generator": "^1.11.2",
     "quizzer-lib": "^1.0.1"
   },
   "devDependencies": {
@@ -74,7 +70,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

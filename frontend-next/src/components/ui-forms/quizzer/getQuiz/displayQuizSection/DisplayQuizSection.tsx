@@ -29,7 +29,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
       ...getQuizResponseData,
       ...generateQuizSentense(getQuizResponseData)
     };
-  }, [getQuizResponseData]);
+  }, [getQuizResponseData.quiz_sentense]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -38,7 +38,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
   // 出題変わったら閉じる
   useEffect(() => {
     setExpanded(false);
-  }, [getQuizResponseData]);
+  }, [getQuizResponseData.quiz_sentense]);
 
   return (
     <>
@@ -48,7 +48,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
             問題
           </Typography>
           <Typography variant="subtitle1" component="h2">
-            {displayQuiz.checked ? '✅' : ''}
+            {getQuizResponseData.checked ? '✅' : ''}
             {displayQuiz.quiz_sentense.split(/(\n)/).map((item, index) => {
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
@@ -130,7 +130,8 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
                   setQuizResponseData &&
                   setQuizResponseData((prev) => ({
                     ...prev,
-                    checked: result.result ? (result.result as GetQuizApiResponseDto).checked : false
+                    checked: prev.checked !== undefined && !prev.checked
+                    // checked: result.result ? (result.result as GetQuizApiResponseDto).checked : false
                   }));
               }}
             />

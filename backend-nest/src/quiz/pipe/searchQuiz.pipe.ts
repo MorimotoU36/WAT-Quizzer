@@ -18,7 +18,6 @@ export class SearchQuizPipe
         const key = cur[0];
         switch (key) {
           case 'file_num':
-          case 'format_id':
           case 'min_rate':
           case 'max_rate':
             if (cur[1] === '-1' || isNaN(parseInt(cur[1]))) {
@@ -30,6 +29,20 @@ export class SearchQuizPipe
           case 'searchInOnlySentense':
           case 'searchInOnlyAnswer':
             return { ...acc, [key]: parseStrToBool(cur[1]) };
+          case 'format_id':
+            return cur[1] && cur[1] !== ''
+              ? {
+                  ...acc,
+                  [key]: cur[1]
+                    .split(',')
+                    .filter((x) => x !== '')
+                    .reduce((accummulate, currentValue) => {
+                      return { ...accummulate, [currentValue]: true };
+                    }, {}),
+                }
+              : {
+                  ...acc,
+                };
           default:
             if (cur[1] === '-1') {
               return { ...acc };

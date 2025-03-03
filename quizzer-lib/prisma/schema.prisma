@@ -378,6 +378,7 @@ view quiz_file_view {
   fail          Decimal? @db.Decimal
   not_answered  Decimal? @db.Decimal
   accuracy_rate Decimal? @db.Decimal
+  process_rate  Decimal? @db.Decimal
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -425,4 +426,15 @@ view word_statistics_view {
   accuracy_rate   BigInt?
   last_answer_log DateTime? @db.Timestamp(6)
   word            word[]
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view source_statistics_view {
+  id            Int      @unique
+  name          String?  @db.VarChar(256)
+  clear_count   Decimal? @db.Decimal
+  fail_count    Decimal? @db.Decimal
+  count         BigInt?
+  not_answered  BigInt?
+  accuracy_rate Decimal? @db.Decimal
 }

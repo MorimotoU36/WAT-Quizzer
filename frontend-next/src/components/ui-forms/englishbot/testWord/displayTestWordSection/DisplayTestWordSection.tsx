@@ -9,7 +9,8 @@ import {
   RadioGroup,
   CardActions,
   Collapse,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import { Chip } from '@/components/ui-elements/chip/Chip';
@@ -21,6 +22,7 @@ import {
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
 
 interface DisplayTestWordSectionProps {
   displayTestData: GetEnglishWordTestDataAPIResponseDto;
@@ -47,6 +49,9 @@ export const DisplayTestWordSection = ({ displayTestData, setDisplayTestData }: 
                 <h2>
                   {displayTestData.word?.name || ''}
                   {displayTestData.word?.checked ? '✅' : ''}
+                  <IconButton aria-label="Dictionary" href={`/englishBot/detailWord/${displayTestData.word?.id}`}>
+                    <LibraryBooksOutlinedIcon />
+                  </IconButton>
                 </h2>
                 {displayTestData.word?.word_source &&
                   displayTestData.word?.word_source.map((value) => {

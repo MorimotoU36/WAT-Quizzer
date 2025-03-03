@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import {
   GetCategoryAPIResponseDto,
   getCategoryListAPI,
@@ -13,12 +12,13 @@ import {
   getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
-  initQuizFormatListData,
   PullDownOptionDto,
   quizFileListAPIResponseToPullDownAdapter
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -28,9 +28,7 @@ interface InputQueryFormProps {
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
   const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([
-    initQuizFormatListData
-  ]);
+  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
 
   // 問題ファイルリスト取得
@@ -62,9 +60,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
       });
       const result = await getQuizFormatListAPI();
       setMessage(result.message);
-      setQuizFormatListoption(
-        result.result ? [initQuizFormatListData, ...(result.result as GetQuizFormatApiResponseDto[])] : []
-      );
+      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
     })();
   }, [setMessage]);
 
@@ -140,43 +136,36 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
       </FormControl>
 
       <FormControl>
-        <RadioGroupSection
-          sectionTitle={'問題種別'}
-          radioGroupProps={{
-            radioButtonProps: quizFormatListoption.map((x) => {
-              return {
-                value: String(x.id),
-                label: x.name
-              };
-            }),
-            // TODO '-1'直指定じゃなく　initRequestの値を入れる様にしたい　二重管理になるので
-            defaultValue: '-1',
-            setQueryofQuizStater: (value: string) => {
-              setQuizRequestData({
-                ...getQuizRequestData,
-                format_id: +value
-              });
-            }
+        <CheckboxGroup
+          checkboxProps={quizFormatListoption.map((x) => {
+            return {
+              value: String(x.id),
+              label: x.name
+            };
+          })}
+          setQueryofQuizStater={(checkBoxValue, checked) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              format_id: {
+                ...getQuizRequestData.format_id,
+                [checkBoxValue]: checked
+              }
+            });
           }}
+          label={'問題種別'}
         />
       </FormControl>
 
       <FormControl>
-        <FormControlLabel
+        <Checkbox
           value="only-checked"
-          control={
-            <Checkbox
-              color="primary"
-              onChange={(e) => {
-                setQuizRequestData({
-                  ...getQuizRequestData,
-                  checked: e.target.checked
-                });
-              }}
-            />
-          }
           label="チェック済から出題"
-          labelPlacement="start"
+          onChange={(e) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              checked: e.target.checked
+            });
+          }}
         />
       </FormControl>
     </FormGroup>
