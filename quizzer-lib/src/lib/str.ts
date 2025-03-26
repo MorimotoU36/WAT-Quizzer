@@ -72,7 +72,7 @@ export const generateQuizSentense = (
               return value.is_corrected ? ',' + choiceName[index + 1] : ''
             })
             .join('')}`
-        : `${choiceName[0]}: ${res.answer}`
+        : `${choiceName[0]}: ${res.answer.replaceAll('\\n', '\n')}`
 
     return {
       quiz_sentense:
@@ -92,7 +92,9 @@ export const generateQuizSentense = (
               .substring(0, choices.length)
               .split('')
               .map((value) => {
-                return `${value}: ${choices[choiceName.indexOf(value)]}
+                return `${value}: ${choices[
+                  choiceName.indexOf(value)
+                ].replaceAll('\\n', '\n')}
           `
               })
               .join('')
