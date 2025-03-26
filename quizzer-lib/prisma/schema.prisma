@@ -87,7 +87,7 @@ model quiz {
   id                    Int                           @id @default(autoincrement())
   file_num              Int
   quiz_num              Int
-  quiz_sentense         String                        @unique @db.VarChar(256)
+  quiz_sentense         String                        @unique
   answer                String                        @db.VarChar(256)
   img_file              String?                       @db.VarChar(128)
   checked               Boolean?                      @default(false)
@@ -398,7 +398,7 @@ view quiz_view {
   id            Int       @unique
   file_num      Int?
   quiz_num      Int?
-  quiz_sentense String?   @db.VarChar(256)
+  quiz_sentense String?
   answer        String?   @db.VarChar(256)
   img_file      String?   @db.VarChar(128)
   checked       Boolean?
