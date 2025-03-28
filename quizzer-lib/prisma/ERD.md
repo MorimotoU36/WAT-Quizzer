@@ -11,6 +11,17 @@ erDiagram
     }
   
 
+  "avg_lines_log" {
+    Int id "🗝️"
+    Decimal avg_line 
+    Int total_lines 
+    Int total_files 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
   "englishbot_answer_log" {
     Int id "🗝️"
     Int word_id 
