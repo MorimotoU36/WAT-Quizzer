@@ -28,13 +28,13 @@ model answer_log {
 }
 
 model avg_lines_log {
-  id           Int       @id @default(autoincrement())
-  avg_line     Decimal   @db.Decimal
-  total_lines  Int
-  total_files  Int
-  created_at   DateTime  @default(now()) @db.Timestamp(6)
-  updated_at   DateTime  @updatedAt
-  deleted_at   DateTime? @db.Timestamp(6)
+  id          Int       @id @default(autoincrement())
+  avg_line    Decimal   @db.Decimal
+  total_lines Int
+  total_files Int
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Timestamp(6)
 }
 
 model englishbot_answer_log {
