@@ -10,10 +10,12 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 
-interface QuizAnswerLogStatisticsCardProps {}
+interface QuizAnswerLogStatisticsCardProps {
+  file_num: number;
+}
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export const QuizAnswerLogStatisticsCard = ({}: QuizAnswerLogStatisticsCardProps) => {
+export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatisticsCardProps) => {
   const [answerLogStatisticsData, setAnswerLogStatisticsData] = useState<AnswerLogStatisticsApiResponse[]>([]);
   const [getAnswerLogStatisticsData, setRequestData] = useState<GetAnswerLogStatisticsAPIRequestDto>({});
 
@@ -30,6 +32,13 @@ export const QuizAnswerLogStatisticsCard = ({}: QuizAnswerLogStatisticsCardProps
       result.result && setAnswerLogStatisticsData(result.result as AnswerLogStatisticsApiResponse[]);
     })();
   }, [getAnswerLogStatisticsData]);
+
+  useEffect(() => {
+    setRequestData({
+      ...getAnswerLogStatisticsData,
+      file_num
+    });
+  }, [file_num]);
 
   const data = {
     labels: answerLogStatisticsData.map((x) => {
