@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
   AddQuizFileApiRequest,
   DeleteQuizFileApiRequest,
+  GetQuizFileStatisticsAPIRequestDto,
   prisma,
   QuizFileStatisticsApiResponse,
 } from 'quizzer-lib';
@@ -33,35 +34,69 @@ export class QuizFileService {
   }
 
   // ファイル統計ビューデータ取得
-  async getFileStatisticsData(): Promise<QuizFileStatisticsApiResponse[]> {
-    const result = await prisma.quiz_file_view.findMany({
-      select: {
-        file_num: true,
-        file_name: true,
-        file_nickname: true,
-        count: true,
-        clear: true,
-        fail: true,
-        not_answered: true,
-        accuracy_rate: true,
-        process_rate: true,
-      },
-      orderBy: {
-        file_num: 'asc',
-      },
-    });
-
-    return result.map((x) => {
+  async getFileStatisticsData(
+    req: GetQuizFileStatisticsAPIRequestDto,
+  ): Promise<QuizFileStatisticsApiResponse> {
+    const { file_num } = req;
+    if (file_num !== -1) {
+      const result = await prisma.quiz_file_view.findUnique({
+        select: {
+          file_num: true,
+          file_name: true,
+          file_nickname: true,
+          count: true,
+          clear: true,
+          fail: true,
+          not_answered: true,
+          accuracy_rate: true,
+          process_rate: true,
+        },
+        where: {
+          file_num,
+        },
+      });
       return {
-        ...x,
-        count: Number(x.count),
-        clear: Number(x.clear),
-        fail: Number(x.fail),
-        not_answered: Number(x.not_answered),
-        accuracy_rate: Number(x.accuracy_rate),
-        process_rate: Number(x.process_rate),
+        ...result,
+        count: Number(result.count),
+        clear: Number(result.clear),
+        fail: Number(result.fail),
+        not_answered: Number(result.not_answered),
+        accuracy_rate: Number(result.accuracy_rate),
+        process_rate: Number(result.process_rate),
       };
-    });
+    } else {
+      const result = (
+        await prisma.quiz_file_view.aggregate({
+          _sum: {
+            count: true,
+            clear: true,
+            fail: true,
+            not_answered: true,
+          },
+        })
+      )._sum;
+
+      return {
+        file_num: -1,
+        file_name: 'all',
+        file_nickname: '全総合',
+        count: Number(result.count),
+        clear: Number(result.clear),
+        fail: Number(result.fail),
+        not_answered: Number(result.not_answered),
+        accuracy_rate:
+          Number(result.clear) + Number(result.fail) !== 0
+            ? (100 * Number(result.clear)) /
+              (Number(result.clear) + Number(result.fail))
+            : 0,
+
+        process_rate:
+          Number(result.count) !== 0
+            ? (100 * (Number(result.clear) + Number(result.fail))) /
+              Number(result.count)
+            : 0,
+      };
+    }
   }
 
   // ファイル追加

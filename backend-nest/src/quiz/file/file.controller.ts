@@ -1,6 +1,19 @@
-import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { QuizFileService } from './file.service';
-import { AddQuizFileApiRequest, DeleteQuizFileApiRequest } from 'quizzer-lib';
+import {
+  AddQuizFileApiRequest,
+  DeleteQuizFileApiRequest,
+  GetQuizFileStatisticsAPIRequestDto,
+} from 'quizzer-lib';
+import { GetQuizFileStatisticsPipe } from './pipe/getQuizFileStatistics.pipe';
 // import { AuthGuard } from '../../auth/auth.guard';
 
 // @UseGuards(AuthGuard)
@@ -14,8 +27,10 @@ export class QuizFileController {
   }
 
   @Get('statistics')
-  async getFileStatistics() {
-    return await this.quizFileService.getFileStatisticsData();
+  async getFileStatistics(
+    @Query(GetQuizFileStatisticsPipe) req: GetQuizFileStatisticsAPIRequestDto,
+  ) {
+    return await this.quizFileService.getFileStatisticsData(req);
   }
 
   @Post()
