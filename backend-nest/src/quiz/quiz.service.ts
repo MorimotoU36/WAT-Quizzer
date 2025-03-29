@@ -17,6 +17,8 @@ import {
   SearchQuizAPIRequestDto,
   xor,
   prisma,
+  GetAnswerLogStatisticsAPIRequestDto,
+  getStartDateForStatistics,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -1109,6 +1111,58 @@ export class QuizService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
+    }
+  }
+
+  // 過去のデータから回答数統計データ取得
+  async getAnswerLogStatistics(req: GetAnswerLogStatisticsAPIRequestDto) {
+    try {
+      const { file_num, date_unit } = req;
+      //実行時の日付
+      const nowDate = new Date();
+      //実行時の次の日の日付
+      const tomorrowDate = new Date(nowDate);
+      tomorrowDate.setDate(nowDate.getDate() + 1);
+      tomorrowDate.setHours(0, 0, 0, 0);
+
+      // DB検索で使用する始値と終値
+      let startDate = getStartDateForStatistics(nowDate, date_unit);
+      let endDate = tomorrowDate;
+      const result = [];
+      for (let i = 0; i < 10; i++) {
+        result.push({
+          date: startDate
+            .toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            })
+            .replace(/\//g, '-'),
+          count: await prisma.answer_log.count({
+            where: {
+              ...(file_num !== -1 && {
+                quiz: {
+                  file_num,
+                },
+              }),
+              created_at: {
+                gte: startDate,
+                lt: endDate,
+              },
+            },
+          }),
+        });
+
+        // 始値の1日前の日付を取得
+        const oneDayAgo = new Date(startDate);
+        oneDayAgo.setDate(startDate.getDate() - 1);
+
+        endDate = startDate;
+        startDate = getStartDateForStatistics(oneDayAgo, date_unit);
+      }
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 
