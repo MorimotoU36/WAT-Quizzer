@@ -1,6 +1,6 @@
 import { Layout } from '@/components/templates/layout/Layout';
 import { FileStatisticsCard } from '@/components/ui-forms/quizzer/top/fileStatisticsCard/FileStatisticsCard';
-import { PastWeekAnswerDataCard } from '@/components/ui-forms/quizzer/top/PastWeekAnswerDataCard/PastWeekAnswerDataCard';
+import { QuizAnswerLogStatisticsCard } from '@/components/ui-forms/quizzer/top/quizAnswerLogStatisticsCard/QuizAnswerLogStatisticsCard';
 import { Container } from '@mui/material';
 import React from 'react';
 
@@ -13,7 +13,7 @@ export default function QuizzerTopPage({ isMock }: Props) {
     return (
       <Container>
         <FileStatisticsCard />
-        <PastWeekAnswerDataCard />
+        <QuizAnswerLogStatisticsCard />
       </Container>
     );
   };

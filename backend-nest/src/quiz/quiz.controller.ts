@@ -145,11 +145,6 @@ export class QuizController {
     return await this.quizService.getAnswerLogStatistics(req);
   }
 
-  @Get('/statistics/week')
-  async getAnswerLogStatisticsPastWeek() {
-    return await this.quizService.getAnswerLogStatisticsPastWeek();
-  }
-
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {

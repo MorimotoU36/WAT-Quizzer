@@ -12,7 +12,7 @@ export interface GetAnswerLogStatisticsAPIRequestReceivedDto {
 }
 
 // quiz/statisticsからの取得結果
-export interface QuizStatisticsApiResponse extends ApiResponse {
+export interface AnswerLogStatisticsApiResponse extends ApiResponse {
   date: string
   count: number
 }
