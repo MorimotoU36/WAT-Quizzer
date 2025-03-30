@@ -102,28 +102,28 @@ export class QuizService {
               },
             }
           : method === 'leastClear'
-          ? [
-              {
-                quiz_statistics_view: {
-                  answer_count: 'asc' as const,
+            ? [
+                {
+                  quiz_statistics_view: {
+                    answer_count: 'asc' as const,
+                  },
                 },
-              },
-              {
-                quiz_statistics_view: {
-                  fail_count: 'desc' as const,
+                {
+                  quiz_statistics_view: {
+                    fail_count: 'desc' as const,
+                  },
                 },
-              },
-            ]
-          : method === 'LRU'
-          ? {
-              quiz_statistics_view: {
-                last_answer_log: {
-                  sort: 'asc' as const,
-                  nulls: 'first' as const,
-                },
-              },
-            }
-          : {};
+              ]
+            : method === 'LRU'
+              ? {
+                  quiz_statistics_view: {
+                    last_answer_log: {
+                      sort: 'asc' as const,
+                      nulls: 'first' as const,
+                    },
+                  },
+                }
+              : {};
       // データ取得
       const results = await prisma.quiz.findMany({
         select: {
@@ -271,9 +271,7 @@ export class QuizService {
         img_file,
         format_id,
         matched_basic_quiz_id,
-        dummy1,
-        dummy2,
-        dummy3,
+        dummyChoice,
         explanation,
       } = req;
       if (!file_num || !question || !answer || !format_id) {
@@ -300,9 +298,17 @@ export class QuizService {
       }
 
       // 四択問題の場合　ダミー選択肢全部ない場合エラー
-      if (format_id === 3 && (!dummy1 || !dummy2 || !dummy3)) {
+      if (
+        format_id === 3 &&
+        dummyChoice &&
+        dummyChoice.length < 3 &&
+        dummyChoice.reduce((accummulate, currentValue) => {
+          return accummulate || currentValue.sentense === '';
+        }, false)
+      ) {
         throw new HttpException(
-          `ダミー選択肢が3つ入力されていません。`,
+          // TODO これもエラーメッセージの設定ファイルに入れるべきでは
+          `ダミー選択肢が3つ以上入力されていません。`,
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -360,11 +366,12 @@ export class QuizService {
             createMany: {
               data:
                 format_id === 3
-                  ? [
-                      { dummy_choice_sentense: dummy1 },
-                      { dummy_choice_sentense: dummy2 },
-                      { dummy_choice_sentense: dummy3 },
-                    ]
+                  ? dummyChoice.map((x) => {
+                      return {
+                        dummy_choice_sentense: x.sentense,
+                        is_corrected: x.isCorrect,
+                      };
+                    })
                   : [],
             },
           },
@@ -393,9 +400,7 @@ export class QuizService {
         category,
         img_file,
         matched_basic_quiz_id,
-        dummy1,
-        dummy2,
-        dummy3,
+        dummyChoice,
         explanation,
       } = req;
 
@@ -484,9 +489,8 @@ export class QuizService {
         }
         // ダミー選択肢更新
         // TODO もっと効率いい方法ないか..
-        if (dummy1 && dummy2 && dummy3) {
-          const dummyChoices = [dummy1, dummy2, dummy3];
-          for (let i = 0; i < dummyChoices.length; i++) {
+        if (dummyChoice) {
+          for (let i = 0; i < dummyChoice.length; i++) {
             // ダミー選択肢のID取得
             const dummyChoiceId = await prisma.quiz_dummy_choice.findFirst({
               select: {
@@ -504,7 +508,8 @@ export class QuizService {
             // ダミー選択肢更新
             await prisma.quiz_dummy_choice.update({
               data: {
-                dummy_choice_sentense: dummyChoices[i],
+                dummy_choice_sentense: dummyChoice[i].sentense,
+                is_corrected: dummyChoice[i].isCorrect,
               },
               where: {
                 id: dummyChoiceId.id,

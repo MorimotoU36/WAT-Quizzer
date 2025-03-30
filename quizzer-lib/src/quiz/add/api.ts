@@ -1,6 +1,6 @@
 import { AddQuizAPIRequestDto, AddQuizApiResponseDto } from './dto'
 import { ApiResult, post, ProcessingApiReponse } from '../../api'
-import { errorMessage, MESSAGES, successMessage } from '../../..'
+import { containsAny, errorMessage, MESSAGES, successMessage } from '../../..'
 
 interface AddQuizButtonProps {
   addQuizRequestData: AddQuizAPIRequestDto
@@ -14,6 +14,18 @@ export const addQuizAPI = async ({
     return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   } else if (!addQuizRequestData.question || !addQuizRequestData.answer) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00005) }
+  }
+
+  // 問題文・答えとダミー選択肢にカンマとハイフンが入っていたらエラー終了
+  const ngChar = [',', '-']
+  if (
+    containsAny(addQuizRequestData.question, ngChar) ||
+    containsAny(addQuizRequestData.answer, ngChar) ||
+    addQuizRequestData.dummyChoice?.reduce((accummulate, currentValue) => {
+      return accummulate || containsAny(currentValue.sentense, ngChar)
+    }, false)
+  ) {
+    return { message: errorMessage(MESSAGES.ERROR.MSG00015) }
   }
 
   const result = await post(

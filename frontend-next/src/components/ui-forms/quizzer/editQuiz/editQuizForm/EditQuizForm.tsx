@@ -1,20 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { CardContent, Input, SelectChangeEvent, Typography } from '@mui/material';
+import React from 'react';
+import { CardContent, Input, Typography } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
-import {
-  EditQuizAPIRequestDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
-} from 'quizzer-lib';
+import { EditQuizAPIRequestDto, insertAtArray } from 'quizzer-lib';
 import styles from './EditQuizForm.module.css';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
-import { useSetRecoilState } from 'recoil';
-import { messageState } from '@/atoms/Message';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 
 interface EditQuizFormProps {
   editQuizRequestData: EditQuizAPIRequestDto;
@@ -133,56 +121,34 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             </p>
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.messageBox}>
-            <label htmlFor="dummy1">ダミー選択肢1：</label>
-            <Input
-              fullWidth
-              disabled={editQuizRequestData.format_id !== 3}
-              maxRows={1}
-              id="dummy1"
-              value={editQuizRequestData.dummy1 || ''}
-              onChange={(e) => {
-                setEditQuizRequestData((prev: any) => ({
-                  ...prev,
-                  dummy1: e.target.value
-                }));
-              }}
-            />
-          </Typography>
-
-          <Typography variant="h6" component="h6" className={styles.messageBox}>
-            <label htmlFor="dummy2">ダミー選択肢2：</label>
-            <Input
-              fullWidth
-              disabled={editQuizRequestData.format_id !== 3}
-              maxRows={1}
-              id="dummy2"
-              value={editQuizRequestData.dummy2 || ''}
-              onChange={(e) => {
-                setEditQuizRequestData((prev: any) => ({
-                  ...prev,
-                  dummy2: e.target.value
-                }));
-              }}
-            />
-          </Typography>
-
-          <Typography variant="h6" component="h6" className={styles.messageBox}>
-            <label htmlFor="dummy3">ダミー選択肢3：</label>
-            <Input
-              fullWidth
-              disabled={editQuizRequestData.format_id !== 3}
-              maxRows={1}
-              id="dummy3"
-              value={editQuizRequestData.dummy3 || ''}
-              onChange={(e) => {
-                setEditQuizRequestData((prev: any) => ({
-                  ...prev,
-                  dummy3: e.target.value
-                }));
-              }}
-            />
-          </Typography>
+          {editQuizRequestData.format_id === 3 &&
+            editQuizRequestData.dummyChoice &&
+            editQuizRequestData.dummyChoice.map((choice, index) => {
+              const inputId = 'dummy' + (index + 1);
+              return (
+                <>
+                  <Typography variant="h6" component="h6" className={styles.messageBox}>
+                    <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
+                    <Input
+                      fullWidth
+                      disabled={editQuizRequestData.format_id !== 3}
+                      maxRows={1}
+                      id={inputId}
+                      value={choice.sentense || ''}
+                      onChange={(e) => {
+                        setEditQuizRequestData((prev: any) => ({
+                          ...prev,
+                          dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                            sentense: e.target.value,
+                            isCorrect: false
+                          })
+                        }));
+                      }}
+                    />
+                  </Typography>
+                </>
+              );
+            })}
         </CardContent>
       </Card>
     </>

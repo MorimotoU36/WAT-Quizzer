@@ -9,6 +9,7 @@ import {
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
   initAddQuizRequestData,
+  insertAtArray,
   PullDownOptionDto,
   quizFileListAPIResponseToPullDownAdapter
 } from 'quizzer-lib';
@@ -209,56 +210,34 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               </p>
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
-              <label htmlFor="dummy1">ダミー選択肢1：</label>
-              <Input
-                fullWidth
-                disabled={addQuizRequestData.format_id !== 3}
-                maxRows={1}
-                id="dummy1"
-                value={addQuizRequestData.dummy1 || ''}
-                onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
-                    ...prev,
-                    dummy1: e.target.value
-                  }));
-                }}
-              />
-            </Typography>
-
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
-              <label htmlFor="dummy2">ダミー選択肢2：</label>
-              <Input
-                fullWidth
-                disabled={addQuizRequestData.format_id !== 3}
-                maxRows={1}
-                id="dummy2"
-                value={addQuizRequestData.dummy2 || ''}
-                onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
-                    ...prev,
-                    dummy2: e.target.value
-                  }));
-                }}
-              />
-            </Typography>
-
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
-              <label htmlFor="dummy3">ダミー選択肢3：</label>
-              <Input
-                fullWidth
-                disabled={addQuizRequestData.format_id !== 3}
-                maxRows={1}
-                id="dummy3"
-                value={addQuizRequestData.dummy3 || ''}
-                onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
-                    ...prev,
-                    dummy3: e.target.value
-                  }));
-                }}
-              />
-            </Typography>
+            {addQuizRequestData.format_id === 3 &&
+              addQuizRequestData.dummyChoice &&
+              addQuizRequestData.dummyChoice.map((choice, index) => {
+                const inputId = 'dummy' + (index + 1);
+                return (
+                  <>
+                    <Typography variant="h6" component="h6" className={styles.messageBox}>
+                      <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
+                      <Input
+                        fullWidth
+                        disabled={addQuizRequestData.format_id !== 3}
+                        maxRows={1}
+                        id={inputId}
+                        value={choice.sentense || ''}
+                        onChange={(e) => {
+                          setAddQuizRequestData((prev: any) => ({
+                            ...prev,
+                            dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                              sentense: e.target.value,
+                              isCorrect: false
+                            })
+                          }));
+                        }}
+                      />
+                    </Typography>
+                  </>
+                );
+              })}
           </CardContent>
         </Card>
       </FormGroup>
@@ -273,7 +252,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
             addQuizRequestData
           });
           setMessage(result.message);
-          setAddLog((result.result as AddQuizApiResponseDto).log || '');
+          setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
           result.message.messageColor === 'success.light' && setAddQuizRequestData(initAddQuizRequestData);
         }}
       />

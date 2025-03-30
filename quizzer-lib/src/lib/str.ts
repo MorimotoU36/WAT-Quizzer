@@ -1,5 +1,10 @@
 import { GetQuizApiResponseDto } from '../..'
 
+// ある文字列に 複数の指定された文字のうち 1 つでも含まれているかどうか を判定
+export const containsAny = (target: string, chars: string[]): boolean => {
+  return chars.some((char) => target.includes(char))
+}
+
 // {0},{1},, の箇所に入力した値を代入
 export const formatString = (str: string, ...value: string[]) => {
   let result = str
