@@ -3,6 +3,7 @@ import { CardContent, Input, Typography } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { EditQuizAPIRequestDto, insertAtArray } from 'quizzer-lib';
 import styles from './EditQuizForm.module.css';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface EditQuizFormProps {
   editQuizRequestData: EditQuizAPIRequestDto;
@@ -129,6 +130,22 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
                 <>
                   <Typography variant="h6" component="h6" className={styles.messageBox}>
                     <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
+                    <Checkbox
+                      value="only-checked"
+                      label="(多答設定、この選択肢も正解にする)"
+                      defaultChecked={
+                        editQuizRequestData.dummyChoice ? editQuizRequestData.dummyChoice[index].isCorrect : false
+                      }
+                      onChange={(e) => {
+                        setEditQuizRequestData((prev: any) => ({
+                          ...prev,
+                          dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                            ...prev.dummyChoice[index],
+                            isCorrect: e.target.checked
+                          })
+                        }));
+                      }}
+                    />
                     <Input
                       fullWidth
                       disabled={editQuizRequestData.format_id !== 3}
@@ -139,8 +156,8 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
                         setEditQuizRequestData((prev: any) => ({
                           ...prev,
                           dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                            sentense: e.target.value,
-                            isCorrect: false
+                            ...prev.dummyChoice[index],
+                            sentense: e.target.value
                           })
                         }));
                       }}

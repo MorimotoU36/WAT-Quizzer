@@ -19,6 +19,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import styles from './AddQuizForm.module.css';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
+import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
@@ -218,6 +219,19 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                   <>
                     <Typography variant="h6" component="h6" className={styles.messageBox}>
                       <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
+                      <Checkbox
+                        value="only-checked"
+                        label="(多答設定、この選択肢も正解にする)"
+                        onChange={(e) => {
+                          setAddQuizRequestData((prev: any) => ({
+                            ...prev,
+                            dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                              ...prev.dummyChoice[index],
+                              isCorrect: e.target.checked
+                            })
+                          }));
+                        }}
+                      />
                       <Input
                         fullWidth
                         disabled={addQuizRequestData.format_id !== 3}
@@ -228,8 +242,8 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                           setAddQuizRequestData((prev: any) => ({
                             ...prev,
                             dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                              sentense: e.target.value,
-                              isCorrect: false
+                              ...prev.dummyChoice[index],
+                              sentense: e.target.value
                             })
                           }));
                         }}
