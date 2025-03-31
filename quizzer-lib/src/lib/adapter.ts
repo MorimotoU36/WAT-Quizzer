@@ -60,18 +60,14 @@ export const getQuizAPIResponseToEditQuizAPIRequestAdapter = (
           })
           .join(',')
       : '',
-    dummy1:
-      response.quiz_dummy_choice && response.quiz_dummy_choice.length > 0
-        ? response.quiz_dummy_choice[0].dummy_choice_sentense
-        : '', //四択問題のダミー選択肢１
-    dummy2:
-      response.quiz_dummy_choice && response.quiz_dummy_choice.length > 1
-        ? response.quiz_dummy_choice[1].dummy_choice_sentense
-        : '', //四択問題のダミー選択肢２
-    dummy3:
-      response.quiz_dummy_choice && response.quiz_dummy_choice.length > 2
-        ? response.quiz_dummy_choice[2].dummy_choice_sentense
-        : '', //四択問題のダミー選択肢３
+    dummyChoice:
+      response.quiz_dummy_choice &&
+      response.quiz_dummy_choice.map((x) => {
+        return {
+          sentense: x.dummy_choice_sentense,
+          isCorrect: x.is_corrected
+        }
+      }),
     explanation: response.quiz_explanation?.explanation // 解説
   }
   return result

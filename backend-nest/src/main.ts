@@ -9,7 +9,7 @@ import * as express from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 // import * as cookieParser from 'cookie-parser';
-// import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 // import schema from '../prisma/schema.prisma';
 // // import x from '../../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node';
@@ -55,11 +55,27 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
 
+    // Swaggerの基本設定
+    const config = new DocumentBuilder()
+      .setTitle('My API Documentation') // APIのタイトル
+      .setDescription('The API description for My App') // 説明
+      .setVersion('1.0') // バージョン
+      .addTag('users') // タグ（任意）
+      .addBearerAuth() // JWT 認証を有効化（任意）
+      .build();
+
+    // Swaggerドキュメントを作成
+    const document = SwaggerModule.createDocument(app, config);
+
+    // Swaggerのエンドポイントを `/api` に設定
+    SwaggerModule.setup('api', app, document);
+
     app.enableCors({
       origin: '*',
       allowedHeaders:
         'Origin, X-Requested-With, Content-Type, Accept, x-api-key, Authorization',
     });
+
     await app.listen(4000);
   } catch (error) {
     console.error('Error during bootstrap:', error);

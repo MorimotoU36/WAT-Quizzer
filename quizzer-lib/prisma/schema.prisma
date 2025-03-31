@@ -27,6 +27,16 @@ model answer_log {
   quiz         quiz      @relation(fields: [quiz_id], references: [id])
 }
 
+model avg_lines_log {
+  id          Int       @id @default(autoincrement())
+  avg_line    Decimal   @db.Decimal
+  total_lines Int
+  total_files Int
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Timestamp(6)
+}
+
 model englishbot_answer_log {
   id         Int       @id @default(autoincrement())
   word_id    Int
@@ -87,7 +97,7 @@ model quiz {
   id                    Int                           @id @default(autoincrement())
   file_num              Int
   quiz_num              Int
-  quiz_sentense         String                        @unique @db.VarChar(256)
+  quiz_sentense         String                        @unique
   answer                String                        @db.VarChar(256)
   img_file              String?                       @db.VarChar(128)
   checked               Boolean?                      @default(false)
@@ -398,7 +408,7 @@ view quiz_view {
   id            Int       @unique
   file_num      Int?
   quiz_num      Int?
-  quiz_sentense String?   @db.VarChar(256)
+  quiz_sentense String?
   answer        String?   @db.VarChar(256)
   img_file      String?   @db.VarChar(128)
   checked       Boolean?

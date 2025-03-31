@@ -14,7 +14,6 @@ interface SearchQuizButtonProps {
 export const searchQuizAPI = async ({
   searchQuizRequestData
 }: SearchQuizButtonProps): Promise<ApiResult> => {
-  console.log('searchQuizRequestData', searchQuizRequestData)
   if (searchQuizRequestData.file_num === -1) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   }
@@ -22,6 +21,7 @@ export const searchQuizAPI = async ({
   if (searchQuizRequestData.category === '-1') {
     delete searchQuizRequestData.category
   }
+  // API送る用に formmat_idは{ [key: string]: boolean }からformat_idカンマ区切りの羅列にする
   const format_id = searchQuizRequestData.format_id
     ? Object.entries(searchQuizRequestData.format_id)
         .filter((x) => x[1])

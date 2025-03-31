@@ -24,11 +24,13 @@ import {
   AddCategoryToQuizAPIRequestDto,
   GetQuizAPIRequestDto,
   SearchQuizAPIRequestDto,
+  GetAnswerLogStatisticsAPIRequestDto,
 } from 'quizzer-lib';
 import { GetQuizPipe } from './pipe/getQuiz.pipe';
 import { SearchQuizPipe } from './pipe/searchQuiz.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { GetAnswerLogStatisticsPipe } from './pipe/getAnswerLogStatistics.pipe';
 // import { AuthGuard } from '../auth/auth.guard';
 
 // @UseGuards(AuthGuard)
@@ -136,9 +138,11 @@ export class QuizController {
     return await this.quizService.getQuizFormatList();
   }
 
-  @Get('/statistics/week')
-  async getAnswerLogStatisticsPastWeek() {
-    return await this.quizService.getAnswerLogStatisticsPastWeek();
+  @Get('/statistics')
+  async getAnswerLogStatistics(
+    @Query(GetAnswerLogStatisticsPipe) req: GetAnswerLogStatisticsAPIRequestDto,
+  ) {
+    return await this.quizService.getAnswerLogStatistics(req);
   }
 
   @Post('upload')

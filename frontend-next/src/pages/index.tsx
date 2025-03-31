@@ -35,7 +35,7 @@ export default function Top({ isMock }: Props) {
       <Container>
         <Title label="WAT Quizzer"></Title>
         <TopButtonGroup />
-        <SayingCard sayingResponse={saying} />
+        <SayingCard sayingResponse={saying} setSaying={setSaying} />
       </Container>
     </>
   );

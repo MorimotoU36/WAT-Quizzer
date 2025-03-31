@@ -1,5 +1,10 @@
 import { GetQuizApiResponseDto } from '../..'
 
+// ある文字列に 複数の指定された文字のうち 1 つでも含まれているかどうか を判定
+export const containsAny = (target: string, chars: string[]): boolean => {
+  return chars.some((char) => target.includes(char))
+}
+
 // {0},{1},, の箇所に入力した値を代入
 export const formatString = (str: string, ...value: string[]) => {
   let result = str
@@ -72,7 +77,7 @@ export const generateQuizSentense = (
               return value.is_corrected ? ',' + choiceName[index + 1] : ''
             })
             .join('')}`
-        : `${choiceName[0]}: ${res.answer}`
+        : `${choiceName[0]}: ${res.answer.replaceAll('\\n', '\n')}`
 
     return {
       quiz_sentense:
@@ -92,7 +97,9 @@ export const generateQuizSentense = (
               .substring(0, choices.length)
               .split('')
               .map((value) => {
-                return `${value}: ${choices[choiceName.indexOf(value)]}
+                return `${value}: ${choices[
+                  choiceName.indexOf(value)
+                ].replaceAll('\\n', '\n')}
           `
               })
               .join('')

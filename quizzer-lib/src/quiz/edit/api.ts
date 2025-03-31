@@ -1,6 +1,6 @@
 import { EditQuizAPIRequestDto, EditQuizApiResponseDto } from './dto'
 import { ApiResult, post, ProcessingApiReponse } from '../../api'
-import { errorMessage, MESSAGES, successMessage } from '../../..'
+import { containsAny, errorMessage, MESSAGES, successMessage } from '../../..'
 
 interface EditQuizAPIProps {
   editQuizRequestData: EditQuizAPIRequestDto
@@ -13,6 +13,18 @@ export const editQuizAPI = async ({
     return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   } else if (!editQuizRequestData.question || !editQuizRequestData.answer) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00005) }
+  }
+
+  // 問題文・答えとダミー選択肢にカンマとハイフンが入っていたらエラー終了
+  const ngChar = [',', '-']
+  if (
+    containsAny(editQuizRequestData.question, ngChar) ||
+    containsAny(editQuizRequestData.answer, ngChar) ||
+    editQuizRequestData.dummyChoice?.reduce((accummulate, currentValue) => {
+      return accummulate || containsAny(currentValue.sentense, ngChar)
+    }, false)
+  ) {
+    return { message: errorMessage(MESSAGES.ERROR.MSG00015) }
   }
 
   const result = await post(
