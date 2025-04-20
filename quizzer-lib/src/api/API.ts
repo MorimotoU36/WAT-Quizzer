@@ -9,7 +9,7 @@ export const get = async (
   queryParam?: { [key: string]: string | number | boolean },
   bodyData?: object
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   const query = queryParam
     ? `?${new URLSearchParams(
         Object.keys(queryParam).reduce(
@@ -26,7 +26,7 @@ export const get = async (
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
     headers: {
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -52,13 +52,13 @@ export const getApiAndGetValue = async (
   path: string,
   queryParam?: { [key: string]: string }
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   const query = queryParam ? `?${new URLSearchParams(queryParam)}` : ''
 
   return await fetch(baseURL + path + query, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .catch((error) => {
@@ -73,13 +73,13 @@ export const post = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'POST',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -105,13 +105,13 @@ export const put = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'PUT',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -137,13 +137,13 @@ export const del = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'DELETE',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -169,13 +169,13 @@ export const patch = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const idToken = localStorage.getItem('idToken')
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'PATCH',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${idToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>

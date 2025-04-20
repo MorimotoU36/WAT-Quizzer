@@ -24,6 +24,7 @@ export const Footer = ({ bgColor = '#0077B6', topHref }: FooterProps) => {
           onClick={(e) => {
             // TODO 別関数にして別ファイルに置く？
             localStorage.removeItem('idToken');
+            localStorage.removeItem('accessToken');
             router.push('/login');
           }}
           label="ログアウト"

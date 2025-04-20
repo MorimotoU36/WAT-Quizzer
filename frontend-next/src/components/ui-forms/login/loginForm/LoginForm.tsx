@@ -39,7 +39,8 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
 
       if (data.status === 'SUCCESS') {
         setMessage('ログイン成功！');
-        localStorage.setItem('idToken', data.token);
+        localStorage.setItem('idToken', data.idToken);
+        localStorage.setItem('accessToken', data.accessToken);
         router.push('/');
       } else if (data.status === 'NEW_PASSWORD_REQUIRED') {
         setMessage('新しいパスワードが必要です');

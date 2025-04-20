@@ -16,7 +16,7 @@ export class CognitoAuthGuard implements CanActivate {
 
     const token = authHeader.replace('Bearer ', '');
     try {
-      const user = await this.cognitoAuthService.verifyToken(token);
+      const user = await this.cognitoAuthService.verifyAccessToken(token);
       req['user'] = user;
       return true;
     } catch (err) {

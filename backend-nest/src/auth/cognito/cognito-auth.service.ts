@@ -23,22 +23,33 @@ function getKey(header, callback) {
 
 @Injectable()
 export class CognitoAuthService {
-  async verifyToken(token: string): Promise<any> {
+  async verifyAccessToken(token: string): Promise<any> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         getKey,
         {
           issuer: COGNITO_ISSUER,
-          audience: CLIENT_ID,
+          //audience: CLIENT_ID,
           algorithms: ['RS256'],
         },
-        (err, decoded) => {
+        (err, decoded: any) => {
           if (err) {
             reject(new UnauthorizedException('Invalid or expired token'));
-          } else {
-            resolve(decoded); // デコードされたJWTペイロード
           }
+          if (decoded.token_use !== 'access') {
+            return reject(
+              new UnauthorizedException('Token is not an access token'),
+            );
+          }
+
+          if (decoded.client_id !== CLIENT_ID) {
+            return reject(
+              new UnauthorizedException('Token was not issued for this client'),
+            );
+          }
+
+          resolve(decoded);
         },
       );
     });
@@ -59,7 +70,8 @@ export class CognitoAuthService {
       user.authenticateUser(authDetails, {
         onSuccess: (result) => {
           const idToken = result.getIdToken().getJwtToken();
-          resolve({ status: 'SUCCESS', token: idToken });
+          const accessToken = result.getAccessToken().getJwtToken();
+          resolve({ status: 'SUCCESS', idToken, accessToken });
         },
         onFailure: (err) => {
           reject(new UnauthorizedException(err.message));
@@ -94,7 +106,8 @@ export class CognitoAuthService {
         {
           onSuccess: (result) => {
             const idToken = result.getIdToken().getJwtToken();
-            resolve({ status: 'SUCCESS', token: idToken });
+            const accessToken = result.getAccessToken().getJwtToken();
+            resolve({ status: 'SUCCESS', idToken, accessToken });
           },
           onFailure: (err) => {
             reject(new UnauthorizedException(err.message));

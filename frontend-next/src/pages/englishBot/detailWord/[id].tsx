@@ -41,7 +41,6 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
 
   useEffect(() => {
     if (!isMock) {
-      const accessToken = localStorage.getItem('apiAccessToken') || '';
       Promise.all([
         (async () => {
           const result = await getPartOfSpeechListAPI();

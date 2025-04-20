@@ -25,6 +25,7 @@ export default function RequiredAuthComponent({ children }: Props) {
     if (!payload || typeof payload.exp !== 'number') {
       console.warn('Invalid token structure');
       localStorage.removeItem('idToken');
+      localStorage.removeItem('accessToken');
       router.replace('/login');
       return;
     }
@@ -33,6 +34,7 @@ export default function RequiredAuthComponent({ children }: Props) {
     if (payload.exp < now) {
       console.warn('Token expired');
       localStorage.removeItem('idToken');
+      localStorage.removeItem('accessToken');
       router.replace('/login');
       return;
     }

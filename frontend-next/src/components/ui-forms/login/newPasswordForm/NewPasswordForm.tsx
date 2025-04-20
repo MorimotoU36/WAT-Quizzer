@@ -30,8 +30,9 @@ export const NewPasswordForm = ({ username, setShowNewPasswordForm }: NewPasswor
       const data = res.result as any;
 
       if (data.status === 'SUCCESS') {
-        localStorage.setItem('idToken', data.token);
-        router.push('/mypage');
+        localStorage.setItem('idToken', data.idToken);
+        localStorage.setItem('accessToken', data.accessToken);
+        router.push('/');
       } else {
         setMessage('不明な応答が返されました' + data.error + ' - ' + data.message);
       }
