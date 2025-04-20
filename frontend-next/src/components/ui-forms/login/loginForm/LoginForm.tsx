@@ -1,14 +1,16 @@
-import { AuthenticationDetails, CognitoUser, CognitoUserPool, CognitoUserSession } from 'amazon-cognito-identity-js';
+import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Button } from '@/components/ui-elements/button/Button';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { FormControl, FormGroup } from '@mui/material';
+import { authSigninAPI } from 'quizzer-lib';
 
 interface LoginFormProps {
   setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
-  setCognitoUser: React.Dispatch<React.SetStateAction<CognitoUser | null>>;
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const poolData = {
@@ -18,42 +20,36 @@ const poolData = {
 
 export const userPool = new CognitoUserPool(poolData);
 
-export const LoginForm = ({ setShowNewPasswordForm, setCognitoUser }: LoginFormProps) => {
-  const [username, setUsername] = useState('');
+export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: LoginFormProps) => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<String>('');
 
   const router = useRouter();
 
-  const handleLogin = () => {
-    const user = new CognitoUser({
-      Username: username,
-      Pool: userPool
-    });
+  const handleLogin = async () => {
+    try {
+      const res = await authSigninAPI({
+        authSigninRequestData: {
+          username,
+          password
+        }
+      });
+      // TODO 型定義する
+      const data = res.result as any;
 
-    const authDetails = new AuthenticationDetails({
-      Username: username,
-      Password: password
-    });
-
-    user.authenticateUser(authDetails, {
-      onSuccess: (result: CognitoUserSession) => {
+      if (data.status === 'SUCCESS') {
         setMessage('ログイン成功！');
-        console.log('ID Token:', result.getIdToken().getJwtToken());
-        localStorage.setItem('idToken', result.getIdToken().getJwtToken());
-        router.push('/'); // トップページへ遷移
-      },
-      onFailure: (err) => {
-        console.error('ログイン失敗:', err);
-        setMessage('ログイン失敗: ' + err.message);
-      },
-      newPasswordRequired: () => {
-        // 新しいパスワードフォーム表示
-        setShowNewPasswordForm(true);
-        setCognitoUser(user);
+        localStorage.setItem('idToken', data.token);
+        router.push('/');
+      } else if (data.status === 'NEW_PASSWORD_REQUIRED') {
         setMessage('新しいパスワードが必要です');
+        setShowNewPasswordForm(true);
+      } else {
+        setMessage('ログイン失敗: ' + data.error + ' - ' + data.message);
       }
-    });
+    } catch (err: any) {
+      setMessage('ログイン失敗: ' + err.message);
+    }
   };
 
   return (

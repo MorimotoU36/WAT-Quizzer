@@ -1,6 +1,4 @@
-import { CognitoUser } from 'amazon-cognito-identity-js';
 import { useState } from 'react';
-
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import { LoginForm } from '@/components/ui-forms/login/loginForm/LoginForm';
 import { NewPasswordForm } from '@/components/ui-forms/login/newPasswordForm/NewPasswordForm';
@@ -15,14 +13,14 @@ export const userPool = new CognitoUserPool(poolData);
 
 export default function LoginPage() {
   const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
-  const [cognitoUser, setCognitoUser] = useState<CognitoUser | null>(null);
+  const [username, setUsername] = useState<string>('');
 
   return (
     <Container attr="flex-center">
       {!showNewPasswordForm ? (
-        <LoginForm setShowNewPasswordForm={setShowNewPasswordForm} setCognitoUser={setCognitoUser} />
+        <LoginForm setShowNewPasswordForm={setShowNewPasswordForm} username={username} setUsername={setUsername} />
       ) : (
-        <NewPasswordForm cognitoUser={cognitoUser} setShowNewPasswordForm={setShowNewPasswordForm} />
+        <NewPasswordForm username={username} setShowNewPasswordForm={setShowNewPasswordForm} />
       )}
       ;
     </Container>

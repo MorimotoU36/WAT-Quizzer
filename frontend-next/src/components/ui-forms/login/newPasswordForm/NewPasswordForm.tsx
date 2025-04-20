@@ -1,40 +1,44 @@
 import { Button } from '@/components/ui-elements/button/Button';
 import { Card } from '@/components/ui-elements/card/Card';
 import { TextField } from '@/components/ui-elements/textField/TextField';
-import { CognitoUser } from 'amazon-cognito-identity-js';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { authNewPasswordSigninAPI } from 'quizzer-lib';
 
 interface NewPasswordFormProps {
-  cognitoUser: CognitoUser | null;
+  username: string;
   setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const NewPasswordForm = ({ cognitoUser, setShowNewPasswordForm }: NewPasswordFormProps) => {
+export const NewPasswordForm = ({ username, setShowNewPasswordForm }: NewPasswordFormProps) => {
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState<String>('');
 
   const router = useRouter();
 
-  const handleNewPasswordSubmit = () => {
-    if (!cognitoUser) return;
+  const handleNewPasswordSubmit = async () => {
+    if (!username || username === '') return;
 
-    cognitoUser.completeNewPasswordChallenge(
-      newPassword,
-      {},
-      {
-        onSuccess: (result) => {
-          setMessage('パスワード変更＆ログイン成功！');
-          setShowNewPasswordForm(false);
-          localStorage.setItem('idToken', result.getIdToken().getJwtToken());
-          router.push('/');
-        },
-        onFailure: (err) => {
-          console.error('パスワード変更失敗:', err);
-          setMessage('パスワード変更失敗: ' + err.message);
+    try {
+      const res = await authNewPasswordSigninAPI({
+        authSigninRequestData: {
+          username,
+          password: newPassword
         }
+      });
+      // TODO 型定義する
+      const data = res.result as any;
+
+      if (data.status === 'SUCCESS') {
+        localStorage.setItem('idToken', data.token);
+        router.push('/mypage');
+      } else {
+        setMessage('不明な応答が返されました' + data.error + ' - ' + data.message);
       }
-    );
+    } catch (err: any) {
+      console.error(err);
+      setMessage('パスワード変更失敗: ' + err.message);
+    }
   };
   return (
     <Card attr={'padding rect-600'}>
