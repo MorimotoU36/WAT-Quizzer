@@ -15,9 +15,8 @@ import {
   AddSayingAPIRequestDto,
   EditSayingAPIRequestDto,
 } from 'quizzer-lib';
-// import { AuthGuard } from '../auth/auth.guard';
-
-// @UseGuards(AuthGuard)
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
+@UseGuards(CognitoAuthGuard)
 @Controller('saying')
 export class SayingController {
   constructor(private readonly sayingService: SayingService) {}

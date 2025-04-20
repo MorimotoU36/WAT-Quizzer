@@ -1,16 +1,26 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  CognitoService,
-  SignInResultResponse,
-} from './cognito/cognito.service';
+import { CognitoAuthService } from './cognito/cognito-auth.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private cognitoService: CognitoService) {}
+  constructor(private cognitoAuthService: CognitoAuthService) {}
 
-  async signIn(username: string, pass: string): Promise<SignInResultResponse> {
+  async signIn(username: string, password: string) {
     try {
-      return this.cognitoService.signIn(username, pass);
+      return await this.cognitoAuthService.signIn(username, password);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw error;
+      }
+    }
+  }
+
+  async completeNewPassword(username: string, password: string): Promise<any> {
+    try {
+      return await this.cognitoAuthService.completeNewPassword(
+        username,
+        password,
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
