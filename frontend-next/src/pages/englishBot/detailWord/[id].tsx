@@ -139,7 +139,7 @@ export async function getStaticProps({ params }: Params) {
 // 一番最初に実行される関数
 export async function getStaticPaths() {
   let words: GetWordNumResponseDto;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 30; i++) {
     words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
     console.log('words:', JSON.stringify(words));
     if (words) {
