@@ -19,9 +19,13 @@ Parameters:
     Type: String
   HostZoneId:
     Type: String
+  CognitoUserpoolId:
+    Type: String
+  CognitoAppClientId:
+    Type: String
   ExternalDependencies:
     Type: String
-    Default: "infra frontend-next cdk.out"
+    Default: 'infra frontend-next cdk.out'
 
 Resources:
   ApiGatewayRestApi:
@@ -50,7 +54,7 @@ Resources:
       Cors:
         AllowMethods: "'DELETE,POST,GET,OPTIONS,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'" 
+        AllowOrigin: "'*'"
   SamQuizzerApiFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -61,6 +65,8 @@ Resources:
         Variables:
           DATABASE_URL: !Ref DbUrl
           PRISMA_CLI_BINARY_TARGETS: !Ref PrismaTarget
+          AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserpoolId
+          AWS_COGNITO_APPCLIENT_ID: !Ref CognitoAppClientId
           # PRISMA_QUERY_ENGINE_LIBRARY: ../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node
       Events:
         QuizzerApi:
@@ -81,8 +87,8 @@ Outputs:
   #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
   #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   SamQuizzerApiFunction:
-    Description: "SAM Quizzer Api Lambda Function ARN"
+    Description: 'SAM Quizzer Api Lambda Function ARN'
     Value: !GetAtt SamQuizzerApiFunction.Arn
   SamQuizzerApiFunctionIamRole:
-    Description: "Implicit IAM Role created for SAM Quizzer Api function"
+    Description: 'Implicit IAM Role created for SAM Quizzer Api function'
     Value: !GetAtt SamQuizzerApiFunctionRole.Arn

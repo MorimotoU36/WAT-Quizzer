@@ -2,7 +2,7 @@ name: Deploy to AWS (dev)
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: ['develop']
 
 permissions:
   contents: read
@@ -14,60 +14,58 @@ jobs:
     environment: develop
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    # AWS認証
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      # AWS認証
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Prepare .env file
-      run: |
-        aws ssm get-parameter --name /github/quizzer/dev --output json | jq -r .Parameter.Value > .env
-        cut -d= -f2 .env  | xargs -I arg echo ::add-mask::arg
-        cat .env >> "$GITHUB_ENV"
+      - name: Prepare .env file
+        run: |
+          aws ssm get-parameter --name /github/quizzer/dev --output json | jq -r .Parameter.Value > .env
+          cut -d= -f2 .env  | xargs -I arg echo ::add-mask::arg
+          cat .env >> "$GITHUB_ENV"
 
-    # SAM設定
-    - name: Setup aws-sam
-      uses: aws-actions/setup-sam@v2
+      # SAM設定
+      - name: Setup aws-sam
+        uses: aws-actions/setup-sam@v2
 
-    # SAM APIビルド・デプロイ
-    - name: Build & Deploy API
-      run: |
-        cd ./infra
-        sam build
-        export PRISMA_CLI_BINARY_TARGETS="native,rhel-openssl-1.0.x,rhel-openssl-3.0.x"
-        sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID
+      # SAM APIビルド・デプロイ
+      - name: Build & Deploy API
+        run: |
+          cd ./infra
+          sam build
+          export PRISMA_CLI_BINARY_TARGETS="native,rhel-openssl-1.0.x,rhel-openssl-3.0.x"
+          sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID CognitoUserpoolId=$AWS_COGNITO_USERPOOL_ID CognitoAppClientId=$AWS_COGNITO_APPCLIENT_ID
 
-    - name: Setup quizzer-lib
-      id: setup-quizzer-lib
-      run: cd ./quizzer-lib && npm ci && npm run build
+      - name: Setup quizzer-lib
+        id: setup-quizzer-lib
+        run: cd ./quizzer-lib && npm ci && npm run build
 
-    - name: Setup dependencies(all)
-      id: setup-dependencies
-      run: npm ci --production
+      - name: Setup dependencies(all)
+        id: setup-dependencies
+        run: npm ci --production
 
-    - name: Setup dependencies(infra)
-      id: setup-infra-dependencies
-      run: cd ./infra && npm ci --production
+      - name: Setup dependencies(infra)
+        id: setup-infra-dependencies
+        run: cd ./infra && npm ci --production
 
-    # frontendをビルド
-    - name: Next.js Build and Export(Frontend)
-      run: cd ./frontend-next && npm run export
+      # frontendをビルド
+      - name: Next.js Build and Export(Frontend)
+        run: cd ./frontend-next && npm run export
 
-    - name: Deploy backend stack
-      id: cdk-deploy-backend
-      run: cd ./infra && npx cdk deploy BackendStack --require-approval never
+      - name: Deploy backend stack
+        id: cdk-deploy-backend
+        run: cd ./infra && npx cdk deploy BackendStack --require-approval never
 
-    - name: Deploy frontend stack
-      id: cdk-deploy-frontend
-      run: cd ./infra && npx cdk deploy FrontendStack --require-approval never
+      - name: Deploy frontend stack
+        id: cdk-deploy-frontend
+        run: cd ./infra && npx cdk deploy FrontendStack --require-approval never
 
-    - name: Frontend Deploy  # S3にデプロイ 
-      run: 
-        cd ./frontend-next && aws s3 sync --region ap-northeast-1 ./out s3://dev-quizzer-front-bucket --delete
-
+      - name: Frontend Deploy # S3にデプロイ
+        run: cd ./frontend-next && aws s3 sync --region ap-northeast-1 ./out s3://dev-quizzer-front-bucket --delete
