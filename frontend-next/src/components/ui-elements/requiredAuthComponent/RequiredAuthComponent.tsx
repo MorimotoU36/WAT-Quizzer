@@ -14,15 +14,22 @@ export default function RequiredAuthComponent({ children }: Props) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('idToken');
-    if (!token) {
+    const idToken = localStorage.getItem('idToken');
+    const accessToken = localStorage.getItem('accessToken');
+    if (!idToken || !accessToken) {
       router.replace('/login');
       return;
     }
 
-    const payload = parseJwt(token);
+    const idTokenPayload = parseJwt(idToken);
+    const accessTokenPayload = parseJwt(accessToken);
 
-    if (!payload || typeof payload.exp !== 'number') {
+    if (
+      !idTokenPayload ||
+      typeof idTokenPayload.exp !== 'number' ||
+      !accessTokenPayload ||
+      typeof accessTokenPayload.exp !== 'number'
+    ) {
       console.warn('Invalid token structure');
       localStorage.removeItem('idToken');
       localStorage.removeItem('accessToken');
@@ -31,8 +38,8 @@ export default function RequiredAuthComponent({ children }: Props) {
     }
 
     const now = Math.floor(Date.now() / 1000);
-    if (payload.exp < now) {
-      console.warn('Token expired');
+    if (idTokenPayload.exp < now || accessTokenPayload.exp < now) {
+      console.warn('idToken expired');
       localStorage.removeItem('idToken');
       localStorage.removeItem('accessToken');
       router.replace('/login');

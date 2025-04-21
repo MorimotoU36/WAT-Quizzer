@@ -7,9 +7,12 @@ export const get = async (
   path: string,
   func: (data: ProcessingApiReponse) => ApiResult,
   queryParam?: { [key: string]: string | number | boolean },
-  bodyData?: object
+  bodyData?: object,
+  needAuth?: boolean
 ) => {
-  const accessToken = localStorage.getItem('accessToken')
+  // TODO englishbot/[id].tsxビルドエラー対策で入れたがなんか違う気する、
+  const accessToken =
+    needAuth === false ? 'dummy' : localStorage.getItem('accessToken')
   const query = queryParam
     ? `?${new URLSearchParams(
         Object.keys(queryParam).reduce(
