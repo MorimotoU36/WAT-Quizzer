@@ -142,7 +142,7 @@ export async function getStaticPaths() {
   for (let i = 0; i < 3; i++) {
     words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
     console.log('words:', JSON.stringify(words));
-    if (!words) {
+    if (words) {
       break;
     }
   }
