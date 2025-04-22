@@ -75,14 +75,14 @@ export class UsEast1Stack extends cdk.Stack {
       }
     )
 
-    const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(
-      this,
-      `${props.env}ApiOriginRequestPolicy`,
-      {
-        headerBehavior:
-          cloudfront.OriginRequestHeaderBehavior.allowList('x-api-key')
-      }
-    )
+    // const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(
+    //   this,
+    //   `${props.env}ApiOriginRequestPolicy`,
+    //   {
+    //     headerBehavior:
+    //       cloudfront.OriginRequestHeaderBehavior.allowList('x-api-key')
+    //   }
+    // )
 
     const cfnDistribution = distribution.node
       .defaultChild as cloudfront.CfnDistribution

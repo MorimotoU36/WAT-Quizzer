@@ -75,8 +75,8 @@ Resources:
             Path: /{proxy+}
             Method: ANY
             RestApiId: !Ref ApiGatewayRestApi
-            Auth:
-              ApiKeyRequired: true
+            # Auth:
+            #   ApiKeyRequired: true
     Metadata: # Manage esbuild properties
       DockerTag: nodejs20.x-v1
       DockerContext: ../
