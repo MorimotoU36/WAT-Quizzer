@@ -11,8 +11,6 @@ export const get = async (
   needAuth?: boolean
 ) => {
   // TODO englishbot/[id].tsxビルドエラー対策で入れたがなんか違う気する、
-  const accessToken =
-    needAuth === false ? 'dummy' : localStorage.getItem('accessToken')
   const query = queryParam
     ? `?${new URLSearchParams(
         Object.keys(queryParam).reduce(
@@ -28,9 +26,11 @@ export const get = async (
   const result = await fetch(baseURL + path + query, {
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
+    ...(needAuth !== false && {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
   })
     .then((response) =>
       response.json().then((data) => ({
