@@ -21,7 +21,7 @@ export const get = async (
         )
       )}`
     : ''
-  console.log(baseURL + path + query)
+
   const result = await fetch(baseURL + path + query, {
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
@@ -31,12 +31,14 @@ export const get = async (
       }
     })
   })
-    .then((response) =>
-      response.json().then((data) => ({
+    .then((response) => {
+      console.log('status:' + response.status)
+      console.log('data:' + JSON.stringify(response))
+      return response.json().then((data) => ({
         status: response.status,
         body: data
       }))
-    )
+    })
     .then(func)
     .catch((error) => {
       return {
