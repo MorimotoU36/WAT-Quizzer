@@ -145,6 +145,8 @@ export async function getStaticPaths() {
     if (words) {
       break;
     }
+    // i秒待つ
+    await new Promise((resolve) => setTimeout(resolve, i * 1000));
   }
   return {
     paths: new Array(words!._max.id + 30)
