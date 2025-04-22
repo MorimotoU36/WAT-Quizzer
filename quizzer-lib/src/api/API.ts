@@ -10,7 +10,6 @@ export const get = async (
   bodyData?: object,
   needAuth?: boolean
 ) => {
-  // TODO englishbot/[id].tsxビルドエラー対策で入れたがなんか違う気する、
   const query = queryParam
     ? `?${new URLSearchParams(
         Object.keys(queryParam).reduce(
@@ -22,7 +21,7 @@ export const get = async (
         )
       )}`
     : ''
-
+  console.log(baseURL + path + query)
   const result = await fetch(baseURL + path + query, {
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
