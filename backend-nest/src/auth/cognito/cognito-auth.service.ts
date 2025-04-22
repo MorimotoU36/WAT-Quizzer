@@ -24,13 +24,13 @@ function getKey(header, callback) {
 @Injectable()
 export class CognitoAuthService {
   async verifyAccessToken(token: string): Promise<any> {
+    console.log('token:' + token);
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
         getKey,
         {
           issuer: COGNITO_ISSUER,
-          //audience: CLIENT_ID,
           algorithms: ['RS256'],
         },
         (err, decoded: any) => {
