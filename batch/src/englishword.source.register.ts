@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import 'dotenv/config'
-import { getApiKey } from 'quizzer-lib'
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 
 /**
@@ -36,7 +35,6 @@ try {
 
 // 登録
 ;(async () => {
-  const key = await getApiKey()
   fs.readFile(
     path.resolve(__dirname, inputFilePath),
     'utf8',
@@ -53,12 +51,12 @@ try {
 
       console.log(`読み込んだ行数: ${lines.length} 行`)
       // 送信
+      // TODO tokenなど実装してない
       try {
         const response = await fetch(baseURL + `/english/source/words`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': key
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             sourceId,

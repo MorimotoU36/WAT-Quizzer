@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import 'dotenv/config'
-import { getApiKey } from 'quizzer-lib'
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 export const fileUploadPath: string = process.env.QUIZ_FILE_UPLOAD_PATH || ''
 
@@ -31,16 +30,13 @@ try {
 
 // アップロード
 ;(async () => {
-  const key = await getApiKey()
   const file = fs.readFileSync(path.resolve(__dirname, inputFilePath))
   const formData = new FormData()
   formData.append('file', new Blob([file]))
+  // TODO tokenなど実装してない！
   await fetch(baseURL + fileUploadPath, {
     method: 'POST',
-    body: formData,
-    headers: {
-      'x-api-key': key
-    }
+    body: formData
   })
   console.log('Success!!')
   return true
