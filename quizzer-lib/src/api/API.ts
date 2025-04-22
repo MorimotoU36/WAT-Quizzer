@@ -34,6 +34,7 @@ export const get = async (
     .then((response) => {
       console.log('status:' + response.status)
       console.log('data:' + JSON.stringify(response))
+      console.log('response data:' + response)
       return response.json().then((data) => ({
         status: response.status,
         body: data

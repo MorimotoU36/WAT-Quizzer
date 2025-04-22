@@ -35,8 +35,8 @@ Resources:
       OpenApiVersion: 3.0.1
       ApiKeySourceType: HEADER
       Auth:
-        ApiKeyRequired: true # sets for all methods
-        AddApiKeyRequiredToCorsPreflight: false
+        # ApiKeyRequired: true # sets for all methods
+        # AddApiKeyRequiredToCorsPreflight: false
         UsagePlan:
           CreateUsagePlan: PER_API
           UsagePlanName: no-required-api-key-in-options-method-usage-plan
