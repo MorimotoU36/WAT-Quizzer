@@ -7,10 +7,9 @@ import { authNewPasswordSigninAPI } from 'quizzer-lib';
 
 interface NewPasswordFormProps {
   username: string;
-  setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const NewPasswordForm = ({ username, setShowNewPasswordForm }: NewPasswordFormProps) => {
+export const NewPasswordForm = ({ username }: NewPasswordFormProps) => {
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState<String>('');
 

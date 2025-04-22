@@ -31,17 +31,12 @@ export const get = async (
       }
     })
   })
-    .then((response) => {
-      console.log('status:' + response.status)
-      console.log('data:' + JSON.stringify(response))
-      return response.json().then((data) => {
-        console.log('data:' + JSON.stringify(data))
-        return {
-          status: response.status,
-          body: data
-        }
-      })
-    })
+    .then((response) =>
+      response.json().then((data) => ({
+        status: response.status,
+        body: data
+      }))
+    )
     .then(func)
     .catch((error) => {
       return {

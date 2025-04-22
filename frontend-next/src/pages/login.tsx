@@ -20,7 +20,7 @@ export default function LoginPage() {
       {!showNewPasswordForm ? (
         <LoginForm setShowNewPasswordForm={setShowNewPasswordForm} username={username} setUsername={setUsername} />
       ) : (
-        <NewPasswordForm username={username} setShowNewPasswordForm={setShowNewPasswordForm} />
+        <NewPasswordForm username={username} />
       )}
       ;
     </Container>

@@ -139,15 +139,8 @@ export async function getStaticProps({ params }: Params) {
 // 一番最初に実行される関数
 export async function getStaticPaths() {
   let words: GetWordNumResponseDto;
-  for (let i = 0; i < 30; i++) {
-    words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
-    console.log('words:', JSON.stringify(words));
-    if (words) {
-      break;
-    }
-    // i秒待つ
-    await new Promise((resolve) => setTimeout(resolve, i * 1000));
-  }
+  words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
+  console.log('words:', JSON.stringify(words));
   return {
     paths: new Array(words!._max.id + 30)
       .fill(0)
