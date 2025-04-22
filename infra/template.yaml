@@ -33,16 +33,16 @@ Resources:
     Properties:
       StageName: Prod
       OpenApiVersion: 3.0.1
-      ApiKeySourceType: HEADER
-      Auth:
-        # ApiKeyRequired: true # sets for all methods
-        # AddApiKeyRequiredToCorsPreflight: false
-        UsagePlan:
-          CreateUsagePlan: PER_API
-          UsagePlanName: no-required-api-key-in-options-method-usage-plan
-          Throttle:
-            BurstLimit: 100
-            RateLimit: 50
+      # ApiKeySourceType: HEADER
+      # Auth:
+      #   # ApiKeyRequired: true # sets for all methods
+      #   # AddApiKeyRequiredToCorsPreflight: false
+      #   UsagePlan:
+      #     CreateUsagePlan: PER_API
+      #     UsagePlanName: no-required-api-key-in-options-method-usage-plan
+      #     Throttle:
+      #       BurstLimit: 100
+      #       RateLimit: 50
       Domain:
         CertificateArn: !Ref QuizzerApiCertificateArn
         DomainName: !Ref QuizzerApiDomainName
