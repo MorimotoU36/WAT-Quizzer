@@ -24,11 +24,6 @@ function getKey(header, callback) {
 @Injectable()
 export class CognitoAuthService {
   async verifyAccessToken(token: string): Promise<any> {
-    console.log('token:' + token);
-    console.log(REGION);
-    console.log(USER_POOL_ID);
-    console.log(CLIENT_ID);
-    console.log(COGNITO_ISSUER);
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,

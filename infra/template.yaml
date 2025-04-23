@@ -11,6 +11,8 @@ Globals:
 Parameters:
   DbUrl:
     Type: String
+  Region:
+    Type: String
   PrismaTarget:
     Type: String
   QuizzerApiCertificateArn:
@@ -63,6 +65,7 @@ Resources:
         - x86_64
       Environment:
         Variables:
+          REGION: !Ref Region
           DATABASE_URL: !Ref DbUrl
           PRISMA_CLI_BINARY_TARGETS: !Ref PrismaTarget
           AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserpoolId
