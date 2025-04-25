@@ -2,7 +2,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 import 'dotenv/config'
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
-export const fileUploadPath: string = process.env.QUIZ_FILE_UPLOAD_PATH || ''
+export const fileUploadPath: string =
+  process.env.BATCH_QUIZ_FILE_UPLOAD_PATH || ''
 
 // 引数チェック
 if (process.argv.length !== 3) {

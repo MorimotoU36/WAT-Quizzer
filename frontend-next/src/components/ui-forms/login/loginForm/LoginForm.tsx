@@ -1,4 +1,3 @@
-import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -12,13 +11,6 @@ interface LoginFormProps {
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
-
-const poolData = {
-  UserPoolId: process.env.NEXT_PUBLIC_COGNITO_USERPOOL_ID || '', // あなたのUser Pool ID
-  ClientId: process.env.NEXT_PUBLIC_COGNITO_APPCLIENT_ID || '' // アプリクライアントID
-};
-
-export const userPool = new CognitoUserPool(poolData);
 
 export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: LoginFormProps) => {
   const [password, setPassword] = useState('');
