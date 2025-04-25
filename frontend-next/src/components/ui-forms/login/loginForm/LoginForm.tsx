@@ -5,6 +5,7 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { FormControl, FormGroup } from '@mui/material';
 import { authSigninAPI } from 'quizzer-lib';
+import classes from './LoginForm.module.css';
 
 interface LoginFormProps {
   setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,6 +21,7 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
 
   const handleLogin = async () => {
     try {
+      setMessage('通信中...');
       const res = await authSigninAPI({
         authSigninRequestData: {
           username,
@@ -48,15 +50,30 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
   return (
     <Card attr={'padding rect-600'}>
       <FormGroup>
-        <h1>ログイン</h1>
-        <FormControl>
-          <TextField label={'ユーザー名'} id="username" value={username} setStater={setUsername} />
+        <FormControl margin={'dense'}>
+          <h1 className={classes.formTitle}>ログイン</h1>
         </FormControl>
-        <FormControl>
-          <TextField type="password" id="password" label={'パスワード'} value={password} setStater={setPassword} />
+        <FormControl margin={'dense'}>
+          <TextField
+            className={['margin-x-10']}
+            label={'ユーザー名'}
+            id="username"
+            value={username}
+            setStater={setUsername}
+          />
         </FormControl>
-        <FormControl>
-          <Button label={'ログイン'} onClick={handleLogin} />
+        <FormControl margin={'dense'}>
+          <TextField
+            className={['margin-x-10']}
+            type="password"
+            id="password"
+            label={'パスワード'}
+            value={password}
+            setStater={setPassword}
+          />
+        </FormControl>
+        <FormControl margin={'dense'}>
+          <Button attr={'margin-x-10'} label={'ログイン'} onClick={handleLogin} />
         </FormControl>
         <p>{message}</p>
       </FormGroup>
