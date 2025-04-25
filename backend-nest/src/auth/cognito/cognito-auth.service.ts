@@ -3,6 +3,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import * as jwksClient from 'jwks-rsa';
 import { userPool } from './cognito-auth.config';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const REGION = process.env.REGION;
 const USER_POOL_ID = process.env.AWS_COGNITO_USERPOOL_ID;
