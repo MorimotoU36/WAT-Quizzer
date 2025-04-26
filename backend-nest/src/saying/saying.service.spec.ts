@@ -1,6 +1,21 @@
-import * as Dao from '../../lib/db/dao';
 import { SayingService } from './saying.service';
-jest.mock('../../lib/db/dao');
+import { prisma, getRandomElementFromArray } from 'quizzer-lib';
+
+jest.mock('quizzer-lib', () => {
+  // prismaモックを作る
+  const mockPrisma = {
+    selfhelp_book: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    saying: {
+      findMany: jest.fn(),
+      groupBy: jest.fn(),
+      create: jest.fn(),
+    },
+  };
+  return { prisma: mockPrisma, getRandomElementFromArray: jest.fn() };
+});
 
 describe('SayingService', () => {
   let sayingService: SayingService;
@@ -17,13 +32,14 @@ describe('SayingService', () => {
         saying: '格言テスト',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (getRandomElementFromArray as jest.Mock).mockReturnValue(testResult);
+    (prisma.saying.findMany as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await sayingService.getRandomSaying()).toEqual(testResult);
   });
 
   // 格言ランダム取得 異常系
   it('getRandomSaying - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
+    (prisma.saying.findMany as jest.Mock).mockImplementation(() => {
       throw Error('error test by jest.');
     });
     await expect(sayingService.getRandomSaying()).rejects.toMatchObject({
@@ -43,7 +59,9 @@ describe('SayingService', () => {
         saying: '格言テスト',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.selfhelp_book.create as jest.Mock).mockResolvedValueOnce(
+      testResult,
+    );
     expect(await sayingService.addBookService(req)).toEqual(testResult);
   });
 
@@ -53,7 +71,7 @@ describe('SayingService', () => {
     const req = {
       book_name: '本の名前',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
+    (prisma.selfhelp_book.create as jest.Mock).mockImplementation(() => {
       throw Error('error test by jest.');
     });
     await expect(sayingService.addBookService(req)).rejects.toMatchObject({
@@ -69,13 +87,15 @@ describe('SayingService', () => {
         saying: '格言テスト',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.selfhelp_book.findMany as jest.Mock).mockResolvedValueOnce(
+      testResult,
+    );
     expect(await sayingService.getBookListService()).toEqual(testResult);
   });
 
   // 啓発本リスト取得 異常系
   it('getBookListService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
+    (prisma.selfhelp_book.findMany as jest.Mock).mockImplementation(() => {
       throw Error('error test by jest.');
     });
     await expect(sayingService.getBookListService()).rejects.toMatchObject({
@@ -91,6 +111,14 @@ describe('SayingService', () => {
       saying: '格言',
       explanation: '説明',
     };
+    // テストデータ groupBy
+    const groupbyTest = [
+      {
+        _max: {
+          book_saying_id: 1,
+        },
+      },
+    ];
     // テストデータ 正常時の返り値
     const testResult = [
       {
@@ -98,7 +126,8 @@ describe('SayingService', () => {
         saying: '格言テスト',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.saying.groupBy as jest.Mock).mockResolvedValue(groupbyTest);
+    (prisma.saying.create as jest.Mock).mockResolvedValue(testResult);
     expect(await sayingService.addSayingService(req)).toEqual(testResult);
   });
 
@@ -110,7 +139,7 @@ describe('SayingService', () => {
       saying: '格言',
       explanation: '説明',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
+    (prisma.saying.groupBy as jest.Mock).mockImplementation(() => {
       throw Error('error test by jest.');
     });
     await expect(sayingService.addSayingService(req)).rejects.toMatchObject({
