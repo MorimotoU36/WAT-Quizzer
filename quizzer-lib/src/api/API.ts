@@ -73,15 +73,17 @@ export const getApiAndGetValue = async (
 export const post = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult
+  func: (data: ProcessingApiReponse) => ApiResult,
+  needAuth?: boolean
 ) => {
-  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'POST',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
+      ...(needAuth !== false && {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      })
     }
   })
     .then((response) =>
