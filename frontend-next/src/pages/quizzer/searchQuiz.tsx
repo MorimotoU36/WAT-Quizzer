@@ -9,11 +9,7 @@ import { SearchResultTable } from '@/components/ui-elements/searchResultTable/Se
 import { EditSearchResultForm } from '@/components/ui-forms/quizzer/searchQuiz/editSearchResultForm/EditSearchResultForm';
 import { initSearchQuizRequestData, SearchQuizAPIRequestDto } from 'quizzer-lib';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function SearchQuizPage({ isMock }: Props) {
+export default function SearchQuizPage() {
   const [searchResult, setSearchResult] = useState<GridRowsProp>([] as GridRowsProp);
   const [checkedIdList, setCheckedIdList] = useState<number[]>([] as number[]);
   // TODO 基礎応用一本化したらこれは下部コンポーネントに入れれるはず
