@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import 'dotenv/config'
-import { getApiKey } from 'quizzer-lib'
+import { authSigninAPI } from 'quizzer-lib'
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 
 /**
@@ -36,7 +36,6 @@ try {
 
 // 登録
 ;(async () => {
-  const key = await getApiKey()
   fs.readFile(
     path.resolve(__dirname, inputFilePath),
     'utf8',
@@ -53,12 +52,24 @@ try {
 
       console.log(`読み込んだ行数: ${lines.length} 行`)
       // 送信
+      // TODO tokenなど実装してない
       try {
+        // サインイン
+        // TODO この処理も別関数に置き換えたい 多分他バッチも同じ処理になるから
+        const res = await authSigninAPI({
+          authSigninRequestData: {
+            username: process.env.USERNAME,
+            password: process.env.PASSWORD
+          }
+        })
+        // TODO 型定義する
+        const data = res.result as any
+
         const response = await fetch(baseURL + `/english/source/words`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-api-key': key
+            Authorization: `Bearer ${data.accessToken}`
           },
           body: JSON.stringify({
             sourceId,

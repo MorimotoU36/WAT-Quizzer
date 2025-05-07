@@ -107,43 +107,12 @@ export const FourChoiceTabPanel = ({ value, putQuizRequestData, setPutQuizReques
           fullWidth
           maxRows={1}
           id="dummy1"
-          value={putQuizRequestData.dummy1 || ''}
+          value={''}
+          // value={putQuizRequestData.dummy1 || ''}
           onChange={(e) => {
             setPutQuizRequestData((prev: any) => ({
               ...prev,
               dummy1: e.target.value
-            }));
-          }}
-        />
-      </Typography>
-
-      <Typography variant="h6" component="h6" className={styles.messageBox}>
-        <label htmlFor="dummy2">ダミー選択肢2：</label>
-        <Input
-          fullWidth
-          maxRows={1}
-          id="dummy2"
-          value={putQuizRequestData.dummy2 || ''}
-          onChange={(e) => {
-            setPutQuizRequestData((prev: any) => ({
-              ...prev,
-              dummy2: e.target.value
-            }));
-          }}
-        />
-      </Typography>
-
-      <Typography variant="h6" component="h6" className={styles.messageBox}>
-        <label htmlFor="dummy3">ダミー選択肢3：</label>
-        <Input
-          fullWidth
-          maxRows={1}
-          id="dummy3"
-          value={putQuizRequestData.dummy3 || ''}
-          onChange={(e) => {
-            setPutQuizRequestData((prev: any) => ({
-              ...prev,
-              dummy3: e.target.value
             }));
           }}
         />

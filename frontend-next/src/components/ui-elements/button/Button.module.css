@@ -30,3 +30,7 @@
 .no-min-width {
   min-width: 0px !important;
 }
+
+.margin-x-10  {
+  margin: 0px 10px !important;
+}

@@ -1,14 +1,14 @@
-version: "3"
+version: '3'
 services:
   api:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: "quizzer_api"
+    container_name: 'quizzer_api'
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - APP_ENV=${APP_ENV}
-      - AWS_REGION=${AWS_REGION}
+      - REGION=${REGION}
       - AWS_COGNITO_USERPOOL_ID=${AWS_COGNITO_USERPOOL_ID}
       - AWS_COGNITO_APPCLIENT_ID=${AWS_COGNITO_APPCLIENT_ID}
     ports:

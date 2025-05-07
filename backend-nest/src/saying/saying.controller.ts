@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { SayingService } from './saying.service';
 import {
@@ -15,9 +17,9 @@ import {
   AddSayingAPIRequestDto,
   EditSayingAPIRequestDto,
 } from 'quizzer-lib';
-// import { AuthGuard } from '../auth/auth.guard';
-
-// @UseGuards(AuthGuard)
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+@UseGuards(CognitoAuthGuard)
 @Controller('saying')
 export class SayingController {
   constructor(private readonly sayingService: SayingService) {}
@@ -56,6 +58,12 @@ export class SayingController {
   @Patch()
   async editSaying(@Body() req: EditSayingAPIRequestDto) {
     return await this.sayingService.editSayingService(req);
+  }
+
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return await this.sayingService.uploadFile(file);
   }
 
   // 格言取得(格言ID指定)

@@ -43,7 +43,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
   return (
     <>
       <Card variant="outlined">
-        <CardContent>
+        <CardContent className={styles.questionCard}>
           <Typography variant="h5" component="h2">
             問題
           </Typography>

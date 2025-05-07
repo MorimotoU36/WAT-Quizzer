@@ -9,11 +9,7 @@ import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { EditQuizForm } from '@/components/ui-forms/quizzer/editQuiz/editQuizForm/EditQuizForm';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function EditQuizPage({ isMock }: Props) {
+export default function EditQuizPage() {
   const [editQuizRequestData, setEditQuizRequestData] = useState<EditQuizAPIRequestDto>(initEditQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
 
@@ -23,6 +19,7 @@ export default function EditQuizPage({ isMock }: Props) {
         <Title label="WAT Quizzer"></Title>
         <InputQueryForEditForm setEditQuizRequestData={setEditQuizRequestData} />
         <EditQuizForm editQuizRequestData={editQuizRequestData} setEditQuizRequestData={setEditQuizRequestData} />
+        {/* TODO 下のボタン EditQuizForm内ではダメ？*/}
         <Button
           label={'更新'}
           disabled={editQuizRequestData.quiz_id === -1}

@@ -3,9 +3,6 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager'
 import * as route53 from 'aws-cdk-lib/aws-route53'
 import { Construct } from 'constructs'
 import * as dotenv from 'dotenv'
-import { makeQuizzerLambdaEdgeIamRole } from '../service/iam'
-import * as lambda from 'aws-cdk-lib/aws-lambda'
-import * as path from 'path'
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront'
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins'
 import * as s3 from 'aws-cdk-lib/aws-s3'
@@ -28,21 +25,6 @@ export class UsEast1Stack extends cdk.Stack {
       crossRegionReferences: true
     })
 
-    // Cognito at edge Lambda
-    const edgeLambdaRole = makeQuizzerLambdaEdgeIamRole(this, props.env)
-    const edgeLambda = new lambda.Function(
-      this,
-      `${props.env}CognitoLambdaAtEdge`,
-      {
-        runtime: lambda.Runtime.NODEJS_18_X,
-        handler: 'index.handler',
-        role: edgeLambdaRole.iamRole,
-        code: lambda.Code.fromAsset(
-          path.join(__dirname, '../service/lambda-edge/cognito-at-edge')
-        )
-      }
-    )
-
     // cloudfront
     const distribution = new cloudfront.Distribution(
       this,
@@ -62,25 +44,10 @@ export class UsEast1Stack extends cdk.Stack {
           allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
           viewerProtocolPolicy:
-            cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          edgeLambdas: [
-            {
-              functionVersion: edgeLambda.currentVersion,
-              eventType: cloudfront.LambdaEdgeEventType.VIEWER_REQUEST
-            }
-          ]
+            cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
         },
         domainNames: [process.env.FRONT_DOMAIN_NAME || ''],
         certificate: props.frontCertificate
-      }
-    )
-
-    const apiOriginRequestPolicy = new cloudfront.OriginRequestPolicy(
-      this,
-      `${props.env}ApiOriginRequestPolicy`,
-      {
-        headerBehavior:
-          cloudfront.OriginRequestHeaderBehavior.allowList('x-api-key')
       }
     )
 

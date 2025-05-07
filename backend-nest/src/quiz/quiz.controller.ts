@@ -31,9 +31,9 @@ import { SearchQuizPipe } from './pipe/searchQuiz.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetAnswerLogStatisticsPipe } from './pipe/getAnswerLogStatistics.pipe';
-// import { AuthGuard } from '../auth/auth.guard';
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 
-// @UseGuards(AuthGuard)
+@UseGuards(CognitoAuthGuard)
 @Controller('quiz')
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}

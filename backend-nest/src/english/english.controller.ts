@@ -5,6 +5,7 @@ import {
   ParseBoolPipe,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { EnglishService } from './english.service';
 import {
@@ -12,9 +13,9 @@ import {
   RegisterWordsToSourceDto,
   SubmitAssociationExampleAPIRequestDto,
 } from 'quizzer-lib';
-// import { AuthGuard } from '../auth/auth.guard';
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 
-// @UseGuards(AuthGuard)
+@UseGuards(CognitoAuthGuard)
 @Controller('english')
 export class EnglishController {
   constructor(private readonly englishService: EnglishService) {}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, FormGroup, Input, SelectChangeEvent, Typography } from '@mui/material';
+import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
 import {
   addQuizAPI,
   AddQuizAPIRequestDto,
@@ -20,6 +20,7 @@ import styles from './AddQuizForm.module.css';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
@@ -211,47 +212,66 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               </p>
             </Typography>
 
-            {addQuizRequestData.format_id === 3 &&
-              addQuizRequestData.dummyChoice &&
-              addQuizRequestData.dummyChoice.map((choice, index) => {
-                const inputId = 'dummy' + (index + 1);
-                return (
-                  <>
-                    <Typography variant="h6" component="h6" className={styles.messageBox}>
-                      <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
-                      <Checkbox
-                        value="only-checked"
-                        label="(多答設定、この選択肢も正解にする)"
-                        onChange={(e) => {
-                          setAddQuizRequestData((prev: any) => ({
-                            ...prev,
-                            dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                              ...prev.dummyChoice[index],
-                              isCorrect: e.target.checked
-                            })
-                          }));
-                        }}
-                      />
-                      <Input
-                        fullWidth
-                        disabled={addQuizRequestData.format_id !== 3}
-                        maxRows={1}
-                        id={inputId}
-                        value={choice.sentense || ''}
-                        onChange={(e) => {
-                          setAddQuizRequestData((prev: any) => ({
-                            ...prev,
-                            dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                              ...prev.dummyChoice[index],
-                              sentense: e.target.value
-                            })
-                          }));
-                        }}
-                      />
-                    </Typography>
-                  </>
-                );
-              })}
+            {addQuizRequestData.format_id === 3 && addQuizRequestData.dummyChoice && (
+              <>
+                {addQuizRequestData.dummyChoice.map((choice, index) => {
+                  const inputId = 'dummy' + (index + 1);
+                  return (
+                    <>
+                      <Typography variant="h6" component="h6" className={styles.messageBox}>
+                        <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
+                        <Checkbox
+                          value="only-checked"
+                          label="(多答設定、この選択肢も正解にする)"
+                          onChange={(e) => {
+                            setAddQuizRequestData((prev: any) => ({
+                              ...prev,
+                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                                ...prev.dummyChoice[index],
+                                isCorrect: e.target.checked
+                              })
+                            }));
+                          }}
+                        />
+                        <Input
+                          fullWidth
+                          disabled={addQuizRequestData.format_id !== 3}
+                          maxRows={1}
+                          id={inputId}
+                          value={choice.sentense || ''}
+                          onChange={(e) => {
+                            setAddQuizRequestData((prev: any) => ({
+                              ...prev,
+                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
+                                ...prev.dummyChoice[index],
+                                sentense: e.target.value
+                              })
+                            }));
+                          }}
+                        />
+                      </Typography>
+                    </>
+                  );
+                })}
+                <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
+                  <IconButton
+                    onClick={() => {
+                      setAddQuizRequestData({
+                        ...addQuizRequestData,
+                        dummyChoice: addQuizRequestData.dummyChoice?.concat([
+                          {
+                            sentense: '',
+                            isCorrect: false
+                          }
+                        ])
+                      });
+                    }}
+                  >
+                    <AddCircleOutlineIcon />
+                  </IconButton>
+                </Stack>
+              </>
+            )}
           </CardContent>
         </Card>
       </FormGroup>

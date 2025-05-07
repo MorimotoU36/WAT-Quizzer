@@ -1,17 +1,15 @@
-import { getApiKey } from '../lib/aws/secrets'
 import { ApiResult, ProcessingApiReponse } from './'
 
 export const baseURL: string = process.env.NEXT_PUBLIC_API_SERVER || ''
 
 // TODO メソッドごとに分けてるけどまとめられないか？
-// TODO getAPIKeyは削除する
 export const get = async (
   path: string,
   func: (data: ProcessingApiReponse) => ApiResult,
   queryParam?: { [key: string]: string | number | boolean },
-  bodyData?: object
+  bodyData?: object,
+  needAuth?: boolean
 ) => {
-  const key = await getApiKey()
   const query = queryParam
     ? `?${new URLSearchParams(
         Object.keys(queryParam).reduce(
@@ -27,9 +25,11 @@ export const get = async (
   const result = await fetch(baseURL + path + query, {
     method: 'GET',
     body: bodyData ? JSON.stringify(bodyData) : null,
-    headers: {
-      'x-api-key': key
-    }
+    ...(needAuth !== false && {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    })
   })
     .then((response) =>
       response.json().then((data) => ({
@@ -54,13 +54,13 @@ export const getApiAndGetValue = async (
   path: string,
   queryParam?: { [key: string]: string }
 ) => {
-  const key = await getApiKey()
+  const accessToken = localStorage.getItem('accessToken')
   const query = queryParam ? `?${new URLSearchParams(queryParam)}` : ''
 
   return await fetch(baseURL + path + query, {
     method: 'GET',
     headers: {
-      'x-api-key': key
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .catch((error) => {
@@ -73,15 +73,17 @@ export const getApiAndGetValue = async (
 export const post = async (
   path: string,
   jsondata: object,
-  func: (data: ProcessingApiReponse) => ApiResult
+  func: (data: ProcessingApiReponse) => ApiResult,
+  needAuth?: boolean
 ) => {
-  const key = await getApiKey()
   return await fetch(baseURL + path, {
     method: 'POST',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': key
+      ...(needAuth !== false && {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      })
     }
   })
     .then((response) =>
@@ -107,13 +109,13 @@ export const put = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const key = await getApiKey()
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'PUT',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': key
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -139,13 +141,13 @@ export const del = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const key = await getApiKey()
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'DELETE',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': key
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>
@@ -171,13 +173,13 @@ export const patch = async (
   jsondata: object,
   func: (data: ProcessingApiReponse) => ApiResult
 ) => {
-  const key = await getApiKey()
+  const accessToken = localStorage.getItem('accessToken')
   return await fetch(baseURL + path, {
     method: 'PATCH',
     body: JSON.stringify(jsondata),
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': key
+      Authorization: `Bearer ${accessToken}`
     }
   })
     .then((response) =>

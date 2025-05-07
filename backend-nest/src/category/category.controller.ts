@@ -6,9 +6,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-// import { AuthGuard } from '../auth/auth.guard';
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 
-// @UseGuards(AuthGuard)
+@UseGuards(CognitoAuthGuard)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

@@ -11,6 +11,7 @@ import { isOpenState } from '@/atoms/SideBar';
 import { Button } from '@/components/ui-elements/button/Button';
 import { MessageBar } from '@/components/ui-elements/messageBar/MessageBar';
 import { messageState } from '@/atoms/Message';
+import RequiredAuthComponent from '@/components/ui-elements/requiredAuthComponent/RequiredAuthComponent';
 
 interface LayoutConfig {
   bgColor: string;
@@ -23,7 +24,9 @@ interface LayoutConfig {
 interface LayoutProps {
   title?: string;
   contents: JSX.Element;
-  mode: 'quizzer' | 'englishBot' | 'settings';
+  // TODO この下のやつは型に置き換えたい
+  mode: 'quizzer' | 'englishBot' | 'settings' | 'top';
+  isProtected?: boolean;
 }
 
 const urlEnd = process.env.NEXT_PUBLIC_URL_END || '';
@@ -56,14 +59,18 @@ const config: { [key: string]: LayoutConfig } = {
   settings: {
     bgColor: '#0288d1',
     sideBarContents: []
+  },
+  top: {
+    bgColor: 'black',
+    sideBarContents: []
   }
 };
 
-export const Layout = ({ title, contents, mode = 'quizzer' }: LayoutProps) => {
+export const Layout = ({ title, contents, mode = 'quizzer', isProtected = true }: LayoutProps) => {
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   const [message, setMessage] = useRecoilState(messageState);
   const modeConfig = config[mode];
-  return (
+  const layout = (
     <>
       {/*Head タイトルなど*/}
       <Head>
@@ -113,4 +120,5 @@ export const Layout = ({ title, contents, mode = 'quizzer' }: LayoutProps) => {
       <Footer bgColor={modeConfig.bgColor} topHref={process.env.NEXT_PUBLIC_URL_END || ''}></Footer>
     </>
   );
+  return isProtected ? <RequiredAuthComponent>{layout}</RequiredAuthComponent> : layout;
 };

@@ -11,6 +11,8 @@ Globals:
 Parameters:
   DbUrl:
     Type: String
+  Region:
+    Type: String
   PrismaTarget:
     Type: String
   QuizzerApiCertificateArn:
@@ -19,9 +21,13 @@ Parameters:
     Type: String
   HostZoneId:
     Type: String
+  CognitoUserpoolId:
+    Type: String
+  CognitoAppClientId:
+    Type: String
   ExternalDependencies:
     Type: String
-    Default: "infra frontend-next cdk.out"
+    Default: 'infra frontend-next cdk.out'
 
 Resources:
   ApiGatewayRestApi:
@@ -29,16 +35,16 @@ Resources:
     Properties:
       StageName: Prod
       OpenApiVersion: 3.0.1
-      ApiKeySourceType: HEADER
-      Auth:
-        ApiKeyRequired: true # sets for all methods
-        AddApiKeyRequiredToCorsPreflight: false
-        UsagePlan:
-          CreateUsagePlan: PER_API
-          UsagePlanName: no-required-api-key-in-options-method-usage-plan
-          Throttle:
-            BurstLimit: 100
-            RateLimit: 50
+      # ApiKeySourceType: HEADER
+      # Auth:
+      #   # ApiKeyRequired: true # sets for all methods
+      #   # AddApiKeyRequiredToCorsPreflight: false
+      #   UsagePlan:
+      #     CreateUsagePlan: PER_API
+      #     UsagePlanName: no-required-api-key-in-options-method-usage-plan
+      #     Throttle:
+      #       BurstLimit: 100
+      #       RateLimit: 50
       Domain:
         CertificateArn: !Ref QuizzerApiCertificateArn
         DomainName: !Ref QuizzerApiDomainName
@@ -50,7 +56,7 @@ Resources:
       Cors:
         AllowMethods: "'DELETE,POST,GET,OPTIONS,PUT,PATCH'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        AllowOrigin: "'*'" 
+        AllowOrigin: "'*'"
   SamQuizzerApiFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -59,8 +65,11 @@ Resources:
         - x86_64
       Environment:
         Variables:
+          REGION: !Ref Region
           DATABASE_URL: !Ref DbUrl
           PRISMA_CLI_BINARY_TARGETS: !Ref PrismaTarget
+          AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserpoolId
+          AWS_COGNITO_APPCLIENT_ID: !Ref CognitoAppClientId
           # PRISMA_QUERY_ENGINE_LIBRARY: ../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node
       Events:
         QuizzerApi:
@@ -69,8 +78,8 @@ Resources:
             Path: /{proxy+}
             Method: ANY
             RestApiId: !Ref ApiGatewayRestApi
-            Auth:
-              ApiKeyRequired: true
+            # Auth:
+            #   ApiKeyRequired: true
     Metadata: # Manage esbuild properties
       DockerTag: nodejs20.x-v1
       DockerContext: ../
@@ -81,8 +90,8 @@ Outputs:
   #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
   #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   SamQuizzerApiFunction:
-    Description: "SAM Quizzer Api Lambda Function ARN"
+    Description: 'SAM Quizzer Api Lambda Function ARN'
     Value: !GetAtt SamQuizzerApiFunction.Arn
   SamQuizzerApiFunctionIamRole:
-    Description: "Implicit IAM Role created for SAM Quizzer Api function"
+    Description: 'Implicit IAM Role created for SAM Quizzer Api function'
     Value: !GetAtt SamQuizzerApiFunctionRole.Arn

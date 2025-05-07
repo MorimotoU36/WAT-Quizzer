@@ -14,9 +14,9 @@ import {
   GetQuizFileStatisticsAPIRequestDto,
 } from 'quizzer-lib';
 import { GetQuizFileStatisticsPipe } from './pipe/getQuizFileStatistics.pipe';
-// import { AuthGuard } from '../../auth/auth.guard';
+import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 
-// @UseGuards(AuthGuard)
+@UseGuards(CognitoAuthGuard)
 @Controller('quiz/file')
 export class QuizFileController {
   constructor(private readonly quizFileService: QuizFileService) {}

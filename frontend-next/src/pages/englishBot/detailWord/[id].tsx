@@ -41,7 +41,6 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
 
   useEffect(() => {
     if (!isMock) {
-      const accessToken = localStorage.getItem('apiAccessToken') || '';
       Promise.all([
         (async () => {
           const result = await getPartOfSpeechListAPI();
@@ -139,10 +138,11 @@ export async function getStaticProps({ params }: Params) {
 
 // 一番最初に実行される関数
 export async function getStaticPaths() {
-  const words: GetWordNumResponseDto = (await getWordNumAPI({})).result as GetWordNumResponseDto;
-  console.log('words max id:', words._max.id);
+  let words: GetWordNumResponseDto;
+  words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
+  console.log('words:', JSON.stringify(words));
   return {
-    paths: new Array(words._max.id + 30)
+    paths: new Array(words!._max.id + 30)
       .fill(0)
       .map((_, i) => i)
       .map((d) => {
