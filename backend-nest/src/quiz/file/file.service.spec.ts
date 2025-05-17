@@ -1,5 +1,5 @@
 import { QuizFileService } from './file.service';
-import { prisma, getRandomElementFromArray } from 'quizzer-lib';
+import { prisma } from 'quizzer-lib';
 
 jest.mock('quizzer-lib', () => {
   // prismaモックを作る
@@ -10,7 +10,7 @@ jest.mock('quizzer-lib', () => {
       create: jest.fn(),
     },
   };
-  return { prisma: mockPrisma, getRandomElementFromArray: jest.fn() };
+  return { prisma: mockPrisma };
 });
 
 describe('QuizFileService', () => {
