@@ -1,6 +1,17 @@
-import * as Dao from '../../../lib/db/dao';
 import { QuizFileService } from './file.service';
-jest.mock('../../../lib/db/dao');
+import { prisma, getRandomElementFromArray } from 'quizzer-lib';
+
+jest.mock('quizzer-lib', () => {
+  // prismaモックを作る
+  const mockPrisma = {
+    $transaction: jest.fn(),
+    quiz_file: {
+      findMany: jest.fn(),
+      create: jest.fn(),
+    },
+  };
+  return { prisma: mockPrisma, getRandomElementFromArray: jest.fn() };
+});
 
 describe('QuizFileService', () => {
   let quizFileService: QuizFileService;
@@ -22,15 +33,15 @@ describe('QuizFileService', () => {
         deleted_at: null,
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz_file.findMany as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await quizFileService.getFileList()).toEqual(testResult);
   });
 
   // ファイル名リスト取得 異常系
   it('getFileList - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz_file.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizFileService.getFileList()).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -49,7 +60,7 @@ describe('QuizFileService', () => {
         file_num: 1,
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.quiz_file.create as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await quizFileService.addFile(req)).toEqual(testResult);
   });
 
@@ -60,9 +71,9 @@ describe('QuizFileService', () => {
       file_name: 'ファイル名',
       file_nickname: '通称',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz_file.create as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizFileService.addFile(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -80,9 +91,9 @@ describe('QuizFileService', () => {
         file_num: 1,
       },
     ];
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
+    (prisma.$transaction as jest.Mock).mockResolvedValue(testResult);
     expect(await quizFileService.deleteFile(req)).toEqual({
-      result: testResult,
+      result: 'Deleted.',
     });
   });
 
@@ -92,9 +103,9 @@ describe('QuizFileService', () => {
     const req = {
       file_id: 0,
     };
-    jest.spyOn(Dao, 'execTransaction').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizFileService.deleteFile(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
