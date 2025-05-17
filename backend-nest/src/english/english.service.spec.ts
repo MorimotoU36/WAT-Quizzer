@@ -1,6 +1,24 @@
 import { EnglishService } from './english.service';
-import * as Dao from '../../lib/db/dao';
-jest.mock('../../lib/db/dao');
+import { prisma } from 'quizzer-lib';
+
+jest.mock('quizzer-lib', () => {
+  // prismaモックを作る
+  const mockPrisma = {
+    $transaction: jest.fn(),
+    partsofspeech: {
+      findMany: jest.fn(),
+    },
+    source: {
+      findMany: jest.fn(),
+    },
+    word: {
+      findUnique: jest.fn(),
+    },
+  };
+  return {
+    prisma: mockPrisma,
+  };
+});
 
 describe('EnglishService', () => {
   let englishService: EnglishService;
@@ -21,15 +39,17 @@ describe('EnglishService', () => {
         deleted_at: null,
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.partsofspeech.findMany as jest.Mock).mockResolvedValueOnce(
+      testResult,
+    );
     expect(await englishService.getPartsofSpeechService()).toEqual(testResult);
   });
 
   // 品詞リスト取得 異常系
   it('getPartsofSpeechService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.partsofspeech.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishService.getPartsofSpeechService(),
     ).rejects.toMatchObject({
@@ -49,15 +69,15 @@ describe('EnglishService', () => {
         deleted_at: null,
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.source.findMany as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await englishService.getSourceService()).toEqual(testResult);
   });
 
   // 出典リスト取得 異常系
   it('getSourceService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.source.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(englishService.getSourceService()).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -66,35 +86,29 @@ describe('EnglishService', () => {
   // 例文追加 正常系
   it('addExampleService - OK', async () => {
     // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        result: 'test',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
+    const testResult = {
+      result: 'Added!',
+    };
+    (prisma.word.findUnique as jest.Mock).mockResolvedValueOnce(testResult);
     expect(
       await englishService.addExampleService({
         exampleEn: 'Example',
         exampleJa: '例文',
-        meanId: [0, 1, 2],
+        wordName: 'test',
       }),
     ).toEqual(testResult);
   });
 
   // 例文追加 異常系
   it('addExampleService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    jest.spyOn(Dao, 'execTransaction').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.word.findUnique as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishService.addExampleService({
         exampleEn: 'Example',
         exampleJa: '例文',
-        meanId: [0, 1, 2],
+        wordName: 'test',
       }),
     ).rejects.toMatchObject({
       message: 'error test by jest.',
