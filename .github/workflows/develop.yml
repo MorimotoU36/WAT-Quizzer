@@ -55,6 +55,10 @@ jobs:
         id: setup-infra-dependencies
         run: cd ./infra && npm ci --production
 
+      # backendをUT（時間かかってactionsがtimeoutする場合削除してOK）
+      - name: Backend Unit test
+        run: cd ./backend-nest && npm run test
+
       # frontendをビルド
       - name: Next.js Build and Export(Frontend)
         run: cd ./frontend-next && npm run export
