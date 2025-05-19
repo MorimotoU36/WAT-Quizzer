@@ -16,9 +16,20 @@ FROM
   (
     (
       quiz q
-      JOIN quiz_category qc ON ((q.id = qc.quiz_id))
+      JOIN quiz_category qc ON (
+        (
+          (q.id = qc.quiz_id)
+          AND (q.deleted_at IS NULL)
+          AND (qc.deleted_at IS NULL)
+        )
+      )
     )
-    JOIN quiz_view qv ON ((q.id = qv.id))
+    JOIN quiz_view qv ON (
+      (
+        (q.id = qv.id)
+        AND (qv.deleted_at IS NULL)
+      )
+    )
   )
 GROUP BY
   q.file_num,
