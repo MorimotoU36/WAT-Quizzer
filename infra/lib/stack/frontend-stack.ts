@@ -39,6 +39,20 @@ export class FrontendStack extends cdk.Stack {
       ]
     })
 
+    // S3 Bucket(for uploaaded quiz image)
+    new s3.Bucket(this, `${props.env}QuizzerFrontQuizImagesBucket`, {
+      bucketName: `${props.env}-quizzer-front-quiz-images-bucket`,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.HEAD],
+          allowedOrigins: ['*'],
+          allowedHeaders: ['*'],
+          exposedHeaders: []
+        }
+      ]
+    })
+
     // cognito userpool
     const userPool = new cognito.UserPool(this, `${props.env}QuizzerUserPool`, {
       signInAliases: {
