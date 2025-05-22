@@ -54,8 +54,8 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
             })}
           </Typography>
           {displayQuiz.quiz_category &&
-            displayQuiz.quiz_category.map((category) => {
-              return <Chip label={category.category} />;
+            displayQuiz.quiz_category.map((category,index) => {
+              return <Chip key={index} label={category.category} />;
             })}
           <Typography variant="subtitle2" className={styles.count}>
             {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}

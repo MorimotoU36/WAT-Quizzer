@@ -54,8 +54,8 @@ export const DisplayTestWordSection = ({ displayTestData, setDisplayTestData }: 
                   </IconButton>
                 </h2>
                 {displayTestData.word?.word_source &&
-                  displayTestData.word?.word_source.map((value) => {
-                    return <Chip label={value.source.name} />;
+                  displayTestData.word?.word_source.map((value,index) => {
+                    return <Chip key={index} label={value.source.name} />;
                   })}
                 {displayTestData.word?.word_statistics_view.accuracy_rate
                   ? `（正解率 ${displayTestData.word?.word_statistics_view.accuracy_rate}%）`
@@ -178,8 +178,8 @@ export const DisplayTestWordSection = ({ displayTestData, setDisplayTestData }: 
               <div>
                 <h2>{displayTestData.word?.name || ''}</h2>
                 {displayTestData.word?.word_source &&
-                  displayTestData.word?.word_source.map((value) => {
-                    return <Chip label={value.source.name} />;
+                  displayTestData.word?.word_source.map((value, index) => {
+                    return <Chip key={index} label={value.source.name} />;
                   })}
               </div>
               {displayTestData.correct && displayTestData.dummy && (

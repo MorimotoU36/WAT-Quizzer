@@ -17,8 +17,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "react": ["./node_modules/@types/react"]
-    }
+    },
+    "typeRoots": ["../node_modules/@types"]
   },
+  "extends": "../tsconfig.json",
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

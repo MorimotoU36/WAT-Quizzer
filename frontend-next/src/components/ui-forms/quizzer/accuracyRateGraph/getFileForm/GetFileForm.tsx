@@ -55,7 +55,7 @@ export const GetFileForm = ({ setAccuracyData }: GetFileFormProps) => {
         }
       }
     })();
-  }, [getCategoryRateData]);
+  }, [getCategoryRateData,setMessage,setAccuracyData]);
 
   return (
     <FormGroup>

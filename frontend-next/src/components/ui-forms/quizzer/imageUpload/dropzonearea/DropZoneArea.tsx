@@ -1,52 +1,19 @@
 import Dropzone from 'react-dropzone';
-import axios from 'axios';
 import styles from './DropZoneArea.module.css';
 import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
+import { uploadImageOfQuizAPI } from 'quizzer-lib';
 
 interface DropZoneAreaProps {}
 
-// TODO 画像アップロード機能実装したら改めてlibに持っていく
-interface ImageUploadReturnValue {
-  name: string;
-  isUploading: boolean;
-  url: string;
-}
-
+// TODO  画像アップロードだが回数制限を設けた方がいいと思う、何かあった時用に
 export const DropZoneArea = ({}: DropZoneAreaProps) => {
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [images, setImages] = useState<ImageUploadReturnValue[]>([]);
   const setMessage = useSetRecoilState(messageState);
 
   const uploadImage = (file: File) => {
-    return axios
-      .post(process.env.NEXT_PUBLIC_API_SERVER + '/upload', {
-        params: {
-          filename: file.name,
-          filetype: file.type
-        }
-      })
-      .then((res) => {
-        const options = {
-          headers: {
-            'Content-Type': file.type
-          }
-        };
-        return axios.put(res.data.url, file, options);
-      })
-      .then((res) => {
-        const name = String(res.config.data);
-        return {
-          name,
-          isUploading: true,
-          url: 'https://' + process.env.NEXT_PUBLIC_S3_BUCKET_NAME + `.s3.amazonaws.com/${file.name}`
-        } as ImageUploadReturnValue;
-      })
-      .catch((e) => {
-        console.log('frontend axioserrpr:', e);
-        return {} as ImageUploadReturnValue;
-      });
+    return uploadImageOfQuizAPI({ uploadQuizRequestData: { file } });
   };
 
   const handleOnDrop = (files: File[]) => {
@@ -60,9 +27,8 @@ export const DropZoneArea = ({}: DropZoneAreaProps) => {
     Promise.all(files.map((file) => uploadImage(file)))
       .then((image) => {
         setIsUploading(false);
-        setImages(images.concat(image));
         setMessage({
-          message: 'アップロードが完了しました:' + image[0].name,
+          message: 'アップロードが完了しました',
           messageColor: 'success.light',
           isDisplay: true
         });

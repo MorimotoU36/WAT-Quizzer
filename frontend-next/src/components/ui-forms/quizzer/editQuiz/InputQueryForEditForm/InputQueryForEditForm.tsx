@@ -92,7 +92,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         }
       })();
     }
-  }, [router]);
+  }, [router,setEditQuizRequestData,setMessage]);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
     setQuizRequestData({
