@@ -150,4 +150,10 @@ export class QuizController {
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return await this.quizService.uploadFile(file);
   }
+
+  @Post('/image/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadQuizImage(@UploadedFile() file: Express.Multer.File) {
+    return await this.quizService.uploadQuizImage(file);
+  }
 }

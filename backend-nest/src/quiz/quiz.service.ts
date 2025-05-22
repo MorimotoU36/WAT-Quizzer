@@ -17,6 +17,7 @@ import {
   prisma,
   GetAnswerLogStatisticsAPIRequestDto,
   getStartDateForStatistics,
+  uploadQuizImageToS3,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -1300,5 +1301,10 @@ export class QuizService {
         );
       }
     }
+  }
+
+  // 問題用の画像をS3にアップロードする
+  async uploadQuizImage(file: Express.Multer.File): Promise<string> {
+    return uploadQuizImageToS3(file);
   }
 }

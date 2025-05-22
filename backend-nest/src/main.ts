@@ -5,7 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 //import express from 'express';
-import * as express from 'express';
+import express from 'express';
 import * as dotenv from 'dotenv';
 dotenv.config();
 // import * as cookieParser from 'cookie-parser';
