@@ -199,3 +199,39 @@ export const patch = async (
       } as ApiResult
     })
 }
+
+// ファイルを送りたい時
+export const fileUploadAPI = async (
+  path: string,
+  file: File,
+  func: (data: ProcessingApiReponse) => ApiResult,
+  needAuth?: boolean
+) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return await fetch(baseURL + path, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      ...(needAuth !== false && {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      })
+    }
+  })
+    .then((response) =>
+      response.json().then((data) => ({
+        status: response.status,
+        body: data
+      }))
+    )
+    .then(func)
+    .catch((error) => {
+      return {
+        message: {
+          message: String(error.message),
+          messageColor: 'error',
+          isDisplay: true
+        }
+      } as ApiResult
+    })
+}
