@@ -5,11 +5,11 @@ ENV DATABASE_URL=$DATABASE_URL
 # from monorepo root
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY ./package*.json ./
+COPY ./*.json ./
 
-COPY ./quizzer-lib/package*.json ./quizzer-lib/
+COPY ./quizzer-lib/*.json ./quizzer-lib/
 
-COPY ./backend-nest/package*.json ./backend-nest/
+COPY ./backend-nest/*.json ./backend-nest/
 
 RUN npm install --production
 
