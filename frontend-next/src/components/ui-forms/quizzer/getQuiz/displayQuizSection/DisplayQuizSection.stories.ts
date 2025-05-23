@@ -21,18 +21,21 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 export const Opened: Story = {
   args: {
-    getQuizResponseData: initGetQuizResponseData
+    getQuizResponseData: initGetQuizResponseData,
+    imageUrl: ''
   }
 };
 
 export const Closed: Story = {
   args: {
-    getQuizResponseData: initGetQuizResponseData
+    getQuizResponseData: initGetQuizResponseData,
+    imageUrl: ''
   }
 };
 
 export const Checked: Story = {
   args: {
-    getQuizResponseData: initGetQuizResponseData
+    getQuizResponseData: initGetQuizResponseData,
+    imageUrl: ''
   }
 };

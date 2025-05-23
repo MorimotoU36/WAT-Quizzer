@@ -651,7 +651,6 @@ export class QuizService {
         },
       });
     } catch (error: unknown) {
-      console.error(error);
       if (error instanceof Error) {
         throw new HttpException(
           error.message,

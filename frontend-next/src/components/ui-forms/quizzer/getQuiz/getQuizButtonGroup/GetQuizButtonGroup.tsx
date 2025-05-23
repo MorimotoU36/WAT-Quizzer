@@ -13,8 +13,8 @@ import {
 interface GetQuizButtonGroupProps {
   getQuizRequestData: GetQuizAPIRequestDto;
   getQuizResponseData: GetQuizApiResponseDto;
-  setQuizResponseData: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
-  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
+  setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
+  setImageUrl?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const GetQuizButtonGroup = ({
@@ -33,12 +33,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="primary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -48,12 +48,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="secondary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'random' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -62,12 +62,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="secondary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'worstRate' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -77,12 +77,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="secondary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'leastClear' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -92,12 +92,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="secondary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'LRU' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -107,12 +107,12 @@ export const GetQuizButtonGroup = ({
         variant="contained"
         color="secondary"
         onClick={async (e) => {
-          setImageUrl('');
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'review' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -129,7 +129,7 @@ export const GetQuizButtonGroup = ({
           });
           setMessage(result.message);
           const res = result.result as GetImageOfQuizAPIResponseDto;
-          setImageUrl(res.imageUrl);
+          setImageUrl && setImageUrl(res.imageUrl);
         }}
       />
     </>

@@ -19,7 +19,7 @@ interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
   setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
   imageUrl: string;
-  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
+  setImageUrl?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const DisplayQuizSection = ({
@@ -45,7 +45,7 @@ export const DisplayQuizSection = ({
   // 出題変わったら閉じる
   useEffect(() => {
     setExpanded(false);
-    setImageUrl('');
+    setImageUrl && setImageUrl('');
   }, [getQuizResponseData.quiz_sentense]);
 
   return (
@@ -107,7 +107,7 @@ export const DisplayQuizSection = ({
                 if (result.message.messageColor === 'success.light' && setQuizResponseData) {
                   setQuizResponseData(initGetQuizResponseData);
                   setExpanded(false);
-                  setImageUrl('');
+                  setImageUrl && setImageUrl('');
                 }
               }}
             />
@@ -127,7 +127,7 @@ export const DisplayQuizSection = ({
                 if (result.message.messageColor === 'success.light' && setQuizResponseData) {
                   setQuizResponseData(initGetQuizResponseData);
                   setExpanded(false);
-                  setImageUrl('');
+                  setImageUrl && setImageUrl('');
                 }
               }}
             />

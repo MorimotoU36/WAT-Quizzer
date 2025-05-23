@@ -51,7 +51,6 @@ export class EnglishService {
       });
       return data;
     } catch (error: unknown) {
-      console.error(error);
       if (error instanceof Error) {
         throw new HttpException(
           error.message,
@@ -152,23 +151,23 @@ export class EnglishService {
             },
           })
         : isLinked === false
-        ? await prisma.example.findMany({
-            where: {
-              en_example_sentense: {
-                contains: query,
+          ? await prisma.example.findMany({
+              where: {
+                en_example_sentense: {
+                  contains: query,
+                },
+                deleted_at: null,
               },
-              deleted_at: null,
-            },
-            select: {
-              id: true,
-              en_example_sentense: true,
-              ja_example_sentense: true,
-            },
-            orderBy: {
-              id: 'asc',
-            },
-          })
-        : undefined;
+              select: {
+                id: true,
+                en_example_sentense: true,
+                ja_example_sentense: true,
+              },
+              orderBy: {
+                id: 'asc',
+              },
+            })
+          : undefined;
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
