@@ -1,23 +1,38 @@
 import { ApiResult } from '../../../api'
-import {
-  defaultMessage,
-  errorMessage,
-  GetQuizAPIRequestDto,
-  MESSAGES
-} from '../../../..'
+import { GetImageOfQuizAPIRequestDto, GetImageOfQuizAPIResponseDto } from '.'
+import { errorMessage, MESSAGES } from '../../../..'
 
 interface GetImageOfQuizButtonProps {
-  getQuizRequestData: GetQuizAPIRequestDto
+  getImageOfQuizRequestData: GetImageOfQuizAPIRequestDto
 }
 
 export const getImageOfQuizAPI = async ({
-  getQuizRequestData
+  getImageOfQuizRequestData
 }: GetImageOfQuizButtonProps): Promise<ApiResult> => {
-  if (!getQuizRequestData.file_num) {
+  if (!getImageOfQuizRequestData.fileName) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
   }
 
-  // TODO  API処理
-  // そういえばまだ未実装
-  return { message: defaultMessage(MESSAGES.DEFAULT.MSG00001) }
+  // TODO ここだけは共通APIを使えてないので共通APIを使うようにしたい
+  const result = await fetch(
+    (process.env.NEXT_PUBLIC_API_SERVER || '') +
+      `/quiz/image?fileName=${getImageOfQuizRequestData.fileName}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    }
+  )
+  if (!result.ok) {
+    return { message: errorMessage(MESSAGES.ERROR.MSG00017) }
+  }
+  const blob = await result.blob()
+  const imageUrl = URL.createObjectURL(blob)
+  return {
+    message: errorMessage(MESSAGES.SUCCESS.MSG00021),
+    result: {
+      imageUrl
+    } as GetImageOfQuizAPIResponseDto
+  }
 }
