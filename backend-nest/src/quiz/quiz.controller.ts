@@ -3,10 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Patch,
   Post,
   Put,
   Query,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -32,6 +34,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetAnswerLogStatisticsPipe } from './pipe/getAnswerLogStatistics.pipe';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
+import { Response } from 'express';
 
 @UseGuards(CognitoAuthGuard)
 @Controller('quiz')
@@ -155,5 +158,20 @@ export class QuizController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadQuizImage(@UploadedFile() file: Express.Multer.File) {
     return await this.quizService.uploadQuizImage(file);
+  }
+
+  @Get('/image')
+  async downloadQuizImage(
+    @Query('fileName') fileName: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const stream = await this.quizService.downloadQuizImage(fileName);
+      res.setHeader('Content-Type', 'image/png');
+      stream.pipe(res);
+    } catch (err) {
+      console.error(err);
+      throw new NotFoundException('File not found');
+    }
   }
 }
