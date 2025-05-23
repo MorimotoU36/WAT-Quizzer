@@ -19,14 +19,26 @@ type Props = {
 export default function GetQuizPage({ isMock }: Props) {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const [getQuizResponseData, setQuizResponseData] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
+  // TODO このstate 上のDtoに組み入れられないか？
+  const [imageUrl, setImageUrl] = useState<string>('');
 
   const contents = () => {
     return (
       <Container>
         <Title label="WAT Quizzer"></Title>
         <InputQueryForm getQuizRequestData={getQuizRequestData} setQuizRequestData={setQuizRequestData} />
-        <GetQuizButtonGroup getQuizRequestData={getQuizRequestData} setQuizResponseData={setQuizResponseData} />
-        <DisplayQuizSection getQuizResponseData={getQuizResponseData} setQuizResponseData={setQuizResponseData} />
+        <GetQuizButtonGroup
+          getQuizRequestData={getQuizRequestData}
+          getQuizResponseData={getQuizResponseData}
+          setQuizResponseData={setQuizResponseData}
+          setImageUrl={setImageUrl}
+        />
+        <DisplayQuizSection
+          getQuizResponseData={getQuizResponseData}
+          setQuizResponseData={setQuizResponseData}
+          imageUrl={imageUrl}
+          setImageUrl={setImageUrl}
+        />
       </Container>
     );
   };
