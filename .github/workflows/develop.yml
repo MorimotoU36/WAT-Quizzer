@@ -53,7 +53,12 @@ jobs:
                         HostZoneId=$HOSTZONE_ID \
                         CognitoUserpoolId=$AWS_COGNITO_USERPOOL_ID \
                         CognitoAppClientId=$AWS_COGNITO_APPCLIENT_ID \
-                        QuizImageS3BucketName=$QUIZ_IMAGE_S3_BUCKET
+                        QuizImageS3BucketName=$QUIZ_IMAGE_S3_BUCKET \
+                        Akey=$AKEY \
+                        SAkey=$SAKEY
+        env:
+          AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
       - name: Setup dependencies(all)
         id: setup-dependencies
