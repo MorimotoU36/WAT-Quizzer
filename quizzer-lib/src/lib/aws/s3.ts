@@ -37,6 +37,8 @@ export const getQuizImageFromS3 = async (
   fileName: string
 ): Promise<Readable> => {
   const bucketName = process.env.NEXT_PUBLIC_QUIZ_IMAGE_S3_BUCKET
+  console.log('bucketName:', bucketName)
+  console.log('fileName:', fileName)
   const command = new GetObjectCommand({
     Bucket: bucketName,
     Key: `uploads/${fileName}`
