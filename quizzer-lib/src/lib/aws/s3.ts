@@ -33,9 +33,7 @@ export const uploadQuizImageToS3 = async (
   return `https://${bucketName}.s3.amazonaws.com/${uploadParams.Key}`
 }
 
-export const getQuizImageFromS3 = async (
-  fileName: string
-): Promise<Readable> => {
+export const getQuizImageFromS3 = async (fileName: string): Promise<Buffer> => {
   const bucketName = process.env.QUIZ_IMAGE_S3_BUCKET
   const command = new GetObjectCommand({
     Bucket: bucketName,
@@ -43,5 +41,11 @@ export const getQuizImageFromS3 = async (
   })
   const s3Client = getS3Client()
   const response = await s3Client.send(command)
-  return response.Body as Readable
+  const stream = response.Body as Readable
+  const chunks: Uint8Array[] = []
+
+  for await (const chunk of stream) {
+    chunks.push(chunk as Uint8Array)
+  }
+  return Buffer.concat(chunks)
 }

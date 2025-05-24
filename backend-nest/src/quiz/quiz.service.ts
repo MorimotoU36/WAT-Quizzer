@@ -1309,7 +1309,7 @@ export class QuizService {
   }
 
   // 問題用の画像をS3からダウンロードする
-  async downloadQuizImage(fileName: string): Promise<Readable> {
+  async downloadQuizImage(fileName: string): Promise<Buffer> {
     return getQuizImageFromS3(fileName);
   }
 }

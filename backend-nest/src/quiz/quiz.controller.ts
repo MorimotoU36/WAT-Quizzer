@@ -8,7 +8,6 @@ import {
   Post,
   Put,
   Query,
-  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -34,7 +33,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetAnswerLogStatisticsPipe } from './pipe/getAnswerLogStatistics.pipe';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
-import { Response } from 'express';
 
 @UseGuards(CognitoAuthGuard)
 @Controller('quiz')
@@ -161,14 +159,14 @@ export class QuizController {
   }
 
   @Get('/image')
-  async downloadQuizImage(
-    @Query('fileName') fileName: string,
-    @Res() res: Response,
-  ) {
+  async downloadQuizImage(@Query('fileName') fileName: string) {
     try {
-      const stream = await this.quizService.downloadQuizImage(fileName);
-      res.setHeader('Content-Type', 'image/png');
-      stream.pipe(res);
+      const buffer = await this.quizService.downloadQuizImage(fileName);
+      const base64 = buffer.toString('base64');
+      return {
+        base64,
+        mimeType: 'image/png',
+      };
     } catch (err) {
       console.error(err);
       throw new NotFoundException('File not found');

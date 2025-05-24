@@ -27,8 +27,9 @@ export const getImageOfQuizAPI = async ({
   if (!result.ok) {
     return { message: errorMessage(MESSAGES.ERROR.MSG00017) }
   }
-  const blob = await result.blob()
-  const imageUrl = URL.createObjectURL(blob)
+  const { base64, mimeType } = await result.json()
+  const imageUrl = `data:${mimeType};base64,${base64}`
+
   return {
     message: errorMessage(MESSAGES.SUCCESS.MSG00021),
     result: {
