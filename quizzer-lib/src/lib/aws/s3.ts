@@ -21,7 +21,7 @@ export const getS3Client = () => {
 export const uploadQuizImageToS3 = async (
   file: Express.Multer.File
 ): Promise<string> => {
-  const bucketName = process.env.QUIZ_IMAGE_S3_BUCKET
+  const bucketName = process.env.NEXT_PUBLIC_QUIZ_IMAGE_S3_BUCKET
   const uploadParams = {
     Bucket: bucketName,
     Key: `uploads/${file.originalname}`,
@@ -36,7 +36,7 @@ export const uploadQuizImageToS3 = async (
 export const getQuizImageFromS3 = async (
   fileName: string
 ): Promise<Readable> => {
-  const bucketName = process.env.QUIZ_IMAGE_S3_BUCKET
+  const bucketName = process.env.NEXT_PUBLIC_QUIZ_IMAGE_S3_BUCKET
   const command = new GetObjectCommand({
     Bucket: bucketName,
     Key: `uploads/${fileName}`
