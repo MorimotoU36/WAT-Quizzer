@@ -57,11 +57,11 @@ jobs:
 
       # backendをUT（時間かかってactionsがtimeoutする場合削除してOK）
       - name: Backend Unit test
-        run: cd ./backend-nest && npm ci --production && npm run test
+        run: cd ./backend-nest && npm run test
 
       # frontendをビルド
       - name: Next.js Build and Export(Frontend)
-        run: cd ./frontend-next && npm ci --production && npx prisma generate && npm run export
+        run: cd ./frontend-next && npm run export
 
       - name: Deploy backend stack
         id: cdk-deploy-backend
