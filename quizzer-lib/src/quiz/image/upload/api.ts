@@ -14,6 +14,7 @@ export const uploadImageOfQuizAPI = async ({
     uploadQuizRequestData.file,
     (data: ProcessingApiReponse) => {
       if (data.status === 200 || data.status === 201) {
+        const result = data.body
         return {
           message: successMessage(MESSAGES.SUCCESS.MSG00002),
           result
