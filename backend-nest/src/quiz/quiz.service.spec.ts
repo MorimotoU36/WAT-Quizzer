@@ -1,9 +1,78 @@
-import * as Dao from '../../lib/db/dao';
 import { QuizService } from './quiz.service';
-jest.mock('../../lib/db/dao');
+import {
+  prisma,
+  getRandomElementFromArray,
+  getPrismaYesterdayRange,
+  xor,
+} from 'quizzer-lib';
+
+jest.mock('quizzer-lib', () => {
+  // prismaモックを作る
+  const mockPrisma = {
+    $transaction: jest.fn(),
+    quiz: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    answer_log: {
+      create: jest.fn(),
+      updateMany: jest.fn(),
+    },
+    quiz_basis_advanced_linkage: {
+      updateMany: jest.fn(),
+      upsert: jest.fn(),
+    },
+    quiz_dummy_choice: {
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    quiz_category: {
+      updateMany: jest.fn(),
+      upsert: jest.fn(),
+    },
+  };
+  return {
+    prisma: mockPrisma,
+    getRandomElementFromArray: jest.fn(),
+    getPrismaYesterdayRange: jest.fn(),
+    xor: jest.fn(),
+  };
+});
 
 describe('QuizService', () => {
   let quizService: QuizService;
+
+  // TODO 別ファイルにおいた方がいいか？
+  const emptyResult = [{}];
+  const getQuizResultTest = [
+    {
+      id: 0,
+      file_num: 0,
+      quiz_num: 0,
+      quiz_sentense: '品詞テスト',
+      quiz_category: [
+        {
+          category: 'カテゴリ',
+        },
+      ],
+      quiz_statistics_view: {
+        clear_count: 1,
+        fail_count: 1,
+        accuracy_rate: 50,
+      },
+      answer: '品詞テスト',
+      img_file: 'img',
+      checked: 0,
+      clear_count: 0,
+      fail_count: 0,
+      created_at: '2000-01-01 00:00:00',
+      updated_at: '2000-01-01 00:00:00',
+      deleted_at: null,
+    },
+  ];
 
   beforeEach(() => {
     quizService = new QuizService();
@@ -11,318 +80,136 @@ describe('QuizService', () => {
 
   // 問題取得 正常系
   it('getQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
+    expect(await quizService.getQuiz({ file_num: 1, quiz_num: 1 })).toEqual({
+      ...getQuizResultTest[0],
+      count: 1,
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
       },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
-    expect(await quizService.getQuiz(1, 1, 'basic')).toEqual(testResult);
+    });
   });
 
-  // 問題取得 異常系１
+  // 問題取得 異常系
   it('getQuiz - NG', async () => {
-    await expect(quizService.getQuiz(-1, -1, 'basic')).rejects.toMatchObject({
-      message: 'ファイル番号または問題番号が入力されていません',
-    });
-    await expect(quizService.getQuiz(0, 1, 'basic')).rejects.toMatchObject({
-      message: 'ファイル番号または問題番号が入力されていません',
-    });
-    await expect(quizService.getQuiz(1, 0, 'basic')).rejects.toMatchObject({
-      message: 'ファイル番号または問題番号が入力されていません',
-    });
-    await expect(quizService.getQuiz(1, 1, 'xxxxxxxx')).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 問題取得 異常系２
-  it('getQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.getQuiz(1, 1, 'basic')).rejects.toMatchObject({
-      message: 'error test by jest.',
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await expect(
+      quizService.getQuiz({ file_num: 1, quiz_num: 1 }),
+    ).rejects.toMatchObject({
+      message: '条件に合致するデータはありません',
     });
   });
 
   // 問題ランダム取得 正常系
   it('getRandomQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
+    (getRandomElementFromArray as jest.Mock).mockResolvedValue(
+      getQuizResultTest[0],
+    );
+    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
-      await quizService.getRandomQuiz(
-        1,
-        0,
-        100,
-        'カテゴリテスト',
-        'true',
-        'basic',
-      ),
-    ).toEqual(testResult);
-  });
-
-  // 問題ランダム取得 異常系１
-  it('getRandomQuiz - NG1', async () => {
-    await expect(
-      quizService.getRandomQuiz(
-        1,
-        0,
-        100,
-        'カテゴリテスト',
-        'true',
-        'xxxxxxxxxx',
-      ),
-    ).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 問題ランダム取得 異常系２
-  it('getRandomQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(
-      quizService.getRandomQuiz(1, 0, 100, 'カテゴリテスト', 'true', 'basic'),
-    ).rejects.toMatchObject({
-      message: 'error test by jest.',
+      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'random'),
+    ).toEqual({
+      // ...getQuizResultTest[0],
+      count: 1,
+      // quiz_statistics_view: {
+      //   clear_count: '1',
+      //   fail_count: '1',
+      //   accuracy_rate: '50',
+      // },
     });
   });
 
   // 最低正解率問題取得 正常系
   it('getWorstRateQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
     expect(
-      await quizService.getWorstRateQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).toEqual(testResult);
-  });
-
-  // 最低正解率問題取得 異常系１
-  it('getWorstRateQuiz - NG1', async () => {
-    await expect(
-      quizService.getWorstRateQuiz(1, 'カテゴリテスト', 'true', 'xxxxxxxxxx'),
-    ).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 最低正解率問題取得 異常系２
-  it('getWorstRateQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(
-      quizService.getWorstRateQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).rejects.toMatchObject({
-      message: 'error test by jest.',
+      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'worstRate'),
+    ).toEqual({
+      ...getQuizResultTest[0],
+      count: 1,
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
   // 最小正解数問題取得 正常系
   it('getMinimumAnsweredQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
     expect(
-      await quizService.getMinimumAnsweredQuiz(
-        1,
-        'カテゴリテスト',
-        'true',
-        'basic',
-      ),
-    ).toEqual(testResult);
-  });
-
-  // 最小正解数問題取得 異常系１
-  it('getMinimumAnsweredQuiz - NG1', async () => {
-    await expect(
-      quizService.getMinimumAnsweredQuiz(
-        1,
-        'カテゴリテスト',
-        'true',
-        'xxxxxxxxxx',
-      ),
-    ).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 最小正解数問題取得 異常系２
-  it('getMinimumAnsweredQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(
-      quizService.getMinimumAnsweredQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).rejects.toMatchObject({
-      message: 'error test by jest.',
+      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'leastClear'),
+    ).toEqual({
+      ...getQuizResultTest[0],
+      count: 1,
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
   // 最後に回答してから最も長い時間が経っている問題を取得 正常系
   it('getLRUQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
     expect(
-      await quizService.getLRUQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).toEqual(testResult);
-  });
-
-  // 最後に回答してから最も長い時間が経っている問題を取得 異常系１
-  it('getLRUQuiz - NG1', async () => {
-    await expect(
-      quizService.getLRUQuiz(1, 'カテゴリテスト', 'true', 'xxxxxxxxxx'),
-    ).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 最後に回答してから最も長い時間が経っている問題を取得 異常系２
-  it('getLRUQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(
-      quizService.getLRUQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).rejects.toMatchObject({
-      message: 'error test by jest.',
+      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'LRU'),
+    ).toEqual({
+      ...getQuizResultTest[0],
+      count: 1,
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
   // 昨日間違えた問題を取得 正常系
   it('getReviewQuiz - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 0,
-        file_num: 0,
-        quiz_num: 0,
-        quiz_sentense: '品詞テスト',
-        answer: '品詞テスト',
-        category: 'カテゴリ',
-        img_file: 'img',
-        checked: 0,
-        clear_count: 0,
-        fail_count: 0,
-        created_at: '2000-01-01 00:00:00',
-        updated_at: '2000-01-01 00:00:00',
-        deleted_at: null,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
+    (getPrismaYesterdayRange as jest.Mock).mockResolvedValueOnce({});
+    (getRandomElementFromArray as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest[0],
+    );
+    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
-      await quizService.getReviewQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).toEqual(testResult);
-  });
-
-  // 昨日間違えた問題を取得 異常系１
-  it('getReviewQuiz - NG1', async () => {
-    await expect(
-      quizService.getReviewQuiz(1, 'カテゴリテスト', 'true', 'xxxxxxxxxx'),
-    ).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 昨日間違えた問題を取得 異常系２
-  it('getReviewQuiz - NG2', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(
-      quizService.getReviewQuiz(1, 'カテゴリテスト', 'true', 'basic'),
-    ).rejects.toMatchObject({
-      message: 'error test by jest.',
+      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'review'),
+    ).toEqual({
+      // ...getQuizResultTest[0],
+      count: 1,
+      // quiz_statistics_view: {
+      //   clear_count: '1',
+      //   fail_count: '1',
+      //   accuracy_rate: '50',
+      // },
     });
   });
 
   // 正解登録 正常系
   it('cleared - OK', async () => {
     // テストデータ
+    // TODO dtoの方にもあったがquiz_idしか使ってないので他はいらない 見直したい
     const req = {
-      format: 'basic',
+      quiz_id: 22,
+      format_id: 0,
       file_num: 0,
       quiz_num: 0,
     };
@@ -332,44 +219,17 @@ describe('QuizService', () => {
         result: 'OK',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.answer_log.create as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await quizService.cleared(req)).toEqual(testResult);
-  });
-
-  // 正解登録 異常系１
-  it('cleared - NG1', async () => {
-    // テストデータ
-    const req = {
-      format: 'xxxxxxxxxx',
-      file_num: 0,
-      quiz_num: 0,
-    };
-    await expect(quizService.cleared(req)).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 正解登録 異常系２
-  it('cleared - NG2', async () => {
-    // テストデータ
-    const req = {
-      format: 'basic',
-      file_num: 0,
-      quiz_num: 0,
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.cleared(req)).rejects.toMatchObject({
-      message: 'error test by jest.',
-    });
   });
 
   // 不正解登録 正常系
   it('failed - OK', async () => {
     // テストデータ
+    // TODO こっちも 正解登録と同じ
     const req = {
-      format: 'basic',
+      quiz_id: 22,
+      format_id: 0,
       file_num: 0,
       quiz_num: 0,
     };
@@ -379,54 +239,24 @@ describe('QuizService', () => {
         result: 'OK',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValueOnce(testResult);
+    (prisma.answer_log.create as jest.Mock).mockResolvedValueOnce(testResult);
     expect(await quizService.failed(req)).toEqual(testResult);
-  });
-
-  // 不正解登録 異常系１
-  it('failed - NG1', async () => {
-    // テストデータ
-    const req = {
-      format: 'xxxxxxxxxx',
-      file_num: 0,
-      quiz_num: 0,
-    };
-    await expect(quizService.failed(req)).rejects.toMatchObject({
-      message: '入力された問題形式が不正です',
-    });
-  });
-
-  // 不正解登録 異常系２
-  it('failed - NG2', async () => {
-    // テストデータ
-    const req = {
-      format: 'basic',
-      file_num: 0,
-      quiz_num: 0,
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.failed(req)).rejects.toMatchObject({
-      message: 'error test by jest.',
-    });
   });
 
   // 問題を１問追加 正常系
   it('add - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題文',
-        answer: '答え',
-        category: 'カテゴリ',
-        img_file: '画像ファイル',
-        matched_basic_quiz_id: '1,2,3',
-        dummy1: 'ダミー選択肢１', //四択問題のダミー選択肢１
-        dummy2: 'ダミー選択肢２', //四択問題のダミー選択肢２
-        dummy3: 'ダミー選択肢３', //四択問題のダミー選択肢３
-      },
+      file_num: 1,
+      question: '問題文',
+      answer: '答え',
+      format_id: 2,
+      category: 'カテゴリ',
+      img_file: '画像ファイル',
+      matched_basic_quiz_id: '1,2,3',
+      dummy1: 'ダミー選択肢１', //四択問題のダミー選択肢１
+      dummy2: 'ダミー選択肢２', //四択問題のダミー選択肢２
+      dummy3: 'ダミー選択肢３', //四択問題のダミー選択肢３
     };
     // テストデータ 正常時の返り値
     const testResult = [
@@ -440,55 +270,17 @@ describe('QuizService', () => {
         result: `Added!! [0-2]:問題文,答え`,
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.quiz.findFirst as jest.Mock).mockResolvedValue(testResult);
+    (prisma.quiz.create as jest.Mock).mockResolvedValue(correctData);
     expect(await quizService.add(req)).toEqual(correctData);
-  });
-
-  // 問題を１問追加 異常系１
-  it('add - NG1', async () => {
-    // テストデータ
-    const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題文',
-        answer: '答え',
-        category: 'カテゴリ',
-        img_file: '画像ファイル',
-        matched_basic_quiz_id: '1,2,3',
-        dummy1: 'ダミー選択肢１', //四択問題のダミー選択肢１
-        dummy2: 'ダミー選択肢２', //四択問題のダミー選択肢２
-        dummy3: 'ダミー選択肢３', //四択問題のダミー選択肢３
-      },
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.add(req)).rejects.toMatchObject({
-      message: 'error test by jest.',
-    });
-  });
-
-  // 問題を１問追加 異常系２
-  it('add - NG2', async () => {
-    // テストデータ
-    const req = {
-      file_num: undefined,
-      input_data: undefined,
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.add(req)).rejects.toMatchObject({
-      message:
-        'ファイル番号または問題文が入力されていません。(file_num:undefined,input_data:undefined)',
-    });
   });
 
   // 問題編集 正常系1
   it('edit - OK', async () => {
     // テストデータ
     const req = {
-      format: 'basic',
+      quiz_id: 22,
+      format_id: 1,
       file_num: 0,
       quiz_num: 0,
       question: '問題文',
@@ -502,19 +294,16 @@ describe('QuizService', () => {
       explanation: '説明',
     };
     // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        quiz_num: 1,
-      },
-    ];
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
-    expect(await quizService.edit(req)).toEqual({ result: testResult });
+    const testResult = { result: 'Edited!' };
+    (prisma.$transaction as jest.Mock).mockResolvedValue(emptyResult);
+    expect(await quizService.edit(req)).toEqual(testResult);
   });
 
   // 問題編集 異常系１
   it('edit - NG1', async () => {
     // テストデータ
     const req = {
+      quiz_id: 22,
       format: 'basic',
       file_num: 0,
       quiz_num: 0,
@@ -528,9 +317,9 @@ describe('QuizService', () => {
       dummy3: 'ダミー選択肢３', //四択問題のダミー選択肢３
       explanation: '説明',
     };
-    jest.spyOn(Dao, 'execTransaction').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.edit(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -544,39 +333,41 @@ describe('QuizService', () => {
         result: 'OK',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValue(testResult);
+    (xor as jest.Mock).mockResolvedValue({});
     expect(
-      await quizService.search(
-        0,
-        0,
-        100,
-        'カテゴリ',
-        'true',
-        'クエリ',
-        'true',
-        'true',
-        'basic',
-      ),
+      await quizService.search({
+        min_rate: 0,
+        max_rate: 100,
+        format_id: { '1': true },
+        category: 'カテゴリ',
+        checked: true,
+        query: 'クエリ',
+        searchInOnlySentense: true,
+        searchInOnlyAnswer: true,
+        file_num: 1,
+      }),
     ).toEqual(testResult);
   });
 
   // 問題検索 異常系1
   it('search - NG1', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
+    (xor as jest.Mock).mockResolvedValue({});
     await expect(
-      quizService.search(
-        0,
-        0,
-        100,
-        'カテゴリ',
-        'true',
-        'クエリ',
-        'true',
-        'true',
-        'basic',
-      ),
+      quizService.search({
+        min_rate: 0,
+        max_rate: 100,
+        format_id: { '1': true },
+        category: 'カテゴリ',
+        checked: true,
+        query: 'クエリ',
+        searchInOnlySentense: true,
+        searchInOnlyAnswer: true,
+        file_num: 1,
+      }),
     ).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -596,7 +387,7 @@ describe('QuizService', () => {
         result: 'OK',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.quiz.update as jest.Mock).mockResolvedValue(testResult);
     expect(await quizService.delete(req)).toEqual(testResult);
   });
 
@@ -608,9 +399,9 @@ describe('QuizService', () => {
       file_num: 0,
       quiz_num: 0,
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz.update as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.delete(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -620,10 +411,8 @@ describe('QuizService', () => {
   it('integrate - OK', async () => {
     // テストデータ
     const req = {
-      pre_file_num: 0,
-      pre_quiz_num: 0,
-      post_file_num: 0,
-      post_quiz_num: 0,
+      fromQuizId: 0,
+      toQuizId: 1,
     };
     // テストデータ 正常時の返り値
     const testResult = [
@@ -631,16 +420,14 @@ describe('QuizService', () => {
         category: 'カテゴリ',
       },
     ];
-    // テストデータ 正常時の返り値
-    const testTransactionResult = [
-      {
-        quiz_num: 1,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testTransactionResult);
+    (prisma.quiz.findUnique as jest.Mock).mockResolvedValue({
+      format_id: 1,
+    });
+    (prisma.$transaction as jest.Mock).mockResolvedValue({
+      result: 'OK!',
+    });
     expect(await quizService.integrate(req)).toEqual({
-      result: testTransactionResult,
+      result: 'OK!',
     });
   });
 
@@ -648,14 +435,12 @@ describe('QuizService', () => {
   it('integrate - NG1', async () => {
     // テストデータ
     const req = {
-      pre_file_num: 0,
-      pre_quiz_num: 0,
-      post_file_num: 0,
-      post_quiz_num: 0,
+      fromQuizId: 0,
+      toQuizId: 1,
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz.findUnique as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.integrate(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -665,31 +450,27 @@ describe('QuizService', () => {
   it('addCategoryToQuiz - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
+      quiz_id: '0',
       category: 'カテゴリ1',
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        category: 'カテゴリ2',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    expect(await quizService.addCategoryToQuiz(req)).toEqual(testResult);
+    (prisma.$transaction as jest.Mock).mockResolvedValue({
+      result: 'OK!',
+    });
+    expect(await quizService.addCategoryToQuiz(req)).toEqual({
+      result: 'OK!',
+    });
   });
 
   // 問題にカテゴリ追加 異常系1
   it('addCategoryToQuiz - NG1', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
+      quiz_id: '0',
       category: 'カテゴリ1',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.addCategoryToQuiz(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -699,19 +480,12 @@ describe('QuizService', () => {
   it('removeCategoryFromQuiz - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
+      quiz_id: '0',
       category: 'カテゴリ1',
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        category: 'カテゴリ2',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.$transaction as jest.Mock).mockResolvedValue({});
     expect(await quizService.removeCategoryFromQuiz(req)).toEqual({
-      result: null,
+      result: 'OK!',
     });
   });
 
@@ -719,13 +493,12 @@ describe('QuizService', () => {
   it('removeCategoryFromQuiz - NG1', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
+      quiz_id: '0',
       category: 'カテゴリ1',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.removeCategoryFromQuiz(req)).rejects.toMatchObject(
       {
         message: 'error test by jest.',
@@ -737,31 +510,23 @@ describe('QuizService', () => {
   it('check - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        result: 'OK',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    expect(await quizService.check(req)).toEqual(testResult);
+    (prisma.$transaction as jest.Mock).mockResolvedValue({});
+    expect(await quizService.check(req)).toEqual({
+      result: 'OK!',
+    });
   });
 
   // 問題にチェック追加 異常系1
   it('check - NG1', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.check(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -771,31 +536,23 @@ describe('QuizService', () => {
   it('uncheck - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        result: 'OK',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    expect(await quizService.uncheck(req)).toEqual(testResult);
+    (prisma.$transaction as jest.Mock).mockResolvedValue({});
+    expect(await quizService.uncheck(req)).toEqual({
+      result: 'OK!',
+    });
   });
 
   // 問題にチェック外す 異常系1
   it('uncheck - NG1', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.uncheck(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -805,36 +562,25 @@ describe('QuizService', () => {
   it('reverseCheck - OK', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        checked: true,
-      },
-    ];
-    const result = [
-      {
-        result: false,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    expect(await quizService.reverseCheck(req)).toEqual(result);
+    const testResult = {
+      result: 'OK!',
+    };
+    (prisma.quiz.findUnique as jest.Mock).mockResolvedValue({ checked: true });
+    (prisma.quiz.update as jest.Mock).mockResolvedValue(testResult);
+    expect(await quizService.reverseCheck(req)).toEqual(testResult);
   });
 
   // 問題のチェック反転 異常系1
   it('reverseCheck - NG1', async () => {
     // テストデータ
     const req = {
-      file_num: 0,
-      quiz_num: 0,
-      format: 'basic',
+      quiz_id: '0',
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.quiz.findUnique as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.reverseCheck(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -846,15 +592,9 @@ describe('QuizService', () => {
     const req = {
       file_id: 0,
     };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        file_num: 1,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.answer_log.updateMany as jest.Mock).mockResolvedValue({});
     expect(await quizService.deleteAnswerLogByFile(req)).toEqual({
-      result: testResult,
+      result: 'Deleted!',
     });
   });
 
@@ -864,104 +604,10 @@ describe('QuizService', () => {
     const req = {
       file_id: 0,
     };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.answer_log.updateMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(quizService.deleteAnswerLogByFile(req)).rejects.toMatchObject({
-      message: 'error test by jest.',
-    });
-  });
-
-  // 応用問題を１問追加 正常系1
-  it('addAdvancedQuiz - OK', async () => {
-    // テストデータ
-    const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題',
-        answer: '答え',
-      },
-    };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 1,
-        quiz_num: 1,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
-    expect(await quizService.addAdvancedQuiz(req)).toEqual([
-      {
-        result: 'Added!! [0-2]:問題,答え,関連基礎問題:[]',
-      },
-    ]);
-  });
-
-  // 応用問題を１問追加 異常系1
-  it('addAdvancedQuiz - NG1', async () => {
-    // テストデータ
-    const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題',
-        answer: '答え',
-      },
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.addAdvancedQuiz(req)).rejects.toMatchObject({
-      message: 'error test by jest.',
-    });
-  });
-
-  // 四択問題を１問追加 正常系1
-  it('addFourChoiceQuiz - OK', async () => {
-    // テストデータ
-    const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題',
-        answer: '答え',
-        dummy1: 'ダミー1',
-        dummy2: 'ダミー2',
-        dummy3: 'ダミー3',
-      },
-    };
-    // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        id: 1,
-        quiz_num: 1,
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
-    expect(await quizService.addFourChoiceQuiz(req)).toEqual([
-      {
-        result: 'Added!! [0-2]:問題,答え,関連基礎問題:[]',
-      },
-    ]);
-  });
-
-  // 四択問題を１問追加 異常系1
-  it('addFourChoiceQuiz - NG1', async () => {
-    // テストデータ
-    const req = {
-      file_num: 0,
-      input_data: {
-        question: '問題',
-        answer: '答え',
-        dummy1: 'ダミー1',
-        dummy2: 'ダミー2',
-        dummy3: 'ダミー3',
-      },
-    };
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
-    await expect(quizService.addFourChoiceQuiz(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
   });

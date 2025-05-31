@@ -1,6 +1,23 @@
 import { EnglishWordService } from './word.service';
-import * as Dao from '../../../lib/db/dao';
-jest.mock('../../../lib/db/dao');
+import { prisma } from 'quizzer-lib';
+
+jest.mock('quizzer-lib', () => {
+  // prismaモックを作る
+  const mockPrisma = {
+    $transaction: jest.fn(),
+    word: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    mean: {
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+  };
+  return {
+    prisma: mockPrisma,
+  };
+});
 
 describe('EnglishWordService', () => {
   let englishWordService: EnglishWordService;
@@ -12,16 +29,15 @@ describe('EnglishWordService', () => {
   // 単語と意味追加 正常系
   it('addWordAndMeanService - OK', async () => {
     // テストデータ 正常時の返り値
-    const testResult = [
-      {
-        result: 'test',
-      },
-    ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
+    const testResult = { result: 'Added!!' };
+    (prisma.$transaction as jest.Mock).mockResolvedValue(testResult);
     expect(
       await englishWordService.addWordAndMeanService({
-        wordName: 'testWord',
+        inputWord: {
+          wordName: 'testWord',
+          sourceId: 1,
+          subSourceName: 'subsourcetest',
+        },
         pronounce: 'testPronounce',
         meanArrayData: [],
       }),
@@ -30,12 +46,16 @@ describe('EnglishWordService', () => {
 
   // 単語と意味追加 異常系
   it('addWordAndMeanService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishWordService.addWordAndMeanService({
-        wordName: 'testWord',
+        inputWord: {
+          wordName: 'testWord',
+          sourceId: 1,
+          subSourceName: 'subsourcetest',
+        },
         pronounce: 'testPronounce',
         meanArrayData: [],
       }),
@@ -52,19 +72,19 @@ describe('EnglishWordService', () => {
         result: 'test',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    expect(await englishWordService.searchWordService('searchWord')).toEqual(
-      testResult,
-    );
+    (prisma.word.findMany as jest.Mock).mockResolvedValue(testResult);
+    expect(
+      await englishWordService.searchWordService({ wordName: 'searchWord' }),
+    ).toEqual(testResult);
   });
 
   // 単語検索 異常系
   it('searchWordService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.word.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
-      englishWordService.searchWordService('searchWord'),
+      englishWordService.searchWordService({ wordName: 'searchWord' }),
     ).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -78,15 +98,15 @@ describe('EnglishWordService', () => {
         result: 'test',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.word.findMany as jest.Mock).mockResolvedValue(testResult);
     expect(await englishWordService.getAllWordService()).toEqual(testResult);
   });
 
   // 単語全取得 異常系
   it('getAllWordService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.word.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(englishWordService.getAllWordService()).rejects.toMatchObject({
       message: 'error test by jest.',
     });
@@ -100,15 +120,15 @@ describe('EnglishWordService', () => {
         result: 'test',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.word.findUnique as jest.Mock).mockResolvedValue(testResult);
     expect(await englishWordService.getWordByIdService(0)).toEqual(testResult);
   });
 
   // IDから単語情報取得 異常系
   it('getWordByIdService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.word.findUnique as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishWordService.getWordByIdService(0),
     ).rejects.toMatchObject({
@@ -124,7 +144,7 @@ describe('EnglishWordService', () => {
         result: 'test',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
+    (prisma.word.findMany as jest.Mock).mockResolvedValue(testResult);
     expect(await englishWordService.getWordByNameService('test')).toEqual(
       testResult,
     );
@@ -132,9 +152,9 @@ describe('EnglishWordService', () => {
 
   // 単語名から単語情報取得 異常系
   it('getWordByNameService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.word.findMany as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishWordService.getWordByNameService('test'),
     ).rejects.toMatchObject({
@@ -150,8 +170,8 @@ describe('EnglishWordService', () => {
         result: 'test',
       },
     ];
-    jest.spyOn(Dao, 'execQuery').mockResolvedValue(testResult);
-    jest.spyOn(Dao, 'execTransaction').mockResolvedValue(testResult);
+    (prisma.mean.create as jest.Mock).mockResolvedValue(testResult);
+    (prisma.mean.update as jest.Mock).mockResolvedValue(testResult);
     expect(
       await englishWordService.editWordMeanService({
         wordId: 0,
@@ -165,9 +185,12 @@ describe('EnglishWordService', () => {
 
   // 単語の意味などを更新 異常系
   it('editWordMeanService - NG', async () => {
-    jest.spyOn(Dao, 'execQuery').mockImplementation(() => {
-      throw Error('error test by jest.');
-    });
+    (prisma.mean.create as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
+    (prisma.mean.update as jest.Mock).mockRejectedValue(
+      new Error('error test by jest.'),
+    );
     await expect(
       englishWordService.editWordMeanService({
         wordId: 0,

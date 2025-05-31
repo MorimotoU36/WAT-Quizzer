@@ -33,7 +33,7 @@ export default function QuizzerTopPage({ isMock }: Props) {
         : [];
       setFilelistoption(pullDownOption);
     })();
-  }, []);
+  }, [setMessage]);
 
   const contents = () => {
     return (

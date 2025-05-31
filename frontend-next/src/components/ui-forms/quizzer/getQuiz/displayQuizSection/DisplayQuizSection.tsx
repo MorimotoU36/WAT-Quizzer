@@ -18,9 +18,16 @@ import styles from './DisplayQuizSection.module.css';
 interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
   setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
+  imageUrl: string;
+  setImageUrl?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }: DisplayQuizSectionProps) => {
+export const DisplayQuizSection = ({
+  getQuizResponseData,
+  setQuizResponseData,
+  imageUrl,
+  setImageUrl
+}: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
   // TODO 型定義したい
@@ -38,6 +45,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
   // 出題変わったら閉じる
   useEffect(() => {
     setExpanded(false);
+    setImageUrl && setImageUrl('');
   }, [getQuizResponseData.quiz_sentense]);
 
   return (
@@ -53,9 +61,17 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
+          {/** TODO 下のimage styleは別のとこにしたい */}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="取得した画像"
+              style={{ maxHeight: '200px', objectFit: 'contain', margin: '10px 0px', display: 'block' }}
+            />
+          )}
           {displayQuiz.quiz_category &&
-            displayQuiz.quiz_category.map((category) => {
-              return <Chip label={category.category} />;
+            displayQuiz.quiz_category.map((category, index) => {
+              return <Chip key={index} label={category.category} />;
             })}
           <Typography variant="subtitle2" className={styles.count}>
             {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}
@@ -91,6 +107,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
                 if (result.message.messageColor === 'success.light' && setQuizResponseData) {
                   setQuizResponseData(initGetQuizResponseData);
                   setExpanded(false);
+                  setImageUrl && setImageUrl('');
                 }
               }}
             />
@@ -110,6 +127,7 @@ export const DisplayQuizSection = ({ getQuizResponseData, setQuizResponseData }:
                 if (result.message.messageColor === 'success.light' && setQuizResponseData) {
                   setQuizResponseData(initGetQuizResponseData);
                   setExpanded(false);
+                  setImageUrl && setImageUrl('');
                 }
               }}
             />

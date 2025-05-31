@@ -24,5 +24,11 @@
   "bugs": {
     "url": "https://github.com/WAT36/WAT-Quizzer/issues"
   },
-  "homepage": "https://github.com/WAT36/WAT-Quizzer#readme"
+  "homepage": "https://github.com/WAT36/WAT-Quizzer#readme",
+  "devDependencies": {
+    "@types/eslint-scope": "^3.7.4",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0"
+  }
 }

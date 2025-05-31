@@ -48,7 +48,7 @@ export default function RequiredAuthComponent({ children }: Props) {
 
     setIsAuthenticated(true);
     setChecking(false);
-  }, []);
+  });
 
   if (checking) return <></>;
   if (!isAuthenticated) return null;

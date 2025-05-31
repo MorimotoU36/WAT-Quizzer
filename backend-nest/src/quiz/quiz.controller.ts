@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Patch,
   Post,
   Put,
@@ -149,5 +150,26 @@ export class QuizController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return await this.quizService.uploadFile(file);
+  }
+
+  @Post('/image/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadQuizImage(@UploadedFile() file: Express.Multer.File) {
+    return await this.quizService.uploadQuizImage(file);
+  }
+
+  @Get('/image')
+  async downloadQuizImage(@Query('fileName') fileName: string) {
+    try {
+      const buffer = await this.quizService.downloadQuizImage(fileName);
+      const base64 = buffer.toString('base64');
+      return {
+        base64,
+        mimeType: 'image/png',
+      };
+    } catch (err) {
+      console.error(err);
+      throw new NotFoundException('File not found');
+    }
   }
 }

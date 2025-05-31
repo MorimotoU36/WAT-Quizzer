@@ -17,6 +17,8 @@ import {
   prisma,
   GetAnswerLogStatisticsAPIRequestDto,
   getStartDateForStatistics,
+  uploadQuizImageToS3,
+  getQuizImageFromS3,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -649,7 +651,6 @@ export class QuizService {
         },
       });
     } catch (error: unknown) {
-      console.error(error);
       if (error instanceof Error) {
         throw new HttpException(
           error.message,
@@ -1300,5 +1301,15 @@ export class QuizService {
         );
       }
     }
+  }
+
+  // 問題用の画像をS3にアップロードする
+  async uploadQuizImage(file: Express.Multer.File): Promise<string> {
+    return uploadQuizImageToS3(file);
+  }
+
+  // 問題用の画像をS3からダウンロードする
+  async downloadQuizImage(fileName: string): Promise<Buffer> {
+    return getQuizImageFromS3(fileName);
   }
 }

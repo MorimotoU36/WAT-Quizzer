@@ -92,7 +92,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         }
       })();
     }
-  }, [router]);
+  }, [router,setEditQuizRequestData,setMessage]);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
     setQuizRequestData({
@@ -113,7 +113,11 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         <FormControl>
           <TextField
             label="問題番号"
-            value={String(getQuizRequestData.quiz_num)}
+            value={
+              getQuizRequestData.quiz_num && !isNaN(getQuizRequestData.quiz_num) && getQuizRequestData.quiz_num !== -1
+                ? String(getQuizRequestData.quiz_num)
+                : ''
+            }
             setStater={(value: string) => {
               setQuizRequestData({
                 ...getQuizRequestData,

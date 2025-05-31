@@ -25,7 +25,13 @@ Parameters:
     Type: String
   CognitoAppClientId:
     Type: String
+  QuizImageS3BucketName:
+    Type: String
   ExternalDependencies:
+    Type: String
+  Akey:
+    Type: String
+  SAkey:
     Type: String
     Default: 'infra frontend-next cdk.out'
 
@@ -70,6 +76,9 @@ Resources:
           PRISMA_CLI_BINARY_TARGETS: !Ref PrismaTarget
           AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserpoolId
           AWS_COGNITO_APPCLIENT_ID: !Ref CognitoAppClientId
+          QUIZ_IMAGE_S3_BUCKET: !Ref QuizImageS3BucketName
+          AKEY: !Ref Akey
+          SAKEY: !Ref SAkey
           # PRISMA_QUERY_ENGINE_LIBRARY: ../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node
       Events:
         QuizzerApi:

@@ -1,7 +1,7 @@
 import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import * as jwksClient from 'jwks-rsa';
+import jwksClient from 'jwks-rsa';
 import { userPool } from './cognito-auth.config';
 import * as dotenv from 'dotenv';
 dotenv.config();

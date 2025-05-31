@@ -8,6 +8,7 @@ permissions:
   contents: read
 
 jobs:
+  # TODO バック、フロント、ライブラリごとに分けたい build-lib,deploy-frontend,deploy-backendみたいな。フロントバックはneeds:build-libとさせる
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -41,19 +42,39 @@ jobs:
           cd ./infra
           sam build
           export PRISMA_CLI_BINARY_TARGETS="native,rhel-openssl-1.0.x,rhel-openssl-3.0.x"
-          sam deploy --no-confirm-changeset --image-repository $IMAGE_REPOSITORY --parameter-overrides Region=$REGION DbUrl=$DATABASE_URL PrismaTarget=$PRISMA_CLI_BINARY_TARGETS QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME HostZoneId=$HOSTZONE_ID CognitoUserpoolId=$AWS_COGNITO_USERPOOL_ID CognitoAppClientId=$AWS_COGNITO_APPCLIENT_ID
-
-      - name: Setup quizzer-lib
-        id: setup-quizzer-lib
-        run: cd ./quizzer-lib && npm ci && npm run build
+          sam deploy  --no-confirm-changeset \
+                      --image-repository $IMAGE_REPOSITORY  \
+                      --parameter-overrides \
+                        Region=$REGION \
+                        DbUrl=$DATABASE_URL \
+                        PrismaTarget=$PRISMA_CLI_BINARY_TARGETS \
+                        QuizzerApiCertificateArn=$QUIZZER_API_CERTIFICATE_ARN \
+                        QuizzerApiDomainName=$QUIZZER_API_DOMAIN_NAME \
+                        HostZoneId=$HOSTZONE_ID \
+                        CognitoUserpoolId=$AWS_COGNITO_USERPOOL_ID \
+                        CognitoAppClientId=$AWS_COGNITO_APPCLIENT_ID \
+                        QuizImageS3BucketName=$QUIZ_IMAGE_S3_BUCKET \
+                        Akey=$AKEY \
+                        SAkey=$SAKEY
+        env:
+          AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
       - name: Setup dependencies(all)
         id: setup-dependencies
         run: npm ci --production
 
+      - name: Setup quizzer-lib
+        id: setup-quizzer-lib
+        run: cd ./quizzer-lib && npm run build
+
       - name: Setup dependencies(infra)
         id: setup-infra-dependencies
         run: cd ./infra && npm ci --production
+
+      # backendをUT（時間かかってactionsがtimeoutする場合削除してOK）
+      - name: Backend Unit test
+        run: cd ./backend-nest && npm run test
 
       # frontendをビルド
       - name: Next.js Build and Export(Frontend)
@@ -69,3 +90,10 @@ jobs:
 
       - name: Frontend Deploy # S3にデプロイ
         run: cd ./frontend-next && aws s3 sync --region ap-northeast-1 ./out s3://dev-quizzer-front-bucket --delete
+
+      # Cloudfront キャッシュ削除
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+            --paths "/*"

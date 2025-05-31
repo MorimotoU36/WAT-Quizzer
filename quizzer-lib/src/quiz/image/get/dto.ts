@@ -1,5 +1,9 @@
-import { GetQuizAPIRequestDto } from '../../../..'
+import { ApiResponse } from '../../../api'
 
-export type GetImageOfQuizAPIRequestDto = Required<
-  Pick<GetQuizAPIRequestDto, 'file_num' | 'quiz_num' | 'format_id'>
->
+export interface GetImageOfQuizAPIRequestDto {
+  fileName: string
+}
+
+export interface GetImageOfQuizAPIResponseDto extends ApiResponse {
+  imageUrl: string
+}

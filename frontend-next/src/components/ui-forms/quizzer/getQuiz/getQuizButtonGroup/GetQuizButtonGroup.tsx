@@ -2,14 +2,27 @@ import React from 'react';
 import { Button } from '@/components/ui-elements/button/Button';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { getImageOfQuizAPI, getQuizAPI, GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
+import {
+  getImageOfQuizAPI,
+  GetImageOfQuizAPIResponseDto,
+  getQuizAPI,
+  GetQuizAPIRequestDto,
+  GetQuizApiResponseDto
+} from 'quizzer-lib';
 
 interface GetQuizButtonGroupProps {
   getQuizRequestData: GetQuizAPIRequestDto;
-  setQuizResponseData: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
+  getQuizResponseData: GetQuizApiResponseDto;
+  setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
+  setImageUrl?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: GetQuizButtonGroupProps) => {
+export const GetQuizButtonGroup = ({
+  getQuizRequestData,
+  getQuizResponseData,
+  setQuizResponseData,
+  setImageUrl
+}: GetQuizButtonGroupProps) => {
   const setMessage = useSetRecoilState(messageState);
 
   return (
@@ -20,11 +33,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="primary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -34,11 +48,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="secondary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'random' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -47,11 +62,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="secondary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'worstRate' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -61,11 +77,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="secondary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'leastClear' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -75,11 +92,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="secondary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'LRU' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -89,11 +107,12 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         variant="contained"
         color="secondary"
         onClick={async (e) => {
+          setImageUrl && setImageUrl('');
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'review' });
           setMessage(result.message);
           if (result.result) {
-            setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
+            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
           }
         }}
       />
@@ -102,12 +121,15 @@ export const GetQuizButtonGroup = ({ getQuizRequestData, setQuizResponseData }: 
         attr={'button-array'}
         variant="contained"
         color="info"
-        disabled={true}
+        disabled={!getQuizResponseData.img_file}
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getImageOfQuizAPI({ getQuizRequestData });
+          const result = await getImageOfQuizAPI({
+            getImageOfQuizRequestData: { fileName: getQuizResponseData.img_file || '' }
+          });
           setMessage(result.message);
-          // TODO API実装後に　処理を書くこと
+          const res = result.result as GetImageOfQuizAPIResponseDto;
+          setImageUrl && setImageUrl(res.imageUrl);
         }}
       />
     </>
