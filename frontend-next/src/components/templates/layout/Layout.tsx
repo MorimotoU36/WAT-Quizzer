@@ -12,64 +12,19 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { MessageBar } from '@/components/ui-elements/messageBar/MessageBar';
 import { messageState } from '@/atoms/Message';
 import RequiredAuthComponent from '@/components/ui-elements/requiredAuthComponent/RequiredAuthComponent';
-
-interface LayoutConfig {
-  bgColor: string;
-  sideBarContents: {
-    name: string;
-    link: string;
-  }[];
-}
+import { sidebar, SideBarModeType } from '@/constants/contents/sidebar';
 
 interface LayoutProps {
   title?: string;
   contents: JSX.Element;
-  // TODO この下のやつは型に置き換えたい
-  mode: 'quizzer' | 'englishBot' | 'settings' | 'top';
+  mode: SideBarModeType;
   isProtected?: boolean;
 }
 
-const urlEnd = process.env.NEXT_PUBLIC_URL_END || '';
-const config: { [key: string]: LayoutConfig } = {
-  // TODO これはプロパティファイルにおきたい
-  quizzer: {
-    bgColor: '#0077B6',
-    sideBarContents: [
-      { name: 'トップ', link: '/quizzer' + urlEnd },
-      { name: '問題出題', link: '/quizzer/getQuiz' + urlEnd },
-      { name: '問題追加', link: '/quizzer/addQuiz' + urlEnd },
-      { name: '問題編集', link: '/quizzer/editQuiz' + urlEnd },
-      { name: '問題検索', link: '/quizzer/searchQuiz' + urlEnd },
-      { name: '問題削除', link: '/quizzer/deleteQuiz' + urlEnd },
-      { name: 'カテゴリ別正解率表示', link: '/quizzer/accuracyRateGraph' + urlEnd },
-      { name: '画像アップロード', link: '/quizzer/imageUpload' + urlEnd },
-      { name: '設定', link: '/quizzer/settings' + urlEnd }
-    ]
-  },
-  englishBot: {
-    bgColor: 'midnightblue',
-    sideBarContents: [
-      { name: 'Top', link: '/englishBot' + urlEnd },
-      { name: 'Add Words', link: '/englishBot/addWord' + urlEnd },
-      { name: 'Dictionary', link: '/englishBot/dictionary' + urlEnd },
-      { name: 'Add Example', link: '/englishBot/addExample' + urlEnd },
-      { name: 'Test Words', link: '/englishBot/testWord' + urlEnd }
-    ]
-  },
-  settings: {
-    bgColor: '#0288d1',
-    sideBarContents: []
-  },
-  top: {
-    bgColor: 'black',
-    sideBarContents: []
-  }
-};
-
-export const Layout = ({ title, contents, mode = 'quizzer', isProtected = true }: LayoutProps) => {
+export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProps) => {
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   const [message, setMessage] = useRecoilState(messageState);
-  const modeConfig = config[mode];
+  const modeConfig = sidebar[mode];
   const layout = (
     <>
       {/*Head タイトルなど*/}
@@ -79,14 +34,14 @@ export const Layout = ({ title, contents, mode = 'quizzer', isProtected = true }
       {/*ヘッダ*/}
       <Header
         bgColor={modeConfig.bgColor}
-        onClick={modeConfig.sideBarContents.length > 0 ? toggleDrawer(true, setSidebarState) : undefined}
+        onClick={modeConfig.contents.length > 0 ? toggleDrawer(true, setSidebarState) : undefined}
       ></Header>
 
       {/*サイドバー、sideBarContens無い場合非表示*/}
-      {modeConfig.sideBarContents.length > 0 ? (
+      {modeConfig.contents.length > 0 ? (
         <SideBar>
           <List>
-            {modeConfig.sideBarContents.map((value) => (
+            {modeConfig.contents.map((value) => (
               <ListItem key={value.name}>
                 <Button
                   attr={'no-min-width'}
