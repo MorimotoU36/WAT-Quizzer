@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GridRowsProp } from '@mui/x-data-grid';
-import { columns } from '../../../utils/quizzer/SearchTable';
+import { columns } from '../../constants/contents/table/quizzer';
 import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
 import { Title } from '@/components/ui-elements/title/Title';

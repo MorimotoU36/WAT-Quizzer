@@ -6,7 +6,7 @@ import { SearchResultTable } from '@/components/ui-elements/searchResultTable/Se
 import { Card } from '@/components/ui-elements/card/Card';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
-import { searchSayingColumns } from '../../../../../utils/tableColumn';
+import { searchSayingColumns } from '../../../../constants/contents/table/saying';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { searchSayingAPI, SearchSayingAPIRequestDto } from 'quizzer-lib';
