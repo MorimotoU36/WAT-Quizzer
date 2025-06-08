@@ -13,7 +13,8 @@ type Props = {
 export default function AccuracyRateGraphPage({ isMock }: Props) {
   const [accuracy_data, setAccuracyData] = useState<GetAccuracyRateByCategoryAPIResponseDto>({
     result: [],
-    checked_result: []
+    checked_result: [],
+    all_result: []
   });
 
   const contents = () => {

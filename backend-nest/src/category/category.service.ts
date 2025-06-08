@@ -77,6 +77,33 @@ export class CategoryService {
         };
       });
 
+      // 全問題の正解率取得
+      const allResult = await prisma.quiz_view.groupBy({
+        by: ['file_num'],
+        where: {
+          file_num,
+          deleted_at: null,
+        },
+        _sum: {
+          clear_count: true,
+          fail_count: true,
+        },
+        _count: {
+          id: true,
+        },
+      });
+      result['all_result'] = allResult.map((x) => {
+        return {
+          count: x._count.id,
+          sum_clear: Number(x._sum.clear_count),
+          sum_fail: Number(x._sum.fail_count),
+          accuracy_rate:
+            100 *
+            (Number(x._sum.clear_count) /
+              (Number(x._sum.clear_count) + Number(x._sum.fail_count))),
+        };
+      });
+
       return result;
     } catch (error: unknown) {
       if (error instanceof Error) {

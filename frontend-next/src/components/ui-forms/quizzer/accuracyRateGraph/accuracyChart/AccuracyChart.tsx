@@ -18,17 +18,20 @@ export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
   const data = {
     labels: [
       ...accuracyData.checked_result.map((x) => '(チェック済問題)'),
-      ...accuracyData.result.map((x) => x.category)
+      ...accuracyData.result.map((x) => x.category),
+      ...accuracyData.all_result.map((x) => '(全問題)')
     ],
     datasets: [
       {
         data: [
           ...accuracyData.checked_result.map((x) => +x.accuracy_rate),
-          ...accuracyData.result.map((x) => +x.accuracy_rate)
+          ...accuracyData.result.map((x) => +x.accuracy_rate),
+          ...accuracyData.all_result.map((x) => +x.accuracy_rate)
         ],
         backgroundColor: [
           ...accuracyData.checked_result.map((x) => 'lime'),
-          ...accuracyData.result.map((x) => 'royalblue')
+          ...accuracyData.result.map((x) => 'royalblue'),
+          ...accuracyData.all_result.map((x) => 'mediumblue')
         ],
         categoryPercentage: 1, // **カテゴリごとの間隔**
         barPercentage: 0.5 // **棒の太さ**
