@@ -9,9 +9,6 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     "baseUrl": ".",
     "typeRoots": ["../node_modules/@types"]
   },
