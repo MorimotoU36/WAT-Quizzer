@@ -89,7 +89,9 @@ export const DisplayQuizSection = ({
               {displayQuiz.answer}
             </Typography>
             <Typography variant="subtitle2" component="h3">
-              {'解説：' + displayQuiz.quiz_explanation?.explanation}
+              {displayQuiz.quiz_explanation?.explanation.split(/(\\n)/).map((item, index) => {
+                return <React.Fragment key={index}>{item.match(/\\n/) ? <br /> : item}</React.Fragment>;
+              })}
             </Typography>
             <Button
               label={'正解!!'}
