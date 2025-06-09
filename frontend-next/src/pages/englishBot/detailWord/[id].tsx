@@ -139,8 +139,14 @@ export async function getStaticProps({ params }: Params) {
 // 一番最初に実行される関数
 export async function getStaticPaths() {
   let words: GetWordNumResponseDto;
-  words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
-  console.log('words:', JSON.stringify(words));
+  // TODO words/num APIが効かない時の再実行・暫定措置で繰り返し処理を設けたが、もっといい方法あるはずなので探して欲しい
+  for (let i = 0; i < 5; i++) {
+    words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
+    console.log(`words[${i + 1}]:`, JSON.stringify(words));
+    if (words) {
+      break;
+    }
+  }
   return {
     paths: new Array(words!._max.id + 30)
       .fill(0)

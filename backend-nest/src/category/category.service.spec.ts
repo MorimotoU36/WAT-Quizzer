@@ -53,6 +53,7 @@ describe('CategoryService', () => {
     (prisma.category_view.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.quiz_view.groupBy as jest.Mock).mockResolvedValue([]);
     expect(await categoryService.getAccuracyRateByCategory(0)).toEqual({
+      all_result: [],
       checked_result: [],
       result: [],
     });
