@@ -5,11 +5,23 @@ import {
   AnswerLogStatisticsApiResponse,
   GetAnswerLogStatisticsAPIRequestDto
 } from 'quizzer-lib';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartData,
+  LineElement,
+  PointElement
+} from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 interface QuizAnswerLogStatisticsCardProps {
   file_num: number;
 }
@@ -40,7 +52,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
     });
   }, [file_num]);
 
-  const data = {
+  const data: ChartData<'bar' | 'line', number[], string> = {
     labels: answerLogStatisticsData.map((x) => {
       return x.date;
     }),
@@ -50,7 +62,18 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
         data: answerLogStatisticsData.map((x) => {
           return x.count;
         }),
-        backgroundColor: 'royalblue'
+        backgroundColor: 'royalblue',
+        type: 'bar',
+        order: 2
+      },
+      {
+        label: '正解率',
+        data: answerLogStatisticsData.map((x) => {
+          return x.accuracy_rate;
+        }),
+        backgroundColor: 'limegreen',
+        type: 'line',
+        order: 1
       }
     ]
   };
@@ -86,7 +109,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
           })
         }
       />
-      {answerLogStatisticsData.length > 0 ? <Bar options={options} data={data} /> : <CircularProgress />}
+      {answerLogStatisticsData.length > 0 ? <Chart type="bar" options={options} data={data} /> : <CircularProgress />}
     </Card>
   );
 };

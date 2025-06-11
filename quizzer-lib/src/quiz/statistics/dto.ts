@@ -15,4 +15,5 @@ export interface GetAnswerLogStatisticsAPIRequestReceivedDto {
 export interface AnswerLogStatisticsApiResponse extends ApiResponse {
   date: string
   count: number
+  accuracy_rate: number
 }

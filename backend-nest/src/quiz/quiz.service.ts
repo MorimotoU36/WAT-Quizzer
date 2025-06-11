@@ -1134,6 +1134,55 @@ export class QuizService {
       let endDate = tomorrowDate;
       const result = [];
       for (let i = 0; i < 10; i++) {
+        // TODO 返り値の型定義
+        // TODO queryRawについて TypedSQL？と言うのがあるらしいのでそれを使う？公式ページ参照
+        // TODO 日付指定するとこはあlib/date使いたい
+        // TODO queryRaw?の都合上場合わけしてそれぞれSQL文書かないとできなかった １つだけ書くようにはどうしてもできない？(q.file_num = ${file_num} を場合わけするとどうしても詰む)
+        const answerLogStat =
+          file_num && file_num !== -1
+            ? await prisma.$queryRaw<
+                { file_num: number; count: number; clear: number }[]
+              >`
+        select
+        	q.file_num ,
+        	COUNT(*) as count,
+        	SUM(CASE WHEN al.is_corrected  THEN 1 ELSE 0 END) as clear
+        from
+        answer_log al 
+        inner join
+        quiz q 
+        on
+        al.quiz_id = q.id  
+        where 
+        q.file_num = ${file_num} 
+        and
+        al.created_at >= ${startDate} 
+        and
+        al.created_at < ${endDate}
+        group by
+        q.file_num 
+      `
+            : await prisma.$queryRaw<
+                { file_num: number; count: number; clear: number }[]
+              >`
+    select
+      q.file_num ,
+      COUNT(*) as count,
+      SUM(CASE WHEN al.is_corrected  THEN 1 ELSE 0 END) as clear
+    from
+    answer_log al 
+    inner join
+    quiz q 
+    on
+    al.quiz_id = q.id  
+    where 
+    al.created_at >= ${startDate} 
+    and
+    al.created_at < ${endDate}
+    group by
+    q.file_num 
+  `;
+
         result.push({
           date: startDate
             .toLocaleDateString('ja-JP', {
@@ -1142,19 +1191,11 @@ export class QuizService {
               day: '2-digit',
             })
             .replace(/\//g, '-'),
-          count: await prisma.answer_log.count({
-            where: {
-              ...(file_num !== -1 && {
-                quiz: {
-                  file_num,
-                },
-              }),
-              created_at: {
-                gte: startDate,
-                lt: endDate,
-              },
-            },
-          }),
+          count: Number(answerLogStat[0]?.count) || 0,
+          accuracy_rate: answerLogStat[0]?.count
+            ? (100 * Number(answerLogStat[0]?.clear || 0)) /
+              Number(answerLogStat[0]?.count)
+            : 0,
         });
 
         // 始値の1日前の日付を取得
