@@ -7,5 +7,15 @@
 }
 
 .quiz_stat_week {
-    height: 400px;
+    height: 300px;
 }
+
+.chartGridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 横に2つ */
+    gap: 20px;
+    padding: 20px;
+    max-height: 100vh;         /* 高さ固定 */
+    overflow-y: auto;          /* 縦スクロール */
+    box-sizing: border-box;
+  }

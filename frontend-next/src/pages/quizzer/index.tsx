@@ -12,6 +12,7 @@ import {
 } from 'quizzer-lib';
 import React, { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
+import styles from '../../components/Chart.module.css';
 
 type Props = {
   isMock?: boolean;
@@ -44,8 +45,11 @@ export default function QuizzerTopPage({ isMock }: Props) {
           optionList={filelistoption}
           onChange={(e) => setSelectedFileNum(+e.target.value)}
         />
-        <FileStatisticsCard file_num={selectedFileNum} />
-        <QuizAnswerLogStatisticsCard file_num={selectedFileNum} />
+        {/* TODO divではなくコンポーネント化したい */}
+        <div className={styles.chartGridContainer}>
+          <FileStatisticsCard file_num={selectedFileNum} />
+          <QuizAnswerLogStatisticsCard file_num={selectedFileNum} />
+        </div>
       </Container>
     );
   };
