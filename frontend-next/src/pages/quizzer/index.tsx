@@ -13,6 +13,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import styles from '../../components/Chart.module.css';
+import { AccuracyRateHistgramCard } from '@/components/ui-forms/quizzer/top/accuracyRateHistgramCard/AccuracyRateHistgramCard';
 
 type Props = {
   isMock?: boolean;
@@ -49,6 +50,7 @@ export default function QuizzerTopPage({ isMock }: Props) {
         <div className={styles.chartGridContainer}>
           <FileStatisticsCard file_num={selectedFileNum} />
           <QuizAnswerLogStatisticsCard file_num={selectedFileNum} />
+          <AccuracyRateHistgramCard file_num={selectedFileNum} />
         </div>
       </Container>
     );

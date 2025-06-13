@@ -10,6 +10,10 @@
     height: 300px;
 }
 
+.quiz_accuracy_hist {
+  height: 350px;
+}
+
 .chartGridContainer {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 横に2つ */

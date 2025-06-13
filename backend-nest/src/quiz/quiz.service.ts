@@ -1353,4 +1353,36 @@ export class QuizService {
   async downloadQuizImage(fileName: string): Promise<Buffer> {
     return getQuizImageFromS3(fileName);
   }
+
+  // ファイルごとの正解率ヒストグラムデータ取得
+  async getAccuracyRateHistgramData(file_num: number) {
+    try {
+      // 指定ファイルの回答ログ削除
+      const result: number[] = Array(11).fill(0);
+      const rates = await prisma.quiz_view.findMany({
+        select: {
+          id: true,
+          accuracy_rate: true,
+        },
+        where: {
+          ...(file_num &&
+            file_num !== -1 && {
+              file_num,
+            }),
+          deleted_at: null,
+        },
+      });
+      rates.forEach((num) => {
+        if (Number(num.accuracy_rate) === 100) {
+          result[10]++; // 100ちょうど
+        } else {
+          const index = Math.floor(Number(num.accuracy_rate) / 10);
+          result[index]++;
+        }
+      });
+      return { result };
+    } catch (error) {
+      throw error; //
+    }
+  }
 }

@@ -172,4 +172,9 @@ export class QuizController {
       throw new NotFoundException('File not found');
     }
   }
+
+  @Get('/statistics/histgram')
+  async getAccuracyRateHistgramData(@Query('file_num') file_num: string) {
+    return await this.quizService.getAccuracyRateHistgramData(+file_num);
+  }
 }
