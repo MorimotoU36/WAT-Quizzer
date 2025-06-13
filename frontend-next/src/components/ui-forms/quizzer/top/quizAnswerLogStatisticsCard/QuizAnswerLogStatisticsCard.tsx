@@ -16,13 +16,24 @@ import {
   Legend,
   ChartData,
   LineElement,
-  PointElement
+  PointElement,
+  LineController
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import styles from '../../../../Chart.module.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  LineController,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
 interface QuizAnswerLogStatisticsCardProps {
   file_num: number;
 }
