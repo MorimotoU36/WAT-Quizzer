@@ -45,13 +45,15 @@ try {
   const file = fs.readFileSync(path.resolve(__dirname, inputFilePath))
   const formData = new FormData()
   formData.append('file', new Blob([file]))
-  await fetch(baseURL + '/quiz/upload', {
+  const result = await fetch(baseURL + '/quiz/upload', {
     method: 'POST',
     body: formData,
     headers: {
       Authorization: `Bearer ${data.accessToken}`
     }
   })
-  console.log('Success!!')
+  console.log('Status:', result.status)
+  console.log(result.ok ? 'Success!!' : 'Error!!')
+  //console.log('Message:', result)
   return true
 })()

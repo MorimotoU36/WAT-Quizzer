@@ -1255,7 +1255,7 @@ export class QuizService {
       await prisma.$transaction(
         async (prisma) => {
           // csvデータ１行ずつ読み込み
-          for (const row of csvData.data) {
+          for (const [index, row] of csvData.data.entries()) {
             // (問題ファイル番号,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説) でない場合終了
             if (row.length !== 7) {
               throw new HttpException(
@@ -1324,7 +1324,7 @@ export class QuizService {
                 },
               },
             });
-            console.log(`OK: ${row[0]}`);
+            console.log(`OK: ${index + 1}行目`);
           }
         },
         {
