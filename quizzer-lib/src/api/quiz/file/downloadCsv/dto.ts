@@ -1,4 +1,4 @@
-import { ApiResponse } from '../../../api'
+import { ApiResponse } from '../../..'
 
 export interface DownloadQuizCsvApiRequest extends ApiResponse {
   file_num: number

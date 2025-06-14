@@ -2,8 +2,8 @@ import {
   AccuracyRateHistgramApiResponse,
   GetAccuracyRateHistgramAPIRequestDto
 } from '.'
-import { defaultMessage, errorMessage, MESSAGES } from '../../../../'
-import { get, ProcessingApiReponse } from '../../../api'
+import { defaultMessage, errorMessage, MESSAGES } from '../../../../..'
+import { get, ProcessingApiReponse } from '../../..'
 
 interface GetAccuracyRateHistgramAPIProps {
   getAccuracyRateHistgramData: GetAccuracyRateHistgramAPIRequestDto

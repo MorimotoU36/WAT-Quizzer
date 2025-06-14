@@ -1,6 +1,6 @@
 import { ApiResult } from '../../..'
 import { GetImageOfQuizAPIRequestDto, GetImageOfQuizAPIResponseDto } from '.'
-import { errorMessage, MESSAGES, successMessage } from '../../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../../..'
 
 interface GetImageOfQuizButtonProps {
   getImageOfQuizRequestData: GetImageOfQuizAPIRequestDto

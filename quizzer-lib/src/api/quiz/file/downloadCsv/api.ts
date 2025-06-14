@@ -4,8 +4,8 @@ import {
   errorMessage,
   MESSAGES,
   successMessage
-} from '../../../..'
-import { get, ApiResult, ProcessingApiReponse } from '../../../api'
+} from '../../../../..'
+import { get, ApiResult, ProcessingApiReponse } from '../../..'
 import { Response } from 'express'
 
 interface DownloadQuizCsvAPIProps {
