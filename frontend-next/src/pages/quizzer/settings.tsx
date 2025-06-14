@@ -12,6 +12,7 @@ import {
   getQuizFileListAPI,
   GetQuizFileApiResponseDto
 } from 'quizzer-lib';
+import { DownloadQuizCsvSection } from '@/components/ui-forms/quizzer/settings/downloadQuizCsvSection/DownloadQuizCsvSection';
 
 type Props = {
   isMock?: boolean;
@@ -47,6 +48,7 @@ export default function QuizzerSettingPage({ isMock }: Props) {
           setFilelistoption={setFilelistoption}
         />
         <LogConfigSection filelistoption={filelistoption} setMessage={setMessage} />
+        <DownloadQuizCsvSection filelistoption={filelistoption} />
       </Container>
     );
   };

@@ -1,6 +1,6 @@
 import { ApiResult } from '../../../api'
 import { GetImageOfQuizAPIRequestDto, GetImageOfQuizAPIResponseDto } from '.'
-import { errorMessage, MESSAGES } from '../../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
 
 interface GetImageOfQuizButtonProps {
   getImageOfQuizRequestData: GetImageOfQuizAPIRequestDto
@@ -31,7 +31,7 @@ export const getImageOfQuizAPI = async ({
   const imageUrl = `data:${mimeType};base64,${base64}`
 
   return {
-    message: errorMessage(MESSAGES.SUCCESS.MSG00021),
+    message: successMessage(MESSAGES.SUCCESS.MSG00021),
     result: {
       imageUrl
     } as GetImageOfQuizAPIResponseDto
