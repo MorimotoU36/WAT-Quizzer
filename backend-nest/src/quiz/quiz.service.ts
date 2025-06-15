@@ -1256,8 +1256,8 @@ export class QuizService {
         async (prisma) => {
           // csvデータ１行ずつ読み込み
           for (const [index, row] of csvData.data.entries()) {
-            // (問題ファイル番号,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説) でない場合終了
-            if (row.length !== 7) {
+            // (問題ファイル番号,答えの数,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説,カテゴリ) でない場合終了
+            if (row.length !== 9) {
               throw new HttpException(
                 `CSVの形式が正しくありません(${row})`,
                 HttpStatus.BAD_REQUEST,
@@ -1265,12 +1265,14 @@ export class QuizService {
             }
             const [
               file_num,
+              answer_num,
               question,
               answer,
               dummy1,
               dummy2,
               dummy3,
               explanation,
+              categories,
             ] = row;
             // バリデーション
             if (isNaN(+file_num)) {
@@ -1279,6 +1281,18 @@ export class QuizService {
                 HttpStatus.BAD_REQUEST,
               );
             }
+            // ダミー選択肢のデータ作成
+            const dummyChoiceData = [dummy1, dummy2, dummy3].map((d, index) => {
+              return {
+                dummy_choice_sentense: d,
+                is_corrected: index + 2 <= +answer_num ? true : false,
+              };
+            });
+            // カテゴリあれば複数個に分けておく
+            const category =
+              categories && categories !== ''
+                ? categories.split(':')
+                : undefined;
             // 問題データ登録
             // 新問題番号を取得しINSERT
             const res = await prisma.quiz.findFirst({
@@ -1304,7 +1318,17 @@ export class QuizService {
                 answer,
                 // img_file,
                 checked: false,
-                // カテゴリはとりあえず今はなしで
+                quiz_category: {
+                  ...(category && {
+                    createMany: {
+                      data: category.map((c) => {
+                        return {
+                          category: c,
+                        };
+                      }),
+                    },
+                  }),
+                },
                 quiz_explanation: {
                   ...(explanation && {
                     create: {
@@ -1315,11 +1339,7 @@ export class QuizService {
                 //  関連問題設定もとりあえず今は無しで
                 quiz_dummy_choice: {
                   createMany: {
-                    data: [
-                      { dummy_choice_sentense: dummy1 },
-                      { dummy_choice_sentense: dummy2 },
-                      { dummy_choice_sentense: dummy3 },
-                    ],
+                    data: dummyChoiceData,
                   },
                 },
               },
