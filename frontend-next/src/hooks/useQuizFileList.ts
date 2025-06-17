@@ -14,6 +14,11 @@ export const useQuizFileList = () => {
 
   useEffect(() => {
     (async () => {
+      setMessage({
+        message: '通信中...',
+        messageColor: '#d3d3d3',
+        isDisplay: true
+      });
       const result = await getQuizFileListAPI();
       setMessage(result.message);
       const pullDownOption = result.result

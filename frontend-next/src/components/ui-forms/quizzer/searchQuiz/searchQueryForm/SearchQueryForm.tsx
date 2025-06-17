@@ -8,12 +8,9 @@ import {
   getCategoryListAPI,
   getCategoryListAPIResponseToPullDownAdapter,
   GetQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
   PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter,
   searchQuizAPI,
   SearchQuizAPIRequestDto
 } from 'quizzer-lib';
@@ -23,6 +20,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { GridRowsProp } from '@mui/x-data-grid';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { useQuizFileList } from '@/hooks/useQuizFileList';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -35,27 +33,10 @@ export const SearchQueryForm = ({
   setSearchResult,
   setSearchQuizRequestData
 }: SearchQueryFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const { filelistoption } = useQuizFileList();
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
-
   const setMessage = useSetRecoilState(messageState);
-
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
 
   // 問題形式リスト取得
   useEffect(() => {

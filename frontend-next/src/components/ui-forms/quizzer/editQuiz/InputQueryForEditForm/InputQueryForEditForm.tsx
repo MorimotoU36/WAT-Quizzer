@@ -9,44 +9,25 @@ import {
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
   getQuizAPIResponseToEditQuizAPIRequestAdapter,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
   initEditQuizRequestData,
-  initGetQuizRequestData,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  initGetQuizRequestData
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { useRouter } from 'next/router';
+import { useQuizFileList } from '@/hooks/useQuizFileList';
 
 interface InputQueryForEditFormProps {
   setEditQuizRequestData: React.Dispatch<React.SetStateAction<EditQuizAPIRequestDto>>;
 }
 
 export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForEditFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const { filelistoption } = useQuizFileList();
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
-
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
 
   // 問題形式リスト取得
   useEffect(() => {
@@ -92,7 +73,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         }
       })();
     }
-  }, [router,setEditQuizRequestData,setMessage]);
+  }, [router, setEditQuizRequestData, setMessage]);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
     setQuizRequestData({

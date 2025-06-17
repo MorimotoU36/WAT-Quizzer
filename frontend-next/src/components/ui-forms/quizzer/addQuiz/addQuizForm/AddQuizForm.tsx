@@ -4,14 +4,10 @@ import {
   addQuizAPI,
   AddQuizAPIRequestDto,
   AddQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
   initAddQuizRequestData,
-  insertAtArray,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  insertAtArray
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
@@ -21,33 +17,17 @@ import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { useQuizFileList } from '@/hooks/useQuizFileList';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const { filelistoption } = useQuizFileList();
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [addQuizRequestData, setAddQuizRequestData] = useState<AddQuizAPIRequestDto>(initAddQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題ファイルリスト取得
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
 
   // 問題形式リスト取得
   useEffect(() => {

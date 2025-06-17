@@ -2,24 +2,15 @@ import styles from '../Settings.module.css';
 import { CardContent, CardHeader } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
-import {
-  Message,
-  getRandomStr,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  addQuizFileAPI
-} from 'quizzer-lib';
+import { Message, getRandomStr, addQuizFileAPI } from 'quizzer-lib';
 import { useState } from 'react';
 import React from 'react';
 
 interface AddFileSectionProps {
   setMessage: React.Dispatch<React.SetStateAction<Message>>;
-  setFilelistoption: React.Dispatch<React.SetStateAction<PullDownOptionDto[]>>;
 }
 
-export const AddFileSection = ({ setMessage, setFilelistoption }: AddFileSectionProps) => {
+export const AddFileSection = ({ setMessage }: AddFileSectionProps) => {
   const [fileName, setFileName] = useState<string>('');
 
   const addFile = async () => {
@@ -35,14 +26,6 @@ export const AddFileSection = ({ setMessage, setFilelistoption }: AddFileSection
       }
     });
     setMessage(result.message);
-    if (result.message.messageColor === 'success.light') {
-      // 問題ファイル再取得
-      const result = await getQuizFileListAPI();
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    }
   };
 
   return (

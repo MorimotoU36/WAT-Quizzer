@@ -8,17 +8,15 @@ import {
   getCategoryListAPI,
   getCategoryListAPIResponseToPullDownAdapter,
   GetQuizAPIRequestDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
   GetQuizFormatApiResponseDto,
   getQuizFormatListAPI,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  PullDownOptionDto
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { useQuizFileList } from '@/hooks/useQuizFileList';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -26,28 +24,10 @@ interface InputQueryFormProps {
 }
 
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+  const { filelistoption } = useQuizFileList();
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題ファイルリスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
 
   // 問題形式リスト取得
   useEffect(() => {
