@@ -1,11 +1,9 @@
-import { messageState } from '@/atoms/Message';
 import { Layout } from '@/components/templates/layout/Layout';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { FileStatisticsCard } from '@/components/ui-forms/quizzer/top/fileStatisticsCard/FileStatisticsCard';
 import { QuizAnswerLogStatisticsCard } from '@/components/ui-forms/quizzer/top/quizAnswerLogStatisticsCard/QuizAnswerLogStatisticsCard';
 import { Container } from '@mui/material';
 import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
 import styles from '../../components/Chart.module.css';
 import { AccuracyRateHistgramCard } from '@/components/ui-forms/quizzer/top/accuracyRateHistgramCard/AccuracyRateHistgramCard';
 import { useQuizFileList } from '@/hooks/useQuizFileList';
@@ -13,7 +11,6 @@ import { useQuizFileList } from '@/hooks/useQuizFileList';
 export default function QuizzerTopPage() {
   const { filelistoption } = useQuizFileList();
   const [selectedFileNum, setSelectedFileNum] = useState<number>(-1);
-  const setMessage = useSetRecoilState(messageState);
 
   const contents = () => {
     return (
