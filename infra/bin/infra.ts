@@ -6,6 +6,7 @@ import { FrontendStack } from '../lib/stack/frontend-stack'
 import { UsEast1Stack } from '../lib/stack/us-east1-stack'
 import { DnsStack } from '../lib/stack/usEast1/dns-stack'
 import { CertificateStack } from '../lib/stack/usEast1/certificate-stack'
+import { MockStack } from '../lib/stack/mock-stack'
 
 const app = new cdk.App()
 const env = app.node.tryGetContext('env')
@@ -37,3 +38,5 @@ const backendStack = new BackendStack(app, 'BackendStack', {
   hostedZone: dnsStack.hostedZone
 })
 backendStack.addDependency(certificateStack)
+
+new MockStack(app, 'MockStack', {})
