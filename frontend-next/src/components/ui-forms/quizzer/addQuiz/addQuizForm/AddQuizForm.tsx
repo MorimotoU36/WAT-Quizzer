@@ -13,18 +13,16 @@ import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
 import styles from './AddQuizForm.module.css';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useQuizFileList } from '@/hooks/useQuizFileList';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
-  const { filelistoption } = useQuizFileList();
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [addQuizRequestData, setAddQuizRequestData] = useState<AddQuizAPIRequestDto>(initAddQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
@@ -55,10 +53,8 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
 
             <Typography variant="h6" component="h6" className={styles.messageBox}>
               <label htmlFor="question">問題ファイル：</label>
-              <PullDown
-                label={'問題ファイル'}
-                optionList={filelistoption}
-                onChange={(e: SelectChangeEvent<number>) => {
+              <QuizFilePullDown
+                onFileChange={(e: SelectChangeEvent<number>) => {
                   setAddQuizRequestData((prev: any) => ({
                     ...prev,
                     file_num: +e.target.value

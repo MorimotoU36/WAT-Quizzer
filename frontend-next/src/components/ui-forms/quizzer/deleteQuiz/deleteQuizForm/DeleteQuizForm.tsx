@@ -1,4 +1,3 @@
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import styles from '../DeleteQuizForm.module.css';
@@ -14,7 +13,7 @@ import {
 import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { useQuizFileList } from '@/hooks/useQuizFileList';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface DeleteQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
@@ -24,7 +23,6 @@ interface DeleteQuizFormProps {
 
 export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDeleteQuizInfo }: DeleteQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
-  const { filelistoption } = useQuizFileList();
   const setMessage = useSetRecoilState(messageState);
 
   return (
@@ -36,11 +34,9 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
           </Typography>
 
           <FormGroup>
-            <PullDown
-              label={'問題ファイル'}
+            <QuizFilePullDown
               value={getQuizRequestData.file_num}
-              optionList={filelistoption}
-              onChange={(e) => {
+              onFileChange={(e) => {
                 setQuizRequestData({
                   ...getQuizRequestData,
                   file_num: +e.target.value

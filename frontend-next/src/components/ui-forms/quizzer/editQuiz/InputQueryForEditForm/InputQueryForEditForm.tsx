@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
 import {
@@ -17,14 +16,13 @@ import {
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { useRouter } from 'next/router';
-import { useQuizFileList } from '@/hooks/useQuizFileList';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface InputQueryForEditFormProps {
   setEditQuizRequestData: React.Dispatch<React.SetStateAction<EditQuizAPIRequestDto>>;
 }
 
 export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForEditFormProps) => {
-  const { filelistoption } = useQuizFileList();
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
@@ -75,22 +73,19 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
     }
   }, [router, setEditQuizRequestData, setMessage]);
 
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    setQuizRequestData({
-      ...getQuizRequestData,
-      file_num: +e.target.value
-    });
-  };
-
   return (
     <>
       <FormGroup>
-        <PullDown
-          label={'問題ファイル'}
-          optionList={filelistoption}
-          onChange={selectedFileChange}
+        <QuizFilePullDown
+          onFileChange={(e: SelectChangeEvent<number>) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              file_num: +e.target.value
+            });
+          }}
           value={getQuizRequestData.file_num}
         />
+
         <FormControl>
           <TextField
             label="問題番号"

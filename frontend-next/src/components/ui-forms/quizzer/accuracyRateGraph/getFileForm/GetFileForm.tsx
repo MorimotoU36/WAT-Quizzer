@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { FormGroup } from '@mui/material';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import {
   getAccuracyRateByCategoryAPI,
   GetAccuracyRateByCategoryAPIResponseDto,
@@ -8,7 +7,7 @@ import {
 } from 'quizzer-lib';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { useQuizFileList } from '@/hooks/useQuizFileList';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface GetFileFormProps {
   setAccuracyData: React.Dispatch<React.SetStateAction<GetAccuracyRateByCategoryAPIResponseDto>>;
@@ -18,7 +17,6 @@ export const GetFileForm = ({ setAccuracyData }: GetFileFormProps) => {
   const [getCategoryRateData, setCategoryRateData] = useState<GetCategoryRateAPIRequestDto>({
     file_num: -1
   });
-  const { filelistoption } = useQuizFileList();
   const setMessage = useSetRecoilState(messageState);
 
   useEffect(() => {
@@ -40,10 +38,8 @@ export const GetFileForm = ({ setAccuracyData }: GetFileFormProps) => {
 
   return (
     <FormGroup>
-      <PullDown
-        label={'問題ファイル'}
-        optionList={filelistoption}
-        onChange={(e) => {
+      <QuizFilePullDown
+        onFileChange={(e) => {
           setCategoryRateData({
             ...getCategoryRateData,
             file_num: +e.target.value
