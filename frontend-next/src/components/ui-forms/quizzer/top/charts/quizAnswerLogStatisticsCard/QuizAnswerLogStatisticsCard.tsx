@@ -21,7 +21,7 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import styles from '../../../../Chart.module.css';
+import styles from '../../../../../Chart.module.css';
 
 ChartJS.register(
   CategoryScale,

@@ -19,7 +19,7 @@ import {
   PointElement
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
-import styles from '../../../../Chart.module.css';
+import styles from '../../../../../Chart.module.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 interface AccuracyRateHistgramCardProps {
