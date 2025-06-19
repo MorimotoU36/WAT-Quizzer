@@ -16,7 +16,7 @@ import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
-import { useQuizFileList } from '@/hooks/useQuizFileList';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -24,7 +24,6 @@ interface InputQueryFormProps {
 }
 
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
-  const { filelistoption } = useQuizFileList();
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
@@ -77,7 +76,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
 
   return (
     <FormGroup>
-      <PullDown label={'問題ファイル'} optionList={filelistoption} onChange={selectedFileChange} />
+      <QuizFilePullDown onFileChange={selectedFileChange} />
       <FormControl>
         <TextField
           label="問題番号"
