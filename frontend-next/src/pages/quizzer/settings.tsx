@@ -1,7 +1,6 @@
 import React from 'react';
 import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
-import { Title } from '@/components/ui-elements/title/Title';
 import { FileConfigSection } from '@/components/ui-forms/quizzer/settings/fileConfigSection/FileConfigSection';
 import { LogConfigSection } from '@/components/ui-forms/quizzer/settings/logConfigSection/LogConfigSection';
 import { messageState } from '@/atoms/Message';
@@ -16,7 +15,6 @@ export default function QuizzerSettingPage() {
   const contents = () => {
     return (
       <Container>
-        <Title label="WAT Quizzer"></Title>
         <FileConfigSection setMessage={setMessage} filelistoption={filelistoption} />
         <LogConfigSection filelistoption={filelistoption} setMessage={setMessage} />
         <DownloadQuizCsvSection filelistoption={filelistoption} />

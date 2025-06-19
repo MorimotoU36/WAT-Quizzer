@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
-import { Title } from '@/components/ui-elements/title/Title';
 import { GetQuizButtonGroup } from '@/components/ui-forms/quizzer/getQuiz/getQuizButtonGroup/GetQuizButtonGroup';
 import { DisplayQuizSection } from '@/components/ui-forms/quizzer/getQuiz/displayQuizSection/DisplayQuizSection';
 import { InputQueryForm } from '@/components/ui-forms/quizzer/getQuiz/inputQueryForm/InputQueryForm';
@@ -25,7 +24,6 @@ export default function GetQuizPage({ isMock }: Props) {
   const contents = () => {
     return (
       <Container>
-        <Title label="WAT Quizzer"></Title>
         <InputQueryForm getQuizRequestData={getQuizRequestData} setQuizRequestData={setQuizRequestData} />
         <GetQuizButtonGroup
           getQuizRequestData={getQuizRequestData}

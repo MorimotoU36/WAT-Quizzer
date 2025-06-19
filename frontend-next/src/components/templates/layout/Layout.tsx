@@ -13,6 +13,8 @@ import { MessageBar } from '@/components/ui-elements/messageBar/MessageBar';
 import { messageState } from '@/atoms/Message';
 import RequiredAuthComponent from '@/components/ui-elements/requiredAuthComponent/RequiredAuthComponent';
 import { sidebar, SideBarModeType } from '@/constants/contents/sidebar';
+import { Title } from '@/components/ui-elements/title/Title';
+import { PAGE_TITLE } from '@/constants/contents/page';
 
 interface LayoutProps {
   title?: string;
@@ -25,11 +27,12 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   const [message, setMessage] = useRecoilState(messageState);
   const modeConfig = sidebar[mode];
+  const pageTitle = PAGE_TITLE[mode] + title;
   const layout = (
     <>
       {/*Head タイトルなど*/}
       <Head>
-        <title>{'WAT Quizzer ' + title}</title>
+        <title>{pageTitle}</title>
       </Head>
       {/*ヘッダ*/}
       <Header
@@ -62,6 +65,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       <div className={styles.space}></div>
 
       {/*内容*/}
+      <Title label={pageTitle}></Title>
       {contents}
       <MessageBar
         messageState={message || { message: '', messageColor: 'common.black' }}

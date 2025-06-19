@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Container } from '@mui/material';
 import { Layout } from '@/components/templates/layout/Layout';
-import { Title } from '@/components/ui-elements/title/Title';
 import { InputQueryForEditForm } from '@/components/ui-forms/quizzer/editQuiz/InputQueryForEditForm/InputQueryForEditForm';
 import { Button } from '@/components/ui-elements/button/Button';
 import { editQuizAPI, EditQuizAPIRequestDto, initEditQuizRequestData } from 'quizzer-lib';
@@ -16,7 +15,6 @@ export default function EditQuizPage() {
   const contents = () => {
     return (
       <Container>
-        <Title label="WAT Quizzer"></Title>
         <InputQueryForEditForm setEditQuizRequestData={setEditQuizRequestData} />
         <EditQuizForm editQuizRequestData={editQuizRequestData} setEditQuizRequestData={setEditQuizRequestData} />
         {/* TODO 下のボタン EditQuizForm内ではダメ？*/}
