@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { DOUGHNUT_CHART_COLOR, DOUGHNUT_CHART_LABEL, DOUGHNUT_CHART_TITLE } from '@/constants/contents/chart';
 
 interface FileStatisticsCardProps {
   file_num: number;
@@ -20,22 +21,21 @@ export const FileStatisticsCard = ({ file_num }: FileStatisticsCardProps) => {
     })();
   }, [file_num]);
 
-  const labels = ['正解数', '不正解数', '未解答数'];
   const datasets = quizFileStatisticsData
     ? [
         {
-          label: '正答率分布',
+          label: DOUGHNUT_CHART_TITLE,
           data: [
             quizFileStatisticsData.clear || 0,
             quizFileStatisticsData.fail || 0,
             quizFileStatisticsData.not_answered || 0
           ],
-          backgroundColor: ['crimson', 'black', 'dimgray']
+          backgroundColor: DOUGHNUT_CHART_COLOR
         }
       ]
     : [];
   const data = {
-    labels,
+    DOUGHNUT_CHART_LABEL,
     datasets
   };
 

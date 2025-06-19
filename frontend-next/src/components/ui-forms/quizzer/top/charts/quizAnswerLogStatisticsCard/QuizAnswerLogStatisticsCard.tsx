@@ -21,7 +21,8 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import styles from '../../../../../Chart.module.css';
+import styles from '../../../../Chart.module.css';
+import { ANSWER_LOG_HISTGRAM_LABEL, ANSWER_LOG_HISTGRAM_COLOR, DATE_UNIT_OPTION } from '@/constants/contents/chart';
 
 ChartJS.register(
   CategoryScale,
@@ -43,13 +44,6 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
   const [answerLogStatisticsData, setAnswerLogStatisticsData] = useState<AnswerLogStatisticsApiResponse[]>([]);
   const [getAnswerLogStatisticsData, setRequestData] = useState<GetAnswerLogStatisticsAPIRequestDto>({});
 
-  // TODO これは別ファイルに入れたい
-  const dateUnitOption = [
-    { value: 'day', label: '日' },
-    { value: 'week', label: '週' },
-    { value: 'month', label: '月' }
-  ];
-
   useEffect(() => {
     (async () => {
       const result = await getAnswerLogStatisticsDataAPI({ getAnswerLogStatisticsData });
@@ -70,20 +64,20 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
     }),
     datasets: [
       {
-        label: '解答数',
+        label: ANSWER_LOG_HISTGRAM_LABEL[0],
         data: answerLogStatisticsData.map((x) => {
           return x.count;
         }),
-        backgroundColor: 'royalblue',
+        backgroundColor: ANSWER_LOG_HISTGRAM_COLOR[0],
         type: 'bar',
         order: 2
       },
       {
-        label: '正解率',
+        label: ANSWER_LOG_HISTGRAM_LABEL[1],
         data: answerLogStatisticsData.map((x) => {
           return x.accuracy_rate;
         }),
-        backgroundColor: 'limegreen',
+        backgroundColor: ANSWER_LOG_HISTGRAM_COLOR[1],
         type: 'line',
         order: 1
       }
@@ -114,7 +108,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
     <Card variant="outlined" attr="margin-vertical">
       <PullDown
         label={'日付単位'}
-        optionList={dateUnitOption}
+        optionList={DATE_UNIT_OPTION}
         onChange={(e) =>
           setRequestData({
             ...getAnswerLogStatisticsData,

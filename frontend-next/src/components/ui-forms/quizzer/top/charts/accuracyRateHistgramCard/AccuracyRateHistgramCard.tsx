@@ -20,6 +20,7 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import styles from '../../../../../Chart.module.css';
+import { ACCRATE_HISTGRAM_LABEL, ACCRATE_HISTGRAM_COLOR, ACCRATE_HISTGRAM_TITLE } from '@/constants/contents/chart';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
 interface AccuracyRateHistgramCardProps {
@@ -53,11 +54,11 @@ export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardP
     }),
     datasets: [
       {
-        label: '正解率',
+        label: ACCRATE_HISTGRAM_LABEL,
         data: accuracyRateHistgramData.result.map((x) => {
           return x;
         }),
-        backgroundColor: 'limegreen',
+        backgroundColor: ACCRATE_HISTGRAM_COLOR,
         type: 'bar'
       }
     ]
@@ -72,7 +73,7 @@ export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardP
       },
       title: {
         display: true,
-        text: '正解率ヒストグラム'
+        text: ACCRATE_HISTGRAM_TITLE
       }
     }
   };
