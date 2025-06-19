@@ -1259,7 +1259,7 @@ export class QuizService {
             // (問題ファイル番号,答えの数,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説,カテゴリ) でない場合終了
             if (row.length !== 9) {
               throw new HttpException(
-                `CSVの形式が正しくありません(${row})`,
+                `CSVの形式が正しくありません(${row.length}列)`,
                 HttpStatus.BAD_REQUEST,
               );
             }
