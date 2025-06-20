@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
 import {
   addQuizAPI,
   AddQuizAPIRequestDto,
   AddQuizApiResponseDto,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   initAddQuizRequestData,
   insertAtArray
 } from 'quizzer-lib';
@@ -17,30 +15,16 @@ import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGrou
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const { quizFormatListoption } = useQuizFormatList();
   const [addQuizRequestData, setAddQuizRequestData] = useState<AddQuizAPIRequestDto>(initAddQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
 
   return (
     <>

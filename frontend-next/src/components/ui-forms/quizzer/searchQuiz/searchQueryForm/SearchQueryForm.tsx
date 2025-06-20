@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
@@ -8,8 +8,6 @@ import {
   getCategoryListAPI,
   getCategoryListAPIResponseToPullDownAdapter,
   GetQuizApiResponseDto,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   PullDownOptionDto,
   searchQuizAPI,
   SearchQuizAPIRequestDto
@@ -21,6 +19,7 @@ import { GridRowsProp } from '@mui/x-data-grid';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -34,23 +33,8 @@ export const SearchQueryForm = ({
   setSearchQuizRequestData
 }: SearchQueryFormProps) => {
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
     // TODO カテゴリリスト取得 これ　別関数にしたい　というよりこのselectedFileChangeをlibとかに持ってきたい getQuizにもこの関数あるので

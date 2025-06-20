@@ -8,8 +8,6 @@ import {
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
   getQuizAPIResponseToEditQuizAPIRequestAdapter,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   initEditQuizRequestData,
   initGetQuizRequestData
 } from 'quizzer-lib';
@@ -23,24 +21,8 @@ interface InputQueryForEditFormProps {
 }
 
 export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForEditFormProps) => {
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
 
   // queryParam idが設定されていた場合、その問題IDの値を初期値設定する
   // TODO できれば前画面から問題の値を持って来させるようにしたい
