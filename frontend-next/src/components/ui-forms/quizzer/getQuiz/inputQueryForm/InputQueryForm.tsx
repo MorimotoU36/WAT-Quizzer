@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
@@ -8,8 +8,6 @@ import {
   getCategoryListAPI,
   getCategoryListAPIResponseToPullDownAdapter,
   GetQuizAPIRequestDto,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   PullDownOptionDto
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
@@ -17,6 +15,7 @@ import { messageState } from '@/atoms/Message';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -25,23 +24,8 @@ interface InputQueryFormProps {
 
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
     if (!setQuizRequestData) {

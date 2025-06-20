@@ -11,14 +11,9 @@ import {
   initGetQuizResponseData
 } from 'quizzer-lib';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function GetQuizPage({ isMock }: Props) {
+export default function GetQuizPage() {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const [getQuizResponseData, setQuizResponseData] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
-  // TODO このstate 上のDtoに組み入れられないか？
   const [imageUrl, setImageUrl] = useState<string>('');
 
   const contents = () => {
