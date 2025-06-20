@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
+import { FormControl, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -10,7 +10,7 @@ import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
-import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
+import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -22,28 +22,16 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
   const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
 
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    setMessage({
-      message: '通信中...',
-      messageColor: '#d3d3d3',
-      isDisplay: true
-    });
-    setQuizRequestData({
-      ...getQuizRequestData,
-      file_num: +e.target.value
-    });
-
-    // カテゴリリスト取得
-    (async () => {
-      const { pullDownOption, message } = await getCategoryListOptions(String(e.target.value));
-      setMessage(message);
-      setCategorylistoption(pullDownOption);
-    })();
-  };
-
   return (
     <FormGroup>
-      <QuizFilePullDown onFileChange={selectedFileChange} />
+      <QuizFilePullDown
+        onFileChange={useSelectedFileChange({
+          setMessage,
+          setCategorylistoption,
+          setQuizRequestData,
+          getQuizRequestData
+        })}
+      />
       <FormControl>
         <TextField
           label="問題番号"

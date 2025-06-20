@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
-import {
-  GetCategoryAPIResponseDto,
-  getCategoryListAPI,
-  getCategoryListAPIResponseToPullDownAdapter,
-  GetQuizApiResponseDto,
-  PullDownOptionDto,
-  searchQuizAPI,
-  SearchQuizAPIRequestDto
-} from 'quizzer-lib';
+import { GetQuizApiResponseDto, PullDownOptionDto, searchQuizAPI, SearchQuizAPIRequestDto } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -20,7 +12,7 @@ import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
-import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
+import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -37,19 +29,10 @@ export const SearchQueryForm = ({
   const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
 
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    // カテゴリリスト取得
-    (async () => {
-      const { pullDownOption, message } = await getCategoryListOptions(String(e.target.value));
-      setMessage(message);
-      setCategorylistoption(pullDownOption);
-    })();
-  };
-
   return (
     <>
       <FormGroup>
-        <QuizFilePullDown onFileChange={selectedFileChange} />
+        <QuizFilePullDown onFileChange={useSelectedFileChange({ setMessage, setCategorylistoption })} />
         <FormControl>
           <TextField
             label="検索語句"
