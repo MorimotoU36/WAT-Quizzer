@@ -20,6 +20,7 @@ import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
+import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
 
 interface SearchQueryFormProps {
   searchQuizRequestData: SearchQuizAPIRequestDto;
@@ -37,22 +38,10 @@ export const SearchQueryForm = ({
   const setMessage = useSetRecoilState(messageState);
 
   const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    // TODO カテゴリリスト取得 これ　別関数にしたい　というよりこのselectedFileChangeをlibとかに持ってきたい getQuizにもこの関数あるので
+    // カテゴリリスト取得
     (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getCategoryListAPI({ getCategoryListData: { file_num: String(e.target.value) } });
-      setSearchQuizRequestData({
-        ...searchQuizRequestData,
-        file_num: +e.target.value
-      });
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? getCategoryListAPIResponseToPullDownAdapter(result.result as GetCategoryAPIResponseDto[])
-        : [];
+      const { pullDownOption, message } = await getCategoryListOptions(String(e.target.value));
+      setMessage(message);
       setCategorylistoption(pullDownOption);
     })();
   };
