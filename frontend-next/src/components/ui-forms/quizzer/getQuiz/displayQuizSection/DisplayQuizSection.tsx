@@ -60,7 +60,6 @@ export const DisplayQuizSection = ({
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
-          {/** TODO 下のimage styleは別のとこにしたい */}
           {imageUrl && <img src={imageUrl} alt="取得した画像" className={styles.quizImage} />}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {
