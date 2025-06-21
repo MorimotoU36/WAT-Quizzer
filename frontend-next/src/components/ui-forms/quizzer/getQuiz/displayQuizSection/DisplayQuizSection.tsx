@@ -62,13 +62,7 @@ export const DisplayQuizSection = ({
             })}
           </Typography>
           {/** TODO 下のimage styleは別のとこにしたい */}
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="取得した画像"
-              style={{ maxHeight: '200px', objectFit: 'contain', margin: '10px 0px', display: 'block' }}
-            />
-          )}
+          {imageUrl && <img src={imageUrl} alt="取得した画像" className={styles.quizImage} />}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {
               return <Chip key={index} label={category.category} />;
