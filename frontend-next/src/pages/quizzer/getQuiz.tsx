@@ -36,9 +36,5 @@ export default function GetQuizPage() {
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'問題出題'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'問題出題'} />;
 }

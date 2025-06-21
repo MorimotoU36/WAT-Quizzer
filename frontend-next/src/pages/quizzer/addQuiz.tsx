@@ -4,11 +4,7 @@ import { Layout } from '@/components/templates/layout/Layout';
 import { AddQuizLogSection } from '@/components/ui-forms/quizzer/addQuiz/addQuizLogSection/AddQuizLogSection';
 import { AddQuizForm } from '@/components/ui-forms/quizzer/addQuiz/addQuizForm/AddQuizForm';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function AddQuizPage({ isMock }: Props) {
+export default function AddQuizPage() {
   const [log, setLog] = useState<string>('');
   const contents = () => {
     return (
@@ -19,9 +15,5 @@ export default function AddQuizPage({ isMock }: Props) {
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'問題追加'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'問題追加'} />;
 }
