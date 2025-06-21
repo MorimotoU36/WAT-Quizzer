@@ -77,8 +77,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="question"
                 value={addQuizRequestData.question || ''}
                 onChange={(e) => {
-                  // TODO ここのany
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     question: e.target.value
                   }));
@@ -94,7 +93,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="answer"
                 value={addQuizRequestData.answer || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     answer: e.target.value
                   }));
@@ -110,7 +109,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="category"
                 value={addQuizRequestData.category || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     category: e.target.value
                   }));
@@ -127,7 +126,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="imgFile"
                 value={addQuizRequestData.img_file || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     img_file: e.target.value
                   }));
@@ -144,7 +143,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="relatedBasisNum"
                 value={addQuizRequestData.matched_basic_quiz_id || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     matched_basic_quiz_id: e.target.value
                   }));
@@ -160,7 +159,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="description"
                 value={addQuizRequestData.explanation || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     explanation: e.target.value
                   }));
@@ -184,10 +183,10 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                           value="only-checked"
                           label="(多答設定、この選択肢も正解にする)"
                           onChange={(e) => {
-                            setAddQuizRequestData((prev: any) => ({
+                            setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                               ...prev,
-                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                                ...prev.dummyChoice[index],
+                              dummyChoice: insertAtArray(prev.dummyChoice!, index, {
+                                ...prev.dummyChoice![index],
                                 isCorrect: e.target.checked
                               })
                             }));
@@ -200,10 +199,10 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                           id={inputId}
                           value={choice.sentense || ''}
                           onChange={(e) => {
-                            setAddQuizRequestData((prev: any) => ({
+                            setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                               ...prev,
-                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                                ...prev.dummyChoice[index],
+                              dummyChoice: insertAtArray(prev.dummyChoice!, index, {
+                                ...prev.dummyChoice![index],
                                 sentense: e.target.value
                               })
                             }));
