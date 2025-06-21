@@ -30,13 +30,12 @@ export const DisplayQuizSection = ({
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
-  // TODO 型定義したい
   const displayQuiz = useMemo(() => {
     return {
       ...getQuizResponseData,
       ...generateQuizSentense(getQuizResponseData)
     };
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -46,7 +45,7 @@ export const DisplayQuizSection = ({
   useEffect(() => {
     setExpanded(false);
     setImageUrl && setImageUrl('');
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData.quiz_sentense, setImageUrl]);
 
   return (
     <>
