@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import styles from './EditSearchResultForm.module.css';
 import { FormControl, FormGroup, TextField } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import {
-  SearchQuizAPIRequestDto,
-  addCategoryToQuizAPI,
-  checkOffQuizAPI,
-  checkOnQuizAPI,
-  deleteCategoryOfQuizAPI
-} from 'quizzer-lib';
+import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 
