@@ -14,15 +14,10 @@ import { messageState } from '@/atoms/Message';
 
 interface EditSearchResultFormProps {
   checkedIdList: number[];
-  searchQuizRequestData: SearchQuizAPIRequestDto;
   setCheckedIdList: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-export const EditSearchResultForm = ({
-  checkedIdList,
-  searchQuizRequestData,
-  setCheckedIdList
-}: EditSearchResultFormProps) => {
+export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSearchResultFormProps) => {
   const [changedCategory, setChangedCategory] = useState<string>('');
   const setMessage = useSetRecoilState(messageState);
 

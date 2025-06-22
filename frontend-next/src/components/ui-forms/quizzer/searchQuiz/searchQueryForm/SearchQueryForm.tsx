@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup } from '@mui/material';
+import { FormControl, FormControlLabel, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
-import { GetQuizApiResponseDto, PullDownOptionDto, searchQuizAPI, SearchQuizAPIRequestDto } from 'quizzer-lib';
+import {
+  GetQuizApiResponseDto,
+  initSearchQuizRequestData,
+  PullDownOptionDto,
+  searchQuizAPI,
+  SearchQuizAPIRequestDto
+} from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -15,16 +21,12 @@ import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
 
 interface SearchQueryFormProps {
-  searchQuizRequestData: SearchQuizAPIRequestDto;
   setSearchResult: React.Dispatch<React.SetStateAction<GridRowsProp>>;
-  setSearchQuizRequestData: React.Dispatch<React.SetStateAction<SearchQuizAPIRequestDto>>;
 }
 
-export const SearchQueryForm = ({
-  searchQuizRequestData,
-  setSearchResult,
-  setSearchQuizRequestData
-}: SearchQueryFormProps) => {
+export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
+  const [searchQuizRequestData, setSearchQuizRequestData] =
+    useState<SearchQuizAPIRequestDto>(initSearchQuizRequestData);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
   const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
@@ -49,8 +51,9 @@ export const SearchQueryForm = ({
           検索対象：
           <FormControlLabel
             control={
-              /**TODO ここ　muiじゃなくて作ったcheckboxコンポーネントにして */
-              <MuiCheckBox
+              <Checkbox
+                value=""
+                label=""
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
@@ -64,7 +67,9 @@ export const SearchQueryForm = ({
           />
           <FormControlLabel
             control={
-              <MuiCheckBox
+              <Checkbox
+                value=""
+                label=""
                 onChange={(e) => {
                   setSearchQuizRequestData({
                     ...searchQuizRequestData,
