@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -24,6 +24,23 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
 
+  //問題取得ボタン押した時の処理
+  const getQuiz = useCallback(
+    async (getQuizRequestData: GetQuizAPIRequestDto) => {
+      setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+      const result = await getQuizAPI({ getQuizRequestData });
+      setMessage(result.message);
+      if (result.result) {
+        setEditQuizRequestData({
+          ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
+        });
+      } else {
+        setEditQuizRequestData(initEditQuizRequestData);
+      }
+    },
+    [setMessage, setEditQuizRequestData]
+  );
+
   // queryParam idが設定されていた場合、その問題IDの値を初期値設定する
   // TODO できれば前画面から問題の値を持って来させるようにしたい
   const router = useRouter();
@@ -34,26 +51,12 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         file_num: +file_num,
         quiz_num: +quiz_num
       });
-      // TODO  以下は問題取得ボタン押した時と処理同じなので別関数にまとめたい
-      (async () => {
-        setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-        const result = await getQuizAPI({
-          getQuizRequestData: {
-            file_num: +file_num,
-            quiz_num: +quiz_num
-          }
-        });
-        setMessage(result.message);
-        if (result.result) {
-          setEditQuizRequestData({
-            ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
-          });
-        } else {
-          setEditQuizRequestData(initEditQuizRequestData);
-        }
-      })();
+      getQuiz({
+        file_num: +file_num,
+        quiz_num: +quiz_num
+      });
     }
-  }, [router, setEditQuizRequestData, setMessage]);
+  }, [getQuiz, router, setEditQuizRequestData, setMessage]);
 
   return (
     <>
@@ -92,16 +95,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         variant="contained"
         color="primary"
         onClick={async (e) => {
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData });
-          setMessage(result.message);
-          if (result.result) {
-            setEditQuizRequestData({
-              ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
-            });
-          } else {
-            setEditQuizRequestData(initEditQuizRequestData);
-          }
+          getQuiz(getQuizRequestData);
         }}
       />
     </>
