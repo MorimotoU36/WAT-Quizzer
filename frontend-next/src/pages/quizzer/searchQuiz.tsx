@@ -26,9 +26,5 @@ export default function SearchQuizPage() {
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'問題検索'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'問題検索'} />;
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent, FormControl, FormGroup, FormLabel, Paper, TextField, Typography } from '@mui/material';
+import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import styles from '../DeleteQuizForm.module.css';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -11,22 +11,15 @@ import {
   GetQuizApiResponseDto,
   initGetQuizResponseData,
   getQuizAPI,
-  integrateQuizAPI,
-  GetQuizFormatApiResponseDto
+  integrateQuizAPI
 } from 'quizzer-lib';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 
 interface IntegrateToQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
-  quizFormatListoption: GetQuizFormatApiResponseDto[];
   setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
-export const IntegrateToQuizForm = ({
-  deleteQuizInfo,
-  quizFormatListoption,
-  setDeleteQuizInfo
-}: IntegrateToQuizFormProps) => {
+export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: IntegrateToQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const [getQuizResponseData, setQuizResponseData] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
   const setMessage = useSetRecoilState(messageState);
@@ -40,7 +33,6 @@ export const IntegrateToQuizForm = ({
           </Typography>
 
           <FormGroup>
-            {/** TODO Englishbot 問題ファイル?プルダウンも Quizzerと同じく専用コンポーネントにしたい */}
             <PullDown label={'問題ファイル'} optionList={[{ value: -1, label: '同左' }]} onChange={(e) => {}} />
             <FormControl>
               <TextField

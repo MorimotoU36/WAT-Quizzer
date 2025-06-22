@@ -6,7 +6,6 @@ import {
   getQuizAPI,
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
-  GetQuizFormatApiResponseDto,
   initGetQuizRequestData,
   initGetQuizResponseData
 } from 'quizzer-lib';
@@ -17,11 +16,10 @@ import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePull
 
 interface DeleteQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
-  quizFormatListoption: GetQuizFormatApiResponseDto[];
   setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
-export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDeleteQuizInfo }: DeleteQuizFormProps) => {
+export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
 
