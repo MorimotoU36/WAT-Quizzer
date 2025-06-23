@@ -22,3 +22,9 @@ export const apiResponsePullDownAdapter = (
   }
   return posList
 }
+
+// 英語例文と単語を紐づける画面のデータ型
+export type AssociateExampleandWordData = {
+  wordName?: string
+  checkedIdList?: number[]
+}
