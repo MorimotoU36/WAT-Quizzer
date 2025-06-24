@@ -127,7 +127,6 @@ export class EnglishService {
   // 例文検索
   async searchExampleService(query: string, isLinked: boolean) {
     try {
-      // TODO pipeでboolean対応
       const data = isLinked
         ? await prisma.example.findMany({
             where: {
@@ -332,7 +331,6 @@ export class EnglishService {
   // 出典統計ビューデータ取得
   async getSourceStatisticsData(): Promise<SourceStatisticsApiResponse[]> {
     const result = await prisma.source_statistics_view.findMany({
-      // TODO この下も prismaの型(index.d.ts)から取ってこれるのではないか？
       select: {
         id: true,
         name: true,
@@ -348,7 +346,6 @@ export class EnglishService {
     });
 
     return result.map((x) => {
-      // TODO ここも　いちいち属性指定では面倒 prisaの型定義を使えたりしないか
       return {
         ...x,
         count: Number(x.count),
