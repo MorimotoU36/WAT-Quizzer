@@ -7,6 +7,7 @@ import {
   QuizFileStatisticsApiResponse,
 } from 'quizzer-lib';
 import { Parser } from 'json2csv';
+import { QUIZ_CSV_HEADER } from 'src/constants';
 
 export interface QueryType {
   query: string;
@@ -224,24 +225,8 @@ export class QuizFileService {
           accuracy_rate: data.quiz_statistics_view.accuracy_rate,
         };
       });
-      // TODO どこか定数ファイルに置きたい
-      const fields = [
-        'quiz_num',
-        'quiz_sentense',
-        'answer',
-        'dummy1',
-        'dummy2',
-        'dummy3',
-        'img_file',
-        'checked',
-        'clear_count',
-        'fail_count',
-        'accuracy_rate',
-      ];
-      const json2csvParser = new Parser({ fields });
-      const csv = json2csvParser.parse(records);
-
-      return csv;
+      const json2csvParser = new Parser({ fields: QUIZ_CSV_HEADER });
+      return json2csvParser.parse(records);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
