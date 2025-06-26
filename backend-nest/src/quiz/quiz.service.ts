@@ -19,6 +19,8 @@ import {
   getStartDateForStatistics,
   uploadQuizImageToS3,
   getQuizImageFromS3,
+  MESSAGES,
+  AnswerLogStatisticsApiResponse,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -309,8 +311,7 @@ export class QuizService {
         }, false)
       ) {
         throw new HttpException(
-          // TODO これもエラーメッセージの設定ファイルに入れるべきでは
-          `ダミー選択肢が3つ以上入力されていません。`,
+          MESSAGES.ERROR.MSG00018,
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -1132,12 +1133,8 @@ export class QuizService {
       // DB検索で使用する始値と終値
       let startDate = getStartDateForStatistics(nowDate, date_unit);
       let endDate = tomorrowDate;
-      const result = [];
+      const result: AnswerLogStatisticsApiResponse[] = [];
       for (let i = 0; i < 10; i++) {
-        // TODO 返り値の型定義
-        // TODO queryRawについて TypedSQL？と言うのがあるらしいのでそれを使う？公式ページ参照
-        // TODO 日付指定するとこはあlib/date使いたい
-        // TODO queryRaw?の都合上場合わけしてそれぞれSQL文書かないとできなかった １つだけ書くようにはどうしてもできない？(q.file_num = ${file_num} を場合わけするとどうしても詰む)
         const answerLogStat =
           file_num && file_num !== -1
             ? await prisma.$queryRaw<
