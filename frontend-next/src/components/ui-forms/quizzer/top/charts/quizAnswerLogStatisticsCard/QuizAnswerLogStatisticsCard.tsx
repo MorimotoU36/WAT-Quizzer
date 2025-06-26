@@ -21,7 +21,7 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import styles from '../../../../Chart.module.css';
+import styles from '../../../../../Chart.module.css';
 import { ANSWER_LOG_HISTGRAM_LABEL, ANSWER_LOG_HISTGRAM_COLOR, DATE_UNIT_OPTION } from '@/constants/contents/chart';
 
 ChartJS.register(
@@ -105,7 +105,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
   };
 
   return (
-    <Card variant="outlined" attr="margin-vertical">
+    <Card variant="outlined" attr={['margin-vertical']}>
       <PullDown
         label={'日付単位'}
         optionList={DATE_UNIT_OPTION}

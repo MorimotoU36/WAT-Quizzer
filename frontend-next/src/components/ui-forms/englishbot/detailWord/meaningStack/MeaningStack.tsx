@@ -106,7 +106,7 @@ export const MeaningStack = ({ posList, wordDetail, setMessage, setWordDetail }:
     setSelectedMeanIndex(wordMeanIndex);
   };
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'意味'}
       </Typography>

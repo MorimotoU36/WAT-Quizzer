@@ -79,7 +79,7 @@ export const SourceStack = ({ sourceList, wordDetail, setMessage, setWordDetail 
     });
   };
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'出典'}
       </Typography>

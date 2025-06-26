@@ -48,7 +48,7 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
   };
 
   return (
-    <Card attr={'padding rect-600'}>
+    <Card attr={['padding', 'rect-600']}>
       <FormGroup>
         <FormControl margin={'dense'}>
           <h1 className={classes.formTitle}>ログイン</h1>

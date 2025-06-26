@@ -79,7 +79,7 @@ export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardP
   };
 
   return (
-    <Card variant="outlined" attr="margin-vertical">
+    <Card variant="outlined" attr={['margin-vertical']}>
       <div className={styles.quiz_accuracy_hist}>
         {accuracyRateHistgramData.result.length > 0 ? (
           <Chart type="bar" options={options} data={data} />

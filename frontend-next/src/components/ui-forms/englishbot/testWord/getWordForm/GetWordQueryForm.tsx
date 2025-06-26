@@ -33,7 +33,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
 
   return (
     <>
-      <Card attr={'through-card padding-vertical'}>
+      <Card attr={['through-card', 'padding-vertical']}>
         <FormGroup>
           <PullDown
             label={'出典'}

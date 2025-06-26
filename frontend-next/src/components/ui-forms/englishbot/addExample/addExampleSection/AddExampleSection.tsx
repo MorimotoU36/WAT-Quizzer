@@ -20,7 +20,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
 
   return (
     <>
-      <Card variant="outlined" attr="margin-vertical" header="例文追加">
+      <Card variant="outlined" attr={['margin-vertical']} header="例文追加">
         <CardContent>
           <Card variant="outlined">
             <CardHeader subheader="英単語名(紐づける場合)" />

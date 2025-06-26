@@ -30,7 +30,7 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
   };
 
   return (
-    <Card variant="outlined" attr="margin-vertical" header="単語例文紐付け">
+    <Card variant="outlined" attr={['margin-vertical']} header="単語例文紐付け">
       <CardContent className={commonStyles.cardContent}>
         <TextField
           label="例文に紐付ける単語名(完全一致)"

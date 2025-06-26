@@ -56,11 +56,11 @@ export const FileStatisticsCard = ({ file_num }: FileStatisticsCardProps) => {
 
   return (
     <>
-      <Card variant="outlined" attr="margin-vertical">
+      <Card variant="outlined" attr={['margin-vertical']}>
         <p>
           {quizFileStatisticsData?.process_rate ? `進捗率:${quizFileStatisticsData?.process_rate.toFixed(2)}%` : ''}
         </p>
-        <Card variant="outlined" attr="margin-vertical">
+        <Card variant="outlined" attr={['margin-vertical']}>
           {quizFileStatisticsData ? <Doughnut data={data} options={options} /> : <CircularProgress />}
         </Card>
       </Card>

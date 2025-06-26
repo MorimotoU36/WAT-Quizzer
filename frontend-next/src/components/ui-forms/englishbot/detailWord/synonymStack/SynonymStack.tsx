@@ -37,7 +37,7 @@ export const SynonymStack = ({ wordDetail, setMessage, setWordDetail }: SynonymS
   };
 
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'類義語'}
       </Typography>
