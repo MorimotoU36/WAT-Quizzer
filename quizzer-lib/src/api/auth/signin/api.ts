@@ -1,4 +1,9 @@
-import { errorMessage, MESSAGES, successMessage } from '../../../..'
+import {
+  errorMessage,
+  MESSAGES,
+  SignInResult,
+  successMessage
+} from '../../../..'
 import { ApiResult, post, ProcessingApiReponse } from '../..'
 import { AuthSigninRequestDto } from './dto'
 
@@ -14,7 +19,7 @@ export const authSigninAPI = async ({
     authSigninRequestData,
     (data: ProcessingApiReponse) => {
       // TODO 型定義
-      const result = data.body
+      const result = data.body as SignInResult
       if (data.status === 200) {
         return {
           result,

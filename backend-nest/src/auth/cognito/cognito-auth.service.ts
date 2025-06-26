@@ -4,6 +4,7 @@ import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { userPool } from './cognito-auth.config';
 import * as dotenv from 'dotenv';
+import { SignInResult } from 'quizzer-lib';
 dotenv.config();
 
 const REGION = process.env.REGION;
@@ -22,7 +23,6 @@ function getKey(header, callback) {
     callback(null, signingKey);
   });
 }
-
 @Injectable()
 export class CognitoAuthService {
   async verifyAccessToken(token: string): Promise<any> {
@@ -56,7 +56,7 @@ export class CognitoAuthService {
     });
   }
 
-  async signIn(username: string, password: string): Promise<any> {
+  async signIn(username: string, password: string): Promise<SignInResult> {
     const user = new CognitoUser({
       Username: username,
       Pool: userPool,
@@ -67,7 +67,7 @@ export class CognitoAuthService {
       Password: password,
     });
 
-    return new Promise((resolve, reject) => {
+    return new Promise<SignInResult>((resolve, reject) => {
       user.authenticateUser(authDetails, {
         onSuccess: (result) => {
           const idToken = result.getIdToken().getJwtToken();
