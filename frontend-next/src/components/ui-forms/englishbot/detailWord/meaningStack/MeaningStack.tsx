@@ -13,7 +13,8 @@ import {
   EditWordMeanAPIRequestDto,
   getWordDetailAPI,
   GetWordDetailAPIResponseDto,
-  PullDownOptionDto
+  PullDownOptionDto,
+  initEditMeanData
 } from 'quizzer-lib';
 
 interface MeaningStackProps {
@@ -67,14 +68,6 @@ const displayPosInput = (
 };
 
 export const MeaningStack = ({ posList, wordDetail, setMessage, setWordDetail }: MeaningStackProps) => {
-  // TODO 初期データはlibに持っていく
-  const initEditMeanData = {
-    wordId: -1,
-    wordMeanId: -1,
-    meanId: -1,
-    partofspeechId: -1,
-    meaning: ''
-  };
   const [meaningModalopen, setMeaningModalOpen] = useState(false);
   const [editMeanData, setEditMeanData] = useState<EditWordMeanAPIRequestDto>(initEditMeanData);
   // TODO これいる？（sourcestackも）
