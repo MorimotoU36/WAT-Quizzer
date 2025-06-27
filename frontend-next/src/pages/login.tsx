@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState<string>('');
 
   return (
-    <Container attr="flex-center">
+    <Container attr={['flex-center']}>
       {!showNewPasswordForm ? (
         <LoginForm setShowNewPasswordForm={setShowNewPasswordForm} username={username} setUsername={setUsername} />
       ) : (
