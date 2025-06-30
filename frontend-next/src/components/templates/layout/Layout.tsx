@@ -27,16 +27,16 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   const [message, setMessage] = useRecoilState(messageState);
   const modeConfig = sidebar[mode];
-  const pageTitle = PAGE_TITLE[mode] + title;
   const layout = (
     <>
       {/*Head タイトルなど*/}
       <Head>
-        <title>{pageTitle}</title>
+        <title>{PAGE_TITLE[mode] + title}</title>
       </Head>
       {/*ヘッダ*/}
       <Header
         bgColor={modeConfig.bgColor}
+        subTitle={title}
         onClick={modeConfig.contents.length > 0 ? toggleDrawer(true, setSidebarState) : undefined}
       ></Header>
 
@@ -65,7 +65,6 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       <div className={styles.space}></div>
 
       {/*内容*/}
-      <Title label={pageTitle}></Title>
       {contents}
       <MessageBar
         messageState={message || { message: '', messageColor: 'common.black' }}
