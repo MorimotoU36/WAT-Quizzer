@@ -28,8 +28,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
         onFileChange={useSelectedFileChange({
           setMessage,
           setCategorylistoption,
-          setQuizRequestData,
-          getQuizRequestData
+          setQuizRequestData
         })}
       />
       <FormControl>
