@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormControl, FormControlLabel, FormGroup } from '@mui/material';
+import { FormControl, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -50,38 +50,28 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
         </FormControl>
 
         <FormGroup row>
-          検索対象：
-          <FormControlLabel
-            control={
-              <Checkbox
-                value=""
-                label=""
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    searchInOnlySentense: e.target.checked
-                  });
-                }}
-                name="checkedA"
-              />
-            }
+          <span style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>検索対象：</span>
+          <Checkbox
+            value=""
             label="問題"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                searchInOnlySentense: e.target.checked
+              });
+            }}
+            name="checkedA"
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                value=""
-                label=""
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    searchInOnlyAnswer: e.target.checked
-                  });
-                }}
-                name="checkedB"
-              />
-            }
+          <Checkbox
+            value=""
             label="答え"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                searchInOnlyAnswer: e.target.checked
+              });
+            }}
+            name="checkedB"
           />
         </FormGroup>
 
