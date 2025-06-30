@@ -37,7 +37,7 @@ export const AntonymStack = ({ wordDetail, setMessage, setWordDetail }: AntonymS
   };
 
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'対義語'}
       </Typography>

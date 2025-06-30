@@ -6,6 +6,8 @@ import {
   prisma,
   QuizFileStatisticsApiResponse,
 } from 'quizzer-lib';
+import { Parser } from 'json2csv';
+import { QUIZ_CSV_HEADER } from '../../constants';
 
 export interface QueryType {
   query: string;
@@ -161,6 +163,70 @@ export class QuizFileService {
         });
       });
       return { result: 'Deleted.' };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // 問題リストダウンロード
+  async downloadCsv(file_num: number) {
+    try {
+      const records = (
+        await prisma.quiz.findMany({
+          select: {
+            quiz_num: true,
+            quiz_sentense: true,
+            answer: true,
+            img_file: true,
+            checked: true,
+            quiz_statistics_view: {
+              select: {
+                clear_count: true,
+                fail_count: true,
+                accuracy_rate: true,
+              },
+            },
+            quiz_dummy_choice: {
+              select: {
+                dummy_choice_sentense: true,
+              },
+            },
+          },
+          where: {
+            file_num,
+          },
+          orderBy: {
+            quiz_num: 'asc',
+          },
+        })
+      ).map((data) => {
+        return {
+          quiz_num: data.quiz_num,
+          quiz_sentense: data.quiz_sentense,
+          answer: data.answer,
+          dummy1: data.quiz_dummy_choice[0]
+            ? data.quiz_dummy_choice[0].dummy_choice_sentense
+            : '',
+          dummy2: data.quiz_dummy_choice[1]
+            ? data.quiz_dummy_choice[1].dummy_choice_sentense
+            : '',
+          dummy3: data.quiz_dummy_choice[2]
+            ? data.quiz_dummy_choice[2].dummy_choice_sentense
+            : '',
+          img_file: data.img_file,
+          checked: data.checked,
+          clear_count: data.quiz_statistics_view.clear_count,
+          fail_count: data.quiz_statistics_view.fail_count,
+          accuracy_rate: data.quiz_statistics_view.accuracy_rate,
+        };
+      });
+      const json2csvParser = new Parser({ fields: QUIZ_CSV_HEADER });
+      return json2csvParser.parse(records);
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(

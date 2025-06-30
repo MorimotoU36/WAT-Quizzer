@@ -7,6 +7,7 @@ import { AddExampleAPIRequestDto, submitExampleSentenseAPI } from 'quizzer-lib';
 import { Button } from '@/components/ui-elements/button/Button';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
+import { clearInputValuesByIds } from '@/utils/dom';
 
 interface AddExampleSectionProps {}
 
@@ -20,7 +21,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
 
   return (
     <>
-      <Card variant="outlined" attr="margin-vertical" header="例文追加">
+      <Card variant="outlined" attr={['margin-vertical']} header="例文追加">
         <CardContent>
           <Card variant="outlined">
             <CardHeader subheader="英単語名(紐づける場合)" />
@@ -119,15 +120,12 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
                 wordName: ''
               });
               // 入力データをクリア
-              // TODO javascript形式でやるんじゃなくて　コンポーネントの方に削除する関数とか組み入れてやらせたい -> これはinputのvalueにstateを指定してやるだけで良さそうなきが
-              ['addExampleEnField', 'addExampleJaField', 'addExampleToWordName', 'addExplanationField'].forEach(
-                (value) => {
-                  const inputField = document.getElementById(value) as HTMLTextAreaElement;
-                  if (inputField) {
-                    inputField.value = '';
-                  }
-                }
-              );
+              clearInputValuesByIds([
+                'addExampleEnField',
+                'addExampleJaField',
+                'addExampleToWordName',
+                'addExplanationField'
+              ]);
             }
           }}
         />

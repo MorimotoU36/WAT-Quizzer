@@ -12,7 +12,7 @@ interface SayingCardProps {
 export const SayingCard = ({ sayingResponse, setSaying }: SayingCardProps) => {
   return (
     <>
-      <Card variant="outlined" attr="margin-vertical">
+      <Card variant="outlined" attr={['margin-vertical']}>
         <CardContent>
           <Typography variant="h6" component="h6" color="grey.700">
             今回の格言

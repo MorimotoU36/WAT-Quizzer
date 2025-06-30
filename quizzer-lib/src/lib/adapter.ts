@@ -1,4 +1,4 @@
-import { EditQuizAPIRequestDto } from '../quiz/edit/dto'
+import { EditQuizAPIRequestDto } from '../api/quiz/edit/dto'
 import {
   PullDownOptionDto,
   GetQuizFileApiResponseDto,

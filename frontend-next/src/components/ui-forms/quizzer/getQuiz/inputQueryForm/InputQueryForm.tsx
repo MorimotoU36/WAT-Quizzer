@@ -1,24 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
+import React, { useState } from 'react';
+import { FormControl, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
-import {
-  GetCategoryAPIResponseDto,
-  getCategoryListAPI,
-  getCategoryListAPIResponseToPullDownAdapter,
-  GetQuizAPIRequestDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
-} from 'quizzer-lib';
+import { GetQuizAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
+import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -26,78 +18,19 @@ interface InputQueryFormProps {
 }
 
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題ファイルリスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
-
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    if (!setQuizRequestData) {
-      return;
-    }
-
-    setMessage({
-      message: '通信中...',
-      messageColor: '#d3d3d3',
-      isDisplay: true
-    });
-    setQuizRequestData({
-      ...getQuizRequestData,
-      file_num: +e.target.value
-    });
-
-    // TODO カテゴリリスト取得 これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getCategoryListAPI({ getCategoryListData: { file_num: String(e.target.value) } });
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? getCategoryListAPIResponseToPullDownAdapter(result.result as GetCategoryAPIResponseDto[])
-        : [];
-      setCategorylistoption(pullDownOption);
-    })();
-  };
 
   return (
     <FormGroup>
-      <PullDown label={'問題ファイル'} optionList={filelistoption} onChange={selectedFileChange} />
+      <QuizFilePullDown
+        onFileChange={useSelectedFileChange({
+          setMessage,
+          setCategorylistoption,
+          setQuizRequestData
+        })}
+      />
       <FormControl>
         <TextField
           label="問題番号"
@@ -110,17 +43,18 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
         />
       </FormControl>
 
-      {/*TODO ランダムで使うところだけはCardかなんかで囲って表示させるようにしたい */}
-      <PullDown
-        label={'カテゴリ'}
-        optionList={categorylistoption}
-        onChange={(e) => {
-          setQuizRequestData({
-            ...getQuizRequestData,
-            category: String(e.target.value)
-          });
-        }}
-      />
+      <FormControl>
+        <PullDown
+          label={'カテゴリ'}
+          optionList={categorylistoption}
+          onChange={(e) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              category: String(e.target.value)
+            });
+          }}
+        />
+      </FormControl>
 
       <FormControl>
         <RangeSliderSection

@@ -35,7 +35,6 @@ export class EnglishController {
     return await this.englishService.addExampleService(req);
   }
 
-  // TODO isLinkedはNestのPipeを使ってbooleanで受け取るようにしたい。
   @Get('/example')
   async searchExample(
     @Query('query') query: string,

@@ -13,7 +13,8 @@ import {
   EditWordSourceAPIRequestDto,
   getWordDetailAPI,
   GetWordDetailAPIResponseDto,
-  PullDownOptionDto
+  PullDownOptionDto,
+  initEditWordSourceData
 } from 'quizzer-lib';
 
 interface SourceStackProps {
@@ -58,12 +59,6 @@ const displaySourceInput = (
 };
 
 export const SourceStack = ({ sourceList, wordDetail, setMessage, setWordDetail }: SourceStackProps) => {
-  // TODO 初期データはlibに持っていく
-  const initEditWordSourceData = {
-    wordId: -1,
-    oldSourceId: -1,
-    newSourceId: -1
-  };
   // TODO word-sourceの構造変えたらここも直したい
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
   const [editWordSourceData, setEditWordSourceData] = useState<EditWordSourceAPIRequestDto>(initEditWordSourceData);
@@ -79,7 +74,7 @@ export const SourceStack = ({ sourceList, wordDetail, setMessage, setWordDetail 
     });
   };
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'出典'}
       </Typography>

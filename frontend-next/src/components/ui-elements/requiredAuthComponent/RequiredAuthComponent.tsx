@@ -13,6 +13,7 @@ export default function RequiredAuthComponent({ children }: Props) {
   const [checking, setChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const idToken = localStorage.getItem('idToken');
     const accessToken = localStorage.getItem('accessToken');

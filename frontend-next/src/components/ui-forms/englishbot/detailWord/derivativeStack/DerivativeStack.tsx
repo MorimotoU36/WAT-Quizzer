@@ -37,7 +37,7 @@ export const DerivativeStack = ({ wordDetail, setMessage, setWordDetail }: Deriv
   };
 
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'派生語'}
       </Typography>

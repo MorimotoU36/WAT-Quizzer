@@ -19,6 +19,7 @@ import {
 } from 'quizzer-lib';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { englishTestTypeRadioButton } from '@/constants/contents/radioButton';
 
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionDto[];
@@ -33,7 +34,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
 
   return (
     <>
-      <Card attr={'through-card padding-vertical'}>
+      <Card attr={['through-card', 'padding-vertical']}>
         <FormGroup>
           <PullDown
             label={'出典'}
@@ -99,22 +100,8 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
           </FormControl>
           <FormControl>
             テスト形式：
-            {/* TODO ここも外部の設定ファイルとかに保存したい */}
             <RadioGroup
-              radioButtonProps={[
-                {
-                  value: '0',
-                  label: '単語名'
-                },
-                {
-                  value: '1',
-                  label: '四択'
-                },
-                {
-                  value: '2',
-                  label: '意味当て'
-                }
-              ]}
+              radioButtonProps={englishTestTypeRadioButton}
               defaultValue={'0'}
               setQueryofQuizStater={(value: string) => {
                 setTestType(value);

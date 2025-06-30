@@ -35,7 +35,7 @@ export const WordSummaryChart = ({ wordSummaryData }: WordSummaryChartProps) => 
   };
 
   return (
-    <Card variant="outlined" attr="square-200 margin-vertical">
+    <Card variant="outlined" attr={['square-200', 'margin-vertical']}>
       {wordSummaryData.length > 0 ? <Doughnut data={data} options={options} /> : <CircularProgress />}
     </Card>
   );

@@ -3,23 +3,20 @@ import { Card as MuiCard, CardHeader as MuiCardHeader } from '@mui/material';
 import styles from './Card.module.css';
 
 interface CardProps {
-  variant?: string;
-  attr?: string;
+  variant?: 'outlined' | 'elevation';
+  attr?: string[];
   header?: string;
   subHeader?: string;
   children?: ReactNode;
 }
 
-// TODO このvariant使われていない？
-// TODO attr みたいなクラスの指定方法。他のコンポーネントもだけどなんかわかりにくい。string配列形式の方が良さそう
-export const Card = ({ variant = 'outlined', ...props }: CardProps) => {
+export const Card = ({ variant = 'outlined', attr, header, subHeader, children }: CardProps) => {
+  const classNames = attr ? attr.map((x) => styles[x] || '').join(' ') : '';
+
   return (
-    <>
-      <MuiCard className={(props.attr ? props.attr.split(' ').map((x) => styles[x] || '') : []).join(' ')}>
-        {props.header && <MuiCardHeader title={props.header} />}
-        {props.subHeader && <MuiCardHeader subheader={props.subHeader} />}
-        {props.children}
-      </MuiCard>
-    </>
+    <MuiCard variant={variant} className={classNames}>
+      {(header || subHeader) && <MuiCardHeader title={header} subheader={subHeader} />}
+      {children}
+    </MuiCard>
   );
 };

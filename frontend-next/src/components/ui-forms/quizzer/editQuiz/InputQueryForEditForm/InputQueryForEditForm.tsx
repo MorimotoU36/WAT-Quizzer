@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
 import {
@@ -9,59 +8,38 @@ import {
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
   getQuizAPIResponseToEditQuizAPIRequestAdapter,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   initEditQuizRequestData,
-  initGetQuizRequestData,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  initGetQuizRequestData
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { useRouter } from 'next/router';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface InputQueryForEditFormProps {
   setEditQuizRequestData: React.Dispatch<React.SetStateAction<EditQuizAPIRequestDto>>;
 }
 
 export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForEditFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
 
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
+  //問題取得ボタン押した時の処理
+  const getQuiz = useCallback(
+    async (getQuizRequestData: GetQuizAPIRequestDto) => {
+      setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+      const result = await getQuizAPI({ getQuizRequestData });
       setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
+      if (result.result) {
+        setEditQuizRequestData({
+          ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
+        });
+      } else {
+        setEditQuizRequestData(initEditQuizRequestData);
+      }
+    },
+    [setMessage, setEditQuizRequestData]
+  );
 
   // queryParam idが設定されていた場合、その問題IDの値を初期値設定する
   // TODO できれば前画面から問題の値を持って来させるようにしたい
@@ -73,43 +51,26 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         file_num: +file_num,
         quiz_num: +quiz_num
       });
-      // TODO  以下は問題取得ボタン押した時と処理同じなので別関数にまとめたい
-      (async () => {
-        setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-        const result = await getQuizAPI({
-          getQuizRequestData: {
-            file_num: +file_num,
-            quiz_num: +quiz_num
-          }
-        });
-        setMessage(result.message);
-        if (result.result) {
-          setEditQuizRequestData({
-            ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
-          });
-        } else {
-          setEditQuizRequestData(initEditQuizRequestData);
-        }
-      })();
+      getQuiz({
+        file_num: +file_num,
+        quiz_num: +quiz_num
+      });
     }
-  }, [router,setEditQuizRequestData,setMessage]);
-
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    setQuizRequestData({
-      ...getQuizRequestData,
-      file_num: +e.target.value
-    });
-  };
+  }, [getQuiz, router, setEditQuizRequestData, setMessage]);
 
   return (
     <>
       <FormGroup>
-        <PullDown
-          label={'問題ファイル'}
-          optionList={filelistoption}
-          onChange={selectedFileChange}
+        <QuizFilePullDown
+          onFileChange={(e: SelectChangeEvent<number>) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              file_num: +e.target.value
+            });
+          }}
           value={getQuizRequestData.file_num}
         />
+
         <FormControl>
           <TextField
             label="問題番号"
@@ -134,16 +95,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
         variant="contained"
         color="primary"
         onClick={async (e) => {
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData });
-          setMessage(result.message);
-          if (result.result) {
-            setEditQuizRequestData({
-              ...getQuizAPIResponseToEditQuizAPIRequestAdapter(result.result as GetQuizApiResponseDto)
-            });
-          } else {
-            setEditQuizRequestData(initEditQuizRequestData);
-          }
+          getQuiz(getQuizRequestData);
         }}
       />
     </>

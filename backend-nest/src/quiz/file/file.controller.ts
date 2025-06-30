@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { QuizFileService } from './file.service';
@@ -15,6 +16,7 @@ import {
 } from 'quizzer-lib';
 import { GetQuizFileStatisticsPipe } from './pipe/getQuizFileStatistics.pipe';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
+import { Response } from 'express';
 
 @UseGuards(CognitoAuthGuard)
 @Controller('quiz/file')
@@ -41,5 +43,13 @@ export class QuizFileController {
   @Delete()
   async deleteFile(@Body() req: DeleteQuizFileApiRequest) {
     return await this.quizFileService.deleteFile(req);
+  }
+
+  @Get('csv')
+  async downloadCsv(@Query('file_num') file_num: string, @Res() res: Response) {
+    const csv = await this.quizFileService.downloadCsv(+file_num);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="data.csv"');
+    res.send(csv);
   }
 }

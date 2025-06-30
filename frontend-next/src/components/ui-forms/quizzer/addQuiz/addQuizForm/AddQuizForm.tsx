@@ -1,68 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
 import {
   addQuizAPI,
   AddQuizAPIRequestDto,
   AddQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
   initAddQuizRequestData,
-  insertAtArray,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  insertAtArray
 } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
 import styles from './AddQuizForm.module.css';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
+  const { quizFormatListoption } = useQuizFormatList();
   const [addQuizRequestData, setAddQuizRequestData] = useState<AddQuizAPIRequestDto>(initAddQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
-
-  // 問題ファイルリスト取得
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
 
   return (
     <>
@@ -75,10 +37,8 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
 
             <Typography variant="h6" component="h6" className={styles.messageBox}>
               <label htmlFor="question">問題ファイル：</label>
-              <PullDown
-                label={'問題ファイル'}
-                optionList={filelistoption}
-                onChange={(e: SelectChangeEvent<number>) => {
+              <QuizFilePullDown
+                onFileChange={(e: SelectChangeEvent<number>) => {
                   setAddQuizRequestData((prev: any) => ({
                     ...prev,
                     file_num: +e.target.value
@@ -117,8 +77,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="question"
                 value={addQuizRequestData.question || ''}
                 onChange={(e) => {
-                  // TODO ここのany
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     question: e.target.value
                   }));
@@ -134,7 +93,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="answer"
                 value={addQuizRequestData.answer || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     answer: e.target.value
                   }));
@@ -150,7 +109,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="category"
                 value={addQuizRequestData.category || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     category: e.target.value
                   }));
@@ -167,7 +126,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="imgFile"
                 value={addQuizRequestData.img_file || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     img_file: e.target.value
                   }));
@@ -184,7 +143,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="relatedBasisNum"
                 value={addQuizRequestData.matched_basic_quiz_id || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     matched_basic_quiz_id: e.target.value
                   }));
@@ -200,7 +159,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                 id="description"
                 value={addQuizRequestData.explanation || ''}
                 onChange={(e) => {
-                  setAddQuizRequestData((prev: any) => ({
+                  setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                     ...prev,
                     explanation: e.target.value
                   }));
@@ -224,10 +183,10 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                           value="only-checked"
                           label="(多答設定、この選択肢も正解にする)"
                           onChange={(e) => {
-                            setAddQuizRequestData((prev: any) => ({
+                            setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                               ...prev,
-                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                                ...prev.dummyChoice[index],
+                              dummyChoice: insertAtArray(prev.dummyChoice!, index, {
+                                ...prev.dummyChoice![index],
                                 isCorrect: e.target.checked
                               })
                             }));
@@ -240,10 +199,10 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                           id={inputId}
                           value={choice.sentense || ''}
                           onChange={(e) => {
-                            setAddQuizRequestData((prev: any) => ({
+                            setAddQuizRequestData((prev: AddQuizAPIRequestDto) => ({
                               ...prev,
-                              dummyChoice: insertAtArray(prev.dummyChoice, index, {
-                                ...prev.dummyChoice[index],
+                              dummyChoice: insertAtArray(prev.dummyChoice!, index, {
+                                ...prev.dummyChoice![index],
                                 sentense: e.target.value
                               })
                             }));

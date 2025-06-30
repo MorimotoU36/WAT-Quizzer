@@ -19,6 +19,8 @@ import {
   getStartDateForStatistics,
   uploadQuizImageToS3,
   getQuizImageFromS3,
+  MESSAGES,
+  AnswerLogStatisticsApiResponse,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -309,8 +311,7 @@ export class QuizService {
         }, false)
       ) {
         throw new HttpException(
-          // TODO これもエラーメッセージの設定ファイルに入れるべきでは
-          `ダミー選択肢が3つ以上入力されていません。`,
+          MESSAGES.ERROR.MSG00018,
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -1132,8 +1133,53 @@ export class QuizService {
       // DB検索で使用する始値と終値
       let startDate = getStartDateForStatistics(nowDate, date_unit);
       let endDate = tomorrowDate;
-      const result = [];
+      const result: AnswerLogStatisticsApiResponse[] = [];
       for (let i = 0; i < 10; i++) {
+        const answerLogStat =
+          file_num && file_num !== -1
+            ? await prisma.$queryRaw<
+                { file_num: number; count: number; clear: number }[]
+              >`
+        select
+        	q.file_num ,
+        	COUNT(*) as count,
+        	SUM(CASE WHEN al.is_corrected  THEN 1 ELSE 0 END) as clear
+        from
+        answer_log al 
+        inner join
+        quiz q 
+        on
+        al.quiz_id = q.id  
+        where 
+        q.file_num = ${file_num} 
+        and
+        al.created_at >= ${startDate} 
+        and
+        al.created_at < ${endDate}
+        group by
+        q.file_num 
+      `
+            : await prisma.$queryRaw<
+                { file_num: number; count: number; clear: number }[]
+              >`
+    select
+      q.file_num ,
+      COUNT(*) as count,
+      SUM(CASE WHEN al.is_corrected  THEN 1 ELSE 0 END) as clear
+    from
+    answer_log al 
+    inner join
+    quiz q 
+    on
+    al.quiz_id = q.id  
+    where 
+    al.created_at >= ${startDate} 
+    and
+    al.created_at < ${endDate}
+    group by
+    q.file_num 
+  `;
+
         result.push({
           date: startDate
             .toLocaleDateString('ja-JP', {
@@ -1142,19 +1188,11 @@ export class QuizService {
               day: '2-digit',
             })
             .replace(/\//g, '-'),
-          count: await prisma.answer_log.count({
-            where: {
-              ...(file_num !== -1 && {
-                quiz: {
-                  file_num,
-                },
-              }),
-              created_at: {
-                gte: startDate,
-                lt: endDate,
-              },
-            },
-          }),
+          count: Number(answerLogStat[0]?.count) || 0,
+          accuracy_rate: answerLogStat[0]?.count
+            ? (100 * Number(answerLogStat[0]?.clear || 0)) /
+              Number(answerLogStat[0]?.count)
+            : 0,
         });
 
         // 始値の1日前の日付を取得
@@ -1214,22 +1252,24 @@ export class QuizService {
       await prisma.$transaction(
         async (prisma) => {
           // csvデータ１行ずつ読み込み
-          for (const row of csvData.data) {
-            // (問題ファイル番号,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説) でない場合終了
-            if (row.length !== 7) {
+          for (const [index, row] of csvData.data.entries()) {
+            // (問題ファイル番号,答えの数,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説,カテゴリ) でない場合終了
+            if (row.length !== 9) {
               throw new HttpException(
-                `CSVの形式が正しくありません(${row})`,
+                `CSVの形式が正しくありません(${row.length}列)`,
                 HttpStatus.BAD_REQUEST,
               );
             }
             const [
               file_num,
+              answer_num,
               question,
               answer,
               dummy1,
               dummy2,
               dummy3,
               explanation,
+              categories,
             ] = row;
             // バリデーション
             if (isNaN(+file_num)) {
@@ -1238,6 +1278,18 @@ export class QuizService {
                 HttpStatus.BAD_REQUEST,
               );
             }
+            // ダミー選択肢のデータ作成
+            const dummyChoiceData = [dummy1, dummy2, dummy3].map((d, index) => {
+              return {
+                dummy_choice_sentense: d,
+                is_corrected: index + 2 <= +answer_num ? true : false,
+              };
+            });
+            // カテゴリあれば複数個に分けておく
+            const category =
+              categories && categories !== ''
+                ? categories.split(':')
+                : undefined;
             // 問題データ登録
             // 新問題番号を取得しINSERT
             const res = await prisma.quiz.findFirst({
@@ -1263,7 +1315,17 @@ export class QuizService {
                 answer,
                 // img_file,
                 checked: false,
-                // カテゴリはとりあえず今はなしで
+                quiz_category: {
+                  ...(category && {
+                    createMany: {
+                      data: category.map((c) => {
+                        return {
+                          category: c,
+                        };
+                      }),
+                    },
+                  }),
+                },
                 quiz_explanation: {
                   ...(explanation && {
                     create: {
@@ -1274,16 +1336,12 @@ export class QuizService {
                 //  関連問題設定もとりあえず今は無しで
                 quiz_dummy_choice: {
                   createMany: {
-                    data: [
-                      { dummy_choice_sentense: dummy1 },
-                      { dummy_choice_sentense: dummy2 },
-                      { dummy_choice_sentense: dummy3 },
-                    ],
+                    data: dummyChoiceData,
                   },
                 },
               },
             });
-            console.log(`OK: ${row[0]}`);
+            console.log(`OK: ${index + 1}行目`);
           }
         },
         {
@@ -1311,5 +1369,37 @@ export class QuizService {
   // 問題用の画像をS3からダウンロードする
   async downloadQuizImage(fileName: string): Promise<Buffer> {
     return getQuizImageFromS3(fileName);
+  }
+
+  // ファイルごとの正解率ヒストグラムデータ取得
+  async getAccuracyRateHistgramData(file_num: number) {
+    try {
+      // 指定ファイルの回答ログ削除
+      const result: number[] = Array(11).fill(0);
+      const rates = await prisma.quiz_view.findMany({
+        select: {
+          id: true,
+          accuracy_rate: true,
+        },
+        where: {
+          ...(file_num &&
+            file_num !== -1 && {
+              file_num,
+            }),
+          deleted_at: null,
+        },
+      });
+      rates.forEach((num) => {
+        if (Number(num.accuracy_rate) === 100) {
+          result[10]++; // 100ちょうど
+        } else {
+          const index = Math.floor(Number(num.accuracy_rate) / 10);
+          result[index]++;
+        }
+      });
+      return { result };
+    } catch (error) {
+      throw error; //
+    }
   }
 }

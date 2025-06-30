@@ -1,5 +1,4 @@
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { Card, CardContent, FormControl, FormGroup, FormLabel, Paper, TextField, Typography } from '@mui/material';
+import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import styles from '../DeleteQuizForm.module.css';
 import {
@@ -7,45 +6,22 @@ import {
   getQuizAPI,
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
   initGetQuizRequestData,
-  initGetQuizResponseData,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  initGetQuizResponseData
 } from 'quizzer-lib';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface DeleteQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
-  quizFormatListoption: GetQuizFormatApiResponseDto[];
   setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
-export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDeleteQuizInfo }: DeleteQuizFormProps) => {
+export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
-
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
 
   return (
     <Paper variant="outlined" className={styles.form}>
@@ -56,11 +32,9 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
           </Typography>
 
           <FormGroup>
-            <PullDown
-              label={'問題ファイル'}
+            <QuizFilePullDown
               value={getQuizRequestData.file_num}
-              optionList={filelistoption}
-              onChange={(e) => {
+              onFileChange={(e) => {
                 setQuizRequestData({
                   ...getQuizRequestData,
                   file_num: +e.target.value

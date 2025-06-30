@@ -41,7 +41,7 @@ export const SubSourceStack = ({ wordDetail, setMessage, setWordDetail }: SubSou
   };
 
   return (
-    <Card variant="outlined" attr={'silver-card'}>
+    <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
         {'サブ出典'}
       </Typography>

@@ -18,7 +18,7 @@ export const AddSayingForm = ({ booklistoption }: AddSayingFormProps) => {
   const setMessage = useSetRecoilState(messageState);
   return (
     <>
-      <Card variant="outlined" subHeader="格言追加" attr="margin-vertical padding">
+      <Card variant="outlined" subHeader="格言追加" attr={['margin-vertical', 'padding']}>
         <CardContent className={styles.cardContent}>
           <PullDown
             label={''}

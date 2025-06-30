@@ -110,7 +110,7 @@ export const InputAddWordForm = ({ sourceList, addWordState, setMessage, setAddW
           }
         }}
       />
-      <Card variant={'outlined'} attr={'padding'}>
+      <Card variant={'outlined'} attr={['padding']}>
         <TextField
           className={['fullWidth', 'textField']}
           label="New Word"

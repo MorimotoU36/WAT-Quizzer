@@ -4,18 +4,12 @@ import { CardContent } from '@mui/material';
 import styles from '../AddExample.module.css';
 import commonStyles from '../../../../common.module.css';
 import { DataGrid, GridRowSelectionModel, GridRowsProp } from '@mui/x-data-grid';
-import { meanColumns } from '../../../../../../utils/englishBot/SearchWordTable';
+import { meanColumns } from '../../../../../constants/contents/table/englishbot';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
-import { searchExampleAPI, submitAssociationExampleAPI } from 'quizzer-lib';
+import { AssociateExampleandWordData, searchExampleAPI, submitAssociationExampleAPI } from 'quizzer-lib';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-
-// TODO 共通libに持っていく
-export type AssociateExampleandWordData = {
-  wordName?: string;
-  checkedIdList?: number[];
-};
 
 interface AssociateExampleandWordSectionProps {}
 
@@ -36,7 +30,7 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
   };
 
   return (
-    <Card variant="outlined" attr="margin-vertical" header="単語例文紐付け">
+    <Card variant="outlined" attr={['margin-vertical']} header="単語例文紐付け">
       <CardContent className={commonStyles.cardContent}>
         <TextField
           label="例文に紐付ける単語名(完全一致)"

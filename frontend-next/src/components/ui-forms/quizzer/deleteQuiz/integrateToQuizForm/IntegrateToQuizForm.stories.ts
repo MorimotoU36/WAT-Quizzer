@@ -22,7 +22,6 @@ type Story = StoryObj<typeof meta>;
 export const Main: Story = {
   args: {
     deleteQuizInfo: initGetQuizResponseData,
-    quizFormatListoption: [],
     setDeleteQuizInfo: undefined
   }
 };

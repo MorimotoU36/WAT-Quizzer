@@ -1,9 +1,10 @@
 // APIから受け取ったデータを変換しフロント側で処理する型
 import { Message } from '../..'
+import { Response } from 'express'
 
 export interface ProcessingApiReponse {
   status: number
-  body: ApiResponse | ApiResponse[]
+  body: ApiResponse | ApiResponse[] | Response
 }
 
 // APIから得られるデータ(抽象クラス)
@@ -17,7 +18,7 @@ export interface ErrorResponse extends ApiResponse {
 // このquizzer-libのAPIが返すデータ型（Messageを付加する）
 export interface ApiResult {
   message: Message
-  result?: ApiResponse | ApiResponse[]
+  result?: ApiResponse | ApiResponse[] | Response
 }
 
 export interface AddAPIResponseDto {

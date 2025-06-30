@@ -40,8 +40,8 @@ export default function Settings({ isMock }: Props) {
   const contents = () => {
     return (
       <Container>
-        <Title label="WAT Quizzer - 設定"></Title>
-        <Card variant="outlined" header="格言設定" attr="margin-vertical padding">
+        <Title label="WAT Quizzer - 設定" />
+        <Card variant="outlined" header="格言設定" attr={['margin-vertical', 'padding']}>
           <CardContent>
             <AddBookForm setBooklistoption={setBooklistoption} />
             <AddSayingForm booklistoption={booklistoption} />

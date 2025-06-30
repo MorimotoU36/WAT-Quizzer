@@ -254,7 +254,7 @@ export class SayingService {
   };
 
   // アップロードされた格言CSVを登録
-  // TODO csvのバリデーション処理
+  // TODO csvのバリデーション処理 quiz.service.tsでも同じ問題あり
   async uploadFile(file: Express.Multer.File) {
     try {
       const csvData = await this.parseCsv<string>(file);

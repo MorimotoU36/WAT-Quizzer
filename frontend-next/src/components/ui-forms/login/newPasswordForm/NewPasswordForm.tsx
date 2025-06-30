@@ -41,7 +41,7 @@ export const NewPasswordForm = ({ username }: NewPasswordFormProps) => {
     }
   };
   return (
-    <Card attr={'padding rect-600'}>
+    <Card attr={['padding', 'rect-600']}>
       <h1>新しいパスワードでログイン</h1>
       <TextField
         type="password"

@@ -30,13 +30,12 @@ export const DisplayQuizSection = ({
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
-  // TODO 型定義したい
   const displayQuiz = useMemo(() => {
     return {
       ...getQuizResponseData,
       ...generateQuizSentense(getQuizResponseData)
     };
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -46,7 +45,7 @@ export const DisplayQuizSection = ({
   useEffect(() => {
     setExpanded(false);
     setImageUrl && setImageUrl('');
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData.quiz_sentense, setImageUrl]);
 
   return (
     <>
@@ -61,14 +60,7 @@ export const DisplayQuizSection = ({
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
-          {/** TODO 下のimage styleは別のとこにしたい */}
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="取得した画像"
-              style={{ maxHeight: '200px', objectFit: 'contain', margin: '10px 0px', display: 'block' }}
-            />
-          )}
+          {imageUrl && <img src={imageUrl} alt="取得した画像" className={styles.quizImage} />}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {
               return <Chip key={index} label={category.category} />;
@@ -89,7 +81,9 @@ export const DisplayQuizSection = ({
               {displayQuiz.answer}
             </Typography>
             <Typography variant="subtitle2" component="h3">
-              {'解説：' + displayQuiz.quiz_explanation?.explanation}
+              {displayQuiz.quiz_explanation?.explanation.split(/(\\n)/).map((item, index) => {
+                return <React.Fragment key={index}>{item.match(/\\n/) ? <br /> : item}</React.Fragment>;
+              })}
             </Typography>
             <Button
               label={'正解!!'}

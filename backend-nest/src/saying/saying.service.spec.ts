@@ -12,6 +12,7 @@ jest.mock('quizzer-lib', () => {
       findMany: jest.fn(),
       groupBy: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
     },
   };
   return { prisma: mockPrisma, getRandomElementFromArray: jest.fn() };
@@ -143,6 +144,31 @@ describe('SayingService', () => {
       throw Error('error test by jest.');
     });
     await expect(sayingService.addSayingService(req)).rejects.toMatchObject({
+      message: 'error test by jest.',
+    });
+  });
+
+  // 格言編集 正常系
+  it('editSayingService - OK', async () => {
+    const req = { id: 1, saying: '新しい格言', explanation: '新しい説明' };
+    const testResult = {
+      id: 1,
+      saying: '新しい格言',
+      explanation: '新しい説明',
+    };
+    (prisma.saying.update as jest.Mock).mockResolvedValueOnce(testResult);
+    await expect(sayingService.editSayingService(req)).resolves.toEqual(
+      testResult,
+    );
+  });
+
+  // 格言編集 異常系
+  it('editSayingService - NG', async () => {
+    const req = { id: 1, saying: '新しい格言', explanation: '新しい説明' };
+    (prisma.saying.update as jest.Mock).mockImplementation(() => {
+      throw Error('error test by jest.');
+    });
+    await expect(sayingService.editSayingService(req)).rejects.toMatchObject({
       message: 'error test by jest.',
     });
   });

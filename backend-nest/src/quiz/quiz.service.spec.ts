@@ -5,6 +5,7 @@ import {
   getPrismaYesterdayRange,
   xor,
 } from 'quizzer-lib';
+import { emptyResult } from '../../test/constants';
 
 jest.mock('quizzer-lib', () => {
   // prismaモックを作る
@@ -45,8 +46,6 @@ jest.mock('quizzer-lib', () => {
 describe('QuizService', () => {
   let quizService: QuizService;
 
-  // TODO 別ファイルにおいた方がいいか？
-  const emptyResult = [{}];
   const getQuizResultTest = [
     {
       id: 0,
@@ -109,20 +108,19 @@ describe('QuizService', () => {
     (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
       getQuizResultTest,
     );
-    (getRandomElementFromArray as jest.Mock).mockResolvedValue(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
-    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
       await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'random'),
     ).toEqual({
-      // ...getQuizResultTest[0],
+      ...getQuizResultTest[0],
       count: 1,
-      // quiz_statistics_view: {
-      //   clear_count: '1',
-      //   fail_count: '1',
-      //   accuracy_rate: '50',
-      // },
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
@@ -186,20 +184,19 @@ describe('QuizService', () => {
       getQuizResultTest,
     );
     (getPrismaYesterdayRange as jest.Mock).mockResolvedValueOnce({});
-    (getRandomElementFromArray as jest.Mock).mockResolvedValueOnce(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
-    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
       await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'review'),
     ).toEqual({
-      // ...getQuizResultTest[0],
+      ...getQuizResultTest[0],
       count: 1,
-      // quiz_statistics_view: {
-      //   clear_count: '1',
-      //   fail_count: '1',
-      //   accuracy_rate: '50',
-      // },
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 

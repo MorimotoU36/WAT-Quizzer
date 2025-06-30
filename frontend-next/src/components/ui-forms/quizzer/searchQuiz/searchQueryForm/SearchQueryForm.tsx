@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Checkbox as MuiCheckBox, FormControl, FormControlLabel, FormGroup, SelectChangeEvent } from '@mui/material';
+import React, { useState } from 'react';
+import { FormControl, FormGroup } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import {
-  GetCategoryAPIResponseDto,
-  getCategoryListAPI,
-  getCategoryListAPIResponseToPullDownAdapter,
   GetQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
-  getQuizFormatListAPI,
+  initSearchQuizRequestData,
   PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter,
   searchQuizAPI,
   SearchQuizAPIRequestDto
 } from 'quizzer-lib';
@@ -23,80 +16,27 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { GridRowsProp } from '@mui/x-data-grid';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
+import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
 
 interface SearchQueryFormProps {
-  searchQuizRequestData: SearchQuizAPIRequestDto;
   setSearchResult: React.Dispatch<React.SetStateAction<GridRowsProp>>;
-  setSearchQuizRequestData: React.Dispatch<React.SetStateAction<SearchQuizAPIRequestDto>>;
 }
 
-export const SearchQueryForm = ({
-  searchQuizRequestData,
-  setSearchResult,
-  setSearchQuizRequestData
-}: SearchQueryFormProps) => {
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
+export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
+  const [searchQuizRequestData, setSearchQuizRequestData] =
+    useState<SearchQuizAPIRequestDto>(initSearchQuizRequestData);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
-  const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);
-
+  const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
-
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
-
-  // 問題形式リスト取得
-  useEffect(() => {
-    // TODO これ　別関数にしたい
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFormatListAPI();
-      setMessage(result.message);
-      setQuizFormatListoption(result.result ? (result.result as GetQuizFormatApiResponseDto[]) : []);
-    })();
-  }, [setMessage]);
-
-  const selectedFileChange = (e: SelectChangeEvent<number>) => {
-    // TODO カテゴリリスト取得 これ　別関数にしたい　というよりこのselectedFileChangeをlibとかに持ってきたい getQuizにもこの関数あるので
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getCategoryListAPI({ getCategoryListData: { file_num: String(e.target.value) } });
-      setSearchQuizRequestData({
-        ...searchQuizRequestData,
-        file_num: +e.target.value
-      });
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? getCategoryListAPIResponseToPullDownAdapter(result.result as GetCategoryAPIResponseDto[])
-        : [];
-      setCategorylistoption(pullDownOption);
-    })();
-  };
 
   return (
     <>
       <FormGroup>
-        <PullDown label={'問題ファイル'} optionList={filelistoption} onChange={selectedFileChange} />
+        <QuizFilePullDown
+          onFileChange={useSelectedFileChange({ setMessage, setCategorylistoption, setSearchQuizRequestData })}
+        />
         <FormControl>
           <TextField
             label="検索語句"
@@ -110,35 +50,28 @@ export const SearchQueryForm = ({
         </FormControl>
 
         <FormGroup row>
-          検索対象：
-          <FormControlLabel
-            control={
-              /**TODO ここ　muiじゃなくて作ったcheckboxコンポーネントにして */
-              <MuiCheckBox
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    searchInOnlySentense: e.target.checked
-                  });
-                }}
-                name="checkedA"
-              />
-            }
+          <span style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>検索対象：</span>
+          <Checkbox
+            value=""
             label="問題"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                searchInOnlySentense: e.target.checked
+              });
+            }}
+            name="checkedA"
           />
-          <FormControlLabel
-            control={
-              <MuiCheckBox
-                onChange={(e) => {
-                  setSearchQuizRequestData({
-                    ...searchQuizRequestData,
-                    searchInOnlyAnswer: e.target.checked
-                  });
-                }}
-                name="checkedB"
-              />
-            }
+          <Checkbox
+            value=""
             label="答え"
+            onChange={(e) => {
+              setSearchQuizRequestData({
+                ...searchQuizRequestData,
+                searchInOnlyAnswer: e.target.checked
+              });
+            }}
+            name="checkedB"
           />
         </FormGroup>
 

@@ -1,9 +1,12 @@
 import React from 'react';
 import { CardContent, Input, Typography } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
-import { EditQuizAPIRequestDto, insertAtArray } from 'quizzer-lib';
+import { editQuizAPI, EditQuizAPIRequestDto, initEditQuizRequestData, insertAtArray } from 'quizzer-lib';
 import styles from './EditQuizForm.module.css';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { Button } from '@/components/ui-elements/button/Button';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
 
 interface EditQuizFormProps {
   editQuizRequestData: EditQuizAPIRequestDto;
@@ -11,6 +14,7 @@ interface EditQuizFormProps {
 }
 
 export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: EditQuizFormProps) => {
+  const setMessage = useSetRecoilState(messageState);
   return (
     <>
       <Card variant="outlined">
@@ -168,6 +172,22 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             })}
         </CardContent>
       </Card>
+      <Button
+        label={'更新'}
+        disabled={editQuizRequestData.quiz_id === -1}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await editQuizAPI({ editQuizRequestData });
+          setMessage(result.message);
+          // TODO 成功時の判定法
+          if (result.message.messageColor === 'success.light') {
+            setEditQuizRequestData(initEditQuizRequestData);
+          }
+        }}
+      />
     </>
   );
 };

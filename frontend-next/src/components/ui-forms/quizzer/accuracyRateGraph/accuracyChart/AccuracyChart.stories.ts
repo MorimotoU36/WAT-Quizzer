@@ -22,7 +22,8 @@ export const Main: Story = {
   args: {
     accuracyData: {
       result: [],
-      checked_result: []
+      checked_result: [],
+      all_result: []
     }
   }
 };
