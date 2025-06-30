@@ -108,7 +108,7 @@ describe('QuizService', () => {
     (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
       getQuizResultTest,
     );
-    (getRandomElementFromArray as jest.Mock).mockResolvedValue(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
     expect(
@@ -184,7 +184,7 @@ describe('QuizService', () => {
       getQuizResultTest,
     );
     (getPrismaYesterdayRange as jest.Mock).mockResolvedValueOnce({});
-    (getRandomElementFromArray as jest.Mock).mockResolvedValueOnce(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
     expect(

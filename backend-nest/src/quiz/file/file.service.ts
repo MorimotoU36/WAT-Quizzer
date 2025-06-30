@@ -7,7 +7,7 @@ import {
   QuizFileStatisticsApiResponse,
 } from 'quizzer-lib';
 import { Parser } from 'json2csv';
-import { QUIZ_CSV_HEADER } from 'src/constants';
+import { QUIZ_CSV_HEADER } from '../../constants';
 
 export interface QueryType {
   query: string;
