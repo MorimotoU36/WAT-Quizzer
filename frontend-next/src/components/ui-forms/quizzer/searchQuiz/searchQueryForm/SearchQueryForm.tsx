@@ -34,7 +34,9 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
   return (
     <>
       <FormGroup>
-        <QuizFilePullDown onFileChange={useSelectedFileChange({ setMessage, setCategorylistoption })} />
+        <QuizFilePullDown
+          onFileChange={useSelectedFileChange({ setMessage, setCategorylistoption, setSearchQuizRequestData })}
+        />
         <FormControl>
           <TextField
             label="検索語句"

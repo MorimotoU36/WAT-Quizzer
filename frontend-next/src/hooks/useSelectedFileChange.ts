@@ -1,20 +1,20 @@
 import { SelectChangeEvent } from '@mui/material';
 import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
-import { GetQuizAPIRequestDto, Message, PullDownOptionDto } from 'quizzer-lib';
+import { GetQuizAPIRequestDto, Message, PullDownOptionDto, SearchQuizAPIRequestDto } from 'quizzer-lib';
 import { SetterOrUpdater } from 'recoil';
 
 type Props = {
   setMessage: SetterOrUpdater<Message>;
   setCategorylistoption: React.Dispatch<React.SetStateAction<PullDownOptionDto[]>>;
   setQuizRequestData?: React.Dispatch<React.SetStateAction<GetQuizAPIRequestDto>>;
-  getQuizRequestData?: GetQuizAPIRequestDto;
+  setSearchQuizRequestData?: React.Dispatch<React.SetStateAction<SearchQuizAPIRequestDto>>;
 };
 
 export const useSelectedFileChange = ({
   setMessage,
   setCategorylistoption,
   setQuizRequestData,
-  getQuizRequestData
+  setSearchQuizRequestData
 }: Props) => {
   return (e: SelectChangeEvent<number>) => {
     setMessage({
@@ -23,11 +23,15 @@ export const useSelectedFileChange = ({
       isDisplay: true
     });
     setQuizRequestData &&
-      getQuizRequestData &&
-      setQuizRequestData({
-        ...getQuizRequestData,
+      setQuizRequestData((prev) => ({
+        ...prev,
         file_num: +e.target.value
-      });
+      }));
+    setSearchQuizRequestData &&
+      setSearchQuizRequestData((prev) => ({
+        ...prev,
+        file_num: +e.target.value
+      }));
 
     (async () => {
       const { pullDownOption, message } = await getCategoryListOptions(String(e.target.value));
