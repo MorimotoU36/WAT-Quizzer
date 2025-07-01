@@ -163,9 +163,15 @@ export class QuizController {
     try {
       const buffer = await this.quizService.downloadQuizImage(fileName);
       const base64 = buffer.toString('base64');
+      let mimeType = 'image/png';
+      if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+        mimeType = 'image/jpeg';
+      } else if (fileName.endsWith('.gif')) {
+        mimeType = 'image/gif';
+      }
       return {
         base64,
-        mimeType: 'image/png',
+        mimeType,
       };
     } catch (err) {
       console.error(err);
