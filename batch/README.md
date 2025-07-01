@@ -1,4 +1,4 @@
-# quiz.uploader.ts
+# fourchoice.quiz.uploader.ts
 
 四択問題が書かれたファイルを読み込んで問題登録する
 
