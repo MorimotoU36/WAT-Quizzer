@@ -146,6 +146,12 @@ export class QuizController {
     return await this.quizService.getAnswerLogStatistics(req);
   }
 
+  @Post('/upload/fourchoice')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFourChoiceFile(@UploadedFile() file: Express.Multer.File) {
+    return await this.quizService.uploadFourChoiceFile(file);
+  }
+
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {

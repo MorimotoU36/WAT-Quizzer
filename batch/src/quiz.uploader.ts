@@ -38,7 +38,7 @@ try {
   const file = fs.readFileSync(path.resolve(__dirname, inputFilePath))
   const formData = new FormData()
   formData.append('file', new Blob([file]))
-  const result = await fetch(baseURL + '/quiz/upload/fourchoice', {
+  const result = await fetch(baseURL + '/quiz/upload', {
     method: 'POST',
     body: formData,
     headers: {
