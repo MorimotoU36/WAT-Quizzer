@@ -28,6 +28,8 @@ export const uploadQuizImageToS3 = async (
     Body: file.buffer,
     ContentType: file.mimetype
   }
+  console.log('upload img buffer length:' + file.buffer.length)
+  console.log('upload img buffer byteLength:' + file.buffer.byteLength)
   const s3Client = getS3Client()
   await s3Client.send(new PutObjectCommand(uploadParams))
   return `https://${bucketName}.s3.amazonaws.com/${uploadParams.Key}`
