@@ -21,13 +21,25 @@ export const getS3Client = () => {
 export const uploadQuizImageToS3 = async (
   file: Express.Multer.File
 ): Promise<string> => {
+  let bodyBuffer: Buffer
+  if (Buffer.isBuffer(file.buffer)) {
+    bodyBuffer = file.buffer // 通常の Buffer
+  } else if (typeof file.buffer === 'string') {
+    // API Gateway 経由で base64 文字列になっている場合
+    bodyBuffer = Buffer.from(file.buffer, 'base64')
+  } else {
+    throw new Error('Unsupported file.buffer type: ' + typeof file.buffer)
+  }
+
   const bucketName = process.env.QUIZ_IMAGE_S3_BUCKET
   const uploadParams = {
     Bucket: bucketName,
     Key: `uploads/${file.originalname}`,
-    Body: file.buffer,
+    Body: bodyBuffer,
     ContentType: file.mimetype
   }
+  console.log('upload img buffer length:' + file.buffer.length)
+  console.log('upload img buffer byteLength:' + file.buffer.byteLength)
   const s3Client = getS3Client()
   await s3Client.send(new PutObjectCommand(uploadParams))
   return `https://${bucketName}.s3.amazonaws.com/${uploadParams.Key}`
