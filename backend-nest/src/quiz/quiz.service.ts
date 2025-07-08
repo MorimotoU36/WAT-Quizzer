@@ -1253,8 +1253,8 @@ export class QuizService {
         async (prisma) => {
           // csvデータ１行ずつ読み込み
           for (const [index, row] of csvData.data.entries()) {
-            // (問題形式,問題ファイル番号,問題文,答え文,解説,カテゴリ) でない場合終了
-            if (row.length !== 6) {
+            // (問題形式,問題ファイル番号,問題文,答え文,解説,カテゴリ,画像ファイル名) でない場合終了
+            if (row.length !== 7) {
               throw new HttpException(
                 `CSVの形式が正しくありません(${row.length}列)`,
                 HttpStatus.BAD_REQUEST,
@@ -1267,6 +1267,7 @@ export class QuizService {
               answer,
               explanation,
               categories,
+              img_file,
             ] = row;
             // バリデーション
             if (isNaN(+file_num)) {
@@ -1309,7 +1310,7 @@ export class QuizService {
                 quiz_num: new_quiz_num,
                 quiz_sentense: question,
                 answer,
-                // img_file,
+                img_file,
                 checked: false,
                 quiz_category: {
                   ...(category && {
