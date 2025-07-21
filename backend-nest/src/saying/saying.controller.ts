@@ -9,65 +9,82 @@ import {
   Query,
   UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { SayingService } from './saying.service';
-import {
-  AddBookAPIRequestDto,
-  AddSayingAPIRequestDto,
-  EditSayingAPIRequestDto,
-} from 'quizzer-lib';
+import { AddBookDto } from './dto/add-book.dto';
+import { AddSayingDto } from './dto/add-saying.dto';
+import { EditSayingDto } from './dto/edit-saying.dto';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiBody,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
+
+@ApiTags('Saying（格言関連API）')
 @UseGuards(CognitoAuthGuard)
 @Controller('saying')
 export class SayingController {
   constructor(private readonly sayingService: SayingService) {}
 
-  // 格言取得（本ID指定、無い場合はランダムで取得）（QueryがオプショナルでPupe使うと不具合発生するのでpipeはしない）
   @Get()
+  @ApiOperation({
+    summary: '格言を取得します。本IDを指定しない場合はランダムで取得します。',
+  })
+  @ApiQuery({
+    name: 'book_id',
+    required: false,
+    description: '本ID（オプション）',
+  })
   async getSaying(@Query('book_id') book_id?: number) {
     return await this.sayingService.getRandomSaying(book_id);
   }
 
-  // 啓発本追加
   @Post('/book')
-  async addBook(@Body() req: AddBookAPIRequestDto) {
+  @ApiOperation({ summary: '啓発本を追加します。' })
+  @ApiBody({ type: AddBookDto })
+  async addBook(@Body() req: AddBookDto) {
     return await this.sayingService.addBookService(req);
   }
 
-  // 啓発本リスト取得
   @Get('/book')
+  @ApiOperation({ summary: '啓発本のリストを取得します。' })
   async getBookList() {
     return await this.sayingService.getBookListService();
   }
 
-  // 格言追加
   @Post()
-  async addSaying(@Body() req: AddSayingAPIRequestDto) {
+  @ApiOperation({ summary: '格言を追加します。' })
+  @ApiBody({ type: AddSayingDto })
+  async addSaying(@Body() req: AddSayingDto) {
     return await this.sayingService.addSayingService(req);
   }
 
-  // 格言検索
   @Get('/search')
+  @ApiOperation({ summary: '格言をキーワードで検索します。' })
+  @ApiQuery({ name: 'saying', required: true, description: '検索キーワード' })
   async searchSaying(@Query('saying') saying: string) {
     return await this.sayingService.searchSayingService(saying);
   }
 
-  // 格言編集
   @Patch()
-  async editSaying(@Body() req: EditSayingAPIRequestDto) {
+  @ApiOperation({ summary: '格言を編集します。' })
+  @ApiBody({ type: EditSayingDto })
+  async editSaying(@Body() req: EditSayingDto) {
     return await this.sayingService.editSayingService(req);
   }
 
   @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'ファイルをアップロードします。' })
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return await this.sayingService.uploadFile(file);
   }
 
-  // 格言取得(格言ID指定)
   @Get('/:id')
+  @ApiOperation({ summary: '格言IDを指定して格言を取得します。' })
+  @ApiParam({ name: 'id', type: Number, description: '格言ID' })
   async getSayingById(@Param('id', ParseIntPipe) id: number) {
     return await this.sayingService.getSayingByIdService(+id);
   }
