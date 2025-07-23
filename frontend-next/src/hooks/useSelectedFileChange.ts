@@ -16,7 +16,7 @@ export const useSelectedFileChange = ({
   setQuizRequestData,
   setSearchQuizRequestData
 }: Props) => {
-  return (e: SelectChangeEvent<number>) => {
+  return (e: SelectChangeEvent<number | string>) => {
     setMessage({
       message: '通信中...',
       messageColor: '#d3d3d3',

@@ -5,8 +5,8 @@ import { PullDown } from '../PullDown';
 import { SelectChangeEvent } from '@mui/material';
 
 type Props = {
-  onFileChange: (e: SelectChangeEvent<number>) => void;
-  value?: number;
+  onFileChange: (e: SelectChangeEvent<number | string>) => void;
+  value?: number | string;
 };
 
 export const QuizFilePullDown: React.FC<Props> = ({ onFileChange, value }) => {

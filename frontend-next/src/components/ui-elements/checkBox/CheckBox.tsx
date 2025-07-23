@@ -8,9 +8,19 @@ export interface CheckboxProps {
   required?: boolean;
   disabled?: boolean;
   defaultChecked?: boolean;
+  checked?: boolean;
 }
 
-export const Checkbox = ({ value, label, name, onChange, required, disabled, defaultChecked }: CheckboxProps) => {
+export const Checkbox = ({
+  value,
+  label,
+  name,
+  onChange,
+  required,
+  disabled,
+  defaultChecked,
+  checked
+}: CheckboxProps) => {
   return (
     <>
       <FormControlLabel
@@ -21,6 +31,7 @@ export const Checkbox = ({ value, label, name, onChange, required, disabled, def
             required={required}
             disabled={disabled}
             defaultChecked={defaultChecked}
+            checked={checked}
             name={name}
           />
         }

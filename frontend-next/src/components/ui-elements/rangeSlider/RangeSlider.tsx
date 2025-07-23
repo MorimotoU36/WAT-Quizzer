@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Slider as MuiSlider } from '@mui/material';
 import styles from './RangeSlider.module.css';
 
 interface RangeSliderProps {
   setStater?: React.Dispatch<React.SetStateAction<number[] | number>> | ((value: number[] | number) => void);
+  value?: number[];
 }
 
-export const RangeSlider = ({ setStater }: RangeSliderProps) => {
-  const [value, setValue] = useState<number[] | number>([0, 100]);
+export const RangeSlider = ({ setStater, value }: RangeSliderProps) => {
+  const [internalValue, setInternalValue] = useState<number[] | number>(value ?? [0, 100]);
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setInternalValue(value);
+    }
+  }, [value]);
 
   const handleChange = (event: Event, newValue: number[] | number) => {
-    setValue(newValue);
+    setInternalValue(newValue);
     if (setStater) {
       setStater(newValue);
     }
@@ -19,7 +26,7 @@ export const RangeSlider = ({ setStater }: RangeSliderProps) => {
   return (
     <>
       <MuiSlider
-        value={value}
+        value={internalValue}
         className={styles.default}
         onChange={handleChange}
         valueLabelDisplay="auto"
