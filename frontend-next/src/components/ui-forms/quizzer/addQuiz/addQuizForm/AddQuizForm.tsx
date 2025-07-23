@@ -38,7 +38,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
             <Typography variant="h6" component="h6" className={styles.messageBox}>
               <label htmlFor="question">問題ファイル：</label>
               <QuizFilePullDown
-                onFileChange={(e: SelectChangeEvent<number>) => {
+                onFileChange={(e: SelectChangeEvent<number | string>) => {
                   setAddQuizRequestData((prev: any) => ({
                     ...prev,
                     file_num: +e.target.value
