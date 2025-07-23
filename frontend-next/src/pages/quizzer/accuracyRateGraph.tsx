@@ -4,6 +4,7 @@ import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import { Layout } from '@/components/templates/layout/Layout';
 import { GetFileForm } from '@/components/ui-forms/quizzer/accuracyRateGraph/getFileForm/GetFileForm';
 import { AccuracyChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyChart/AccuracyChart';
+import { AccuracyRadarChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyRadarChart/AccuracyRadarChart';
 
 type Props = {
   isMock?: boolean;
@@ -20,7 +21,8 @@ export default function AccuracyRateGraphPage({ isMock }: Props) {
     return (
       <Container>
         <GetFileForm setAccuracyData={setAccuracyData} />
-        <AccuracyChart accuracyData={accuracy_data} />
+        {/* <AccuracyChart accuracyData={accuracy_data} /> */}
+        <AccuracyRadarChart accuracyData={accuracy_data} />
       </Container>
     );
   };
