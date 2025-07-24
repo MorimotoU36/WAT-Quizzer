@@ -45,6 +45,21 @@ export const AccuracyRadarChart = ({ accuracyData }: AccuracyRadarChartProps) =>
         display: true // Radarでは凡例を表示
       }
     },
+    scales: {
+      r: {
+        // レーダーチャートを常に最小値0、最大値100で表示させる
+        min: 0, // 強制的に最小値を 0 に
+        max: 100, // 強制的に最大値を 100 に
+        ticks: {
+          stepSize: 10 // 目盛り間隔
+        },
+        pointLabels: {
+          font: {
+            size: 14
+          }
+        }
+      }
+    },
     maintainAspectRatio: false
   };
 
