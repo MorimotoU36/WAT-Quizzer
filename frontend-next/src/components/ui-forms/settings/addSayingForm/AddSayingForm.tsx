@@ -23,7 +23,7 @@ export const AddSayingForm = ({ booklistoption }: AddSayingFormProps) => {
           <PullDown
             label={''}
             optionList={booklistoption}
-            onChange={(e: SelectChangeEvent<number>) => {
+            onChange={(e: SelectChangeEvent<number | string>) => {
               setAddSayingAPIRequest({
                 ...addSayingAPIRequest,
                 book_id: +e.target.value

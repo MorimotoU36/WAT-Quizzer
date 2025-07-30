@@ -67,8 +67,8 @@ export interface GetWordDetailAPIResponseDto extends ApiResponse {
   }
   word_etymology: {
     etymology: {
-      id: true
-      name: true
+      id: number
+      name: string
     }
   }[]
 }

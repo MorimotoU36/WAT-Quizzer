@@ -1,5 +1,5 @@
 .count {
-    color: lightgray
+    color: lightgray;
 }
 
 .questionCard {
@@ -9,8 +9,16 @@
 }
 
 .quizImage {
-    maxHeight: '200px';
-    objectFit: 'contain';
-    margin: '10px 0px';
-    display: 'block'
+    max-height: 200px;
+    max-width: 100%;
+    object-fit: contain;
+    margin: 10px 0px;
+    display: block;
+}
+
+.heightAlign {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    height: 100%;
 }
