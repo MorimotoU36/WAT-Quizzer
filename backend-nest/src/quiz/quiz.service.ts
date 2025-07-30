@@ -47,6 +47,8 @@ export class QuizService {
         checked,
         format_id,
       } = req;
+      // カテゴリは複数選択でカンマ区切りされてるので分割する
+      const categories = category && category.split(',').map((s) => s.trim());
       // 取得条件
       const where =
         // methodがある時は条件指定
@@ -71,14 +73,16 @@ export class QuizService {
                   last_failed_answer_log: getPrismaYesterdayRange(),
                 }),
               },
-              ...(category && {
-                quiz_category: {
-                  some: {
-                    category: {
-                      contains: category,
+              ...(categories && {
+                OR: categories.map((category) => ({
+                  quiz_category: {
+                    some: {
+                      category: {
+                        contains: category,
+                      },
                     },
                   },
-                },
+                })),
               }),
               ...(checked
                 ? {
