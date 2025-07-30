@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@mui/material';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { GetQuizAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
