@@ -4,6 +4,8 @@ import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import { Layout } from '@/components/templates/layout/Layout';
 import { GetFileForm } from '@/components/ui-forms/quizzer/accuracyRateGraph/getFileForm/GetFileForm';
 import { AccuracyChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyChart/AccuracyChart';
+import { AccuracyRadarChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyRadarChart/AccuracyRadarChart';
+import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 
 type Props = {
   isMock?: boolean;
@@ -15,12 +17,20 @@ export default function AccuracyRateGraphPage({ isMock }: Props) {
     checked_result: [],
     all_result: []
   });
+  const [alignment, setAlignment] = React.useState('Bar');
 
   const contents = () => {
     return (
       <Container>
         <GetFileForm setAccuracyData={setAccuracyData} />
-        <AccuracyChart accuracyData={accuracy_data} />
+        <ToggleButton alignment={alignment} setAlignment={setAlignment} buttonValues={['Bar', 'Radar']}></ToggleButton>
+        {alignment === 'Bar' ? (
+          <AccuracyChart accuracyData={accuracy_data} />
+        ) : alignment === 'Radar' ? (
+          <AccuracyRadarChart accuracyData={accuracy_data} />
+        ) : (
+          <></>
+        )}
       </Container>
     );
   };

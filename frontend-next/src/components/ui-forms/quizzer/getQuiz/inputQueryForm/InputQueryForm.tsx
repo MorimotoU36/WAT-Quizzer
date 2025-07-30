@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@mui/material';
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { GetQuizAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
@@ -11,6 +10,7 @@ import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 import { useSelectedFileChange } from '@/hooks/useSelectedFileChange';
+import { MultiSelectPullDown } from '@/components/ui-elements/multiSelectPullDown/MultiSelectPullDown';
 
 interface InputQueryFormProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -44,7 +44,17 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
       </FormControl>
 
       <FormControl>
-        <PullDown
+        {/* <PullDown
+          label={'カテゴリ'}
+          optionList={categorylistoption}
+          onChange={(e) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              category: String(e.target.value)
+            });
+          }}
+        /> */}
+        <MultiSelectPullDown
           label={'カテゴリ'}
           optionList={categorylistoption}
           onChange={(e) => {

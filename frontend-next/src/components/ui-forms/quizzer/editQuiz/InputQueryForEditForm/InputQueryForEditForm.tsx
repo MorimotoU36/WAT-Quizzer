@@ -62,7 +62,7 @@ export const InputQueryForEditForm = ({ setEditQuizRequestData }: InputQueryForE
     <>
       <FormGroup>
         <QuizFilePullDown
-          onFileChange={(e: SelectChangeEvent<number>) => {
+          onFileChange={(e: SelectChangeEvent<number | string>) => {
             setQuizRequestData({
               ...getQuizRequestData,
               file_num: +e.target.value

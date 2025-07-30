@@ -10,8 +10,8 @@ interface PullDownProps {
   }[];
   label?: string;
   className?: string;
-  value?: number;
-  onChange?: (e: SelectChangeEvent<number>) => void;
+  value?: number | string;
+  onChange?: (e: SelectChangeEvent<number | string>) => void;
 }
 
 const ITEM_HEIGHT = 48;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button as MuiButton, CardActions, CardContent, Collapse, Typography } from '@mui/material';
+import { Button as MuiButton, CardActions, CardContent, Collapse, Typography, IconButton } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
@@ -14,6 +14,8 @@ import {
 } from 'quizzer-lib';
 import { Chip } from '@/components/ui-elements/chip/Chip';
 import styles from './DisplayQuizSection.module.css';
+import EditIcon from '@mui/icons-material/Edit';
+import { useRouter } from 'next/router';
 
 interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
@@ -36,6 +38,7 @@ export const DisplayQuizSection = ({
       ...generateQuizSentense(getQuizResponseData)
     };
   }, [getQuizResponseData]);
+  const router = useRouter();
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -51,8 +54,22 @@ export const DisplayQuizSection = ({
     <>
       <Card variant="outlined">
         <CardContent className={styles.questionCard}>
-          <Typography variant="h5" component="h2">
+          <Typography variant="h5" component="h2" className={styles.heightAlign}>
             問題
+            {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
+            {displayQuiz.file_num !== -1 && displayQuiz.quiz_num !== -1 && (
+              <IconButton
+                aria-label={`${displayQuiz.file_num}-${displayQuiz.quiz_num}`}
+                onClick={() => {
+                  router.push({
+                    pathname: '/quizzer/editQuiz',
+                    query: { file_num: displayQuiz.file_num, quiz_num: displayQuiz.quiz_num }
+                  });
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
           </Typography>
           <Typography variant="subtitle1" component="h2">
             {getQuizResponseData.checked ? '✅' : ''}
