@@ -1,6 +1,5 @@
 import React from 'react';
 import { Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
-import styles from '../pullDown/PullDown.module.css';
 import { getRandomStr } from 'quizzer-lib';
 
 interface MultiSelectPullDownProps {
@@ -40,7 +39,8 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
   };
 
   const selectProps = {
-    className: styles.pulldown,
+    className:
+      'rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
     labelId: `quiz-file-name-${getRandomStr()}`,
     id: `quiz-file-id-${getRandomStr()}`,
     value: selectedValue,
@@ -50,7 +50,10 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
 
   return (
     <FormControl disabled={optionList.length <= 1 ? true : false}>
-      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className={styles.pulldown}>
+      <InputLabel
+        id={`quiz-file-input-${getRandomStr()}`}
+        className="rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
         {label}
       </InputLabel>
       <Select
