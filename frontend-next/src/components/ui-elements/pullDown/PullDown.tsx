@@ -1,6 +1,5 @@
 import React from 'react';
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import styles from './PullDown.module.css';
 import { getRandomStr } from 'quizzer-lib';
 
 interface PullDownProps {
@@ -27,7 +26,7 @@ const MenuProps = {
 
 export const PullDown = ({ optionList, label, className, value, onChange }: PullDownProps) => {
   const selectProps = {
-    className: styles.pulldown,
+    className: `my-0.5 ${className || ''}`,
     labelId: `quiz-file-name-${getRandomStr()}`,
     id: `quiz-file-id-${getRandomStr()}`,
     defaultValue: -1,
@@ -40,7 +39,7 @@ export const PullDown = ({ optionList, label, className, value, onChange }: Pull
 
   return (
     <FormControl disabled={optionList.length <= 1 ? true : false}>
-      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className={styles.pulldown}>
+      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className="my-0.5">
         {label}
       </InputLabel>
       <Select {...selectProps}>
