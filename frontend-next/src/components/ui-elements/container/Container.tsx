@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { Container as MuiContainer } from '@mui/material';
-import styles from './Container.module.css';
 
 interface ContainerProps {
   attr?: string[];
@@ -8,5 +7,19 @@ interface ContainerProps {
 }
 
 export const Container = ({ attr = [], children }: ContainerProps) => {
-  return <MuiContainer className={attr.map((x) => styles[x] || '').join(' ')}>{children}</MuiContainer>;
+  // CSSモジュールのクラス名をTailwind CSSクラスにマッピング
+  const getTailwindClasses = (cssClasses: string[]) => {
+    return cssClasses
+      .map((className) => {
+        switch (className) {
+          case 'flex-center':
+            return 'flex justify-center items-center h-screen m-0';
+          default:
+            return '';
+        }
+      })
+      .join(' ');
+  };
+
+  return <MuiContainer className={getTailwindClasses(attr)}>{children}</MuiContainer>;
 };
