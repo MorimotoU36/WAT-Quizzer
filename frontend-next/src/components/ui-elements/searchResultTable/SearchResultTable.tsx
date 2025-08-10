@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './SearchResultTable.module.css';
 import { DataGrid, GridColDef, GridRowSelectionModel, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
 
 interface SearchResultTableProps {
@@ -16,7 +15,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
   };
 
   return (
-    <div className={styles.searchResultTable}>
+    <div className="h-[600px] w-full">
       <DataGrid
         rows={searchResult}
         columns={columns}
