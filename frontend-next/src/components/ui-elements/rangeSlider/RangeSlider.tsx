@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Slider as MuiSlider } from '@mui/material';
-import styles from './RangeSlider.module.css';
 
 interface RangeSliderProps {
   setStater?: React.Dispatch<React.SetStateAction<number[] | number>> | ((value: number[] | number) => void);
@@ -27,7 +26,7 @@ export const RangeSlider = ({ setStater, value }: RangeSliderProps) => {
     <>
       <MuiSlider
         value={internalValue}
-        className={styles.default}
+        className="mx-2 w-auto"
         onChange={handleChange}
         valueLabelDisplay="auto"
         aria-label="range"
