@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './TextField.module.css';
 import { TextField as MuiTextField } from '@mui/material';
 
 interface TextFieldProps {
@@ -13,19 +12,34 @@ interface TextFieldProps {
   setStater?: React.Dispatch<React.SetStateAction<string>> | ((value: string) => void);
 }
 
-export const TextField = ({ label, variant, className, type, setStater, id, key, value }: TextFieldProps) => (
-  <MuiTextField
-    className={[styles.textField].concat(className ? className.map((x) => styles[x] || '') : []).join(' ')}
-    variant={variant || 'outlined'}
-    label={label}
-    type={type || 'text'}
-    onChange={(e) => {
-      if (setStater) {
-        setStater(e.target.value);
-      }
-    }}
-    id={id}
-    key={key}
-    value={value}
-  />
-);
+const tokenToTailwindClass: Record<string, string> = {
+  // CSSモジュールからの移行用マッピング
+  textField: 'my-1', // 3px相当には近似でmy-1(4px)
+  flex: 'flex-auto',
+  fullWidth: 'w-full',
+  'margin-x-10': 'mx-2.5' // 10px 相当
+};
+
+export const TextField = ({ label, variant, className, type, setStater, id, key, value }: TextFieldProps) => {
+  const mappedClasses = (className || []).map((token) => tokenToTailwindClass[token] ?? token).join(' ');
+
+  const baseClasses = tokenToTailwindClass.textField;
+  const mergedClassName = [baseClasses, mappedClasses].filter(Boolean).join(' ');
+
+  return (
+    <MuiTextField
+      className={mergedClassName}
+      variant={variant || 'outlined'}
+      label={label}
+      type={type || 'text'}
+      onChange={(e) => {
+        if (setStater) {
+          setStater(e.target.value);
+        }
+      }}
+      id={id}
+      key={key}
+      value={value}
+    />
+  );
+};
