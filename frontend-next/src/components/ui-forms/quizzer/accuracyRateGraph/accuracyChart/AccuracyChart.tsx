@@ -2,7 +2,6 @@ import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import styles from './AccuracyChart.module.css';
 
 interface AccuracyChartProps {
   accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
@@ -56,7 +55,7 @@ export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
     maintainAspectRatio: false
   };
   return (
-    <div style={{ height: `${graph_height}px` }} className={styles.chart}>
+    <div style={{ height: `${graph_height}px` }} className="mb-10">
       <Bar options={options} data={data} />
     </div>
   );
