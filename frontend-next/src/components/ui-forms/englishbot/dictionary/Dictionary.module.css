@@ -1,9 +1,0 @@
-.button {
-    margin: 10px;
-}
-
-.row {
-    display:inline-flex !important;
-    flex-direction: row !important;
-    align-items: center;
-}

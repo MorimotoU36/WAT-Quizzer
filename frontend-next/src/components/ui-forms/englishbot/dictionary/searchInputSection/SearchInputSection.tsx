@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button, FormControl, FormGroup, TextField } from '@mui/material';
-import styles from '../Dictionary.module.css';
 import { GridRowsProp } from '@mui/x-data-grid';
 import { searchWordAPI, SearchWordAPIRequestDto, Message } from 'quizzer-lib';
 
@@ -39,7 +38,7 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
           />
         </FormControl>
 
-        <FormControl className={styles.row}>
+        <FormControl className="inline-flex flex-row items-center">
           サブ出典：
           <TextField
             label="Sub Source"
@@ -54,7 +53,7 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
       </FormGroup>
 
       <Button
-        className={styles.button}
+        className="m-2.5"
         variant="contained"
         color="primary"
         onClick={async (e) => {
