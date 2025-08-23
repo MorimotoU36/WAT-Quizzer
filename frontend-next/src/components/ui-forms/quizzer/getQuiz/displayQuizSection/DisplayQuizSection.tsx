@@ -13,7 +13,6 @@ import {
   reverseCheckQuizAPI
 } from 'quizzer-lib';
 import { Chip } from '@/components/ui-elements/chip/Chip';
-import styles from './DisplayQuizSection.module.css';
 import EditIcon from '@mui/icons-material/Edit';
 import { useRouter } from 'next/router';
 
@@ -53,8 +52,8 @@ export const DisplayQuizSection = ({
   return (
     <>
       <Card variant="outlined">
-        <CardContent className={styles.questionCard}>
-          <Typography variant="h5" component="h2" className={styles.heightAlign}>
+        <CardContent className="m-2 shadow-lg bg-gray-100">
+          <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
             問題
             {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
             {displayQuiz.file_num !== -1 && displayQuiz.quiz_num !== -1 && (
@@ -77,12 +76,14 @@ export const DisplayQuizSection = ({
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
-          {imageUrl && <img src={imageUrl} alt="取得した画像" className={styles.quizImage} />}
+          {imageUrl && (
+            <img src={imageUrl} alt="取得した画像" className="max-h-48 max-w-full object-contain my-2 block" />
+          )}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {
               return <Chip key={index} label={category.category} />;
             })}
-          <Typography variant="subtitle2" className={styles.count}>
+          <Typography variant="subtitle2" className="text-gray-400">
             {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}
           </Typography>
         </CardContent>
