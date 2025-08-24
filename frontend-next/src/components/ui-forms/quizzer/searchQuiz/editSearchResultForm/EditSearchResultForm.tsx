@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styles from './EditSearchResultForm.module.css';
 import { FormControl, FormGroup, TextField } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from 'quizzer-lib';
@@ -162,7 +161,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
 
   return (
     <>
-      <FormGroup className={styles.form} row>
+      <FormGroup className="border border-gray-300 rounded-md my-2.5 px-1.5 flex items-center" row>
         チェックした問題全てにカテゴリ「
         <FormControl>
           <TextField
@@ -176,7 +175,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         」を
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="mx-2.5"
             label={'一括カテゴリ登録'}
             variant="contained"
             color="primary"
@@ -187,7 +186,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         or
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="mx-2.5"
             label={'一括カテゴリ削除'}
             variant="contained"
             color="primary"
@@ -197,11 +196,11 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         </FormControl>
       </FormGroup>
 
-      <FormGroup className={styles.group} row>
+      <FormGroup className="border border-gray-300 rounded-md my-2.5 px-1.5 flex items-center" row>
         チェックした問題全てに
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="mx-2.5"
             label={'✅をつける'}
             variant="contained"
             color="primary"
@@ -212,7 +211,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         or
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="mx-2.5"
             label={'✅を外す'}
             variant="contained"
             color="primary"
