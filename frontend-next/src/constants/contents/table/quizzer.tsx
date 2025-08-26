@@ -69,5 +69,19 @@ export const columns = [
     sortable: false,
     type: 'string',
     width: 250
+  },
+  {
+    field: 'accuracy_rate',
+    headerName: '正解率(%)',
+    sortable: true,
+    type: 'number',
+    width: 100
+  },
+  {
+    field: 'img_file',
+    headerName: '画像ファイル',
+    sortable: false,
+    type: 'string',
+    width: 150
   }
 ];

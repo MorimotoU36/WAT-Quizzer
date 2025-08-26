@@ -50,6 +50,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           })();
 
           // 自動検索
+          // TODO 下のボタン押した時と処理同じだから、まとめたい
           (async () => {
             setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
             const result = await searchQuizAPI({ searchQuizRequestData: parsed });
@@ -64,7 +65,8 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                         .map((x) => x.category)
                         .join(',')
                     : '',
-                  format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : ''
+                  format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
+                  accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
                 };
               });
               setSearchResult(apiResult);
@@ -237,7 +239,8 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                       .map((x) => x.category)
                       .join(',')
                   : '',
-                format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : ''
+                format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
+                accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
               };
             });
             setSearchResult(apiResult);

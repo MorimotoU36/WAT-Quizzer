@@ -586,7 +586,7 @@ export class QuizService {
         searchInOnlySentense,
         searchInOnlyAnswer,
       } = req;
-      return await prisma.quiz.findMany({
+      const result = await prisma.quiz.findMany({
         select: {
           id: true,
           file_num: true,
@@ -602,6 +602,11 @@ export class QuizService {
           quiz_format: {
             select: {
               name: true,
+            },
+          },
+          quiz_statistics_view: {
+            select: {
+              accuracy_rate: true,
             },
           },
           img_file: true,
@@ -654,6 +659,14 @@ export class QuizService {
         orderBy: {
           quiz_num: 'asc',
         },
+      });
+      return result.map((x) => {
+        return {
+          ...x,
+          quiz_statistics_view: {
+            accuracy_rate: x.quiz_statistics_view.accuracy_rate.toString(),
+          },
+        };
       });
     } catch (error: unknown) {
       if (error instanceof Error) {

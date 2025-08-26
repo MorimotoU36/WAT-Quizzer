@@ -37,8 +37,8 @@ export interface GetQuizApiResponseDto extends ApiResponse {
     name: string
   }
   quiz_statistics_view?: {
-    clear_count: number
-    fail_count: number
+    clear_count?: number
+    fail_count?: number
     accuracy_rate: number
   }
   quiz_category?: {
