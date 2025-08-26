@@ -1,4 +1,3 @@
-import styles from '../Settings.module.css';
 import { CardContent, CardHeader } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -31,7 +30,7 @@ export const AddFileSection = ({ setMessage }: AddFileSectionProps) => {
   return (
     <>
       <CardHeader subheader="ファイル新規追加" />
-      <CardContent className={styles.cardContent}>
+      <CardContent className="flex w-full">
         <TextField label="新規ファイル名" setStater={setFileName} className={['flex']} />
         <Button label="追加" variant="contained" attr="after-inline" onClick={async (e) => await addFile()} />
       </CardContent>
