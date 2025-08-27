@@ -6,10 +6,11 @@ import styles from './AccuracyChart.module.css';
 
 interface AccuracyChartProps {
   accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
+  order: string;
 }
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
+export const AccuracyChart = ({ accuracyData, order }: AccuracyChartProps) => {
   // データがない場合は何もしない
   if (accuracyData.result.length === 0 && accuracyData.checked_result.length === 0) {
     return <></>;
@@ -18,14 +19,20 @@ export const AccuracyChart = ({ accuracyData }: AccuracyChartProps) => {
   const data = {
     labels: [
       ...accuracyData.checked_result.map((x) => '(チェック済問題)'),
-      ...accuracyData.result.map((x) => x.category),
+      ...accuracyData.result
+        .sort((a, b) => (order === 'Name' ? a.category.localeCompare(b.category) : +a.accuracy_rate - +b.accuracy_rate))
+        .map((x) => x.category),
       ...accuracyData.all_result.map((x) => '(全問題)')
     ],
     datasets: [
       {
         data: [
           ...accuracyData.checked_result.map((x) => +x.accuracy_rate),
-          ...accuracyData.result.map((x) => +x.accuracy_rate),
+          ...accuracyData.result
+            .sort((a, b) =>
+              order === 'Name' ? a.category.localeCompare(b.category) : +a.accuracy_rate - +b.accuracy_rate
+            )
+            .map((x) => +x.accuracy_rate),
           ...accuracyData.all_result.map((x) => +x.accuracy_rate)
         ],
         backgroundColor: [
