@@ -38,6 +38,7 @@ export const Main: Story = {
       ],
       checked_result: [],
       all_result: []
-    }
+    },
+    order: 'Rate'
   }
 };

@@ -24,6 +24,7 @@ export const Main: Story = {
       result: [],
       checked_result: [],
       all_result: []
-    }
+    },
+    order: 'Rate'
   }
 };
