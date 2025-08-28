@@ -28,7 +28,7 @@ export const DropZoneArea = ({}: DropZoneAreaProps) => {
       .then((image) => {
         setIsUploading(false);
         setMessage({
-          message: 'アップロードが完了しました',
+          message: `${files.length}件のアップロードが完了しました`,
           messageColor: 'success.light',
           isDisplay: true
         });
