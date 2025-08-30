@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
 import { AddFileSection } from '../addFileSection/AddFileSection';
-import styles from '../Settings.module.css';
 import { DeleteFileSection } from '../deleteFileSection/DeleteFileSection';
 import { PullDownOptionDto, Message } from 'quizzer-lib';
 
@@ -11,7 +10,7 @@ interface FileConfigSectionProps {
 
 export const FileConfigSection = ({ setMessage, filelistoption }: FileConfigSectionProps) => {
   return (
-    <Card variant="outlined" className={styles.card}>
+    <Card variant="outlined" className="my-2.5">
       <CardHeader title="問題ファイル" />
       <CardContent>
         <Card variant="outlined">
