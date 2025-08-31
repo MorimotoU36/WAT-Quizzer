@@ -60,7 +60,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       )}
 
       {/*ヘッダとコンテンツ間の調整余白 */}
-      <div className="h-10"></div>
+      <div className="h-[40px]"></div>
 
       {/*内容*/}
       {contents}
@@ -70,7 +70,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       />
 
       {/*フッタとコンテンツ間の調整余白 */}
-      <div className="h-10"></div>
+      <div className="h-[40px]"></div>
 
       {/*フッタ*/}
       <Footer bgColor={modeConfig.bgColor} topHref={process.env.NEXT_PUBLIC_URL_END || ''}></Footer>

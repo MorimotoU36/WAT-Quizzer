@@ -13,7 +13,7 @@ export const Container = ({ attr = [], children }: ContainerProps) => {
       .map((className) => {
         switch (className) {
           case 'flex-center':
-            return 'flex justify-center items-center h-screen m-0';
+            return 'flex justify-center items-center min-h-screen m-[0px]';
           default:
             return '';
         }

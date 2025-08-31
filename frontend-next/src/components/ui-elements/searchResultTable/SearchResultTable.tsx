@@ -15,7 +15,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
   };
 
   return (
-    <div className="h-[600px] w-full">
+    <div className="h-[600px] w-full border border-gray-200 rounded-lg overflow-hidden">
       <DataGrid
         rows={searchResult}
         columns={columns}
@@ -23,6 +23,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
         checkboxSelection={hasCheck}
         disableRowSelectionOnClick
         onRowSelectionModelChange={(selectionModel, details) => registerCheckedIdList(selectionModel)}
+        className="border-0"
       />
     </div>
   );

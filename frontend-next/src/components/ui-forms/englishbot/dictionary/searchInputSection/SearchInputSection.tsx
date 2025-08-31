@@ -53,7 +53,7 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
       </FormGroup>
 
       <Button
-        className="m-2.5"
+        className="m-[10px]"
         variant="contained"
         color="primary"
         onClick={async (e) => {

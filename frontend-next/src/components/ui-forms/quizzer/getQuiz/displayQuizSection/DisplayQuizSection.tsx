@@ -52,7 +52,7 @@ export const DisplayQuizSection = ({
   return (
     <>
       <Card variant="outlined">
-        <CardContent className="m-2 shadow-lg bg-gray-100">
+        <CardContent className="!m-[8px] shadow-lg bg-gray-100">
           <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
             問題
             {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
@@ -77,7 +77,7 @@ export const DisplayQuizSection = ({
             })}
           </Typography>
           {imageUrl && (
-            <img src={imageUrl} alt="取得した画像" className="max-h-48 max-w-full object-contain my-2 block" />
+            <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
           )}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {

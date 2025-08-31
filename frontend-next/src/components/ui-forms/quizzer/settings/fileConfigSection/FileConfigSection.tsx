@@ -10,7 +10,7 @@ interface FileConfigSectionProps {
 
 export const FileConfigSection = ({ setMessage, filelistoption }: FileConfigSectionProps) => {
   return (
-    <Card variant="outlined" className="my-2.5">
+    <Card variant="outlined" className="!my-[10px]">
       <CardHeader title="問題ファイル" />
       <CardContent>
         <Card variant="outlined">

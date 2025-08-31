@@ -26,7 +26,7 @@ export const RangeSlider = ({ setStater, value }: RangeSliderProps) => {
     <>
       <MuiSlider
         value={internalValue}
-        className="mx-2 w-auto"
+        className="!mx-[8px] w-auto"
         onChange={handleChange}
         valueLabelDisplay="auto"
         aria-label="range"

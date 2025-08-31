@@ -9,7 +9,7 @@ interface LogConfigSectionProps {
 
 export const LogConfigSection = ({ filelistoption, setMessage }: LogConfigSectionProps) => {
   return (
-    <Card variant="outlined" className="my-2.5">
+    <Card variant="outlined" className="!my-[10px]">
       <CardHeader title="解答データ削除" />
       <CardContent>
         <Card variant="outlined">

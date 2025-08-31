@@ -14,10 +14,10 @@ interface TextFieldProps {
 
 const tokenToTailwindClass: Record<string, string> = {
   // CSSモジュールからの移行用マッピング
-  textField: 'my-1', // 3px相当には近似でmy-1(4px)
+  textField: '!my-[8px]', // より適切なマージン
   flex: 'flex-auto',
   fullWidth: 'w-full',
-  'margin-x-10': 'mx-2.5' // 10px 相当
+  'margin-x-10': '!mx-[10px]' // 10px 相当
 };
 
 export const TextField = ({ label, variant, className, type, setStater, id, key, value }: TextFieldProps) => {
@@ -40,6 +40,7 @@ export const TextField = ({ label, variant, className, type, setStater, id, key,
       id={id}
       key={key}
       value={value}
+      fullWidth
     />
   );
 };

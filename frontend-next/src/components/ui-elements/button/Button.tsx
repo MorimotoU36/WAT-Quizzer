@@ -17,14 +17,14 @@ const getTailwindClasses = (attr?: string): string => {
   if (!attr) return '';
 
   const classMappings: { [key: string]: string } = {
-    separate: 'my-5 mx-2.5',
-    'button-array': 'm-2.5',
-    'top-button': 'm-5 w-25 h-25',
-    'no-margin': 'm-0',
+    separate: 'my-[20px] mx-[10px]',
+    'button-array': '!m-[10px]',
+    'top-button': '!m-[20px] w-[100px] h-[100px]',
+    'no-margin': 'm-[0px]',
     'no-border': 'border-none',
-    'after-inline': 'flex-none m-2.5',
-    'no-min-width': 'min-w-0',
-    'margin-x-10': 'mx-2.5'
+    'after-inline': 'flex-none m-[10px]',
+    'no-min-width': 'min-w-none',
+    'margin-x-10': 'mx-[10px]'
   };
 
   return attr
@@ -46,7 +46,14 @@ export const Button = ({
 
   return (
     <>
-      <MuiButton className={tailwindClasses} variant={variant} size={size} color={color} {...props}>
+      <MuiButton
+        className={tailwindClasses}
+        variant={variant}
+        size={size}
+        color={color}
+        style={{ border: 'none' }}
+        {...props}
+      >
         {label}
       </MuiButton>
     </>

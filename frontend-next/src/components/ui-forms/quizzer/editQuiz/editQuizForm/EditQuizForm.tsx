@@ -18,11 +18,11 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
     <>
       <Card variant="outlined">
         <CardContent>
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             編集する問題（問題文,正解,カテゴリ,画像ファイル名,関連基礎問題番号,解説,ダミー選択肢）
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="question">問題文　：</label>
             <Input
               fullWidth
@@ -39,7 +39,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             />
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="answer">答え　　：</label>
             <Input
               fullWidth
@@ -55,7 +55,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             />
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="category">カテゴリ：</label>
             <Input
               fullWidth
@@ -72,7 +72,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             <p className="text-xs">※カテゴリはカンマ(,)区切りで書くこと</p>
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="imgFile">画像ファイル名：</label>
             <Input
               fullWidth
@@ -88,7 +88,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             />
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="relatedBasisNum">関連基礎問題番号(カンマ区切りで問題番号を指定)：</label>
             <Input
               fullWidth
@@ -105,7 +105,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
             />
           </Typography>
 
-          <Typography variant="h6" component="h6" className="my-2.5 border-none">
+          <Typography variant="h6" component="h6" className="!my-[10px] border-none">
             <label htmlFor="description">解説：</label>
             <Input
               fullWidth
@@ -131,7 +131,7 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
               const inputId = 'dummy' + (index + 1);
               return (
                 <>
-                  <Typography variant="h6" component="h6" className="my-2.5 border-none">
+                  <Typography variant="h6" component="h6" className="!my-[10px] border-none">
                     <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
                     <Checkbox
                       value="only-checked"

@@ -161,7 +161,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
 
   return (
     <>
-      <FormGroup className="border border-gray-300 rounded-md my-2.5 px-1.5 flex items-center" row>
+      <FormGroup className="border border-gray-300 rounded-md !my-[4px] !p-[5px] flex items-center" row>
         チェックした問題全てにカテゴリ「
         <FormControl>
           <TextField
@@ -175,7 +175,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         」を
         <FormControl>
           <Button
-            attr="mx-2.5"
+            attr="!mx-[10px]"
             label={'一括カテゴリ登録'}
             variant="contained"
             color="primary"
@@ -186,7 +186,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         or
         <FormControl>
           <Button
-            attr="mx-2.5"
+            attr="!mx-[10px]"
             label={'一括カテゴリ削除'}
             variant="contained"
             color="primary"
@@ -196,11 +196,11 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         </FormControl>
       </FormGroup>
 
-      <FormGroup className="border border-gray-300 rounded-md my-2.5 px-1.5 flex items-center" row>
+      <FormGroup className="border border-gray-300 rounded-md !my-[10px] !p-[5px] flex items-center" row>
         チェックした問題全てに
         <FormControl>
           <Button
-            attr="mx-2.5"
+            attr="!mx-[10px]"
             label={'✅をつける'}
             variant="contained"
             color="primary"
@@ -211,7 +211,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         or
         <FormControl>
           <Button
-            attr="mx-2.5"
+            attr="!mx-[10px]"
             label={'✅を外す'}
             variant="contained"
             color="primary"
