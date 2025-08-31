@@ -26,7 +26,7 @@ const MenuProps = {
 
 export const PullDown = ({ optionList, label, className, value, onChange }: PullDownProps) => {
   const selectProps = {
-    className: `my-0.5 ${className || ''}`,
+    className: `my-[8px] ${className || ''}`,
     labelId: `quiz-file-name-${getRandomStr()}`,
     id: `quiz-file-id-${getRandomStr()}`,
     defaultValue: -1,
@@ -38,8 +38,8 @@ export const PullDown = ({ optionList, label, className, value, onChange }: Pull
   };
 
   return (
-    <FormControl disabled={optionList.length <= 1 ? true : false}>
-      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className="my-0.5">
+    <FormControl disabled={optionList.length <= 1 ? true : false} className="min-w-[200px]">
+      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className="my-[2px]">
         {label}
       </InputLabel>
       <Select {...selectProps}>
