@@ -1,6 +1,5 @@
 import React from 'react';
 
-import styles from './Header.module.css';
 import { IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { HeaderBar } from '../../ui-elements/headerBar/HeaderBar';
@@ -13,12 +12,12 @@ interface HeaderProps {
 
 export const Header = ({ bgColor = '#0077B6', subTitle, onClick }: HeaderProps) => (
   <HeaderBar bgColor={bgColor}>
-    <span className={styles.title}>
+    <span className="text-white font-bold leading-[30px]">
       WAT Quizzer
-      {subTitle && <span className={styles.subTitle}>{' - ' + subTitle}</span>}
+      {subTitle && <span className="text-white font-bold leading-[30px]">{' - ' + subTitle}</span>}
     </span>
     {onClick ? (
-      <span className={styles.right}>
+      <span className="absolute right-2.5 leading-[30px]">
         <IconButton onClick={onClick} size="small" aria-label="Side Bar">
           <MenuIcon style={{ color: 'white' }} />
         </IconButton>
