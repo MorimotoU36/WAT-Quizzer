@@ -73,10 +73,8 @@ export const AccuracyRadarChart = ({ accuracyData, order }: AccuracyRadarChartPr
 
   // Radarチャートは正方形が見やすいので高さを幅に合わせる
   return (
-    <div className="relative w-full h-0 pb-[100%]">
-      <div className="absolute inset-0">
-        <Radar options={options} data={data} />
-      </div>
+    <div className="w-full h-[800px]">
+      <Radar options={options} data={data} />
     </div>
   );
 };
