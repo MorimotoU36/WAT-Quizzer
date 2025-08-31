@@ -1,5 +1,4 @@
 import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
-import styles from '../DeleteQuizForm.module.css';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useState } from 'react';
@@ -25,7 +24,7 @@ export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: Integ
   const setMessage = useSetRecoilState(messageState);
 
   return (
-    <Paper variant="outlined" className={styles.form}>
+    <Paper variant="outlined" className="w-2/5 float-left m-[5px]">
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" component="h6">
@@ -70,23 +69,23 @@ export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: Integ
             }}
           />
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             ファイル：{getQuizResponseData.file_num === -1 ? '' : getQuizResponseData.file_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             問題番号：{getQuizResponseData.quiz_num === -1 ? '' : getQuizResponseData.quiz_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             問題　　：{getQuizResponseData.quiz_sentense}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             答え　　：{getQuizResponseData.answer}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             カテゴリ：
             {getQuizResponseData.quiz_category
               ?.map((x) => {
@@ -95,7 +94,7 @@ export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: Integ
               .join(',')}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             画像　　：{getQuizResponseData.img_file}
           </Typography>
         </CardContent>

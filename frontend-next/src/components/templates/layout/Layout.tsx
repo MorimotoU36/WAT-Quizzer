@@ -1,6 +1,5 @@
 import React from 'react';
 
-import styles from './Layout.module.css';
 import { List, ListItem } from '@mui/material';
 import Head from 'next/head';
 import { Header } from '@/components/ui-parts/header/Header';
@@ -13,7 +12,6 @@ import { MessageBar } from '@/components/ui-elements/messageBar/MessageBar';
 import { messageState } from '@/atoms/Message';
 import RequiredAuthComponent from '@/components/ui-elements/requiredAuthComponent/RequiredAuthComponent';
 import { sidebar, SideBarModeType } from '@/constants/contents/sidebar';
-import { Title } from '@/components/ui-elements/title/Title';
 import { PAGE_TITLE } from '@/constants/contents/page';
 
 interface LayoutProps {
@@ -62,7 +60,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       )}
 
       {/*ヘッダとコンテンツ間の調整余白 */}
-      <div className={styles.space}></div>
+      <div className="h-[40px]"></div>
 
       {/*内容*/}
       {contents}
@@ -72,7 +70,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       />
 
       {/*フッタとコンテンツ間の調整余白 */}
-      <div className={styles.space}></div>
+      <div className="h-[40px]"></div>
 
       {/*フッタ*/}
       <Footer bgColor={modeConfig.bgColor} topHref={process.env.NEXT_PUBLIC_URL_END || ''}></Footer>

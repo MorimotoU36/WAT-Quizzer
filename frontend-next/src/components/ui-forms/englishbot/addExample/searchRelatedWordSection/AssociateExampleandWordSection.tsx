@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';
 import { CardContent } from '@mui/material';
-import styles from '../AddExample.module.css';
-import commonStyles from '../../../../common.module.css';
 import { DataGrid, GridRowSelectionModel, GridRowsProp } from '@mui/x-data-grid';
 import { meanColumns } from '../../../../../constants/contents/table/englishbot';
 import { TextField } from '@/components/ui-elements/textField/TextField';
@@ -31,11 +29,11 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
 
   return (
     <Card variant="outlined" attr={['margin-vertical']} header="単語例文紐付け">
-      <CardContent className={commonStyles.cardContent}>
+      <CardContent className="flex">
         <TextField
           label="例文に紐付ける単語名(完全一致)"
           variant="outlined"
-          className={['fullWidth']}
+          className={['flex-auto']}
           setStater={(value: string) => {
             setAssociateExampleandWord({
               ...associateExampleandWord,
@@ -81,11 +79,11 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
         />
       </CardContent>
 
-      <CardContent className={commonStyles.cardContent}>
+      <CardContent className="flex">
         <TextField
           label="例文検索(単語入力)"
           variant="outlined"
-          className={['fullWidth']}
+          className={['flex-auto']}
           setStater={(value: string) => {
             setSearchExampleWord(value);
           }}
@@ -128,7 +126,7 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
         />
       </CardContent>
 
-      <CardContent className={styles.searchedTable}>
+      <CardContent className="flex h-[600px]">
         <DataGrid
           rows={searchResult}
           columns={meanColumns}

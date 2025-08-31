@@ -2,7 +2,6 @@ import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import React from 'react';
 import { Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
-import styles from '../accuracyChart/AccuracyChart.module.css';
 
 interface AccuracyRadarChartProps {
   accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
@@ -74,8 +73,10 @@ export const AccuracyRadarChart = ({ accuracyData, order }: AccuracyRadarChartPr
 
   // Radarチャートは正方形が見やすいので高さを幅に合わせる
   return (
-    <div className={styles.chartResponsive}>
-      <Radar options={options} data={data} />
+    <div className="relative w-full h-0 pb-[100%]">
+      <div className="absolute inset-0">
+        <Radar options={options} data={data} />
+      </div>
     </div>
   );
 };

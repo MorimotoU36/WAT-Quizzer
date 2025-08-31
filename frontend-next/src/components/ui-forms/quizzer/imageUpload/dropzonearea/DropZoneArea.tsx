@@ -1,5 +1,4 @@
 import Dropzone from 'react-dropzone';
-import styles from './DropZoneArea.module.css';
 import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
@@ -48,7 +47,10 @@ export const DropZoneArea = ({}: DropZoneAreaProps) => {
     <Dropzone onDrop={handleOnDrop}>
       {({ getRootProps, getInputProps }) => (
         <section>
-          <div {...getRootProps()} className={styles.dropzone}>
+          <div
+            {...getRootProps()}
+            className="bg-gray-100 m-[10px] p-2.5 border-4 border-dashed border-gray-300 min-h-[200px] text-center"
+          >
             <input {...getInputProps()} />
             <p>Drag and drop some files here, or click to select files</p>
             {isUploading ? <p>ファイルをアップロードしています</p> : <p>ここに画像をドラックまたはクリック</p>}
