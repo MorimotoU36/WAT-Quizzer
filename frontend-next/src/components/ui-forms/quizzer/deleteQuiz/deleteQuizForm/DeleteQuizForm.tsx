@@ -1,6 +1,5 @@
 import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import styles from '../DeleteQuizForm.module.css';
 import {
   deleteQuiz,
   getQuizAPI,
@@ -24,7 +23,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
   const setMessage = useSetRecoilState(messageState);
 
   return (
-    <Paper variant="outlined" className={styles.form}>
+    <Paper variant="outlined" className="w-2/5 float-left m-[5px]">
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" component="h6">
@@ -72,23 +71,23 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
             }}
           />
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             ファイル：{deleteQuizInfo.file_num === -1 ? '' : deleteQuizInfo.file_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             問題番号：{deleteQuizInfo.quiz_num === -1 ? '' : deleteQuizInfo.quiz_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             問題　　：{deleteQuizInfo.quiz_sentense}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             答え　　：{deleteQuizInfo.answer}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             カテゴリ：
             {deleteQuizInfo.quiz_category
               ?.map((x) => {
@@ -97,7 +96,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
               .join(',')}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             画像　　：{deleteQuizInfo.img_file}
           </Typography>
         </CardContent>

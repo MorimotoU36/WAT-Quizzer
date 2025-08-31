@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';
 import { CardContent, CardHeader } from '@mui/material';
-import commonStyles from '../../../../common.module.css';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { AddExampleAPIRequestDto, submitExampleSentenseAPI } from 'quizzer-lib';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -25,7 +24,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
         <CardContent>
           <Card variant="outlined">
             <CardHeader subheader="英単語名(紐づける場合)" />
-            <CardContent className={commonStyles.cardContent}>
+            <CardContent className="flex">
               <TextField
                 label="英単語名"
                 variant="outlined"
@@ -40,7 +39,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
               />
             </CardContent>
             <CardHeader subheader="例文(英文)" />
-            <CardContent className={commonStyles.cardContent}>
+            <CardContent className="flex">
               <TextField
                 label="例文(英語)"
                 variant="outlined"
@@ -55,7 +54,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
               />
             </CardContent>
             <CardHeader subheader="例文(和訳)" />
-            <CardContent className={commonStyles.cardContent}>
+            <CardContent className="flex">
               <TextField
                 label="例文(和訳)"
                 variant="outlined"
@@ -70,7 +69,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
               />
             </CardContent>
             <CardHeader subheader="解説(あれば)" />
-            <CardContent className={commonStyles.cardContent}>
+            <CardContent className="flex">
               <TextField
                 label="解説(英文法など)"
                 variant="outlined"

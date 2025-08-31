@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './Button.module.css';
 import { Button as MuiButton } from '@mui/material';
 
 interface ButtonProps {
@@ -13,16 +12,41 @@ interface ButtonProps {
   onClick?: (event: React.KeyboardEvent | React.MouseEvent) => void;
 }
 
-export const Button = ({ color = 'primary', size = 'medium', variant = 'outlined', label, ...props }: ButtonProps) => {
+// CSSクラス名をTailwindクラスにマッピング
+const getTailwindClasses = (attr?: string): string => {
+  if (!attr) return '';
+
+  const classMappings: { [key: string]: string } = {
+    separate: '!my-[20px] !mx-[10px]',
+    'button-array': '!m-[10px]',
+    'top-button': '!m-[20px] w-[100px] h-[100px]',
+    'no-margin': '!m-[0px]',
+    'no-border': 'border-none',
+    'after-inline': 'flex-none !m-[10px]',
+    'no-min-width': 'min-w-none',
+    'margin-x-10': '!mx-[10px]'
+  };
+
+  return attr
+    .split(' ')
+    .map((className) => classMappings[className] || '')
+    .filter(Boolean)
+    .join(' ');
+};
+
+export const Button = ({
+  color = 'primary',
+  size = 'medium',
+  variant = 'text',
+  label,
+  attr,
+  ...props
+}: ButtonProps) => {
+  const tailwindClasses = getTailwindClasses(attr);
+
   return (
     <>
-      <MuiButton
-        className={(props.attr ? props.attr.split(' ').map((x) => styles[x] || '') : []).join(' ')}
-        variant={variant}
-        size={size}
-        color={color}
-        {...props}
-      >
+      <MuiButton className={tailwindClasses} variant={variant} size={size} color={color} {...props}>
         {label}
       </MuiButton>
     </>

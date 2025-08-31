@@ -1,7 +1,0 @@
-.flex-center {
-    display: flex !important;
-    justify-content: center; /* 横方向中央 */
-    align-items: center;     /* 縦方向中央 */
-    height: 100vh;           /* 画面の高さに合わせる */
-    margin: 0;
-}

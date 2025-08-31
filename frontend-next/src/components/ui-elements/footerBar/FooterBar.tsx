@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import styles from './FooterBar.module.css';
 
 interface FooterBarProps {
   bgColor: string;
@@ -7,7 +6,10 @@ interface FooterBarProps {
 }
 
 export const FooterBar = ({ bgColor = '#0077B6', ...props }: FooterBarProps) => (
-  <footer className={styles.footerBar} style={{ backgroundColor: bgColor }}>
+  <footer
+    className="fixed text-white bottom-[0px] w-full h-[32px] mt-[4px] shadow-md"
+    style={{ backgroundColor: bgColor }}
+  >
     {props.children}
   </footer>
 );

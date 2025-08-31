@@ -5,7 +5,6 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { FormControl, FormGroup } from '@mui/material';
 import { authSigninAPI } from 'quizzer-lib';
-import classes from './LoginForm.module.css';
 
 interface LoginFormProps {
   setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,31 +50,18 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
     <Card attr={['padding', 'rect-600']}>
       <FormGroup>
         <FormControl margin={'dense'}>
-          <h1 className={classes.formTitle}>ログイン</h1>
+          <h1 className="text-center text-2xl font-bold">ログイン</h1>
         </FormControl>
         <FormControl margin={'dense'}>
-          <TextField
-            className={['margin-x-10']}
-            label={'ユーザー名'}
-            id="username"
-            value={username}
-            setStater={setUsername}
-          />
+          <TextField label={'ユーザー名'} id="username" value={username} setStater={setUsername} />
         </FormControl>
         <FormControl margin={'dense'}>
-          <TextField
-            className={['margin-x-10']}
-            type="password"
-            id="password"
-            label={'パスワード'}
-            value={password}
-            setStater={setPassword}
-          />
+          <TextField type="password" id="password" label={'パスワード'} value={password} setStater={setPassword} />
         </FormControl>
         <FormControl margin={'dense'}>
-          <Button attr={'margin-x-10'} label={'ログイン'} onClick={handleLogin} />
+          <Button variant={'outlined'} label={'ログイン'} onClick={handleLogin} />
         </FormControl>
-        <p>{message}</p>
+        <p className="text-center text-gray-700">{message}</p>
       </FormGroup>
     </Card>
   );

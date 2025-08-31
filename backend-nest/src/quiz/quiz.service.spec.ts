@@ -324,16 +324,30 @@ describe('QuizService', () => {
 
   // 問題検索 正常系1
   it('search - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
+    // prisma.quiz.findManyが返す値（DBからの生データを想定）
+    const dbResult = [
       {
-        result: 'OK',
+        id: 1,
+        quiz_statistics_view: {
+          accuracy_rate: 80,
+        },
+        // 他の必要なフィールドを適宜追加
       },
     ];
-    (prisma.quiz.findMany as jest.Mock).mockResolvedValue(testResult);
-    (xor as jest.Mock).mockResolvedValue({});
-    expect(
-      await quizService.search({
+    // searchメソッドが返すべき値（accuracy_rateがstring化されていることに注意）
+    const expectedResult = [
+      {
+        id: 1,
+        quiz_statistics_view: {
+          accuracy_rate: '80',
+        },
+        // 他の必要なフィールドを適宜追加
+      },
+    ];
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValue(dbResult);
+    (xor as jest.Mock).mockReturnValue({}); // xorは同期的にtrue/falseを返す関数なのでmockResolvedValueではなくmockReturnValueを使う
+    await expect(
+      quizService.search({
         min_rate: 0,
         max_rate: 100,
         format_id: { '1': true },
@@ -344,7 +358,7 @@ describe('QuizService', () => {
         searchInOnlyAnswer: true,
         file_num: 1,
       }),
-    ).toEqual(testResult);
+    ).resolves.toEqual(expectedResult);
   });
 
   // 問題検索 異常系1

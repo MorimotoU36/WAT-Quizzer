@@ -10,7 +10,6 @@ import {
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
-import styles from './AddQuizForm.module.css';
 import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -31,11 +30,11 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
       <FormGroup>
         <Card variant="outlined">
           <CardContent>
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               追加する問題（問題種別,問題文,正解,カテゴリ,画像ファイル名,関連基礎問題番号,解説,ダミー選択肢）
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="question">問題ファイル：</label>
               <QuizFilePullDown
                 onFileChange={(e: SelectChangeEvent<number | string>) => {
@@ -47,7 +46,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="question">問題種別：</label>
               <RadioGroupSection
                 sectionTitle={''}
@@ -69,7 +68,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="question">問題文　：</label>
               <Input
                 fullWidth
@@ -85,7 +84,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="answer">答え　　：</label>
               <Input
                 fullWidth
@@ -101,7 +100,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="category">カテゴリ：</label>
               <Input
                 fullWidth
@@ -115,10 +114,10 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                   }));
                 }}
               />
-              <p className={styles.notation}>※カテゴリはカンマ(,)区切りで書くこと</p>
+              <p className="text-xs">※カテゴリはカンマ(,)区切りで書くこと</p>
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="imgFile">画像ファイル名：</label>
               <Input
                 fullWidth
@@ -134,7 +133,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="relatedBasisNum">関連基礎問題番号(カンマ区切りで問題番号を指定)：</label>
               <Input
                 fullWidth
@@ -151,7 +150,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
               />
             </Typography>
 
-            <Typography variant="h6" component="h6" className={styles.messageBox}>
+            <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
               <label htmlFor="description">解説：</label>
               <Input
                 fullWidth
@@ -165,7 +164,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                   }));
                 }}
               />
-              <p className={styles.notation}>
+              <p className="text-xs">
                 ※選択肢を示したいときは正解文を<b>{'{c}'}</b>、ダミー選択肢１、２、３をそれぞれ<b>{'{d1},{d2},{d3}'}</b>
                 で書くこと
               </p>
@@ -177,7 +176,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
                   const inputId = 'dummy' + (index + 1);
                   return (
                     <>
-                      <Typography variant="h6" component="h6" className={styles.messageBox}>
+                      <Typography variant="h6" component="h6" className="!my-[10px] !mx-0 border-none">
                         <label htmlFor={inputId}>{`ダミー選択肢${index + 1}：`}</label>
                         <Checkbox
                           value="only-checked"

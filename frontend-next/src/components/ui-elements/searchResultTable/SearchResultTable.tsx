@@ -1,5 +1,4 @@
 import React from 'react';
-import styles from './SearchResultTable.module.css';
 import { DataGrid, GridColDef, GridRowSelectionModel, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
 
 interface SearchResultTableProps {
@@ -16,7 +15,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
   };
 
   return (
-    <div className={styles.searchResultTable}>
+    <div className="h-[600px] w-full border border-gray-200 rounded-lg overflow-hidden">
       <DataGrid
         rows={searchResult}
         columns={columns}
@@ -24,6 +23,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
         checkboxSelection={hasCheck}
         disableRowSelectionOnClick
         onRowSelectionModelChange={(selectionModel, details) => registerCheckedIdList(selectionModel)}
+        className="border-0"
       />
     </div>
   );

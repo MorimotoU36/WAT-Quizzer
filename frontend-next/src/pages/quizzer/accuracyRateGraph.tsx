@@ -7,27 +7,31 @@ import { AccuracyChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/a
 import { AccuracyRadarChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyRadarChart/AccuracyRadarChart';
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function AccuracyRateGraphPage({ isMock }: Props) {
+export default function AccuracyRateGraphPage() {
   const [accuracy_data, setAccuracyData] = useState<GetAccuracyRateByCategoryAPIResponseDto>({
     result: [],
     checked_result: [],
     all_result: []
   });
-  const [alignment, setAlignment] = React.useState('Bar');
+  const [graph, setGraph] = React.useState('Bar');
+  const [order, setOrder] = React.useState('Rate');
 
   const contents = () => {
     return (
       <Container>
         <GetFileForm setAccuracyData={setAccuracyData} />
-        <ToggleButton alignment={alignment} setAlignment={setAlignment} buttonValues={['Bar', 'Radar']}></ToggleButton>
-        {alignment === 'Bar' ? (
-          <AccuracyChart accuracyData={accuracy_data} />
-        ) : alignment === 'Radar' ? (
-          <AccuracyRadarChart accuracyData={accuracy_data} />
+        <div className="my-1">
+          {'グラフの種類：'}
+          <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>
+        </div>
+        <div className="my-1">
+          {'表示順　　　：'}
+          <ToggleButton alignment={order} setAlignment={setOrder} buttonValues={['Rate', 'Name']}></ToggleButton>
+        </div>
+        {graph === 'Bar' ? (
+          <AccuracyChart accuracyData={accuracy_data} order={order} />
+        ) : graph === 'Radar' ? (
+          <AccuracyRadarChart accuracyData={accuracy_data} order={order} />
         ) : (
           <></>
         )}
