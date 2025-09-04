@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container } from '@mui/material';
 import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
 import { Layout } from '@/components/templates/layout/Layout';
-import { GetFileForm } from '@/components/ui-forms/quizzer/accuracyRateGraph/getFileForm/GetFileForm';
+import { GetAccuracyGraphForm } from '@/components/ui-forms/quizzer/accuracyRateGraph/getAccuracyGraphForm/GetAccuracyGraphForm';
 import { AccuracyChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyChart/AccuracyChart';
 import { AccuracyRadarChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyRadarChart/AccuracyRadarChart';
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
@@ -19,7 +19,7 @@ export default function AccuracyRateGraphPage() {
   const contents = () => {
     return (
       <Container>
-        <GetFileForm setAccuracyData={setAccuracyData} />
+        <GetAccuracyGraphForm setAccuracyData={setAccuracyData} />
         <div className="my-1">
           {'グラフの種類：'}
           <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>

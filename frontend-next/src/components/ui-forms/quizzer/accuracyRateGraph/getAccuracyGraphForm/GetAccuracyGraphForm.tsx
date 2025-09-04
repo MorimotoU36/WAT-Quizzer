@@ -9,11 +9,11 @@ import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
-interface GetFileFormProps {
+interface GetAccuracyGraphFormProps {
   setAccuracyData: React.Dispatch<React.SetStateAction<GetAccuracyRateByCategoryAPIResponseDto>>;
 }
 
-export const GetFileForm = ({ setAccuracyData }: GetFileFormProps) => {
+export const GetAccuracyGraphForm = ({ setAccuracyData }: GetAccuracyGraphFormProps) => {
   const [getCategoryRateData, setCategoryRateData] = useState<GetCategoryRateAPIRequestDto>({
     file_num: -1
   });
