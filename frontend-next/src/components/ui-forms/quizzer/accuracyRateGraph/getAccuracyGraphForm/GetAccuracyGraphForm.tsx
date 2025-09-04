@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormGroup } from '@mui/material';
+import { FormControl, FormGroup } from '@mui/material';
 import {
   getAccuracyRateByCategoryAPI,
   GetAccuracyRateByCategoryAPIResponseDto,
@@ -8,16 +8,24 @@ import {
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
+import { AccuracyChart } from '../accuracyChart/AccuracyChart';
+import { AccuracyRadarChart } from '../accuracyRadarChart/AccuracyRadarChart';
 
-interface GetAccuracyGraphFormProps {
-  setAccuracyData: React.Dispatch<React.SetStateAction<GetAccuracyRateByCategoryAPIResponseDto>>;
-}
+interface GetAccuracyGraphFormProps {}
 
-export const GetAccuracyGraphForm = ({ setAccuracyData }: GetAccuracyGraphFormProps) => {
+export const GetAccuracyGraphForm = ({}: GetAccuracyGraphFormProps) => {
   const [getCategoryRateData, setCategoryRateData] = useState<GetCategoryRateAPIRequestDto>({
     file_num: -1
   });
   const setMessage = useSetRecoilState(messageState);
+  const [accuracy_data, setAccuracyData] = useState<GetAccuracyRateByCategoryAPIResponseDto>({
+    result: [],
+    checked_result: [],
+    all_result: []
+  });
+  const [graph, setGraph] = React.useState('Bar');
+  const [order, setOrder] = React.useState('Rate');
 
   useEffect(() => {
     (async () => {
@@ -38,14 +46,33 @@ export const GetAccuracyGraphForm = ({ setAccuracyData }: GetAccuracyGraphFormPr
 
   return (
     <FormGroup>
-      <QuizFilePullDown
-        onFileChange={(e) => {
-          setCategoryRateData({
-            ...getCategoryRateData,
-            file_num: +e.target.value
-          });
-        }}
-      />
+      <FormControl>
+        <QuizFilePullDown
+          onFileChange={(e) => {
+            setCategoryRateData({
+              ...getCategoryRateData,
+              file_num: +e.target.value
+            });
+          }}
+        />
+      </FormControl>
+      <FormControl margin={'dense'} className={'!inline-block'}>
+        {'グラフの種類：'}
+        <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>
+      </FormControl>
+      <FormControl margin={'dense'} className={'!inline-block'}>
+        {'表示順　　　：'}
+        <ToggleButton alignment={order} setAlignment={setOrder} buttonValues={['Rate', 'Name']}></ToggleButton>
+      </FormControl>
+      <FormControl>
+        {graph === 'Bar' ? (
+          <AccuracyChart accuracyData={accuracy_data} order={order} />
+        ) : graph === 'Radar' ? (
+          <AccuracyRadarChart accuracyData={accuracy_data} order={order} />
+        ) : (
+          <></>
+        )}
+      </FormControl>
     </FormGroup>
   );
 };
