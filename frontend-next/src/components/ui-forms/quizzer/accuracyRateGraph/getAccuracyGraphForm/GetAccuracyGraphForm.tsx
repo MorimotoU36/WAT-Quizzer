@@ -11,6 +11,7 @@ import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePull
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 import { AccuracyChart } from '../accuracyChart/AccuracyChart';
 import { AccuracyRadarChart } from '../accuracyRadarChart/AccuracyRadarChart';
+import { Card } from '@/components/ui-elements/card/Card';
 
 interface GetAccuracyGraphFormProps {}
 
@@ -45,34 +46,36 @@ export const GetAccuracyGraphForm = ({}: GetAccuracyGraphFormProps) => {
   }, [getCategoryRateData, setMessage, setAccuracyData]);
 
   return (
-    <FormGroup>
-      <FormControl>
-        <QuizFilePullDown
-          onFileChange={(e) => {
-            setCategoryRateData({
-              ...getCategoryRateData,
-              file_num: +e.target.value
-            });
-          }}
-        />
-      </FormControl>
-      <FormControl margin={'dense'} className={'!inline-block'}>
-        {'グラフの種類：'}
-        <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>
-      </FormControl>
-      <FormControl margin={'dense'} className={'!inline-block'}>
-        {'表示順　　　：'}
-        <ToggleButton alignment={order} setAlignment={setOrder} buttonValues={['Rate', 'Name']}></ToggleButton>
-      </FormControl>
-      <FormControl>
-        {graph === 'Bar' ? (
-          <AccuracyChart accuracyData={accuracy_data} order={order} />
-        ) : graph === 'Radar' ? (
-          <AccuracyRadarChart accuracyData={accuracy_data} order={order} />
-        ) : (
-          <></>
-        )}
-      </FormControl>
-    </FormGroup>
+    <Card attr={['through-card', 'padding']}>
+      <FormGroup>
+        <FormControl>
+          <QuizFilePullDown
+            onFileChange={(e) => {
+              setCategoryRateData({
+                ...getCategoryRateData,
+                file_num: +e.target.value
+              });
+            }}
+          />
+        </FormControl>
+        <FormControl margin={'dense'} className={'!inline-block'}>
+          {'グラフの種類：'}
+          <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>
+        </FormControl>
+        <FormControl margin={'dense'} className={'!inline-block'}>
+          {'表示順　　　：'}
+          <ToggleButton alignment={order} setAlignment={setOrder} buttonValues={['Rate', 'Name']}></ToggleButton>
+        </FormControl>
+        <FormControl>
+          {graph === 'Bar' ? (
+            <AccuracyChart accuracyData={accuracy_data} order={order} />
+          ) : graph === 'Radar' ? (
+            <AccuracyRadarChart accuracyData={accuracy_data} order={order} />
+          ) : (
+            <></>
+          )}
+        </FormControl>
+      </FormGroup>
+    </Card>
   );
 };
