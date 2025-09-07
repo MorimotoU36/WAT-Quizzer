@@ -1,3 +1,7 @@
+// prisma用　大過去・大未来日
+export const PAST_DAY = new Date('1980-01-01')
+export const FUTURE_DAY = new Date('9999-12-31')
+
 // prisma用　昨日内のデータを取りたい時の条件
 export const getPrismaYesterdayRange = () => {
   const nowDate = new Date()

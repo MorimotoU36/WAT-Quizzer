@@ -11,7 +11,7 @@ export interface GetCategoryRateAPIRequestDto {
 export interface AccuracyRateByCategorySqlResultDto extends ApiResponse {
   file_num: number
   category: string
-  count: bigint
+  count: number
   accuracy_rate: number
 }
 
