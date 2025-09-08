@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { GetAccuracyGraphForm } from './GetAccuracyGraphForm';
-import { quizFileMock } from '../../../../../../.storybook/mockData/quizFile';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
