@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FormControl, FormGroup } from '@mui/material';
-import {
-  getAccuracyRateByCategoryAPI,
-  GetAccuracyRateByCategoryAPIResponseDto,
-  GetCategoryRateAPIRequestDto
-} from 'quizzer-lib';
-import { messageState } from '@/atoms/Message';
-import { useSetRecoilState } from 'recoil';
+import { GetCategoryRateAPIRequestDto } from 'quizzer-lib';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 import { AccuracyChart } from '../accuracyChart/AccuracyChart';
 import { AccuracyRadarChart } from '../accuracyRadarChart/AccuracyRadarChart';
 import { Card } from '@/components/ui-elements/card/Card';
+import { useAccuracyRateByCategory } from '@/hooks/useAccuracyRateByCategory';
 
 interface GetAccuracyGraphFormProps {}
 
@@ -19,31 +14,9 @@ export const GetAccuracyGraphForm = ({}: GetAccuracyGraphFormProps) => {
   const [getCategoryRateData, setCategoryRateData] = useState<GetCategoryRateAPIRequestDto>({
     file_num: -1
   });
-  const setMessage = useSetRecoilState(messageState);
-  const [accuracy_data, setAccuracyData] = useState<GetAccuracyRateByCategoryAPIResponseDto>({
-    result: [],
-    checked_result: [],
-    all_result: []
-  });
+  const { accuracyData } = useAccuracyRateByCategory(getCategoryRateData);
   const [graph, setGraph] = React.useState('Bar');
   const [order, setOrder] = React.useState('Rate');
-
-  useEffect(() => {
-    (async () => {
-      if (getCategoryRateData.file_num !== -1) {
-        setMessage({
-          message: '通信中...',
-          messageColor: '#d3d3d3',
-          isDisplay: true
-        });
-        const result = await getAccuracyRateByCategoryAPI({ getCategoryRateData });
-        setMessage(result.message);
-        if (result.result) {
-          setAccuracyData({ ...(result.result as GetAccuracyRateByCategoryAPIResponseDto) });
-        }
-      }
-    })();
-  }, [getCategoryRateData, setMessage, setAccuracyData]);
 
   return (
     <Card attr={['through-card', 'padding']}>
@@ -68,9 +41,9 @@ export const GetAccuracyGraphForm = ({}: GetAccuracyGraphFormProps) => {
         </FormControl>
         <FormControl>
           {graph === 'Bar' ? (
-            <AccuracyChart accuracyData={accuracy_data} order={order} />
+            <AccuracyChart accuracyData={accuracyData} order={order} />
           ) : graph === 'Radar' ? (
-            <AccuracyRadarChart accuracyData={accuracy_data} order={order} />
+            <AccuracyRadarChart accuracyData={accuracyData} order={order} />
           ) : (
             <></>
           )}

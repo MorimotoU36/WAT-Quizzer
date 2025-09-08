@@ -12,9 +12,5 @@ export default function AccuracyRateGraphPage() {
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'カテゴリ別正解率表示'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'カテゴリ別正解率表示'} />;
 }
