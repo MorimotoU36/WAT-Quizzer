@@ -1,27 +1,29 @@
 import React from 'react';
 import { FormControl, FormGroup } from '@mui/material';
-import { GetCategoryRateAPIRequestDto } from 'quizzer-lib';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 import { Card } from '@/components/ui-elements/card/Card';
+import { useAccuracyGraphForm } from '@/contexts/AccuracyGraphFormContext';
 
-interface GetAccuracyGraphFormProps {
-  graph: string;
-  order: string;
-  getCategoryRateData: GetCategoryRateAPIRequestDto;
-  setGraph: React.Dispatch<React.SetStateAction<string>>;
-  setOrder: React.Dispatch<React.SetStateAction<string>>;
-  setCategoryRateData: React.Dispatch<React.SetStateAction<GetCategoryRateAPIRequestDto>>;
-}
+export const GetAccuracyGraphForm = () => {
+  const { graph, order, getCategoryRateData, setGraph, setOrder, setCategoryRateData } = useAccuracyGraphForm();
 
-export const GetAccuracyGraphForm = ({
-  graph,
-  order,
-  getCategoryRateData,
-  setGraph,
-  setOrder,
-  setCategoryRateData
-}: GetAccuracyGraphFormProps) => {
+  const setGraphString: React.Dispatch<React.SetStateAction<string>> = (value) => {
+    if (typeof value === 'function') {
+      setGraph((prev) => (value as (prevState: string) => string)(prev) as any);
+    } else {
+      setGraph(value as any);
+    }
+  };
+
+  const setOrderString: React.Dispatch<React.SetStateAction<string>> = (value) => {
+    if (typeof value === 'function') {
+      setOrder((prev) => (value as (prevState: string) => string)(prev) as any);
+    } else {
+      setOrder(value as any);
+    }
+  };
+
   return (
     <Card attr={['through-card', 'padding']}>
       <FormGroup>
@@ -37,11 +39,19 @@ export const GetAccuracyGraphForm = ({
         </FormControl>
         <FormControl margin={'dense'} className={'!inline-block'}>
           {'グラフの種類：'}
-          <ToggleButton alignment={graph} setAlignment={setGraph} buttonValues={['Bar', 'Radar']}></ToggleButton>
+          <ToggleButton
+            alignment={graph as unknown as string}
+            setAlignment={setGraphString}
+            buttonValues={['Bar', 'Radar']}
+          ></ToggleButton>
         </FormControl>
         <FormControl margin={'dense'} className={'!inline-block'}>
           {'表示順　　　：'}
-          <ToggleButton alignment={order} setAlignment={setOrder} buttonValues={['Rate', 'Name']}></ToggleButton>
+          <ToggleButton
+            alignment={order as unknown as string}
+            setAlignment={setOrderString}
+            buttonValues={['Rate', 'Name']}
+          ></ToggleButton>
         </FormControl>
       </FormGroup>
     </Card>

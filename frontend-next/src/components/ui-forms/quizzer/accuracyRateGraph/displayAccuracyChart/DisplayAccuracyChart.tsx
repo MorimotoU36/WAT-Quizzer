@@ -2,14 +2,14 @@ import React from 'react';
 import { AccuracyChart } from '../accuracyChart/AccuracyChart';
 import { AccuracyRadarChart } from '../accuracyRadarChart/AccuracyRadarChart';
 import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
+import { useAccuracyGraphForm } from '@/contexts/AccuracyGraphFormContext';
 
 interface DisplayAccuracyChartProps {
   accuracyData: GetAccuracyRateByCategoryAPIResponseDto;
-  order: string;
-  graph: string;
 }
 
-export const DisplayAccuracyChart = ({ accuracyData, order, graph }: DisplayAccuracyChartProps) => {
+export const DisplayAccuracyChart = ({ accuracyData }: DisplayAccuracyChartProps) => {
+  const { order, graph } = useAccuracyGraphForm();
   return (
     <>
       {graph === 'Bar' ? (
