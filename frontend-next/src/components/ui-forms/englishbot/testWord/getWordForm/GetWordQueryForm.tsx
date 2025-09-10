@@ -19,6 +19,7 @@ import {
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { englishTestTypeRadioButton } from '@/constants/contents/radioButton';
+import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
 
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionDto[];
@@ -45,33 +46,22 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
               });
             }}
           />
-          <FormControl className="inline-flex flex-row items-center">
+          <FormControl className="inline-flex !flex-row items-center">
             サブ出典登録日時指定：
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Start Date"
-                className="inline max-w-[230px]"
-                onChange={(newValue) => {
-                  setQueryOfTestData({
-                    ...queryOfTestData,
-                    startDate: getDateForSqlString(newValue as Date)
-                  });
-                }}
-              />
-            </LocalizationProvider>
-            〜
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="End Date"
-                className="inline max-w-[230px]"
-                onChange={(newValue) => {
-                  setQueryOfTestData({
-                    ...queryOfTestData,
-                    endDate: getDateForSqlString(newValue as Date)
-                  });
-                }}
-              />
-            </LocalizationProvider>
+            <DateRange
+              setStartState={(newValue: Date | null) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  startDate: getDateForSqlString(newValue as Date)
+                });
+              }}
+              setEndState={(newValue: Date | null) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  endDate: getDateForSqlString(newValue as Date)
+                });
+              }}
+            />
           </FormControl>
           <FormControl>
             <Checkbox
