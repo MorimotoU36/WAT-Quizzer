@@ -18,7 +18,6 @@ import {
 import { Chart } from 'react-chartjs-2';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { ANSWER_LOG_HISTGRAM_LABEL, ANSWER_LOG_HISTGRAM_COLOR, DATE_UNIT_OPTION } from '@/constants/contents/chart';
-import styles from '../../../../../Chart.module.css';
 
 ChartJS.register(
   CategoryScale,
@@ -101,7 +100,7 @@ const QuizAnswerLogStatisticsCardWithMock = () => {
         onChange={(e) => setDateUnit(e.target.value as 'day' | 'week' | 'month')}
         value={0}
       />
-      <div className={styles.quiz_stat_week} style={{ minHeight: 300 }}>
+      <div className="h-[300px]" style={{ minHeight: 300 }}>
         <Chart type="bar" options={options} data={data} />
       </div>
     </Card>
