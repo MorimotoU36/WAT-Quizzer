@@ -3,6 +3,8 @@ import { ApiResponse } from '../..'
 // TODO category/listのDTOと共通化
 export interface GetCategoryRateAPIRequestDto {
   file_num: number
+  startDate?: string
+  endDate?: string
 }
 
 // TODO とりあえずそのまま持ってきたが作り替えたい

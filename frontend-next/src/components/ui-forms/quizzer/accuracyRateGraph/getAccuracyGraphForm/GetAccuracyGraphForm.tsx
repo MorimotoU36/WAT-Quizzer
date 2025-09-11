@@ -4,6 +4,8 @@ import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePull
 import { ToggleButton } from '@/components/ui-elements/toggleButton/ToggleButton';
 import { Card } from '@/components/ui-elements/card/Card';
 import { useAccuracyGraphForm } from '@/contexts/AccuracyGraphFormContext';
+import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
+import { getDateForSqlString } from 'quizzer-lib';
 
 export const GetAccuracyGraphForm = () => {
   const { graph, order, getCategoryRateData, setGraph, setOrder, setCategoryRateData } = useAccuracyGraphForm();
@@ -52,6 +54,23 @@ export const GetAccuracyGraphForm = () => {
             setAlignment={setOrderString}
             buttonValues={['Rate', 'Name']}
           ></ToggleButton>
+        </FormControl>
+        <FormControl margin={'dense'} className={'!flex-row items-center'}>
+          {'取得範囲　　：'}
+          <DateRange
+            setStartState={(newValue: Date | null) => {
+              setCategoryRateData({
+                ...getCategoryRateData,
+                startDate: getDateForSqlString(newValue as Date)
+              });
+            }}
+            setEndState={(newValue: Date | null) => {
+              setCategoryRateData({
+                ...getCategoryRateData,
+                endDate: getDateForSqlString(newValue as Date)
+              });
+            }}
+          />
         </FormControl>
       </FormGroup>
     </Card>
