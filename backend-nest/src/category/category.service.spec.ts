@@ -5,6 +5,9 @@ jest.mock('quizzer-lib', () => {
   // prismaモックを作る
   const mockPrisma = {
     $transaction: jest.fn(),
+    answer_log: {
+      findMany: jest.fn(),
+    },
     category_view: {
       findMany: jest.fn(),
     },
@@ -50,11 +53,27 @@ describe('CategoryService', () => {
 
   // カテゴリ正解率取得 正常系
   it('getAccuracyRateByCategory - OK', async () => {
+    (prisma.answer_log.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.category_view.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.quiz_view.groupBy as jest.Mock).mockResolvedValue([]);
     expect(await categoryService.getAccuracyRateByCategory(0)).toEqual({
-      all_result: [],
-      checked_result: [],
+      all_result: [
+        {
+          accuracy_rate: 0,
+          count: 0,
+          sum_clear: 0,
+          sum_fail: 0,
+        },
+      ],
+      checked_result: [
+        {
+          accuracy_rate: 0,
+          checked: true,
+          count: 0,
+          sum_clear: 0,
+          sum_fail: 0,
+        },
+      ],
       result: [],
     });
   });
