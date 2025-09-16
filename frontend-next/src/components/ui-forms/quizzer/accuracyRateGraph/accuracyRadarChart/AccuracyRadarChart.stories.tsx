@@ -20,19 +20,19 @@ export const Main: Story = {
         {
           file_num: 1,
           category: '英単語',
-          count: BigInt(10),
+          count: 10,
           accuracy_rate: 0.8
         },
         {
           file_num: 1,
           category: '熟語',
-          count: BigInt(8),
+          count: 8,
           accuracy_rate: 0.6
         },
         {
           file_num: 1,
           category: '文法',
-          count: BigInt(12),
+          count: 12,
           accuracy_rate: 0.9
         }
       ],
