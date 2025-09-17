@@ -14,7 +14,6 @@ export default function LoginPage() {
       ) : (
         <NewPasswordForm username={username} />
       )}
-      ;
     </Container>
   );
 }
