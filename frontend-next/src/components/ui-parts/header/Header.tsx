@@ -12,12 +12,12 @@ interface HeaderProps {
 
 export const Header = ({ bgColor = '#0077B6', subTitle, onClick }: HeaderProps) => (
   <HeaderBar bgColor={bgColor}>
-    <span className="text-white font-bold leading-[30px]">
+    <span className="text-white font-bold block px-3 pr-10 text-sm md:text-base leading-[44px] md:leading-[48px] break-words">
       WAT Quizzer
-      {subTitle && <span className="text-white font-bold leading-[30px]">{' - ' + subTitle}</span>}
+      {subTitle && <span className="text-white font-bold">{' - ' + subTitle}</span>}
     </span>
     {onClick ? (
-      <span className="absolute right-2.5 leading-[30px]">
+      <span className="absolute right-2.5 top-0 h-full flex items-center">
         <IconButton onClick={onClick} size="small" aria-label="Side Bar">
           <MenuIcon style={{ color: 'white' }} />
         </IconButton>
