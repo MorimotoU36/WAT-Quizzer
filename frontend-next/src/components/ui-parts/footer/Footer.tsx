@@ -14,7 +14,7 @@ export const Footer = ({ bgColor = '#0077B6', topHref }: FooterProps) => {
 
   return (
     <FooterBar bgColor={bgColor}>
-      <span className="absolute left-0 leading-[30px]">
+      <span className="absolute left-0 top-0 h-full flex items-center px-2 text-sm">
         <Button attr="no-margin no-border" size="small" color="inherit" href={topHref} label="トップ" />
         <Button
           attr="no-margin no-border"
@@ -29,7 +29,7 @@ export const Footer = ({ bgColor = '#0077B6', topHref }: FooterProps) => {
           label="ログアウト"
         />
       </span>
-      <span className="absolute right-2.5 leading-[30px]">©️ Tatsuroh Wakasugi</span>
+      <span className="absolute right-2.5 top-0 h-full flex items-center text-xs md:text-sm">©️ Tatsuroh Wakasugi</span>
     </FooterBar>
   );
 };
