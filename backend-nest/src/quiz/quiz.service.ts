@@ -21,6 +21,7 @@ import {
   getQuizImageFromS3,
   MESSAGES,
   AnswerLogStatisticsApiResponse,
+  getTodayStart,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -71,6 +72,9 @@ export class QuizService {
                 },
                 ...(method === 'review' && {
                   last_failed_answer_log: getPrismaYesterdayRange(),
+                  last_answer_log: {
+                    lt: getTodayStart(),
+                  },
                 }),
               },
               ...(categories && {

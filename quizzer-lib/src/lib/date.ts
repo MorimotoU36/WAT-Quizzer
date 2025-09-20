@@ -2,6 +2,19 @@
 export const PAST_DAY = new Date('1980-01-01')
 export const FUTURE_DAY = new Date('9999-12-31')
 
+// prisma用 実行時の日の0時0分のDate型データを取得
+export const getTodayStart = () => {
+  const nowDate = new Date()
+  return new Date(
+    nowDate.getFullYear(),
+    nowDate.getMonth(),
+    nowDate.getDate(),
+    0,
+    0,
+    0
+  )
+}
+
 // prisma用　昨日内のデータを取りたい時の条件
 export const getPrismaYesterdayRange = () => {
   const nowDate = new Date()
