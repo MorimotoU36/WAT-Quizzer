@@ -39,6 +39,7 @@ jest.mock('quizzer-lib', () => {
     prisma: mockPrisma,
     getRandomElementFromArray: jest.fn(),
     getPrismaYesterdayRange: jest.fn(),
+    getTodayStart: jest.fn(),
     xor: jest.fn(),
   };
 });
