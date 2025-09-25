@@ -6,7 +6,10 @@ interface HeaderBarProps {
 }
 
 export const HeaderBar = ({ bgColor = '#0077B6', ...props }: HeaderBarProps) => (
-  <header className="fixed top-0 w-full h-[44px] md:h-[48px] shadow-md" style={{ backgroundColor: bgColor }}>
+  <header
+    className="fixed top-0 w-full h-[44px] md:h-[48px] shadow-md"
+    style={{ backgroundColor: bgColor, zIndex: 10001 }}
+  >
     {props.children}
   </header>
 );
