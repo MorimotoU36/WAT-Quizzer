@@ -126,15 +126,20 @@ export const AssociateExampleandWordSection = ({}: AssociateExampleandWordSectio
         />
       </CardContent>
 
-      <CardContent className="flex h-[600px]">
-        <DataGrid
-          rows={searchResult}
-          columns={meanColumns}
-          pageSizeOptions={[15]}
-          checkboxSelection
-          disableRowSelectionOnClick
-          onRowSelectionModelChange={(selectionModel, details) => registerCheckedIdList(selectionModel)}
-        />
+      <CardContent className="flex">
+        <div className="w-full overflow-x-auto">
+          <DataGrid
+            rows={searchResult}
+            columns={meanColumns}
+            pageSizeOptions={[15]}
+            checkboxSelection
+            disableRowSelectionOnClick
+            onRowSelectionModelChange={(selectionModel, details) => registerCheckedIdList(selectionModel)}
+            className="min-w-[640px] border-0"
+            autoHeight
+            density="compact"
+          />
+        </div>
       </CardContent>
 
       <CardContent>
