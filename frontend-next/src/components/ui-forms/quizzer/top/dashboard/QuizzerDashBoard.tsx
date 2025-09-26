@@ -9,7 +9,7 @@ interface QuizzerDashboardProps {
 
 export const QuizzerDashboard: React.FC<QuizzerDashboardProps> = ({ selectedFileNum }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 max-h-screen overflow-y-auto box-border">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 overflow-y-auto box-border">
       <FileStatisticsCard file_num={selectedFileNum} />
       <QuizAnswerLogStatisticsCard file_num={selectedFileNum} />
       <AccuracyRateHistgramCard file_num={selectedFileNum} />
