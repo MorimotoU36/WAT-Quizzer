@@ -23,14 +23,16 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
   const setMessage = useSetRecoilState(messageState);
 
   return (
-    <FormGroup>
-      <QuizFilePullDown
-        onFileChange={useSelectedFileChange({
-          setMessage,
-          setCategorylistoption,
-          setQuizRequestData
-        })}
-      />
+    <FormGroup className="!mt-4">
+      <FormControl>
+        <QuizFilePullDown
+          onFileChange={useSelectedFileChange({
+            setMessage,
+            setCategorylistoption,
+            setQuizRequestData
+          })}
+        />
+      </FormControl>
       <FormControl>
         <TextField
           label="問題番号"
@@ -44,16 +46,6 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
       </FormControl>
 
       <FormControl>
-        {/* <PullDown
-          label={'カテゴリ'}
-          optionList={categorylistoption}
-          onChange={(e) => {
-            setQuizRequestData({
-              ...getQuizRequestData,
-              category: String(e.target.value)
-            });
-          }}
-        /> */}
         <MultiSelectPullDown
           label={'カテゴリ'}
           optionList={categorylistoption}
