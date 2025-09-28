@@ -9,7 +9,7 @@ export default function QuizzerTopPage() {
 
   const contents = () => {
     return (
-      <Container>
+      <Container className="!py-4">
         <QuizFilePullDown onFileChange={(e) => setSelectedFileNum(+e.target.value)} />
         <QuizzerDashboard selectedFileNum={selectedFileNum} />
       </Container>
