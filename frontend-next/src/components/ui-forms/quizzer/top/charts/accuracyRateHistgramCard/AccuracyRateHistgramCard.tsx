@@ -19,7 +19,7 @@ import {
   PointElement
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
-import styles from '../../../../../Chart.module.css';
+
 import { ACCRATE_HISTGRAM_LABEL, ACCRATE_HISTGRAM_COLOR, ACCRATE_HISTGRAM_TITLE } from '@/constants/contents/chart';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
@@ -80,7 +80,7 @@ export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardP
 
   return (
     <Card variant="outlined" attr={['margin-vertical']}>
-      <div className={styles.quiz_accuracy_hist}>
+      <div className="h-[350px]">
         {accuracyRateHistgramData.result.length > 0 ? (
           <Chart type="bar" options={options} data={data} />
         ) : (

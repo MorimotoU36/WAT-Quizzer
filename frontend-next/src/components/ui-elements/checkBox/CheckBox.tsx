@@ -33,9 +33,11 @@ export const Checkbox = ({
             defaultChecked={defaultChecked}
             checked={checked}
             name={name}
+            className="text-blue-600"
           />
         }
         label={label}
+        className="text-gray-700"
       />
     </>
   );

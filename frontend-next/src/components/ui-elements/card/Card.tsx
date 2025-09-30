@@ -14,7 +14,7 @@ export const Card = ({ variant = 'outlined', attr, header, subHeader, children }
   const tailwindMap: { [key: string]: string } = {
     'message-card': '!my-[10px] !mb-[20px] border-none',
     'silver-card': 'bg-gray-400 !mb-[20px]',
-    'through-card': 'bg-transparent',
+    'through-card': '!bg-transparent',
     'square-200': 'w-[200px] h-[200px]',
     'square-300': 'w-[300px] h-[300px]',
     'square-400': 'w-[400px] h-[400px]',

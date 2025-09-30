@@ -21,7 +21,6 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import styles from '../../../../../Chart.module.css';
 import { ANSWER_LOG_HISTGRAM_LABEL, ANSWER_LOG_HISTGRAM_COLOR, DATE_UNIT_OPTION } from '@/constants/contents/chart';
 
 ChartJS.register(
@@ -38,7 +37,6 @@ ChartJS.register(
 interface QuizAnswerLogStatisticsCardProps {
   file_num: number;
 }
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatisticsCardProps) => {
   const [answerLogStatisticsData, setAnswerLogStatisticsData] = useState<AnswerLogStatisticsApiResponse[]>([]);
@@ -116,7 +114,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
           })
         }
       />
-      <div className={styles.quiz_stat_week}>
+      <div className="h-[300px]">
         {answerLogStatisticsData.length > 0 ? <Chart type="bar" options={options} data={data} /> : <CircularProgress />}
       </div>
     </Card>

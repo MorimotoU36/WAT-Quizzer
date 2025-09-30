@@ -3,6 +3,8 @@ import { ApiResponse } from '../..'
 // TODO category/listのDTOと共通化
 export interface GetCategoryRateAPIRequestDto {
   file_num: number
+  startDate?: string
+  endDate?: string
 }
 
 // TODO とりあえずそのまま持ってきたが作り替えたい
@@ -11,7 +13,7 @@ export interface GetCategoryRateAPIRequestDto {
 export interface AccuracyRateByCategorySqlResultDto extends ApiResponse {
   file_num: number
   category: string
-  count: bigint
+  count: number
   accuracy_rate: number
 }
 

@@ -17,10 +17,11 @@ export const MessageBar = ({ messageState, setMessageState }: MessageBarProps) =
           setMessageState({ ...messageState, isDisplay: false });
         }
       }}
+      className="mb-4 ml-4"
       message={
         messageState.message === '通信中...' ? (
           <>
-            <CircularProgress />
+            <CircularProgress className="mr-2" />
             {messageState.message}
           </>
         ) : (
