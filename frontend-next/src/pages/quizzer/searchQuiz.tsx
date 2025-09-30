@@ -13,7 +13,7 @@ export default function SearchQuizPage() {
 
   const contents = () => {
     return (
-      <Container>
+      <Container className="!py-4">
         <SearchQueryForm setSearchResult={setSearchResult} />
         <SearchResultTable
           searchResult={searchResult}
