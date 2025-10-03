@@ -60,6 +60,19 @@ jobs:
           AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
+      # ECRの古いイメージを手動削除（ライフサイクルポリシーの補完）
+      - name: cleanup old ECR images
+        run: |
+          # SAMが作成するECRリポジトリ名を取得
+          REPO_NAME=$(aws cloudformation describe-stacks --stack-name sam-prisma --query 'Stacks[0].Outputs[?OutputKey==`QuizzerEcrRepositoryUri`].OutputValue' --output text | cut -d'/' -f2)
+          if [ -n "$REPO_NAME" ]; then
+            # 最新の5つ以外のイメージを削除
+            aws ecr list-images --repository-name $REPO_NAME --query 'imageIds[?imageTag!=`latest`]' --output json | \
+            jq -r '.[] | select(.imageTag != null) | .imageTag' | \
+            tail -n +6 | \
+            xargs -I {} aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag={} || true
+          fi
+
       - name: Setup dependencies(all)
         id: setup-dependencies
         run: npm ci --production

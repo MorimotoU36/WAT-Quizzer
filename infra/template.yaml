@@ -39,6 +39,30 @@ Parameters:
     Default: 'infra frontend-next cdk.out'
 
 Resources:
+  # ECR Repository with lifecycle policy
+  QuizzerEcrRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub 'sam-prisma-${AWS::StackName}'
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Keep only the latest 5 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 5
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+
   ApiGatewayRestApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -107,3 +131,6 @@ Outputs:
   SamQuizzerApiFunctionIamRole:
     Description: 'Implicit IAM Role created for SAM Quizzer Api function'
     Value: !GetAtt SamQuizzerApiFunctionRole.Arn
+  QuizzerEcrRepositoryUri:
+    Description: 'ECR Repository URI for Quizzer images'
+    Value: !Sub '${QuizzerEcrRepository.RepositoryUri}'
