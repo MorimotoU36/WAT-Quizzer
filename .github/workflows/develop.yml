@@ -60,12 +60,30 @@ jobs:
           AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
-      # ECRの古いイメージを手動削除（ライフサイクルポリシーの補完）
-      - name: cleanup old ECR images
+      # ECRの古いイメージを手動削除とライフサイクルポリシー適用
+      - name: cleanup old ECR images and apply lifecycle policy
         run: |
-          # SAMが作成するECRリポジトリ名を取得
-          REPO_NAME=$(aws cloudformation describe-stacks --stack-name sam-prisma --query 'Stacks[0].Outputs[?OutputKey==`QuizzerEcrRepositoryUri`].OutputValue' --output text | cut -d'/' -f2)
+          # SAMが作成するECRリポジトリ名を取得（通常はsam-prisma-<stack-name>形式）
+          REPO_NAME=$(aws ecr describe-repositories --query 'repositories[?contains(repositoryName, `sam-prisma`)].repositoryName' --output text | head -1)
           if [ -n "$REPO_NAME" ]; then
+            # ライフサイクルポリシーを適用
+            aws ecr put-lifecycle-policy --repository-name $REPO_NAME --lifecycle-policy-text '{
+              "rules": [
+                {
+                  "rulePriority": 1,
+                  "description": "Keep only the latest 5 images",
+                  "selection": {
+                    "tagStatus": "any",
+                    "countType": "imageCountMoreThan",
+                    "countNumber": 5
+                  },
+                  "action": {
+                    "type": "expire"
+                  }
+                }
+              ]
+            }'
+            
             # 最新の5つ以外のイメージを削除
             aws ecr list-images --repository-name $REPO_NAME --query 'imageIds[?imageTag!=`latest`]' --output json | \
             jq -r '.[] | select(.imageTag != null) | .imageTag' | \
