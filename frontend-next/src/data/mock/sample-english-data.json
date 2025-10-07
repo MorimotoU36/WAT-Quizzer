@@ -1,0 +1,154 @@
+{
+    "words": [
+        {
+            "id": 1,
+            "word_name": "algorithm",
+            "meaning": "アルゴリズム",
+            "part_of_speech": "noun",
+            "source": "computer science",
+            "example_sentences": [
+                {
+                    "id": 1,
+                    "sentence": "The sorting algorithm efficiently organizes the data.",
+                    "translation": "そのソートアルゴリズムはデータを効率的に整理します。"
+                }
+            ],
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-01-10T10:00:00Z"
+        },
+        {
+            "id": 2,
+            "word_name": "framework",
+            "meaning": "フレームワーク",
+            "part_of_speech": "noun",
+            "source": "software development",
+            "example_sentences": [
+                {
+                    "id": 2,
+                    "sentence": "React is a popular JavaScript framework.",
+                    "translation": "Reactは人気のあるJavaScriptフレームワークです。"
+                }
+            ],
+            "created_at": "2024-01-11T11:00:00Z",
+            "updated_at": "2024-01-11T11:00:00Z"
+        },
+        {
+            "id": 3,
+            "word_name": "deployment",
+            "meaning": "デプロイメント",
+            "part_of_speech": "noun",
+            "source": "devops",
+            "example_sentences": [
+                {
+                    "id": 3,
+                    "sentence": "The deployment process was automated.",
+                    "translation": "デプロイメントプロセスは自動化されました。"
+                }
+            ],
+            "created_at": "2024-01-12T12:00:00Z",
+            "updated_at": "2024-01-12T12:00:00Z"
+        },
+        {
+            "id": 4,
+            "word_name": "infrastructure",
+            "meaning": "インフラストラクチャ",
+            "part_of_speech": "noun",
+            "source": "system administration",
+            "example_sentences": [
+                {
+                    "id": 4,
+                    "sentence": "Cloud infrastructure provides scalable solutions.",
+                    "translation": "クラウドインフラストラクチャはスケーラブルなソリューションを提供します。"
+                }
+            ],
+            "created_at": "2024-01-13T13:00:00Z",
+            "updated_at": "2024-01-13T13:00:00Z"
+        },
+        {
+            "id": 5,
+            "word_name": "optimization",
+            "meaning": "最適化",
+            "part_of_speech": "noun",
+            "source": "performance",
+            "example_sentences": [
+                {
+                    "id": 5,
+                    "sentence": "Database optimization improved query performance.",
+                    "translation": "データベースの最適化によりクエリのパフォーマンスが向上しました。"
+                }
+            ],
+            "created_at": "2024-01-14T14:00:00Z",
+            "updated_at": "2024-01-14T14:00:00Z"
+        }
+    ],
+    "wordDetail": {
+        "id": 1,
+        "word_name": "algorithm",
+        "meaning": "アルゴリズム",
+        "part_of_speech": "noun",
+        "source": "computer science",
+        "example_sentences": [
+            {
+                "id": 1,
+                "sentence": "The sorting algorithm efficiently organizes the data.",
+                "translation": "そのソートアルゴリズムはデータを効率的に整理します。"
+            },
+            {
+                "id": 2,
+                "sentence": "This algorithm has O(n log n) time complexity.",
+                "translation": "このアルゴリズムはO(n log n)の時間計算量を持ちます。"
+            }
+        ],
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+    },
+    "partOfSpeechList": [
+        {
+            "id": 1,
+            "name": "noun",
+            "description": "名詞"
+        },
+        {
+            "id": 2,
+            "name": "verb",
+            "description": "動詞"
+        },
+        {
+            "id": 3,
+            "name": "adjective",
+            "description": "形容詞"
+        },
+        {
+            "id": 4,
+            "name": "adverb",
+            "description": "副詞"
+        }
+    ],
+    "sourceList": [
+        {
+            "id": 1,
+            "name": "computer science",
+            "description": "コンピュータサイエンス"
+        },
+        {
+            "id": 2,
+            "name": "software development",
+            "description": "ソフトウェア開発"
+        },
+        {
+            "id": 3,
+            "name": "devops",
+            "description": "DevOps"
+        },
+        {
+            "id": 4,
+            "name": "system administration",
+            "description": "システム管理"
+        },
+        {
+            "id": 5,
+            "name": "performance",
+            "description": "パフォーマンス"
+        }
+    ]
+}

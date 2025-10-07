@@ -4,7 +4,8 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { FormControl, FormGroup } from '@mui/material';
-import { authSigninAPI } from 'quizzer-lib';
+import { loginAPI } from '@/utils/api-wrapper';
+import { isMockMode } from '@/utils/api-wrapper';
 
 interface LoginFormProps {
   setShowNewPasswordForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,7 +22,17 @@ export const LoginForm = ({ setShowNewPasswordForm, username, setUsername }: Log
   const handleLogin = async () => {
     try {
       setMessage('通信中...');
-      const res = await authSigninAPI({
+
+      if (isMockMode()) {
+        // モック環境では常にログイン成功
+        setMessage('ログイン成功！');
+        localStorage.setItem('idToken', 'mock-id-token');
+        localStorage.setItem('accessToken', 'mock-access-token');
+        router.push('/');
+        return;
+      }
+
+      const res = await loginAPI({
         authSigninRequestData: {
           username,
           password

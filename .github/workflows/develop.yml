@@ -9,8 +9,8 @@ permissions:
 
 jobs:
   # TODO バック、フロント、ライブラリごとに分けたい build-lib,deploy-frontend,deploy-backendみたいな。フロントバックはneeds:build-libとさせる
-  deploy:
-    name: Deploy
+  deploy-production:
+    name: Deploy to Production (develop)
     runs-on: ubuntu-latest
     environment: develop
 
@@ -128,3 +128,52 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
             --paths "/*"
+
+  deploy-mock:
+    name: Deploy to Mock Environment
+    runs-on: ubuntu-latest
+    environment: develop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup dependencies(all)
+        run: npm ci --production
+
+      - name: Setup quizzer-lib
+        run: cd ./quizzer-lib && npm run build
+
+      - name: Setup dependencies(infra)
+        run: cd ./infra && npm ci --production
+
+      # モック環境用フロントエンドビルド
+      - name: Next.js Build and Export(Frontend for Mock)
+        env:
+          NEXT_PUBLIC_MOCK_MODE: true
+        run: cd ./frontend-next && npm run export
+
+      # モックスタックのデプロイ
+      - name: Deploy mock stack
+        run: cd ./infra && npx cdk deploy MockStack --require-approval never
+
+      # モック環境用S3アップロード
+      - name: Upload mock files to S3
+        run: |
+          cd ./infra
+          # S3バケット名を取得してアップロード
+          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockBucketName`].OutputValue' --output text)
+          aws s3 sync ../frontend-next/out/ s3://$BUCKET_NAME/ --delete
+
+      # モック環境用CloudFrontキャッシュ無効化
+      - name: Invalidate Mock CloudFront cache
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockDistributionId`].OutputValue' --output text)
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseJwt } from 'quizzer-lib';
+import { isMockMode } from '@/utils/api-wrapper';
 
 type Props = {
   children: React.ReactNode;
@@ -15,6 +16,13 @@ export default function RequiredAuthComponent({ children }: Props) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // モック環境では認証チェックをスキップ
+    if (isMockMode()) {
+      setIsAuthenticated(true);
+      setChecking(false);
+      return;
+    }
+
     const idToken = localStorage.getItem('idToken');
     const accessToken = localStorage.getItem('accessToken');
     if (!idToken || !accessToken) {

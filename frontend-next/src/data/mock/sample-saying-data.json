@@ -1,0 +1,66 @@
+{
+    "sayings": [
+        {
+            "id": 1,
+            "saying": "The early bird catches the worm.",
+            "translation": "早起きは三文の得",
+            "category": "proverb",
+            "explanation": "早く行動する人が成功するという意味の英語のことわざです。",
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-01-10T10:00:00Z"
+        },
+        {
+            "id": 2,
+            "saying": "Actions speak louder than words.",
+            "translation": "行動は言葉よりも雄弁である",
+            "category": "proverb",
+            "explanation": "言葉で言うよりも実際の行動の方が重要だという意味です。",
+            "created_at": "2024-01-11T11:00:00Z",
+            "updated_at": "2024-01-11T11:00:00Z"
+        },
+        {
+            "id": 3,
+            "saying": "Practice makes perfect.",
+            "translation": "練習は完璧を作る",
+            "category": "proverb",
+            "explanation": "継続的な練習によって完璧に近づくことができるという意味です。",
+            "created_at": "2024-01-12T12:00:00Z",
+            "updated_at": "2024-01-12T12:00:00Z"
+        },
+        {
+            "id": 4,
+            "saying": "Knowledge is power.",
+            "translation": "知識は力なり",
+            "category": "quote",
+            "explanation": "知識を持つことが力を持つことと同じであるという意味です。",
+            "created_at": "2024-01-13T13:00:00Z",
+            "updated_at": "2024-01-13T13:00:00Z"
+        },
+        {
+            "id": 5,
+            "saying": "Time is money.",
+            "translation": "時は金なり",
+            "category": "proverb",
+            "explanation": "時間は貴重な資源であり、お金と同じように大切にすべきだという意味です。",
+            "created_at": "2024-01-14T14:00:00Z",
+            "updated_at": "2024-01-14T14:00:00Z"
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "name": "proverb",
+            "description": "ことわざ"
+        },
+        {
+            "id": 2,
+            "name": "quote",
+            "description": "名言"
+        },
+        {
+            "id": 3,
+            "name": "idiom",
+            "description": "慣用句"
+        }
+    ]
+}

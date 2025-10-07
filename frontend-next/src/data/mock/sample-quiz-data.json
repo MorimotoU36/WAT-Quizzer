@@ -1,0 +1,166 @@
+{
+    "quiz": {
+        "id": 1,
+        "question": "次のうち、JavaScriptの配列メソッドはどれですか？",
+        "answer": "push",
+        "explanation": "push()は配列の末尾に要素を追加するメソッドです。",
+        "quiz_category": [
+            {
+                "id": 1,
+                "category": "プログラミング",
+                "deleted_at": null
+            }
+        ],
+        "quiz_format": {
+            "id": 1,
+            "name": "四択問題"
+        },
+        "quiz_statistics_view": {
+            "accuracy_rate": "75.5",
+            "total_answers": 120,
+            "correct_answers": 91
+        },
+        "file_num": 1,
+        "created_at": "2024-01-15T10:30:00Z",
+        "updated_at": "2024-01-15T10:30:00Z"
+    },
+    "quizList": [
+        {
+            "id": 1,
+            "question": "次のうち、JavaScriptの配列メソッドはどれですか？",
+            "answer": "push",
+            "explanation": "push()は配列の末尾に要素を追加するメソッドです。",
+            "quiz_category": [
+                {
+                    "id": 1,
+                    "category": "プログラミング",
+                    "deleted_at": null
+                }
+            ],
+            "quiz_format": {
+                "id": 1,
+                "name": "四択問題"
+            },
+            "quiz_statistics_view": {
+                "accuracy_rate": "75.5",
+                "total_answers": 120,
+                "correct_answers": 91
+            },
+            "file_num": 1,
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z"
+        },
+        {
+            "id": 2,
+            "question": "Reactの状態管理ライブラリはどれですか？",
+            "answer": "Redux",
+            "explanation": "ReduxはReactでよく使われる状態管理ライブラリです。",
+            "quiz_category": [
+                {
+                    "id": 1,
+                    "category": "プログラミング",
+                    "deleted_at": null
+                }
+            ],
+            "quiz_format": {
+                "id": 1,
+                "name": "四択問題"
+            },
+            "quiz_statistics_view": {
+                "accuracy_rate": "82.3",
+                "total_answers": 95,
+                "correct_answers": 78
+            },
+            "file_num": 1,
+            "created_at": "2024-01-16T14:20:00Z",
+            "updated_at": "2024-01-16T14:20:00Z"
+        },
+        {
+            "id": 3,
+            "question": "AWSのデータベースサービスはどれですか？",
+            "answer": "RDS",
+            "explanation": "RDSはAmazon Relational Database Serviceの略で、マネージドデータベースサービスです。",
+            "quiz_category": [
+                {
+                    "id": 2,
+                    "category": "AWS",
+                    "deleted_at": null
+                }
+            ],
+            "quiz_format": {
+                "id": 1,
+                "name": "四択問題"
+            },
+            "quiz_statistics_view": {
+                "accuracy_rate": "68.7",
+                "total_answers": 150,
+                "correct_answers": 103
+            },
+            "file_num": 1,
+            "created_at": "2024-01-17T09:15:00Z",
+            "updated_at": "2024-01-17T09:15:00Z"
+        }
+    ],
+    "quizFiles": [
+        {
+            "id": 1,
+            "file_num": 1,
+            "file_name": "プログラミング基礎問題集",
+            "description": "プログラミングの基礎的な問題を集めたファイルです。",
+            "created_at": "2024-01-01T00:00:00Z"
+        },
+        {
+            "id": 2,
+            "file_num": 2,
+            "file_name": "AWS認定試験対策",
+            "description": "AWS認定試験の過去問を中心とした問題集です。",
+            "created_at": "2024-01-02T00:00:00Z"
+        },
+        {
+            "id": 3,
+            "file_num": 3,
+            "file_name": "データベース設計",
+            "description": "データベース設計に関する問題集です。",
+            "created_at": "2024-01-03T00:00:00Z"
+        }
+    ],
+    "quizFormats": [
+        {
+            "id": 1,
+            "name": "四択問題",
+            "description": "4つの選択肢から正解を選ぶ問題形式"
+        },
+        {
+            "id": 2,
+            "name": "記述問題",
+            "description": "自由記述で回答する問題形式"
+        },
+        {
+            "id": 3,
+            "name": "真偽問題",
+            "description": "正しいか間違っているかを答える問題形式"
+        }
+    ],
+    "categories": [
+        {
+            "id": 1,
+            "category": "プログラミング",
+            "description": "プログラミング言語や開発に関する問題"
+        },
+        {
+            "id": 2,
+            "category": "AWS",
+            "description": "Amazon Web Servicesに関する問題"
+        },
+        {
+            "id": 3,
+            "category": "データベース",
+            "description": "データベース設計やSQLに関する問題"
+        },
+        {
+            "id": 4,
+            "category": "ネットワーク",
+            "description": "ネットワーク技術に関する問題"
+        }
+    ]
+}

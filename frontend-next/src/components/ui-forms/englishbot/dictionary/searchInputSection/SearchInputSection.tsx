@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button, FormControl, FormGroup, TextField } from '@mui/material';
 import { GridRowsProp } from '@mui/x-data-grid';
-import { searchWordAPI, SearchWordAPIRequestDto, Message } from 'quizzer-lib';
+import { SearchWordAPIRequestDto, Message } from 'quizzer-lib';
+import { searchWordAPI } from '@/utils/api-wrapper';
 import { Card } from '@/components/ui-elements/card/Card';
 
 interface SearchInputSectionProps {
