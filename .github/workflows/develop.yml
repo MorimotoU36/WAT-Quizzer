@@ -162,7 +162,7 @@ jobs:
 
       # モックスタックのデプロイ
       - name: Deploy mock stack
-        run: cd ./infra && npx cdk deploy MockStack --require-approval never
+        run: cd ./infra && npx cdk deploy MockStack --app "npx ts-node bin/mock-infra.ts" --require-approval never
 
       # モック環境用S3アップロード
       - name: Upload mock files to S3
