@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button, FormControl, FormGroup, TextField } from '@mui/material';
-import styles from '../Dictionary.module.css';
 import { GridRowsProp } from '@mui/x-data-grid';
 import { searchWordAPI, SearchWordAPIRequestDto, Message } from 'quizzer-lib';
+import { Card } from '@/components/ui-elements/card/Card';
 
 interface SearchInputSectionProps {
   setMessage?: React.Dispatch<React.SetStateAction<Message>>;
@@ -13,9 +13,9 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
   const [queryOfSearchWord, setQueryOfSearchWord] = useState<SearchWordAPIRequestDto>({ wordName: '' });
 
   return (
-    <>
+    <Card attr={['through-card', 'padding']}>
       <FormGroup>
-        <FormControl>
+        <FormControl margin={'dense'}>
           <TextField
             label="単語名検索"
             onChange={(e) => {
@@ -27,7 +27,7 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
           />
         </FormControl>
 
-        <FormControl>
+        <FormControl margin={'dense'}>
           <TextField
             label="意味検索"
             onChange={(e) => {
@@ -39,8 +39,8 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
           />
         </FormControl>
 
-        <FormControl className={styles.row}>
-          サブ出典：
+        <FormControl margin={'dense'} className={'!flex-row items-center'}>
+          {'サブ出典：'}
           <TextField
             label="Sub Source"
             onChange={(e) => {
@@ -54,7 +54,7 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
       </FormGroup>
 
       <Button
-        className={styles.button}
+        className="!m-[10px]"
         variant="contained"
         color="primary"
         onClick={async (e) => {
@@ -78,6 +78,6 @@ export const SearchInputSection = ({ setMessage, setSearchResult }: SearchInputS
       >
         検索
       </Button>
-    </>
+    </Card>
   );
 };

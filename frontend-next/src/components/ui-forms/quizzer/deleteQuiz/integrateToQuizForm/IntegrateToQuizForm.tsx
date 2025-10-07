@@ -1,5 +1,4 @@
-import { Card, CardContent, FormControl, FormGroup, FormLabel, Paper, TextField, Typography } from '@mui/material';
-import styles from '../DeleteQuizForm.module.css';
+import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useState } from 'react';
@@ -11,28 +10,21 @@ import {
   GetQuizApiResponseDto,
   initGetQuizResponseData,
   getQuizAPI,
-  integrateQuizAPI,
-  GetQuizFormatApiResponseDto
+  integrateQuizAPI
 } from 'quizzer-lib';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
 
 interface IntegrateToQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
-  quizFormatListoption: GetQuizFormatApiResponseDto[];
   setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
-export const IntegrateToQuizForm = ({
-  deleteQuizInfo,
-  quizFormatListoption,
-  setDeleteQuizInfo
-}: IntegrateToQuizFormProps) => {
+export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: IntegrateToQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
   const [getQuizResponseData, setQuizResponseData] = useState<GetQuizApiResponseDto>(initGetQuizResponseData);
   const setMessage = useSetRecoilState(messageState);
 
   return (
-    <Paper variant="outlined" className={styles.form}>
+    <Paper variant="outlined" className="w-full md:w-2/5 float-none md:float-left m-[5px]">
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" component="h6">
@@ -77,23 +69,23 @@ export const IntegrateToQuizForm = ({
             }}
           />
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             ファイル：{getQuizResponseData.file_num === -1 ? '' : getQuizResponseData.file_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             問題番号：{getQuizResponseData.quiz_num === -1 ? '' : getQuizResponseData.quiz_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             問題　　：{getQuizResponseData.quiz_sentense}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             答え　　：{getQuizResponseData.answer}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             カテゴリ：
             {getQuizResponseData.quiz_category
               ?.map((x) => {
@@ -102,7 +94,7 @@ export const IntegrateToQuizForm = ({
               .join(',')}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px]">
             画像　　：{getQuizResponseData.img_file}
           </Typography>
         </CardContent>

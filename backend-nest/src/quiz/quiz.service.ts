@@ -19,6 +19,9 @@ import {
   getStartDateForStatistics,
   uploadQuizImageToS3,
   getQuizImageFromS3,
+  MESSAGES,
+  AnswerLogStatisticsApiResponse,
+  getTodayStart,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -45,6 +48,8 @@ export class QuizService {
         checked,
         format_id,
       } = req;
+      // カテゴリは複数選択でカンマ区切りされてるので分割する
+      const categories = category && category.split(',').map((s) => s.trim());
       // 取得条件
       const where =
         // methodがある時は条件指定
@@ -67,16 +72,21 @@ export class QuizService {
                 },
                 ...(method === 'review' && {
                   last_failed_answer_log: getPrismaYesterdayRange(),
+                  last_answer_log: {
+                    lt: getTodayStart(),
+                  },
                 }),
               },
-              ...(category && {
-                quiz_category: {
-                  some: {
-                    category: {
-                      contains: category,
+              ...(categories && {
+                OR: categories.map((category) => ({
+                  quiz_category: {
+                    some: {
+                      category: {
+                        contains: category,
+                      },
                     },
                   },
-                },
+                })),
               }),
               ...(checked
                 ? {
@@ -309,8 +319,7 @@ export class QuizService {
         }, false)
       ) {
         throw new HttpException(
-          // TODO これもエラーメッセージの設定ファイルに入れるべきでは
-          `ダミー選択肢が3つ以上入力されていません。`,
+          MESSAGES.ERROR.MSG00018,
           HttpStatus.BAD_REQUEST,
         );
       }
@@ -581,7 +590,7 @@ export class QuizService {
         searchInOnlySentense,
         searchInOnlyAnswer,
       } = req;
-      return await prisma.quiz.findMany({
+      const result = await prisma.quiz.findMany({
         select: {
           id: true,
           file_num: true,
@@ -597,6 +606,11 @@ export class QuizService {
           quiz_format: {
             select: {
               name: true,
+            },
+          },
+          quiz_statistics_view: {
+            select: {
+              accuracy_rate: true,
             },
           },
           img_file: true,
@@ -649,6 +663,14 @@ export class QuizService {
         orderBy: {
           quiz_num: 'asc',
         },
+      });
+      return result.map((x) => {
+        return {
+          ...x,
+          quiz_statistics_view: {
+            accuracy_rate: x.quiz_statistics_view.accuracy_rate.toString(),
+          },
+        };
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1132,12 +1154,8 @@ export class QuizService {
       // DB検索で使用する始値と終値
       let startDate = getStartDateForStatistics(nowDate, date_unit);
       let endDate = tomorrowDate;
-      const result = [];
+      const result: AnswerLogStatisticsApiResponse[] = [];
       for (let i = 0; i < 10; i++) {
-        // TODO 返り値の型定義
-        // TODO queryRawについて TypedSQL？と言うのがあるらしいのでそれを使う？公式ページ参照
-        // TODO 日付指定するとこはあlib/date使いたい
-        // TODO queryRaw?の都合上場合わけしてそれぞれSQL文書かないとできなかった １つだけ書くようにはどうしてもできない？(q.file_num = ${file_num} を場合わけするとどうしても詰む)
         const answerLogStat =
           file_num && file_num !== -1
             ? await prisma.$queryRaw<
@@ -1246,9 +1264,118 @@ export class QuizService {
     });
   };
 
-  // アップロードされた問題CSVを登録
+  // アップロードされた問題CSV(基礎・応用)を登録
   // TODO csvのバリデーション処理
   async uploadFile(file: Express.Multer.File) {
+    try {
+      const csvData = await this.parseCsv<string>(file);
+      // トランザクション
+      await prisma.$transaction(
+        async (prisma) => {
+          // csvデータ１行ずつ読み込み
+          for (const [index, row] of csvData.data.entries()) {
+            // (問題形式,問題ファイル番号,問題文,答え文,解説,カテゴリ,画像ファイル名) でない場合終了
+            if (row.length !== 7) {
+              throw new HttpException(
+                `CSVの形式が正しくありません(${row.length}列)`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+            const [
+              format_id,
+              file_num,
+              question,
+              answer,
+              explanation,
+              categories,
+              img_file,
+            ] = row;
+            // バリデーション
+            if (isNaN(+file_num)) {
+              throw new HttpException(
+                `CSVの形式が正しくありません(${row})`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+            if (+format_id < 1 || +format_id > 2) {
+              throw new HttpException(
+                `問題形式が正しくありません(${format_id})`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+            // カテゴリあれば複数個に分けておく
+            const category =
+              categories && categories !== ''
+                ? categories.split(':')
+                : undefined;
+            // 問題データ登録
+            // 新問題番号を取得しINSERT
+            const res = await prisma.quiz.findFirst({
+              select: {
+                quiz_num: true,
+              },
+              where: {
+                file_num: +file_num,
+              },
+              orderBy: {
+                quiz_num: 'desc',
+              },
+              take: 1,
+            });
+            const new_quiz_num: number =
+              res && res.quiz_num ? res.quiz_num + 1 : 1;
+            await prisma.quiz.create({
+              data: {
+                format_id: +format_id, // 問題形式
+                file_num: +file_num,
+                quiz_num: new_quiz_num,
+                quiz_sentense: question,
+                answer,
+                img_file,
+                checked: false,
+                quiz_category: {
+                  ...(category && {
+                    createMany: {
+                      data: category.map((c) => {
+                        return {
+                          category: c,
+                        };
+                      }),
+                    },
+                  }),
+                },
+                quiz_explanation: {
+                  ...(explanation && {
+                    create: {
+                      explanation,
+                    },
+                  }),
+                },
+              },
+            });
+            console.log(`OK: ${index + 1}行目`);
+          }
+        },
+        {
+          maxWait: 5000, // default: 2000
+          timeout: 10000, // default: 5000
+        },
+      );
+      return { result: 'All Registered!!' };
+    } catch (error: unknown) {
+      console.error(error);
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // アップロードされた四択問題CSVを登録
+  // TODO csvのバリデーション処理
+  async uploadFourChoiceFile(file: Express.Multer.File) {
     try {
       const csvData = await this.parseCsv<string>(file);
       // トランザクション
@@ -1259,7 +1386,7 @@ export class QuizService {
             // (問題ファイル番号,答えの数,問題文,答え文,ダミー選択肢1,ダミー選択肢2,ダミー選択肢3,解説,カテゴリ) でない場合終了
             if (row.length !== 9) {
               throw new HttpException(
-                `CSVの形式が正しくありません(${row})`,
+                `CSVの形式が正しくありません(${row.length}列)`,
                 HttpStatus.BAD_REQUEST,
               );
             }

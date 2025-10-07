@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 
-import styles from './SideBar.module.css';
 import { Drawer } from '@mui/material';
 import { useRecoilState } from 'recoil';
 import { isOpenState } from '@/atoms/SideBar';
@@ -24,7 +23,7 @@ export const SideBar = ({ ...props }: SideBarProps) => {
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   return (
     <Drawer
-      className={styles.sideBar}
+      style={{ zIndex: 10002 }}
       anchor="right"
       open={sidebarState.open}
       onClose={toggleDrawer(false, setSidebarState)}

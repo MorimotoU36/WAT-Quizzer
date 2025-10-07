@@ -1,7 +1,6 @@
 import { Checkbox, CheckboxProps } from '@/components/ui-elements/checkBox/CheckBox';
 import { FormGroup, FormLabel } from '@mui/material';
 import React from 'react';
-import styles from './CheckboxGroup.module.css';
 
 export interface CheckboxGroupProps {
   checkboxProps: CheckboxProps[];
@@ -21,8 +20,8 @@ export const CheckboxGroup = ({ checkboxProps, setQueryofQuizStater, label }: Ch
 
   // TODO コンポーネントにForGroupを入れるべきか否か　他はないものもあるから全部統一したい
   return (
-    <FormGroup className={styles.checkboxGroup}>
-      <FormLabel className={styles.checkboxGroupLabel} id="demo-row-checkbox-buttons-group-section-label">
+    <FormGroup className="inline-block">
+      <FormLabel className="mr-4" id="demo-row-checkbox-buttons-group-section-label">
         {label}
       </FormLabel>
       {checkboxProps.map((x) => (

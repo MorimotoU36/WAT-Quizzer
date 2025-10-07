@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button as MuiButton, CardActions, CardContent, Collapse, Typography } from '@mui/material';
+import { Button as MuiButton, CardActions, CardContent, Collapse, Typography, IconButton } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
@@ -13,7 +13,8 @@ import {
   reverseCheckQuizAPI
 } from 'quizzer-lib';
 import { Chip } from '@/components/ui-elements/chip/Chip';
-import styles from './DisplayQuizSection.module.css';
+import EditIcon from '@mui/icons-material/Edit';
+import { useRouter } from 'next/router';
 
 interface DisplayQuizSectionProps {
   getQuizResponseData: GetQuizApiResponseDto;
@@ -30,13 +31,13 @@ export const DisplayQuizSection = ({
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
-  // TODO 型定義したい
   const displayQuiz = useMemo(() => {
     return {
       ...getQuizResponseData,
       ...generateQuizSentense(getQuizResponseData)
     };
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData]);
+  const router = useRouter();
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -46,14 +47,28 @@ export const DisplayQuizSection = ({
   useEffect(() => {
     setExpanded(false);
     setImageUrl && setImageUrl('');
-  }, [getQuizResponseData.quiz_sentense]);
+  }, [getQuizResponseData.quiz_sentense, setImageUrl]);
 
   return (
     <>
       <Card variant="outlined">
-        <CardContent className={styles.questionCard}>
-          <Typography variant="h5" component="h2">
+        <CardContent className="!m-[8px] shadow-lg bg-gray-100">
+          <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
             問題
+            {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
+            {displayQuiz.file_num !== -1 && displayQuiz.quiz_num !== -1 && (
+              <IconButton
+                aria-label={`${displayQuiz.file_num}-${displayQuiz.quiz_num}`}
+                onClick={() => {
+                  router.push({
+                    pathname: '/quizzer/editQuiz',
+                    query: { file_num: displayQuiz.file_num, quiz_num: displayQuiz.quiz_num }
+                  });
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
           </Typography>
           <Typography variant="subtitle1" component="h2">
             {getQuizResponseData.checked ? '✅' : ''}
@@ -61,19 +76,14 @@ export const DisplayQuizSection = ({
               return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
             })}
           </Typography>
-          {/** TODO 下のimage styleは別のとこにしたい */}
           {imageUrl && (
-            <img
-              src={imageUrl}
-              alt="取得した画像"
-              style={{ maxHeight: '200px', objectFit: 'contain', margin: '10px 0px', display: 'block' }}
-            />
+            <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
           )}
           {displayQuiz.quiz_category &&
             displayQuiz.quiz_category.map((category, index) => {
               return <Chip key={index} label={category.category} />;
             })}
-          <Typography variant="subtitle2" className={styles.count}>
+          <Typography variant="subtitle2" className="text-gray-400">
             {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}
           </Typography>
         </CardContent>

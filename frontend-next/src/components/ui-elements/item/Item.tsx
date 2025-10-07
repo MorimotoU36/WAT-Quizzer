@@ -1,9 +1,15 @@
-import { Paper, styled } from '@mui/material';
+import React, { ReactNode } from 'react';
+import { Paper } from '@mui/material';
 
-export const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary
-}));
+interface ItemProps {
+  children?: ReactNode;
+  className?: string;
+}
+
+export const Item = ({ children, className = '' }: ItemProps) => {
+  return (
+    <Paper className={`bg-white dark:bg-gray-800 p-4 text-center text-gray-600 dark:text-gray-400 ${className}`}>
+      {children}
+    </Paper>
+  );
+};

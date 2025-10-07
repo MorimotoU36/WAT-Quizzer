@@ -1,28 +1,16 @@
 import React, { useState } from 'react';
-import styles from './EditSearchResultForm.module.css';
 import { FormControl, FormGroup, TextField } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import {
-  SearchQuizAPIRequestDto,
-  addCategoryToQuizAPI,
-  checkOffQuizAPI,
-  checkOnQuizAPI,
-  deleteCategoryOfQuizAPI
-} from 'quizzer-lib';
+import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 
 interface EditSearchResultFormProps {
   checkedIdList: number[];
-  searchQuizRequestData: SearchQuizAPIRequestDto;
   setCheckedIdList: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-export const EditSearchResultForm = ({
-  checkedIdList,
-  searchQuizRequestData,
-  setCheckedIdList
-}: EditSearchResultFormProps) => {
+export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSearchResultFormProps) => {
   const [changedCategory, setChangedCategory] = useState<string>('');
   const setMessage = useSetRecoilState(messageState);
 
@@ -173,7 +161,7 @@ export const EditSearchResultForm = ({
 
   return (
     <>
-      <FormGroup className={styles.form} row>
+      <FormGroup className="border border-gray-300 rounded-md !my-[4px] !p-[5px] flex items-center" row>
         チェックした問題全てにカテゴリ「
         <FormControl>
           <TextField
@@ -187,7 +175,7 @@ export const EditSearchResultForm = ({
         」を
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="!mx-[10px]"
             label={'一括カテゴリ登録'}
             variant="contained"
             color="primary"
@@ -198,7 +186,7 @@ export const EditSearchResultForm = ({
         or
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="!mx-[10px]"
             label={'一括カテゴリ削除'}
             variant="contained"
             color="primary"
@@ -208,11 +196,11 @@ export const EditSearchResultForm = ({
         </FormControl>
       </FormGroup>
 
-      <FormGroup className={styles.group} row>
+      <FormGroup className="border border-gray-300 rounded-md !my-[10px] !p-[5px] flex items-center" row>
         チェックした問題全てに
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="!mx-[10px]"
             label={'✅をつける'}
             variant="contained"
             color="primary"
@@ -223,7 +211,7 @@ export const EditSearchResultForm = ({
         or
         <FormControl>
           <Button
-            attr={styles.button}
+            attr="!mx-[10px]"
             label={'✅を外す'}
             variant="contained"
             color="primary"

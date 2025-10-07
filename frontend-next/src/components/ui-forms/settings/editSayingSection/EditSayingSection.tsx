@@ -16,7 +16,7 @@ export const EditSayingSection = ({}: EditSayingSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   return (
     <>
-      <Card variant="outlined" subHeader="格言編集" attr="margin-vertical padding">
+      <Card variant="outlined" subHeader="格言編集" attr={['margin-vertical', 'padding']}>
         <CardContent className={styles.cardContent}>
           <TextField
             label="格言ID"

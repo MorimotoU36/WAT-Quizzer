@@ -20,8 +20,9 @@ export const Modal = ({ isOpen, children, setIsOpen }: ModalProps) => {
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        className="flex items-center justify-center p-4"
       >
-        {children}
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">{children}</div>
       </MuiModal>
     </>
   );

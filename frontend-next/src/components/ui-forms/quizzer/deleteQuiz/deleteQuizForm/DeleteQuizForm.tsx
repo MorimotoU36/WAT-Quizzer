@@ -1,54 +1,29 @@
-import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { Card, CardContent, FormControl, FormGroup, FormLabel, Paper, TextField, Typography } from '@mui/material';
+import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import styles from '../DeleteQuizForm.module.css';
 import {
   deleteQuiz,
   getQuizAPI,
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  GetQuizFormatApiResponseDto,
   initGetQuizRequestData,
-  initGetQuizResponseData,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
+  initGetQuizResponseData
 } from 'quizzer-lib';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { RadioGroupSection } from '@/components/ui-parts/card-contents/radioGroupSection/RadioGroupSection';
+import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 
 interface DeleteQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
-  quizFormatListoption: GetQuizFormatApiResponseDto[];
   setDeleteQuizInfo: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
 }
 
-export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDeleteQuizInfo }: DeleteQuizFormProps) => {
+export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuizFormProps) => {
   const [getQuizRequestData, setQuizRequestData] = useState<GetQuizAPIRequestDto>(initGetQuizRequestData);
-  const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
 
-  useEffect(() => {
-    (async () => {
-      setMessage({
-        message: '通信中...',
-        messageColor: '#d3d3d3',
-        isDisplay: true
-      });
-      const result = await getQuizFileListAPI();
-      setMessage(result.message);
-      const pullDownOption = result.result
-        ? quizFileListAPIResponseToPullDownAdapter(result.result as GetQuizFileApiResponseDto[])
-        : [];
-      setFilelistoption(pullDownOption);
-    })();
-  }, [setMessage]);
-
   return (
-    <Paper variant="outlined" className={styles.form}>
+    <Paper variant="outlined" className="w-full md:w-2/5 float-none md:float-left m-[5px]">
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" component="h6">
@@ -56,11 +31,9 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
           </Typography>
 
           <FormGroup>
-            <PullDown
-              label={'問題ファイル'}
+            <QuizFilePullDown
               value={getQuizRequestData.file_num}
-              optionList={filelistoption}
-              onChange={(e) => {
+              onFileChange={(e) => {
                 setQuizRequestData({
                   ...getQuizRequestData,
                   file_num: +e.target.value
@@ -98,23 +71,23 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
             }}
           />
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             ファイル：{deleteQuizInfo.file_num === -1 ? '' : deleteQuizInfo.file_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             問題番号：{deleteQuizInfo.quiz_num === -1 ? '' : deleteQuizInfo.quiz_num}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             問題　　：{deleteQuizInfo.quiz_sentense}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             答え　　：{deleteQuizInfo.answer}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             カテゴリ：
             {deleteQuizInfo.quiz_category
               ?.map((x) => {
@@ -123,7 +96,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, quizFormatListoption, setDelete
               .join(',')}
           </Typography>
 
-          <Typography variant="h6" component="h6" className={styles.questionInfo}>
+          <Typography variant="h6" component="h6" className="mt-[10px] mb-[20px] border-0">
             画像　　：{deleteQuizInfo.img_file}
           </Typography>
         </CardContent>

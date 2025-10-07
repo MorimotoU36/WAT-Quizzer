@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import styles from './HeaderBar.module.css';
 
 interface HeaderBarProps {
   bgColor: string;
@@ -7,7 +6,10 @@ interface HeaderBarProps {
 }
 
 export const HeaderBar = ({ bgColor = '#0077B6', ...props }: HeaderBarProps) => (
-  <header className={styles.headerBar} style={{ backgroundColor: bgColor }}>
+  <header
+    className="fixed top-0 w-full h-[44px] md:h-[48px] shadow-md"
+    style={{ backgroundColor: bgColor, zIndex: 10001 }}
+  >
     {props.children}
   </header>
 );

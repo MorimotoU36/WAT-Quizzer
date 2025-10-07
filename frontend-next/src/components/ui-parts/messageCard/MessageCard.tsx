@@ -8,7 +8,7 @@ interface MessageCardProps {
 
 export const MessageCard = ({ messageState }: MessageCardProps) => {
   return (
-    <Card variant="outlined" attr={'message-card'}>
+    <Card variant="outlined" attr={['message-card']}>
       <CardContent>
         <Typography variant="h6" component="h6" color={messageState.messageColor}>
           {messageState.message}

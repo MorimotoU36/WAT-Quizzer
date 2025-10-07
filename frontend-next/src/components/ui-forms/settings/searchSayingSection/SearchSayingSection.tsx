@@ -19,7 +19,7 @@ export const SearchSayingSection = ({}: SearchSayingSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   return (
     <>
-      <Card variant="outlined" subHeader="格言検索" attr="margin-vertical padding">
+      <Card variant="outlined" subHeader="格言検索" attr={['margin-vertical', 'padding']}>
         <CardContent className={styles.cardContent}>
           <TextField
             label="格言検索(部分一致)"

@@ -15,7 +15,7 @@ export class AuthService {
     }
   }
 
-  async completeNewPassword(username: string, password: string): Promise<any> {
+  async completeNewPassword(username: string, password: string) {
     try {
       return await this.cognitoAuthService.completeNewPassword(
         username,

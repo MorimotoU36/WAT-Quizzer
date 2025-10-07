@@ -5,6 +5,7 @@ import {
   getPrismaYesterdayRange,
   xor,
 } from 'quizzer-lib';
+import { emptyResult } from '../../test/constants';
 
 jest.mock('quizzer-lib', () => {
   // prismaモックを作る
@@ -38,6 +39,7 @@ jest.mock('quizzer-lib', () => {
     prisma: mockPrisma,
     getRandomElementFromArray: jest.fn(),
     getPrismaYesterdayRange: jest.fn(),
+    getTodayStart: jest.fn(),
     xor: jest.fn(),
   };
 });
@@ -45,8 +47,6 @@ jest.mock('quizzer-lib', () => {
 describe('QuizService', () => {
   let quizService: QuizService;
 
-  // TODO 別ファイルにおいた方がいいか？
-  const emptyResult = [{}];
   const getQuizResultTest = [
     {
       id: 0,
@@ -109,20 +109,19 @@ describe('QuizService', () => {
     (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
       getQuizResultTest,
     );
-    (getRandomElementFromArray as jest.Mock).mockResolvedValue(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
-    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
       await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'random'),
     ).toEqual({
-      // ...getQuizResultTest[0],
+      ...getQuizResultTest[0],
       count: 1,
-      // quiz_statistics_view: {
-      //   clear_count: '1',
-      //   fail_count: '1',
-      //   accuracy_rate: '50',
-      // },
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
@@ -186,20 +185,19 @@ describe('QuizService', () => {
       getQuizResultTest,
     );
     (getPrismaYesterdayRange as jest.Mock).mockResolvedValueOnce({});
-    (getRandomElementFromArray as jest.Mock).mockResolvedValueOnce(
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
-    // TODO 何かおかしい？一時的にこうしてるが直してほしい
     expect(
       await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'review'),
     ).toEqual({
-      // ...getQuizResultTest[0],
+      ...getQuizResultTest[0],
       count: 1,
-      // quiz_statistics_view: {
-      //   clear_count: '1',
-      //   fail_count: '1',
-      //   accuracy_rate: '50',
-      // },
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
     });
   });
 
@@ -327,16 +325,30 @@ describe('QuizService', () => {
 
   // 問題検索 正常系1
   it('search - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = [
+    // prisma.quiz.findManyが返す値（DBからの生データを想定）
+    const dbResult = [
       {
-        result: 'OK',
+        id: 1,
+        quiz_statistics_view: {
+          accuracy_rate: 80,
+        },
+        // 他の必要なフィールドを適宜追加
       },
     ];
-    (prisma.quiz.findMany as jest.Mock).mockResolvedValue(testResult);
-    (xor as jest.Mock).mockResolvedValue({});
-    expect(
-      await quizService.search({
+    // searchメソッドが返すべき値（accuracy_rateがstring化されていることに注意）
+    const expectedResult = [
+      {
+        id: 1,
+        quiz_statistics_view: {
+          accuracy_rate: '80',
+        },
+        // 他の必要なフィールドを適宜追加
+      },
+    ];
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValue(dbResult);
+    (xor as jest.Mock).mockReturnValue({}); // xorは同期的にtrue/falseを返す関数なのでmockResolvedValueではなくmockReturnValueを使う
+    await expect(
+      quizService.search({
         min_rate: 0,
         max_rate: 100,
         format_id: { '1': true },
@@ -347,7 +359,7 @@ describe('QuizService', () => {
         searchInOnlyAnswer: true,
         file_num: 1,
       }),
-    ).toEqual(testResult);
+    ).resolves.toEqual(expectedResult);
   });
 
   // 問題検索 異常系1

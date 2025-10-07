@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader } from '@mui/material';
-import styles from '../Settings.module.css';
 import { PullDownOptionDto, downloadQuizCsvAPI } from 'quizzer-lib';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { useState } from 'react';
@@ -13,14 +12,14 @@ export const DownloadQuizCsvSection = ({ filelistoption }: DownloadQuizCsvSectio
   const [deleteLogOfFileNum, setDeleteLogOfFileNum] = useState<number>(-1);
   // TODO settings関連 似たようなコンポーネントが多いのでまとめたい
   return (
-    <Card variant="outlined" className={styles.card}>
+    <Card variant="outlined" className="mb-6">
       <CardHeader title="問題データCSVダウンロード" />
       <CardContent>
         <Card variant="outlined">
           <CardHeader subheader="ファイル選択" />
-          <CardContent className={styles.cardContent}>
+          <CardContent className="flex flex-wrap items-center gap-4">
             <PullDown
-              className={'cardContent'}
+              className="w-56"
               optionList={filelistoption}
               onChange={(e) => {
                 setDeleteLogOfFileNum(+e.target.value);

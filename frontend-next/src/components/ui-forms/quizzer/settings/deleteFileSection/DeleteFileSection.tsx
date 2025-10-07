@@ -1,4 +1,3 @@
-import styles from '../Settings.module.css';
 import {
   CardContent,
   CardHeader,
@@ -57,7 +56,7 @@ export const DeleteFileSection = ({ filelistoption, setMessage }: DeleteFileSect
   return (
     <>
       <CardHeader subheader="ファイル削除" />
-      <CardContent className={styles.cardContent}>
+      <CardContent className="flex w-full">
         <PullDown
           className={'cardContent'}
           optionList={filelistoption}

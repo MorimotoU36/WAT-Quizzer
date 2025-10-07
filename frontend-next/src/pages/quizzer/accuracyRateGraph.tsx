@@ -1,35 +1,19 @@
-import React, { useState } from 'react';
-import { Container } from '@mui/material';
-import { GetAccuracyRateByCategoryAPIResponseDto } from 'quizzer-lib';
+import React from 'react';
 import { Layout } from '@/components/templates/layout/Layout';
-import { Title } from '@/components/ui-elements/title/Title';
-import { GetFileForm } from '@/components/ui-forms/quizzer/accuracyRateGraph/getFileForm/GetFileForm';
-import { AccuracyChart } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyChart/AccuracyChart';
+import { GetCategoryRateAPIRequestDto } from 'quizzer-lib';
+import { AccuracyGraphFormProvider } from '@/contexts/AccuracyGraphFormContext';
+import { AccuracyRateGraphContent } from '@/components/ui-forms/quizzer/accuracyRateGraph/accuracyRateGraphContent/AccuracyRateGraphContent';
 
-type Props = {
-  isMock?: boolean;
-};
-
-export default function AccuracyRateGraphPage({ isMock }: Props) {
-  const [accuracy_data, setAccuracyData] = useState<GetAccuracyRateByCategoryAPIResponseDto>({
-    result: [],
-    checked_result: [],
-    all_result: []
-  });
-
+export default function AccuracyRateGraphPage() {
   const contents = () => {
     return (
-      <Container>
-        <Title label="WAT Quizzer"></Title>
-        <GetFileForm setAccuracyData={setAccuracyData} />
-        <AccuracyChart accuracyData={accuracy_data} />
-      </Container>
+      <AccuracyGraphFormProvider
+        defaultValue={{ getCategoryRateData: { file_num: -1 } as GetCategoryRateAPIRequestDto }}
+      >
+        <AccuracyRateGraphContent />
+      </AccuracyGraphFormProvider>
     );
   };
 
-  return (
-    <>
-      <Layout mode="quizzer" contents={contents()} title={'カテゴリ別正解率表示'} />
-    </>
-  );
+  return <Layout mode="quizzer" contents={contents()} title={'カテゴリ別正解率表示'} />;
 }

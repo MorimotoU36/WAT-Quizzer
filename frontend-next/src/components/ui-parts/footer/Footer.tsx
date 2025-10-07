@@ -1,6 +1,5 @@
 import React from 'react';
 
-import styles from './Footer.module.css';
 import { FooterBar } from '@/components/ui-elements/footerBar/FooterBar';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useRouter } from 'next/router';
@@ -15,7 +14,7 @@ export const Footer = ({ bgColor = '#0077B6', topHref }: FooterProps) => {
 
   return (
     <FooterBar bgColor={bgColor}>
-      <span className={styles.left}>
+      <span className="absolute left-0 top-0 h-full flex items-center px-2 text-sm">
         <Button attr="no-margin no-border" size="small" color="inherit" href={topHref} label="トップ" />
         <Button
           attr="no-margin no-border"
@@ -30,7 +29,7 @@ export const Footer = ({ bgColor = '#0077B6', topHref }: FooterProps) => {
           label="ログアウト"
         />
       </span>
-      <span className={styles.right}>©️ Tatsuroh Wakasugi</span>
+      <span className="absolute right-2.5 top-0 h-full flex items-center text-xs md:text-sm">©️ Tatsuroh Wakasugi</span>
     </FooterBar>
   );
 };

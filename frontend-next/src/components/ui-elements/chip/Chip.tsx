@@ -9,7 +9,7 @@ interface ChipProps {
 export const Chip = ({ label, variant = 'outlined', ...props }: ChipProps) => {
   return (
     <>
-      <MuiChip label={label} variant={variant} />
+      <MuiChip label={label} variant={variant} className="m-1" {...props} />
     </>
   );
 };

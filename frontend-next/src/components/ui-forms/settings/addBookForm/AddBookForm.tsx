@@ -17,7 +17,7 @@ export const AddBookForm = ({ setBooklistoption }: AddBookFormProps) => {
   const setMessage = useSetRecoilState(messageState);
   return (
     <>
-      <Card variant="outlined" subHeader="新規追加 - 啓発本" attr="margin-vertical padding">
+      <Card variant="outlined" subHeader="新規追加 - 啓発本" attr={['margin-vertica', 'padding']}>
         <CardContent className={styles.cardContent}>
           <TextField label="新規啓発本名" className={['fullWidth']} variant="outlined" setStater={setBookName} />
           <Button

@@ -7,7 +7,13 @@ interface TabPanelProps {
 }
 
 export const TabPanel = ({ index, value, children }: TabPanelProps) => (
-  <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`}>
+  <div
+    role="tabpanel"
+    hidden={value !== index}
+    id={`simple-tabpanel-${index}`}
+    aria-labelledby={`simple-tab-${index}`}
+    className="p-4"
+  >
     {value === index && <>{children}</>}
   </div>
 );

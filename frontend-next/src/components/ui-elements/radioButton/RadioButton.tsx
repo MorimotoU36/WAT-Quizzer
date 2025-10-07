@@ -9,7 +9,12 @@ export interface RadioButtonProps {
 export const RadioButton = ({ value, label, disabled }: RadioButtonProps) => {
   return (
     <>
-      <FormControlLabel value={value} control={<Radio disabled={disabled} />} label={label} />
+      <FormControlLabel
+        value={value}
+        control={<Radio disabled={disabled} className="text-blue-600" />}
+        label={label}
+        className="text-gray-700"
+      />
     </>
   );
 };

@@ -9,7 +9,7 @@ echo "全ファイル平均行数計算 開始"
 
 # 無視するディレクトリ
 # TODO .gitignoreから読みたい
-IGNORE_DIRS=("node_modules/" "dist/" "/." "public/" ".log" "d.ts" "/out/" "/storybook-static" "/database-old" "/file" "/yaml" "cdk.out" ".json" ".md")
+IGNORE_DIRS=("node_modules/" "dist/" "/." "public/" ".log" "d.ts" "/out/" "/storybook-static" "/database-old" "/file" "/yaml" "cdk.out" ".json" ".md" "test" "spec.ts" "e2e" ".stories.tsx")
 
 # 全ファイルの行数をカウントする関数
 count_lines() {

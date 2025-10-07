@@ -4,7 +4,6 @@ import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import styles from './GetWordQueryForm.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { RadioGroup } from '@/components/ui-parts/radioGroup/RadioGroup';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -19,6 +18,8 @@ import {
 } from 'quizzer-lib';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
+import { englishTestTypeRadioButton } from '@/constants/contents/radioButton';
+import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
 
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionDto[];
@@ -33,7 +34,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
 
   return (
     <>
-      <Card attr={'through-card padding-vertical'}>
+      <Card attr={['through-card', 'padding-vertical']}>
         <FormGroup>
           <PullDown
             label={'出典'}
@@ -45,33 +46,22 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
               });
             }}
           />
-          <FormControl className={styles.row}>
+          <FormControl className="inline-flex !flex-row items-center">
             サブ出典登録日時指定：
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Start Date"
-                className={styles.datePicker}
-                onChange={(newValue) => {
-                  setQueryOfTestData({
-                    ...queryOfTestData,
-                    startDate: getDateForSqlString(newValue as Date)
-                  });
-                }}
-              />
-            </LocalizationProvider>
-            〜
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="End Date"
-                className={styles.datePicker}
-                onChange={(newValue) => {
-                  setQueryOfTestData({
-                    ...queryOfTestData,
-                    endDate: getDateForSqlString(newValue as Date)
-                  });
-                }}
-              />
-            </LocalizationProvider>
+            <DateRange
+              setStartState={(newValue: Date | null) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  startDate: getDateForSqlString(newValue as Date)
+                });
+              }}
+              setEndState={(newValue: Date | null) => {
+                setQueryOfTestData({
+                  ...queryOfTestData,
+                  endDate: getDateForSqlString(newValue as Date)
+                });
+              }}
+            />
           </FormControl>
           <FormControl>
             <Checkbox
@@ -99,22 +89,8 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
           </FormControl>
           <FormControl>
             テスト形式：
-            {/* TODO ここも外部の設定ファイルとかに保存したい */}
             <RadioGroup
-              radioButtonProps={[
-                {
-                  value: '0',
-                  label: '単語名'
-                },
-                {
-                  value: '1',
-                  label: '四択'
-                },
-                {
-                  value: '2',
-                  label: '意味当て'
-                }
-              ]}
+              radioButtonProps={englishTestTypeRadioButton}
               defaultValue={'0'}
               setQueryofQuizStater={(value: string) => {
                 setTestType(value);
