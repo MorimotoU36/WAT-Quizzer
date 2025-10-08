@@ -417,7 +417,7 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
       isDisplay: true
     },
     result:
-      params.getAnswerLogStatisticsData.data_unit === 'week'
+      params.getAnswerLogStatisticsData.date_unit === 'week'
         ? [
             { date: '2023-11-26', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2023-12-03', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
@@ -427,9 +427,8 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
             { date: '2023-12-31', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
           ]
-        : params.getAnswerLogStatisticsData.data_unit === 'month'
-        ? []
-        : [
+        : params.getAnswerLogStatisticsData.date_unit === 'month'
+        ? [
             { date: '2023-07-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2023-08-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2023-09-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
@@ -437,6 +436,15 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
             { date: '2023-11-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2023-12-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
             { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
+          ]
+        : [
+            { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-02', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-03', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-04', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-05', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
           ]
   };
 };
