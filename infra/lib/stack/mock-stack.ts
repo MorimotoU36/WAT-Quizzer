@@ -15,7 +15,7 @@ export class MockStack extends cdk.Stack {
       env: { region: process.env.REGION || 'ap-northeast-1' }
     })
 
-    // S3 Bucket for static hosting
+    // S3 Bucket for CloudFront origin
     const mockBucket = new s3.Bucket(this, `MockQuizzerFrontBucket`, {
       bucketName: `mock-quizzer-front-bucket-${this.account}`,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -26,9 +26,18 @@ export class MockStack extends cdk.Stack {
           allowedHeaders: ['*'],
           exposedHeaders: []
         }
-      ],
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: '404.html'
+      ]
+    })
+
+    // CloudFront Origin Access Control (OAC)
+    const oac = new cloudfront.CfnOriginAccessControl(this, 'MockQuizzerOAC', {
+      originAccessControlConfig: {
+        name: 'MockQuizzerOAC',
+        description: 'OAC for Mock Quizzer S3 bucket',
+        originAccessControlOriginType: 's3',
+        signingBehavior: 'always',
+        signingProtocol: 'sigv4'
+      }
     })
 
     // CloudFront distribution
@@ -47,6 +56,31 @@ export class MockStack extends cdk.Stack {
         priceClass: cloudfront.PriceClass.PRICE_CLASS_100,
         comment: 'Mock Quizzer Frontend Distribution'
       }
+    )
+
+    // Update the distribution to use OAC
+    const cfnDistribution = distribution.node
+      .defaultChild as cloudfront.CfnDistribution
+    cfnDistribution.addPropertyOverride(
+      'DistributionConfig.Origins.0.OriginAccessControlId',
+      oac.ref
+    )
+
+    // S3 Bucket Policy for CloudFront access
+    mockBucket.addToResourcePolicy(
+      new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        principals: [
+          new cdk.aws_iam.ServicePrincipal('cloudfront.amazonaws.com')
+        ],
+        actions: ['s3:GetObject'],
+        resources: [`${mockBucket.bucketArn}/*`],
+        conditions: {
+          StringEquals: {
+            'AWS:SourceArn': `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`
+          }
+        }
+      })
     )
 
     // Outputs

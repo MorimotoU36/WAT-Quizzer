@@ -178,8 +178,8 @@ jobs:
           DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockDistributionId`].OutputValue' --output text)
           aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
 
-      # モック環境URLの出力
-      - name: Output mock URL
-        run: |
-          MOCK_URL=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockWebsiteURL`].OutputValue' --output text)
-          echo "Mock environment deployed at: $MOCK_URL"
+      # # モック環境URLの出力
+      # - name: Output mock URL
+      #   run: |
+      #     MOCK_URL=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockWebsiteURL`].OutputValue' --output text)
+      #     echo "Mock environment deployed at: $MOCK_URL"
