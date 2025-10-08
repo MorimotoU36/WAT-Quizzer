@@ -9,7 +9,8 @@ import { EditSayingSection } from '@/components/ui-forms/settings/editSayingSect
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { Card } from '@/components/ui-elements/card/Card';
-import { listBook, PullDownOptionDto } from 'quizzer-lib';
+import { PullDownOptionDto } from 'quizzer-lib';
+import { listBookAPI } from '@/utils/api-wrapper';
 
 type Props = {
   isMock?: boolean;
@@ -22,7 +23,7 @@ export default function Settings({ isMock }: Props) {
   useEffect(() => {
     (async () => {
       setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-      const result = await listBook();
+      const result = await listBookAPI();
       setMessage(result.message);
       if (result.result && Array.isArray(result.result)) {
         let booklist: PullDownOptionDto[] = [];
@@ -54,4 +55,12 @@ export default function Settings({ isMock }: Props) {
   };
 
   return <Layout mode="settings" contents={contents()} title={'設定'} />;
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      isMock: process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+    }
+  };
 }

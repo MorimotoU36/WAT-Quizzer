@@ -231,3 +231,134 @@ export const mockGetImageOfQuizAPI = async (params: any): Promise<ApiResult> => 
     }
   };
 };
+
+export const mockGetSayingAPI = async (params: any): Promise<ApiResult> => {
+  // ランダムな格言を返す
+  const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
+
+  return {
+    message: {
+      message: '格言を取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: randomSaying
+  };
+};
+
+export const mockClearQuizAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: 'クイズをクリアしました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockFailQuizAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: 'クイズを失敗として記録しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockReverseCheckQuizAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: 'チェックを反転しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockGetWordSummaryDataAPI = async (): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '単語サマリーデータを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: [
+      { source: 'TOEIC', count: 150 },
+      { source: '英検1級', count: 200 },
+      { source: 'その他', count: 50 }
+    ]
+  };
+};
+
+export const mockGetRandomWordAPI = async (): Promise<ApiResult> => {
+  const randomWord = englishData.words[Math.floor(Math.random() * englishData.words.length)];
+  return {
+    message: {
+      message: 'ランダム単語を取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: {
+      id: randomWord.id,
+      name: randomWord.word_name,
+      mean: randomWord.meaning,
+      word_source: randomWord.source
+    }
+  };
+};
+
+export const mockGetWordTestStatisticsWeekDataAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '週間テスト統計データを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: [
+      { date: '2024-01-01', correct_count: 5, total_count: 10 },
+      { date: '2024-01-02', correct_count: 7, total_count: 10 },
+      { date: '2024-01-03', correct_count: 6, total_count: 10 },
+      { date: '2024-01-04', correct_count: 8, total_count: 10 },
+      { date: '2024-01-05', correct_count: 9, total_count: 10 },
+      { date: '2024-01-06', correct_count: 7, total_count: 10 },
+      { date: '2024-01-07', correct_count: 8, total_count: 10 }
+    ]
+  };
+};
+
+export const mockEditSayingAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '格言を更新しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockAddBookAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '啓発本を追加しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: { id: 999, name: params.addBookAPIRequest.book_name }
+  };
+};
+
+export const mockListBookAPI = async (): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '啓発本リストを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: [
+      { id: 1, name: '7つの習慣' },
+      { id: 2, name: '人を動かす' },
+      { id: 3, name: '思考は現実化する' }
+    ]
+  };
+};

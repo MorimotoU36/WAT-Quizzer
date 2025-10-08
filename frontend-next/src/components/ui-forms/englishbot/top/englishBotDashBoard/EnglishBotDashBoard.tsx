@@ -5,14 +5,8 @@ import { TestLogPastWeekChart } from '../testLogPastWeekCharrt/TestLogPastWeekCh
 import { WordSummaryChart } from '../wordSummaryChart/WordSummaryChart';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import {
-  GetPastWeekTestStatisticsAPIResponseDto,
-  getRandomWordAPI,
-  GetRandomWordAPIResponse,
-  getWordSummaryDataAPI,
-  getWordTestStatisticsWeekDataAPI,
-  WordSummaryApiResponse
-} from 'quizzer-lib';
+import { GetPastWeekTestStatisticsAPIResponseDto, GetRandomWordAPIResponse, WordSummaryApiResponse } from 'quizzer-lib';
+import { getWordSummaryDataAPI, getRandomWordAPI, getWordTestStatisticsWeekDataAPI } from '@/utils/api-wrapper';
 
 interface EnglishBotDashboardProps {}
 

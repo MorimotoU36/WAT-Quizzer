@@ -169,3 +169,93 @@ export const getImageOfQuizAPI = async (params: any): Promise<ApiResult> => {
   const { getImageOfQuizAPI: originalGetImageOfQuizAPI } = await import('quizzer-lib');
   return originalGetImageOfQuizAPI(params);
 };
+
+export const getSayingAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetSayingAPI(params);
+  }
+
+  const { getSayingAPI: originalGetSayingAPI } = await import('quizzer-lib');
+  return originalGetSayingAPI(params);
+};
+
+export const clearQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockClearQuizAPI(params);
+  }
+
+  const { clearQuizAPI: originalClearQuizAPI } = await import('quizzer-lib');
+  return originalClearQuizAPI(params);
+};
+
+export const failQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockFailQuizAPI(params);
+  }
+
+  const { failQuizAPI: originalFailQuizAPI } = await import('quizzer-lib');
+  return originalFailQuizAPI(params);
+};
+
+export const reverseCheckQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockReverseCheckQuizAPI(params);
+  }
+
+  const { reverseCheckQuizAPI: originalReverseCheckQuizAPI } = await import('quizzer-lib');
+  return originalReverseCheckQuizAPI(params);
+};
+
+export const getWordSummaryDataAPI = async (): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetWordSummaryDataAPI();
+  }
+
+  const { getWordSummaryDataAPI: originalGetWordSummaryDataAPI } = await import('quizzer-lib');
+  return originalGetWordSummaryDataAPI();
+};
+
+export const getRandomWordAPI = async (): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetRandomWordAPI();
+  }
+
+  const { getRandomWordAPI: originalGetRandomWordAPI } = await import('quizzer-lib');
+  return originalGetRandomWordAPI();
+};
+
+export const getWordTestStatisticsWeekDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetWordTestStatisticsWeekDataAPI(params);
+  }
+
+  const { getWordTestStatisticsWeekDataAPI: originalGetWordTestStatisticsWeekDataAPI } = await import('quizzer-lib');
+  return originalGetWordTestStatisticsWeekDataAPI(params);
+};
+
+export const editSayingAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockEditSayingAPI(params);
+  }
+
+  const { editSayingAPI: originalEditSayingAPI } = await import('quizzer-lib');
+  return originalEditSayingAPI(params);
+};
+
+export const addBookAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddBookAPI(params);
+  }
+
+  const { addBookAPI: originalAddBookAPI } = await import('quizzer-lib');
+  return originalAddBookAPI(params);
+};
+
+export const listBookAPI = async (): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockListBookAPI();
+  }
+
+  const { listBook: originalListBookAPI } = await import('quizzer-lib');
+  return originalListBookAPI();
+};

@@ -6,7 +6,8 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import styles from '../Settings.module.css';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { addBookAPI, listBook, PullDownOptionDto } from 'quizzer-lib';
+import { PullDownOptionDto } from 'quizzer-lib';
+import { addBookAPI, listBookAPI } from '@/utils/api-wrapper';
 
 interface AddBookFormProps {
   setBooklistoption: React.Dispatch<React.SetStateAction<PullDownOptionDto[]>>;
@@ -34,7 +35,7 @@ export const AddBookForm = ({ setBooklistoption }: AddBookFormProps) => {
               setMessage(result.message);
               if (result.message.messageColor === 'success.light') {
                 // 問題ファイル再取得
-                const result = await listBook();
+                const result = await listBookAPI();
                 if (result.result && Array.isArray(result.result)) {
                   let booklist: PullDownOptionDto[] = [];
                   for (var i = 0; i < result.result.length; i++) {

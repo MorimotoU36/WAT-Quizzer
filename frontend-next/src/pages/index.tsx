@@ -1,7 +1,10 @@
 import { Inter } from 'next/font/google';
 import { Container } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { GetSayingResponse, getSayingAPI, initSayingResponseData } from 'quizzer-lib';
+import { GetSayingResponse, initSayingResponseData } from 'quizzer-lib';
+import { getSayingAPI } from '@/utils/api-wrapper';
+import { isMockMode } from '@/utils/api-wrapper';
+import sayingData from '@/data/mock/sample-saying-data.json';
 import { Title } from '@/components/ui-elements/title/Title';
 import { TopButtonGroup } from '@/components/ui-forms/top/topButtonGroup/TopButtonGroup';
 import { SayingCard } from '@/components/ui-forms/top/sayingCard/SayingCard';
@@ -18,13 +21,19 @@ export default function Top({ isMock }: Props) {
   const [saying, setSaying] = useState<GetSayingResponse>(initSayingResponseData);
 
   useEffect(() => {
-    !isMock &&
+    if (isMock || isMockMode()) {
+      // モック環境ではサンプルデータを使用
+      const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
+      setSaying(randomSaying);
+    } else {
+      // 本番環境ではAPIを呼び出し
       Promise.all([
         (async () => {
           const result = await getSayingAPI({ getSayingRequestData: {} });
           result.result && setSaying(result.result as GetSayingResponse);
         })()
       ]);
+    }
   }, [isMock]);
 
   const content = (
@@ -36,4 +45,12 @@ export default function Top({ isMock }: Props) {
   );
 
   return <Layout mode="top" contents={content} title={''} />;
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      isMock: process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
+    }
+  };
 }

@@ -6,7 +6,8 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { editSayingAPI, EditSayingAPIRequestDto, getSayingAPI, GetSayingRequest, GetSayingResponse } from 'quizzer-lib';
+import { EditSayingAPIRequestDto, GetSayingRequest, GetSayingResponse } from 'quizzer-lib';
+import { editSayingAPI, getSayingAPI } from '@/utils/api-wrapper';
 
 interface EditSayingSectionProps {}
 
