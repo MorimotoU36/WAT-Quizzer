@@ -50,7 +50,7 @@ export const getCategoryListAPI = async (p0: { getCategoryListData: { file_num: 
   }
 
   const { getCategoryListAPI: originalGetCategoryListAPI } = await import('quizzer-lib');
-  return originalGetCategoryListAPI({ getCategoryListData: { file_num: '0' } });
+  return originalGetCategoryListAPI({ getCategoryListData: { file_num: p0.getCategoryListData.file_num } });
 };
 
 export const searchWordAPI = async (params: any): Promise<ApiResult> => {
