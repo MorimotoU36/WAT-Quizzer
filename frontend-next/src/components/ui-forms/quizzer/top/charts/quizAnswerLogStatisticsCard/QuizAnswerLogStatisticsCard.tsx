@@ -1,10 +1,7 @@
 import { Card } from '@/components/ui-elements/card/Card';
 import { useEffect, useState } from 'react';
-import {
-  getAnswerLogStatisticsDataAPI,
-  AnswerLogStatisticsApiResponse,
-  GetAnswerLogStatisticsAPIRequestDto
-} from 'quizzer-lib';
+import { AnswerLogStatisticsApiResponse, GetAnswerLogStatisticsAPIRequestDto } from 'quizzer-lib';
+import { getAnswerLogStatisticsDataAPI } from '@/utils/api-wrapper';
 import { Chart } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

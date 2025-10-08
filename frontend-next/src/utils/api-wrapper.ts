@@ -259,3 +259,30 @@ export const listBookAPI = async (): Promise<ApiResult> => {
   const { listBook: originalListBookAPI } = await import('quizzer-lib');
   return originalListBookAPI();
 };
+
+export const getQuizFileStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetQuizFileStatisticsDataAPI(params);
+  }
+
+  const { getQuizFileStatisticsDataAPI: originalGetQuizFileStatisticsDataAPI } = await import('quizzer-lib');
+  return originalGetQuizFileStatisticsDataAPI(params);
+};
+
+export const getAccuracyRateHistgramDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetAccuracyRateHistgramDataAPI(params);
+  }
+
+  const { getAccuracyRateHistgramDataAPI: originalGetAccuracyRateHistgramDataAPI } = await import('quizzer-lib');
+  return originalGetAccuracyRateHistgramDataAPI(params);
+};
+
+export const getAnswerLogStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetAnswerLogStatisticsDataAPI(params);
+  }
+
+  const { getAnswerLogStatisticsDataAPI: originalGetAnswerLogStatisticsDataAPI } = await import('quizzer-lib');
+  return originalGetAnswerLogStatisticsDataAPI(params);
+};

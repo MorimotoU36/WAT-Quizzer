@@ -103,24 +103,21 @@
     ],
     "quizFiles": [
         {
-            "id": 1,
             "file_num": 1,
             "file_name": "プログラミング基礎問題集",
-            "description": "プログラミングの基礎的な問題を集めたファイルです。",
+            "file_nickname": "プログラミング基礎問題集",
             "created_at": "2024-01-01T00:00:00Z"
         },
         {
-            "id": 2,
             "file_num": 2,
             "file_name": "AWS認定試験対策",
-            "description": "AWS認定試験の過去問を中心とした問題集です。",
+            "file_nickname": "AWS認定試験対策",
             "created_at": "2024-01-02T00:00:00Z"
         },
         {
-            "id": 3,
             "file_num": 3,
             "file_name": "データベース設計",
-            "description": "データベース設計に関する問題集です。",
+            "file_nickname": "データベース設計",
             "created_at": "2024-01-03T00:00:00Z"
         }
     ],

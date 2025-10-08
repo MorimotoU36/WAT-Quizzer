@@ -1,4 +1,4 @@
-import { ApiResult } from 'quizzer-lib';
+import { ApiResult, getRandomIntWithRange } from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 import sayingData from '../data/mock/sample-saying-data.json';
@@ -360,5 +360,83 @@ export const mockListBookAPI = async (): Promise<ApiResult> => {
       { id: 2, name: '人を動かす' },
       { id: 3, name: '思考は現実化する' }
     ]
+  };
+};
+
+export const mockGetQuizFileStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  const clearCount = getRandomIntWithRange(0, 50);
+  const failCount = getRandomIntWithRange(0, 50);
+  return {
+    message: {
+      message: '問題ファイル統計データを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: {
+      file_num: params.file_num,
+      file_nickname: 'サンプルファイル',
+      count: 100,
+      clear: clearCount,
+      fail: failCount,
+      not_answered: 100 - clearCount - failCount,
+      process_rate: (clearCount / 100) * 100
+    }
+  };
+};
+
+export const mockGetAccuracyRateHistgramDataAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '正解率ヒストグラムデータを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: {
+      result: [
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100),
+        getRandomIntWithRange(0, 100)
+      ] // 0-90%の分布
+    }
+  };
+};
+
+export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  console.log('params', params);
+  return {
+    message: {
+      message: '回答ログ統計データを取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result:
+      params.getAnswerLogStatisticsData.data_unit === 'week'
+        ? [
+            { date: '2023-11-26', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-03', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-10', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-17', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-24', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-31', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
+          ]
+        : params.getAnswerLogStatisticsData.data_unit === 'month'
+        ? []
+        : [
+            { date: '2023-07-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-08-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-09-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-10-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-11-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2023-12-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
+            { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
+          ]
   };
 };
