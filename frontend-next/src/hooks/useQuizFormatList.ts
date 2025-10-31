@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { GetQuizFormatApiResponseDto, getQuizFormatListAPI } from 'quizzer-lib';
+import { GetQuizFormatApiResponseDto } from 'quizzer-lib';
+import { getQuizFormatListAPI } from '@/utils/api-wrapper';
 
 export const useQuizFormatList = () => {
   const [quizFormatListoption, setQuizFormatListoption] = useState<GetQuizFormatApiResponseDto[]>([]);

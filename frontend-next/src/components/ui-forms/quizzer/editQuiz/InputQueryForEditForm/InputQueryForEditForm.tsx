@@ -4,13 +4,13 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
 import {
   EditQuizAPIRequestDto,
-  getQuizAPI,
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
   getQuizAPIResponseToEditQuizAPIRequestAdapter,
   initEditQuizRequestData,
   initGetQuizRequestData
 } from 'quizzer-lib';
+import { getQuizAPI } from '@/utils/api-wrapper';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { useRouter } from 'next/router';

@@ -69,9 +69,14 @@ export class FrontendStack extends cdk.Stack {
     })
 
     // cognito domain
-    const domain = userPool.addDomain('userPoolDomain', {
-      cognitoDomain: { domainPrefix: process.env.COGNITO_DOMAIN || '' }
-    })
+    const cognitoDomainPrefix = process.env.COGNITO_DOMAIN || ''
+    let domain: cognito.UserPoolDomain | undefined
+
+    if (cognitoDomainPrefix) {
+      domain = userPool.addDomain('userPoolDomain', {
+        cognitoDomain: { domainPrefix: cognitoDomainPrefix }
+      })
+    }
 
     // cognito app client
     const appClient = userPool.addClient('userPoolAppClient', {

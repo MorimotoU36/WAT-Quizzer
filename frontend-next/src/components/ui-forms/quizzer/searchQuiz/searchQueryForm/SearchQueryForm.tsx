@@ -7,9 +7,9 @@ import {
   GetQuizApiResponseDto,
   initSearchQuizRequestData,
   PullDownOptionDto,
-  searchQuizAPI,
   SearchQuizAPIRequestDto
 } from 'quizzer-lib';
+import { searchQuizAPI } from '@/utils/api-wrapper';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';

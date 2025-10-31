@@ -4,14 +4,8 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import {
-  clearQuizAPI,
-  failQuizAPI,
-  generateQuizSentense,
-  GetQuizApiResponseDto,
-  initGetQuizResponseData,
-  reverseCheckQuizAPI
-} from 'quizzer-lib';
+import { generateQuizSentense, GetQuizApiResponseDto, initGetQuizResponseData } from 'quizzer-lib';
+import { clearQuizAPI, failQuizAPI, reverseCheckQuizAPI } from '@/utils/api-wrapper';
 import { Chip } from '@/components/ui-elements/chip/Chip';
 import EditIcon from '@mui/icons-material/Edit';
 import { useRouter } from 'next/router';

@@ -23,7 +23,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
   const setMessage = useSetRecoilState(messageState);
 
   return (
-    <Paper variant="outlined" className="w-2/5 float-left m-[5px]">
+    <Paper variant="outlined" className="w-full md:w-2/5 float-none md:float-left m-[5px]">
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h6" component="h6">

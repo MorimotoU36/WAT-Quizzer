@@ -2,13 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui-elements/button/Button';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import {
-  getImageOfQuizAPI,
-  GetImageOfQuizAPIResponseDto,
-  getQuizAPI,
-  GetQuizAPIRequestDto,
-  GetQuizApiResponseDto
-} from 'quizzer-lib';
+import { GetImageOfQuizAPIResponseDto, GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
+import { getQuizAPI, getImageOfQuizAPI } from '@/utils/api-wrapper';
 
 interface GetQuizButtonGroupProps {
   getQuizRequestData: GetQuizAPIRequestDto;

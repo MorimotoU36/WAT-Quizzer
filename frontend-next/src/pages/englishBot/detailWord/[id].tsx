@@ -10,17 +10,17 @@ import { useSetRecoilState } from 'recoil';
 import {
   GetWordNumResponseDto,
   GetWordDetailAPIResponseDto,
-  getWordDetailAPI,
   PullDownOptionDto,
-  getPartOfSpeechListAPI,
   apiResponsePullDownAdapter,
   PartofSpeechApiResponse,
-  getSourceListAPI,
   SourceApiResponse,
   initWordDetailResponseData,
   toggleWordCheckAPI,
   getWordNumAPI
 } from 'quizzer-lib';
+import { getWordDetailAPI, getPartOfSpeechListAPI, getSourceListAPI } from '@/utils/api-wrapper';
+import { isMockMode } from '@/utils/api-wrapper';
+import englishData from '@/data/mock/sample-english-data.json';
 import { SynonymStack } from '@/components/ui-forms/englishbot/detailWord/synonymStack/SynonymStack';
 import { AntonymStack } from '@/components/ui-forms/englishbot/detailWord/antonymStack/AntonymStack';
 import { DerivativeStack } from '@/components/ui-forms/englishbot/detailWord/derivativeStack/DerivativeStack';
@@ -40,7 +40,57 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
   const setMessage = useSetRecoilState(messageState);
 
   useEffect(() => {
-    if (!isMock) {
+    if (isMock || isMockMode()) {
+      // モック環境ではサンプルデータを使用
+      const mockWordId = parseInt(id);
+      const mockWord = englishData.words.find((word) => word.id === mockWordId) || englishData.wordDetail;
+      const mockWordDetail: GetWordDetailAPIResponseDto = {
+        ...mockWord,
+        id: mockWordId,
+        name: mockWord.word_name,
+        pronounce: '',
+        checked: false,
+        mean: [],
+        word_source: [],
+        word_subsource: [],
+        synonym_original: [],
+        synonym_word: [],
+        antonym_original: [],
+        antonym_word: [],
+        derivative: {
+          derivative_group_id: -1,
+          derivative_group: {
+            derivative: []
+          }
+        },
+        word_etymology: []
+      };
+
+      // サンプルデータから品詞リストとソースリストを設定
+      setPosList(
+        englishData.partOfSpeechList.map((pos) => ({
+          label: pos.name,
+          id: pos.id,
+          name: pos.name,
+          value: pos.name
+        }))
+      );
+
+      setSourcelistoption(
+        englishData.sourceList.map((source) => ({
+          label: source.name,
+          id: source.id,
+          name: source.name,
+          value: source.name
+        }))
+      );
+
+      // 単語詳細を設定
+      setWordDetail({
+        ...mockWordDetail
+      });
+    } else {
+      // 本番環境では従来通りAPIを呼び出し
       Promise.all([
         (async () => {
           const result = await getPartOfSpeechListAPI();
@@ -78,8 +128,17 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
               attr={'button-array'}
               variant="contained"
               color="warning"
-              disabled={wordDetail.id === -1}
+              disabled={wordDetail.id === -1 || isMock || isMockMode()}
               onClick={async (e) => {
+                if (isMock || isMockMode()) {
+                  setMessage({
+                    message: 'モック環境ではチェック反転は無効です',
+                    messageColor: 'warning',
+                    isDisplay: true
+                  });
+                  return;
+                }
+
                 setMessage({
                   message: '通信中...',
                   messageColor: '#d3d3d3',
@@ -131,13 +190,37 @@ type Params = {
 export async function getStaticProps({ params }: Params) {
   return {
     props: {
-      id: params.id
+      id: params.id,
+      isMock: process.env.NEXT_PUBLIC_MOCK_MODE === 'true'
     }
   };
 }
 
 // 一番最初に実行される関数
 export async function getStaticPaths() {
+  // モック環境かどうかを判定
+  const isMockMode = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
+
+  if (isMockMode) {
+    // モック環境では固定の単語数を使用（サンプルデータの単語数に基づく）
+    const mockWordCount = 5; // sample-english-data.jsonの単語数
+
+    return {
+      paths: new Array(mockWordCount)
+        .fill(0)
+        .map((_, i) => i)
+        .map((d) => {
+          return {
+            params: {
+              id: String(d + 1)
+            }
+          };
+        }),
+      fallback: false
+    };
+  }
+
+  // 本番環境では従来通りAPIから取得
   let words: GetWordNumResponseDto;
   // TODO words/num APIが効かない時の再実行・暫定措置で繰り返し処理を設けたが、もっといい方法あるはずなので探して欲しい
   for (let i = 0; i < 5; i++) {

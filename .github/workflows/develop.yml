@@ -9,8 +9,8 @@ permissions:
 
 jobs:
   # TODO バック、フロント、ライブラリごとに分けたい build-lib,deploy-frontend,deploy-backendみたいな。フロントバックはneeds:build-libとさせる
-  deploy:
-    name: Deploy
+  deploy-production:
+    name: Deploy to Production (develop)
     runs-on: ubuntu-latest
     environment: develop
 
@@ -60,6 +60,37 @@ jobs:
           AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
 
+      # ECRの古いイメージを手動削除とライフサイクルポリシー適用
+      - name: cleanup old ECR images and apply lifecycle policy
+        run: |
+          # SAMが作成するECRリポジトリ名を取得（通常はsam-prisma-<stack-name>形式）
+          REPO_NAME=$(aws ecr describe-repositories --query 'repositories[?contains(repositoryName, `sam-prisma`)].repositoryName' --output text | head -1)
+          if [ -n "$REPO_NAME" ]; then
+            # ライフサイクルポリシーを適用
+            aws ecr put-lifecycle-policy --repository-name $REPO_NAME --lifecycle-policy-text '{
+              "rules": [
+                {
+                  "rulePriority": 1,
+                  "description": "Keep only the latest 5 images",
+                  "selection": {
+                    "tagStatus": "any",
+                    "countType": "imageCountMoreThan",
+                    "countNumber": 5
+                  },
+                  "action": {
+                    "type": "expire"
+                  }
+                }
+              ]
+            }'
+            
+            # 最新の5つ以外のイメージを削除
+            aws ecr list-images --repository-name $REPO_NAME --query 'imageIds[?imageTag!=`latest`]' --output json | \
+            jq -r '.[] | select(.imageTag != null) | .imageTag' | \
+            tail -n +6 | \
+            xargs -I {} aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag={} || true
+          fi
+
       - name: Setup dependencies(all)
         id: setup-dependencies
         run: npm ci --production
@@ -97,3 +128,59 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
             --paths "/*"
+
+  deploy-mock:
+    name: Deploy to Mock Environment
+    runs-on: ubuntu-latest
+    environment: develop
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup dependencies(all)
+        run: npm ci --production
+
+      - name: Setup quizzer-lib
+        run: cd ./quizzer-lib && npm run build
+
+      - name: Setup dependencies(infra)
+        run: cd ./infra && npm ci --production
+
+      # モック環境用フロントエンドビルド
+      - name: Next.js Build and Export(Frontend for Mock)
+        env:
+          NEXT_PUBLIC_MOCK_MODE: true
+          NEXT_PUBLIC_URL_END: '/index.html'
+        run: cd ./frontend-next && npm run export
+
+      # モックスタックのデプロイ
+      - name: Deploy mock stack
+        run: cd ./infra && npx cdk deploy MockStack --app "npx ts-node bin/mock-infra.ts" --require-approval never
+
+      # モック環境用S3アップロード
+      - name: Upload mock files to S3
+        run: |
+          cd ./infra
+          # S3バケット名を取得してアップロード
+          BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockBucketName`].OutputValue' --output text)
+          aws s3 sync ../frontend-next/out/ s3://$BUCKET_NAME/ --delete
+
+      # モック環境用CloudFrontキャッシュ無効化
+      - name: Invalidate Mock CloudFront cache
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockDistributionId`].OutputValue' --output text)
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+
+      # # モック環境URLの出力
+      # - name: Output mock URL
+      #   run: |
+      #     MOCK_URL=$(aws cloudformation describe-stacks --stack-name MockStack --query 'Stacks[0].Outputs[?OutputKey==`MockWebsiteURL`].OutputValue' --output text)
+      #     echo "Mock environment deployed at: $MOCK_URL"

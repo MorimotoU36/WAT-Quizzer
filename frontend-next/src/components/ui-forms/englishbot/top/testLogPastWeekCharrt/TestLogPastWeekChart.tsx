@@ -41,7 +41,7 @@ export const TestLogPastWeekChart = ({ wordTestPastWeekStatisticsData }: TestLog
   };
 
   return (
-    <Card variant="outlined" attr={['rect-600', 'margin-vertical']}>
+    <Card variant="outlined" attr={['h-full', 'w-full', 'margin-vertical']}>
       {wordTestPastWeekStatisticsData.length > 0 ? <Bar options={options} data={data} /> : <CircularProgress />}
     </Card>
   );

@@ -46,15 +46,15 @@ export const DisplayTestWordSection = ({ displayTestData, setDisplayTestData }: 
           <>
             <CardContent>
               <div>
-                <h2>
+                <div className="text-2xl font-bold">
                   {displayTestData.word?.name || ''}
                   {displayTestData.word?.checked ? '✅' : ''}
                   <IconButton aria-label="Dictionary" href={`/englishBot/detailWord/${displayTestData.word?.id}`}>
                     <LibraryBooksOutlinedIcon />
                   </IconButton>
-                </h2>
+                </div>
                 {displayTestData.word?.word_source &&
-                  displayTestData.word?.word_source.map((value,index) => {
+                  displayTestData.word?.word_source.map((value, index) => {
                     return <Chip key={index} label={value.source.name} />;
                   })}
                 {displayTestData.word?.word_statistics_view.accuracy_rate

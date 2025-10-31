@@ -60,7 +60,7 @@ export const Layout = ({ title, contents, mode, isProtected = true }: LayoutProp
       )}
 
       {/*ヘッダとコンテンツ間の調整余白 */}
-      <div className="h-[40px]"></div>
+      <div className="h-[44px] md:h-[48px]"></div>
 
       {/*内容*/}
       {contents}

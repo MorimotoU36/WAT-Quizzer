@@ -9,7 +9,7 @@ export default function EditQuizPage() {
   const [editQuizRequestData, setEditQuizRequestData] = useState<EditQuizAPIRequestDto>(initEditQuizRequestData);
   const contents = () => {
     return (
-      <Container>
+      <Container className="!py-4">
         <InputQueryForEditForm setEditQuizRequestData={setEditQuizRequestData} />
         <EditQuizForm editQuizRequestData={editQuizRequestData} setEditQuizRequestData={setEditQuizRequestData} />
       </Container>

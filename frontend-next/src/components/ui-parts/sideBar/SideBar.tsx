@@ -23,9 +23,7 @@ export const SideBar = ({ ...props }: SideBarProps) => {
   const [sidebarState, setSidebarState] = useRecoilState(isOpenState);
   return (
     <Drawer
-      PaperProps={{
-        sx: { zIndex: 10001 }
-      }}
+      style={{ zIndex: 10002 }}
       anchor="right"
       open={sidebarState.open}
       onClose={toggleDrawer(false, setSidebarState)}

@@ -1,8 +1,5 @@
-import {
-  getCategoryListAPI,
-  getCategoryListAPIResponseToPullDownAdapter,
-  GetCategoryAPIResponseDto
-} from 'quizzer-lib';
+import { getCategoryListAPIResponseToPullDownAdapter, GetCategoryAPIResponseDto } from 'quizzer-lib';
+import { getCategoryListAPI } from '@/utils/api-wrapper';
 
 // カテゴリリスト取得
 export async function getCategoryListOptions(file_num: string) {

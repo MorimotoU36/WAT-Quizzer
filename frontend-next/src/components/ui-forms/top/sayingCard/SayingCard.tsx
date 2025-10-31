@@ -1,7 +1,8 @@
 import React from 'react';
 import { CardContent, Typography } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
-import { getSayingAPI, GetSayingResponse } from 'quizzer-lib';
+import { GetSayingResponse } from 'quizzer-lib';
+import { getSayingAPI } from '@/utils/api-wrapper';
 import { Button } from '@/components/ui-elements/button/Button';
 
 interface SayingCardProps {

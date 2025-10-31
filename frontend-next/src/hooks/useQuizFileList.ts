@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import {
-  GetQuizFileApiResponseDto,
-  getQuizFileListAPI,
-  PullDownOptionDto,
-  quizFileListAPIResponseToPullDownAdapter
-} from 'quizzer-lib';
+import { GetQuizFileApiResponseDto, PullDownOptionDto, quizFileListAPIResponseToPullDownAdapter } from 'quizzer-lib';
+import { getQuizFileListAPI } from '@/utils/api-wrapper';
 
 export const useQuizFileList = () => {
   const [filelistoption, setFilelistoption] = useState<PullDownOptionDto[]>([]);

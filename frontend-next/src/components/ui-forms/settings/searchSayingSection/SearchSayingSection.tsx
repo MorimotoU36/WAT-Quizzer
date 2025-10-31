@@ -9,7 +9,8 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { searchSayingColumns } from '../../../../constants/contents/table/saying';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { searchSayingAPI, SearchSayingAPIRequestDto } from 'quizzer-lib';
+import { SearchSayingAPIRequestDto } from 'quizzer-lib';
+import { searchSayingAPI } from '@/utils/api-wrapper';
 
 interface SearchSayingSectionProps {}
 
