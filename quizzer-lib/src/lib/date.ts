@@ -40,6 +40,31 @@ export const getPrismaYesterdayRange = () => {
   }
 }
 
+// prisma用　指定した過去日〜昨日のデータを取りたい時の条件
+export const getPrismaFromPastDayRange = (fromDate: Date) => {
+  const pastday = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate() - 1,
+    0,
+    0,
+    0
+  )
+  const nowDate = new Date()
+  const today = new Date(
+    nowDate.getFullYear(),
+    nowDate.getMonth(),
+    nowDate.getDate(),
+    0,
+    0,
+    0
+  )
+  return {
+    gte: pastday,
+    lt: today
+  }
+}
+
 // prisma用　今日から数えてn日前内のデータを取りたい時の条件
 export const getPrismaPastDayRange = (n: number) => {
   const nowDate = new Date()
