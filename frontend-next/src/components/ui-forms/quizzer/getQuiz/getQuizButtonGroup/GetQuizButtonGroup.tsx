@@ -1,9 +1,6 @@
 import React from 'react';
-import { Button } from '@/components/ui-elements/button/Button';
-import { messageState } from '@/atoms/Message';
-import { useSetRecoilState } from 'recoil';
-import { GetImageOfQuizAPIResponseDto, GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
-import { getQuizAPI, getImageOfQuizAPI } from '@/utils/api-wrapper';
+import { GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
+import { QuizActionButton } from './QuizActionButton';
 
 interface GetQuizButtonGroupProps {
   getQuizRequestData: GetQuizAPIRequestDto;
@@ -18,114 +15,87 @@ export const GetQuizButtonGroup = ({
   setQuizResponseData,
   setImageUrl
 }: GetQuizButtonGroupProps) => {
-  const setMessage = useSetRecoilState(messageState);
-
   return (
     <>
-      <Button
-        label={'出題'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="出題"
         variant="contained"
         color="primary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        attr="button-array"
+        actionType="quiz"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'ランダム出題'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="ランダム出題"
         variant="contained"
         color="secondary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'random' });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        attr="button-array"
+        actionType="quiz"
+        getQuizMethod="random"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'最低正解率問出題'}
+      <QuizActionButton
+        label="最低正解率問出題"
         variant="contained"
         color="secondary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'worstRate' });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        actionType="quiz"
+        getQuizMethod="worstRate"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'最小回答数問出題'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="最小回答数問出題"
         variant="contained"
         color="secondary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'leastClear' });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        attr="button-array"
+        actionType="quiz"
+        getQuizMethod="leastClear"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'LRU問出題'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="LRU問出題"
         variant="contained"
         color="secondary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'LRU' });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        attr="button-array"
+        actionType="quiz"
+        getQuizMethod="LRU"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'昨日間違えた問題'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="昨日間違えた問題"
         variant="contained"
         color="secondary"
-        onClick={async (e) => {
-          setImageUrl && setImageUrl('');
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getQuizAPI({ getQuizRequestData, getQuizMethod: 'review' });
-          setMessage(result.message);
-          if (result.result) {
-            setQuizResponseData && setQuizResponseData({ ...(result.result as GetQuizApiResponseDto) });
-          }
-        }}
+        attr="button-array"
+        actionType="quiz"
+        getQuizMethod="review"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
       />
-      <Button
-        label={'画像表示'}
-        attr={'button-array'}
+      <QuizActionButton
+        label="画像表示"
         variant="contained"
         color="info"
+        attr="button-array"
+        actionType="image"
         disabled={!getQuizResponseData.img_file}
-        onClick={async (e) => {
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await getImageOfQuizAPI({
-            getImageOfQuizRequestData: { fileName: getQuizResponseData.img_file || '' }
-          });
-          setMessage(result.message);
-          const res = result.result as GetImageOfQuizAPIResponseDto;
-          setImageUrl && setImageUrl(res.imageUrl);
-        }}
+        getQuizResponseData={getQuizResponseData}
+        setImageUrl={setImageUrl}
       />
     </>
   );

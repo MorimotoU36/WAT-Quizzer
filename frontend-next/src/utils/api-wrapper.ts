@@ -46,7 +46,7 @@ export const getQuizFormatListAPI = async (): Promise<ApiResult> => {
 
 export const getCategoryListAPI = async (p0: { getCategoryListData: { file_num: string } }): Promise<ApiResult> => {
   if (isMockMode()) {
-    return mockAPI.mockGetCategoryListAPI();
+    return mockAPI.mockGetCategoryListAPI(p0.getCategoryListData.file_num);
   }
 
   const { getCategoryListAPI: originalGetCategoryListAPI } = await import('quizzer-lib');
