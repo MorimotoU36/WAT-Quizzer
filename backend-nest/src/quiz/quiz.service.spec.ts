@@ -2,8 +2,8 @@ import { QuizService } from './quiz.service';
 import {
   prisma,
   getRandomElementFromArray,
-  getPrismaYesterdayRange,
   xor,
+  getPrismaFromPastDayRange,
 } from 'quizzer-lib';
 import { emptyResult } from '../../test/constants';
 
@@ -38,7 +38,7 @@ jest.mock('quizzer-lib', () => {
   return {
     prisma: mockPrisma,
     getRandomElementFromArray: jest.fn(),
-    getPrismaYesterdayRange: jest.fn(),
+    getPrismaFromPastDayRange: jest.fn(),
     getTodayStart: jest.fn(),
     xor: jest.fn(),
   };
@@ -179,18 +179,34 @@ describe('QuizService', () => {
     });
   });
 
-  // 昨日間違えた問題を取得 正常系
+  // 昨日間違えた問題（reviewメソッド）の取得 正常系テスト
   it('getReviewQuiz - OK', async () => {
-    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
-      getQuizResultTest,
-    );
-    (getPrismaYesterdayRange as jest.Mock).mockResolvedValueOnce({});
+    // quiz_statistics_view.findFirstでlast_failed_answer_logを返すモック
+    // quiz.service内部で quiz_statistics_view.findFirst を使いたいが、prisma.quiz_statistics_view.findFirst はmockされていないので追加
+    (prisma.quiz_statistics_view as any) = {
+      findFirst: jest
+        .fn()
+        .mockResolvedValueOnce({ last_failed_answer_log: new Date() }),
+    };
+    // getPrismaFromPastDayRangeのモック
+    (getPrismaFromPastDayRange as jest.Mock).mockResolvedValueOnce({
+      from: new Date(),
+      to: new Date(),
+    });
+    // getRandomElementFromArrayのモック
     (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
       getQuizResultTest[0],
     );
-    expect(
-      await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'review'),
-    ).toEqual({
+    // quiz.findManyのモック
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
+
+    const result = await quizService.getQuiz(
+      { file_num: 1, quiz_num: 1 },
+      'review',
+    );
+    expect(result).toEqual({
       ...getQuizResultTest[0],
       count: 1,
       quiz_statistics_view: {
@@ -325,28 +341,46 @@ describe('QuizService', () => {
 
   // 問題検索 正常系1
   it('search - OK', async () => {
-    // prisma.quiz.findManyが返す値（DBからの生データを想定）
+    // モックとして返すDBのクイズデータ
     const dbResult = [
       {
         id: 1,
+        file_num: 1,
+        format_id: 1,
+        quiz_num: 1,
+        quiz_sentense: '問題文',
+        answer: '答え',
+        quiz_category: [{ category: 'カテゴリ', deleted_at: null }],
+        quiz_format: { name: '四択' },
         quiz_statistics_view: {
           accuracy_rate: 80,
         },
-        // 他の必要なフィールドを適宜追加
+        img_file: '画像.png',
+        checked: true,
       },
     ];
-    // searchメソッドが返すべき値（accuracy_rateがstring化されていることに注意）
+
+    // 期待するsearchメソッドの返り値（accuracy_rateがstring化されていることに注意）
     const expectedResult = [
       {
         id: 1,
+        file_num: 1,
+        format_id: 1,
+        quiz_num: 1,
+        quiz_sentense: '問題文',
+        answer: '答え',
+        quiz_category: [{ category: 'カテゴリ', deleted_at: null }],
+        quiz_format: { name: '四択' },
         quiz_statistics_view: {
           accuracy_rate: '80',
         },
-        // 他の必要なフィールドを適宜追加
+        img_file: '画像.png',
+        checked: true,
       },
     ];
     (prisma.quiz.findMany as jest.Mock).mockResolvedValue(dbResult);
-    (xor as jest.Mock).mockReturnValue({}); // xorは同期的にtrue/falseを返す関数なのでmockResolvedValueではなくmockReturnValueを使う
+    (xor as jest.Mock).mockReturnValue({}); // モック関数としてxorを実装
+
     await expect(
       quizService.search({
         min_rate: 0,
