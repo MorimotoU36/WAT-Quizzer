@@ -12,7 +12,7 @@ interface QuizActionButtonProps {
   attr?: string;
   disabled?: boolean;
   getQuizRequestData?: GetQuizAPIRequestDto;
-  getQuizMethod?: 'random' | 'worstRate' | 'leastClear' | 'LRU' | 'review';
+  getQuizMethod?: 'random' | 'worstRate' | 'leastClear' | 'LRU' | 'review' | 'todayNotAnswered';
   getQuizResponseData?: GetQuizApiResponseDto;
   setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
   setImageUrl?: React.Dispatch<React.SetStateAction<string>>;

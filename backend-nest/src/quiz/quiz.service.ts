@@ -7,7 +7,6 @@ import {
   DeleteQuizAPIRequestDto,
   CheckQuizAPIRequestDto,
   DeleteAnswerLogOfFileApiRequestDto,
-  getPrismaYesterdayRange,
   getRandomElementFromArray,
   AddCategoryToQuizAPIRequestDto,
   IntegrateToQuizAPIRequestDto,
@@ -37,7 +36,14 @@ export class QuizService {
   // 問題取得
   async getQuiz(
     req: GetQuizAPIRequestDto,
-    method?: 'random' | 'worstRate' | 'leastClear' | 'LRU' | 'review',
+    // TODO ここの型をlibに持っていく　フロント側でも同じの使っている箇所あるため
+    method?:
+      | 'random'
+      | 'worstRate'
+      | 'leastClear'
+      | 'LRU'
+      | 'review'
+      | 'todayNotAnswered',
   ) {
     try {
       const {
@@ -100,6 +106,18 @@ export class QuizService {
                   last_answer_log: {
                     lt: getTodayStart(),
                   },
+                }),
+                ...(method === 'todayNotAnswered' && {
+                  OR: [
+                    {
+                      last_answer_log: {
+                        lt: getTodayStart(),
+                      },
+                    },
+                    {
+                      last_answer_log: null,
+                    },
+                  ],
                 }),
               },
               ...(categories && {
@@ -219,7 +237,9 @@ export class QuizService {
         );
       }
       const result =
-        method === 'random' || method === 'review'
+        method === 'random' ||
+        method === 'review' ||
+        method === 'todayNotAnswered'
           ? getRandomElementFromArray(results)
           : results[0];
       return {

@@ -40,6 +40,8 @@ export const getQuizAPI = async ({
       ? '/quiz/lru'
       : getQuizMethod === 'review'
       ? '/quiz/review'
+      : getQuizMethod === 'todayNotAnswered'
+      ? '/quiz/remaining'
       : '/quiz'
   const result = await get(
     path,

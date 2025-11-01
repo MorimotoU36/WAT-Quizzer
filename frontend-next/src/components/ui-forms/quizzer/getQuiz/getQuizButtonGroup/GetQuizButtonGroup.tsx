@@ -88,6 +88,18 @@ export const GetQuizButtonGroup = ({
         setImageUrl={setImageUrl}
       />
       <QuizActionButton
+        label="今日まだ解いてない問題"
+        variant="contained"
+        color="secondary"
+        attr="button-array"
+        actionType="quiz"
+        getQuizMethod="todayNotAnswered"
+        getQuizRequestData={getQuizRequestData}
+        getQuizResponseData={getQuizResponseData}
+        setQuizResponseData={setQuizResponseData}
+        setImageUrl={setImageUrl}
+      />
+      <QuizActionButton
         label="画像表示"
         variant="contained"
         color="info"
