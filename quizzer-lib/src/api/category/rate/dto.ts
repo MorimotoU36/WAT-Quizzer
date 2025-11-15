@@ -5,6 +5,7 @@ export interface GetCategoryRateAPIRequestDto {
   file_num: number
   startDate?: string
   endDate?: string
+  format_id?: { [key: string]: boolean }
 }
 
 // TODO とりあえずそのまま持ってきたが作り替えたい
