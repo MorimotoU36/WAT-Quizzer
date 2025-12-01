@@ -7,6 +7,7 @@ import { messageState } from '@/atoms/Message';
 import { generateQuizSentense, GetQuizApiResponseDto, initGetQuizResponseData } from 'quizzer-lib';
 import { clearQuizAPI, failQuizAPI, reverseCheckQuizAPI } from '@/utils/api-wrapper';
 import { Chip } from '@/components/ui-elements/chip/Chip';
+import { DisplaySentence } from '@/components/ui-elements/sentence/DisplaySentence';
 import EditIcon from '@mui/icons-material/Edit';
 import { useRouter } from 'next/router';
 
@@ -64,12 +65,7 @@ export const DisplayQuizSection = ({
               </IconButton>
             )}
           </Typography>
-          <Typography variant="subtitle1" component="h2">
-            {getQuizResponseData.checked ? '✅' : ''}
-            {displayQuiz.quiz_sentense.split(/(\n)/).map((item, index) => {
-              return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
-            })}
-          </Typography>
+          <DisplaySentence checked={getQuizResponseData.checked} quizSentence={displayQuiz.quiz_sentense} />
           {imageUrl && (
             <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
           )}
