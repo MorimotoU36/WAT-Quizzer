@@ -65,7 +65,7 @@ export const DisplayQuizSection = ({
               </IconButton>
             )}
           </Typography>
-          <DisplaySentence checked={getQuizResponseData.checked} quizSentence={displayQuiz.quiz_sentense} />
+          <DisplaySentence checked={getQuizResponseData.checked} sentence={displayQuiz.quiz_sentense} />
           {imageUrl && (
             <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
           )}
@@ -85,9 +85,7 @@ export const DisplayQuizSection = ({
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Typography variant="subtitle1" component="h2">
-              {displayQuiz.answer}
-            </Typography>
+            <DisplaySentence sentence={displayQuiz.answer} />
             <Typography variant="subtitle2" component="h3">
               {displayQuiz.quiz_explanation?.explanation.split(/(\\n)/).map((item, index) => {
                 return <React.Fragment key={index}>{item.match(/\\n/) ? <br /> : item}</React.Fragment>;
