@@ -24,7 +24,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
 
   return (
     <FormGroup className="!mt-4">
-      <FormControl>
+      <FormControl className="max-w-full">
         <QuizFilePullDown
           onFileChange={useSelectedFileChange({
             setMessage,
@@ -33,7 +33,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
           })}
         />
       </FormControl>
-      <FormControl>
+      <FormControl className="max-w-full">
         <TextField
           label="問題番号"
           setStater={(value: string) => {
@@ -45,7 +45,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
         />
       </FormControl>
 
-      <FormControl>
+      <FormControl className="max-w-full">
         <MultiSelectPullDown
           label={'カテゴリ'}
           optionList={categorylistoption}

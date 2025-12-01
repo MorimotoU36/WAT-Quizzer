@@ -38,6 +38,27 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
     onChange && onChange(event);
   };
 
+  const renderSelectedValue = (selected: string[]) => {
+    if (selected.length === 0) {
+      return '';
+    }
+
+    // 選択された値に対応するラベルを取得
+    const selectedLabels = selected
+      .map((val) => {
+        const option = optionList.find((opt) => String(opt.value) === val);
+        return option ? option.label : val;
+      })
+      .filter(Boolean);
+
+    if (selectedLabels.length === 0) {
+      return '';
+    }
+
+    // すべての選択項目をカンマ区切りで表示
+    return selectedLabels.join(', ');
+  };
+
   const selectProps = {
     className:
       'rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500',
@@ -49,7 +70,11 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
   };
 
   return (
-    <FormControl disabled={optionList.length <= 1 ? true : false}>
+    <FormControl
+      disabled={optionList.length <= 1 ? true : false}
+      className={className}
+      sx={{ minWidth: 120, maxWidth: '100%' }}
+    >
       <InputLabel
         id={`quiz-file-input-${getRandomStr()}`}
         className="rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -60,7 +85,26 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
         {...selectProps}
         multiple
         input={<OutlinedInput label="Tag" />}
-        renderValue={(selected) => String(selected)}
+        renderValue={(selected) => (
+          <div
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: '100%'
+            }}
+          >
+            {renderSelectedValue(selected as string[])}
+          </div>
+        )}
+        sx={{
+          '& .MuiSelect-select': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%'
+          }
+        }}
       >
         {optionList.map((x) => (
           <MenuItem value={x.value} key={x.value}>
