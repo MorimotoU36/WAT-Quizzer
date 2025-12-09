@@ -1,0 +1,29 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+      // Storybook 10 の型解決に必要
+      "moduleResolution": "bundler",
+  
+      // Storybook でのみ必要になるため上書き
+      "types": ["node"],
+  
+      // Storybook 側では next-env.d.ts は不要
+      "skipLibCheck": true,
+  
+      // Storybook に最適化された React JSX 変換
+      "jsx": "react-jsx"
+    },
+    "include": [
+      "../src/**/*.stories.ts",
+      "../src/**/*.stories.tsx",
+      "../src/**/*.stories.mdx",
+      "./**/*.ts",
+      "./**/*.tsx"
+    ],
+    "exclude": [
+      "../node_modules",
+      "../.next",
+      "../out"
+    ]
+  }
+  

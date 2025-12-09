@@ -220,15 +220,23 @@ export async function getStaticPaths() {
     };
   }
 
-  // 本番環境では従来通りAPIから取得
-  let words: GetWordNumResponseDto;
+  // 本番環境では従来通りAPIから取得。失敗時は静的生成をスキップ。
+  let words: GetWordNumResponseDto | undefined;
   // TODO words/num APIが効かない時の再実行・暫定措置で繰り返し処理を設けたが、もっといい方法あるはずなので探して欲しい
   for (let i = 0; i < 5; i++) {
-    words = (await getWordNumAPI({})).result as GetWordNumResponseDto;
-    console.log(`words[${i + 1}]:`, JSON.stringify(words));
-    if (words) {
-      break;
+    try {
+      const res = await getWordNumAPI({});
+      words = res.result as GetWordNumResponseDto | undefined;
+      console.log(`words[${i + 1}]:`, JSON.stringify(words));
+      if (words) break;
+    } catch (error) {
+      console.warn('Failed to fetch words/num', error);
     }
+  }
+
+  if (!words || !words._max || typeof words._max.id !== 'number') {
+    console.warn('words/num response is invalid. Skipping static paths generation.');
+    return { paths: [], fallback: false };
   }
   return {
     paths: new Array(words!._max.id + 30)

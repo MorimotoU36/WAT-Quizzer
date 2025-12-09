@@ -29,6 +29,7 @@
     "@mui/x-data-grid": "^6.0.3",
     "@mui/x-date-pickers": "^6.19.4",
     "@playwright/test": "^1.42.0",
+    "@storybook/nextjs": "^10.1.5",
     "@storybook/react": "^10.1.4",
     "@tailwindcss/postcss": "^4.1.11",
     "amazon-cognito-identity-js": "^6.3.15",
