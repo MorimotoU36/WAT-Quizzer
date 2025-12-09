@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 
 import { InputQueryForm } from './InputQueryForm';
 import { initGetQuizRequestData } from 'quizzer-lib';

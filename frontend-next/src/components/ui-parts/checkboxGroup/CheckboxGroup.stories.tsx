@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { CheckboxGroup, CheckboxGroupProps } from './CheckboxGroup';
 import React, { useState } from 'react';
 

@@ -7,6 +7,7 @@ const withInterceptStdout = require('next-intercept-stdout');
 const nextConfig = withInterceptStdout(
   {
     reactStrictMode: true,
+    output: 'export',
     experimental: {
       externalDir: true
     },

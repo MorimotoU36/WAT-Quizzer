@@ -13,7 +13,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:backend": "npx -w backend-nest prisma format && npx -w backend-nest prisma generate && npx -w backend-nest nest build",
-    "build:frontend": "npx -w frontend-next next build"
+    "build:frontend": "npx -w frontend-next next build",
+    "deps:check": "npx syncpack list-mismatches",
+    "deps:fix": "npx syncpack fix-mismatches"
   },
   "repository": {
     "type": "git",
