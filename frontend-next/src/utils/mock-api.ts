@@ -1,4 +1,4 @@
-import { ApiResult, getRandomIntWithRange } from 'quizzer-lib';
+import { ApiResult, getRandomIntWithRange, MESSAGES } from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 import sayingData from '../data/mock/sample-saying-data.json';
@@ -10,7 +10,7 @@ export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
 
   return {
     message: {
-      message: 'Success!! 1問の問題を取得しました',
+      message: MESSAGES.SUCCESS.MSG00001,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -24,7 +24,7 @@ export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
 
   return {
     message: {
-      message: 'Success!! 3問の問題を取得しました',
+      message: MESSAGES.SUCCESS.MSG00015.replace('{0}', String(searchResults.length)),
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -35,7 +35,7 @@ export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
 export const mockGetQuizFileListAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! ファイル一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -46,7 +46,7 @@ export const mockGetQuizFileListAPI = async (): Promise<ApiResult> => {
 export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! 問題形式一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -57,7 +57,7 @@ export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
 export const mockGetCategoryListAPI = async (file_num: string): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! カテゴリ一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -71,7 +71,7 @@ export const mockSearchWordAPI = async (params: any): Promise<ApiResult> => {
 
   return {
     message: {
-      message: 'Success!! 3件の単語を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -82,7 +82,7 @@ export const mockSearchWordAPI = async (params: any): Promise<ApiResult> => {
 export const mockGetWordDetailAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! 単語詳細を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -93,7 +93,7 @@ export const mockGetWordDetailAPI = async (params: any): Promise<ApiResult> => {
 export const mockGetPartOfSpeechListAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! 品詞一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -104,7 +104,7 @@ export const mockGetPartOfSpeechListAPI = async (): Promise<ApiResult> => {
 export const mockGetSourceListAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! ソース一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -118,7 +118,7 @@ export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
 
   return {
     message: {
-      message: 'Success!! 3件の格言を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -129,7 +129,7 @@ export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
 export const mockGetSayingCategoryListAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'Success!! 格言カテゴリ一覧を取得しました',
+      message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -141,7 +141,7 @@ export const mockGetSayingCategoryListAPI = async (): Promise<ApiResult> => {
 export const mockLoginAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: 'ログインに成功しました',
+      message: MESSAGES.SUCCESS.MSG00023,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -155,7 +155,7 @@ export const mockLoginAPI = async (params: any): Promise<ApiResult> => {
 export const mockLogoutAPI = async (): Promise<ApiResult> => {
   return {
     message: {
-      message: 'ログアウトしました',
+      message: MESSAGES.SUCCESS.MSG00024,
       messageColor: 'success.light',
       isDisplay: true
     }
@@ -167,7 +167,7 @@ export const mockLogoutAPI = async (): Promise<ApiResult> => {
 export const mockAddQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: '問題を追加しました',
+      message: MESSAGES.SUCCESS.MSG00002,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -178,7 +178,7 @@ export const mockAddQuizAPI = async (params: any): Promise<ApiResult> => {
 export const mockEditQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: '問題を編集しました',
+      message: MESSAGES.SUCCESS.MSG00018,
       messageColor: 'success.light',
       isDisplay: true
     },
@@ -189,7 +189,7 @@ export const mockEditQuizAPI = async (params: any): Promise<ApiResult> => {
 export const mockDeleteQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: '問題を削除しました',
+      message: MESSAGES.SUCCESS.MSG00009,
       messageColor: 'success.light',
       isDisplay: true
     }
@@ -249,7 +249,7 @@ export const mockGetSayingAPI = async (params: any): Promise<ApiResult> => {
 export const mockClearQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: 'クイズをクリアしました',
+      message: MESSAGES.SUCCESS.MSG00008.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
       isDisplay: true
     }
@@ -259,7 +259,7 @@ export const mockClearQuizAPI = async (params: any): Promise<ApiResult> => {
 export const mockFailQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: 'クイズを失敗として記録しました',
+      message: MESSAGES.SUCCESS.MSG00011.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
       isDisplay: true
     }
@@ -269,7 +269,7 @@ export const mockFailQuizAPI = async (params: any): Promise<ApiResult> => {
 export const mockReverseCheckQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {
-      message: 'チェックを反転しました',
+      message: MESSAGES.SUCCESS.MSG00006.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
       isDisplay: true
     }
@@ -427,23 +427,71 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
             { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
           ]
         : params.getAnswerLogStatisticsData.date_unit === 'month'
-        ? [
-            { date: '2023-07-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2023-08-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2023-09-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2023-10-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2023-11-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2023-12-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
-          ]
-        : [
-            { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-02', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-03', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-04', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-05', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) },
-            { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
-          ]
+          ? [
+              {
+                date: '2023-07-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2023-08-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2023-09-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2023-10-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2023-11-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2023-12-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              { date: '2024-01-01', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
+            ]
+          : [
+              {
+                date: '2024-01-01',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2024-01-02',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2024-01-03',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2024-01-04',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2024-01-05',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              {
+                date: '2024-01-07',
+                count: getRandomIntWithRange(0, 100),
+                accuracy_rate: getRandomIntWithRange(0, 100)
+              },
+              { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
+            ]
   };
 };

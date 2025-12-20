@@ -24,7 +24,12 @@ export default function Top({ isMock }: Props) {
     if (isMock || isMockMode()) {
       // モック環境ではサンプルデータを使用
       const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
-      setSaying(randomSaying);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSaying({
+        id: randomSaying.id,
+        saying: randomSaying.saying,
+        explanation: randomSaying.explanation
+      });
     } else {
       // 本番環境ではAPIを呼び出し
       Promise.all([
