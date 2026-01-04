@@ -1,21 +1,22 @@
-import { ApiResult, getRandomIntWithRange, MESSAGES } from 'quizzer-lib';
+import { ApiResult, errorMessage, getRandomIntWithRange, MESSAGES, successMessage } from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 import sayingData from '../data/mock/sample-saying-data.json';
 
 // モック用のAPI関数群
 export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
-  // ランダムな問題を返す
-  const randomQuiz = quizData.quizList[Math.floor(Math.random() * quizData.quizList.length)];
+  // 問題を返す（通常取得以外はランダム）
+  const quizList = quizData.quizList.filter((quiz) => quiz.file_num === params.getQuizRequestData.file_num);
+  const quiz = params.getQuizMethod
+    ? quizList[Math.floor(Math.random() * quizData.quizList.length)]
+    : quizList[params.getQuizRequestData.quiz_num];
 
-  return {
-    message: {
-      message: MESSAGES.SUCCESS.MSG00001,
-      messageColor: 'success.light',
-      isDisplay: true
-    },
-    result: randomQuiz
-  };
+  return quiz
+    ? {
+        message: successMessage(MESSAGES.SUCCESS.MSG00001),
+        result: quiz
+      }
+    : { message: errorMessage(MESSAGES.ERROR.MSG00004) };
 };
 
 export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
