@@ -48,7 +48,7 @@ export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
-      isDisplay: true
+      isDisplay: false
     },
     result: quizData.quizFormats
   };
