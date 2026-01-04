@@ -37,15 +37,33 @@ export class CategoryService {
     file_num: number,
     startDate?: Date,
     endDate?: Date,
+    format_id?: { [key: string]: boolean },
   ) {
     try {
       const result = {};
+
+      const enabledFormatIds = format_id
+        ? Object.entries(format_id)
+            .filter(([, enabled]) => !!enabled)
+            .map(([key]) => parseInt(key, 10))
+            .filter((id) => !isNaN(id))
+        : [];
+
+      const quizFormatFilter =
+        enabledFormatIds.length > 0
+          ? {
+              format_id: {
+                in: enabledFormatIds,
+              },
+            }
+          : undefined;
 
       // カテゴリビューから指定ファイルのカテゴリ毎の正解率取得
       const categorylogs = await prisma.answer_log.findMany({
         where: {
           quiz: {
             file_num,
+            ...(quizFormatFilter ?? {}),
           },
           created_at: {
             gte: startDate || PAST_DAY,
@@ -124,6 +142,7 @@ export class CategoryService {
         where: {
           quiz: {
             file_num,
+            ...(quizFormatFilter ?? {}),
           },
           created_at: {
             gte: startDate || PAST_DAY,

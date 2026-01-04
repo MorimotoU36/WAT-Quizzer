@@ -9,12 +9,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.8.7",
-    "dotenv": "^16.4.5",
+    "@types/node": "22.13.14",
+    "dotenv": "^16.4.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.8.2"
   },
   "dependencies": {
-    "quizzer-lib": "^1.0.1"
+    "quizzer-lib": "1.0.1"
   }
 }

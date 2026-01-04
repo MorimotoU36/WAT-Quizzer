@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { DisplayAccuracyChart } from './DisplayAccuracyChart';
 import { AccuracyGraphFormProvider } from '@/contexts/AccuracyGraphFormContext';
 import { GetCategoryRateAPIRequestDto } from 'quizzer-lib';

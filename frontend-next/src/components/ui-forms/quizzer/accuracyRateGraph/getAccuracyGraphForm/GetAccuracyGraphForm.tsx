@@ -6,9 +6,12 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { useAccuracyGraphForm } from '@/contexts/AccuracyGraphFormContext';
 import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
 import { getDateForSqlString } from 'quizzer-lib';
+import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
+import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 
 export const GetAccuracyGraphForm = () => {
   const { graph, order, getCategoryRateData, setGraph, setOrder, setCategoryRateData } = useAccuracyGraphForm();
+  const { quizFormatListoption } = useQuizFormatList();
 
   const setGraphString: React.Dispatch<React.SetStateAction<string>> = (value) => {
     if (typeof value === 'function') {
@@ -70,6 +73,28 @@ export const GetAccuracyGraphForm = () => {
                 endDate: getDateForSqlString(newValue as Date)
               });
             }}
+          />
+        </FormControl>
+        <FormControl>
+          <CheckboxGroup
+            checkboxProps={quizFormatListoption.map((x) => {
+              return {
+                value: String(x.id),
+                label: x.name,
+                checked: !!(getCategoryRateData.format_id && getCategoryRateData.format_id[String(x.id)])
+              };
+            })}
+            setQueryofQuizStater={(checkBoxValue, checked) => {
+              const setData = {
+                ...getCategoryRateData,
+                format_id: {
+                  ...getCategoryRateData.format_id,
+                  [checkBoxValue]: checked
+                }
+              };
+              setCategoryRateData(setData);
+            }}
+            label={'問題種別'}
           />
         </FormControl>
       </FormGroup>

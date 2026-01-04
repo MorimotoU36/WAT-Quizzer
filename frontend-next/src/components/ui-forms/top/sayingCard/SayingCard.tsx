@@ -4,6 +4,7 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { GetSayingResponse } from 'quizzer-lib';
 import { getSayingAPI } from '@/utils/api-wrapper';
 import { Button } from '@/components/ui-elements/button/Button';
+import { DisplaySentence } from '@/components/ui-elements/sentence/DisplaySentence';
 
 interface SayingCardProps {
   sayingResponse: GetSayingResponse;
@@ -31,12 +32,8 @@ export const SayingCard = ({ sayingResponse, setSaying }: SayingCardProps) => {
           <Typography id="saying" variant="h2" component="p" color={'common.black'}>
             {sayingResponse.saying}
           </Typography>
-          <Typography id="saying-explanation" variant="subtitle1" component="p" color="grey.800">
-            {sayingResponse.explanation}
-          </Typography>
-          <Typography id="saying-bookname" variant="subtitle1" component="p" color="grey.600">
-            {sayingResponse.selfhelp_book?.name || ''}
-          </Typography>
+          <DisplaySentence sentence={sayingResponse.explanation || ''} id="saying-explanation" color="grey.800" />
+          <DisplaySentence sentence={sayingResponse.selfhelp_book?.name || ''} id="saying-bookname" color="grey.600" />
         </CardContent>
       </Card>
     </>

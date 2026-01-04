@@ -9,7 +9,10 @@ import {
 import { ApiOperation, ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
-import { AccuracyRateQueryPipe, AccuracyRateQueryDto } from './pipes/accuracy-rate-query.pipe';
+import {
+  AccuracyRateQueryPipe,
+  AccuracyRateQueryDto,
+} from './pipes/accuracy-rate-query.pipe';
 
 @ApiTags('カテゴリ')
 @UseGuards(CognitoAuthGuard)
@@ -66,6 +69,12 @@ export class CategoryController {
     type: String,
     required: false,
   })
+  @ApiQuery({
+    name: 'format_id',
+    description: '問題形式ID（カンマ区切り）',
+    type: String,
+    required: false,
+  })
   @ApiResponse({
     status: 200,
     description: 'カテゴリ別正答率の取得に成功しました。',
@@ -85,6 +94,7 @@ export class CategoryController {
       query.file_num,
       query.startDate,
       query.endDate,
+      query.format_id,
     );
   }
 }

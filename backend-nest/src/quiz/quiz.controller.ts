@@ -88,11 +88,20 @@ export class QuizController {
 
   @ApiOperation({
     summary: '復習クイズ取得',
-    description: '復習対象のクイズを1件取得します。',
+    description: '先日間違えたクイズを1件取得します。',
   })
   @Get('/review')
   async getReviewQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
     return await this.quizService.getQuiz(req, 'review');
+  }
+
+  @ApiOperation({
+    summary: '今日まだ解いてないクイズ取得',
+    description: '今日まだ解いてないクイズを1件取得します。',
+  })
+  @Get('/remaining')
+  async getRemainingQuiz(@Query(GetQuizPipe) req: GetQuizAPIRequestDto) {
+    return await this.quizService.getQuiz(req, 'todayNotAnswered');
   }
 
   @ApiOperation({

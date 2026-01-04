@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import SearchQuizPage from '../../../../pages/quizzer/searchQuiz';
 import { RecoilRoot } from 'recoil';
 

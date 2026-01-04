@@ -54,14 +54,14 @@ export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
   };
 };
 
-export const mockGetCategoryListAPI = async (): Promise<ApiResult> => {
+export const mockGetCategoryListAPI = async (file_num: string): Promise<ApiResult> => {
   return {
     message: {
       message: 'Success!! カテゴリ一覧を取得しました',
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: quizData.categories
+    result: quizData.categories[file_num as keyof typeof quizData.categories]
   };
 };
 
@@ -409,7 +409,6 @@ export const mockGetAccuracyRateHistgramDataAPI = async (params: any): Promise<A
 };
 
 export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
-  console.log('params', params);
   return {
     message: {
       message: '回答ログ統計データを取得しました',

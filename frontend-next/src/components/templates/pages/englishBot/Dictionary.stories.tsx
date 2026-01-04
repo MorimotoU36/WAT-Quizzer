@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import EnglishBotDictionaryPage from '../../../../pages/englishBot/dictionary';
 import { RecoilRoot } from 'recoil';
 

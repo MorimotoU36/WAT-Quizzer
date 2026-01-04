@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { QuizAnswerLogStatisticsCard } from './QuizAnswerLogStatisticsCard';
 import { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';

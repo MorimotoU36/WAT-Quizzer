@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/nextjs';
 import { WordSummaryChart } from './WordSummaryChart';
 import { initGetWordSummaryData } from 'quizzer-lib';
 

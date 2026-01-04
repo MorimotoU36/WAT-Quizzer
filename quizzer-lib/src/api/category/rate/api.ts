@@ -21,6 +21,28 @@ export const getAccuracyRateByCategoryAPI = async ({
     }
   }
 
+  const { format_id: formatMap, ...rest } = getCategoryRateData
+  const format_id = formatMap
+    ? Object.entries(formatMap)
+        .filter(([, enabled]) => !!enabled)
+        .map(([key]) => key)
+        .join(',')
+    : ''
+
+  const queryParam: { [key: string]: string | number } = {
+    file_num: rest.file_num
+  }
+
+  if (rest.startDate) {
+    queryParam.startDate = rest.startDate
+  }
+  if (rest.endDate) {
+    queryParam.endDate = rest.endDate
+  }
+  if (format_id) {
+    queryParam.format_id = format_id
+  }
+
   const result = await get(
     '/category/rate',
     (data: ProcessingApiReponse) => {
@@ -54,7 +76,7 @@ export const getAccuracyRateByCategoryAPI = async ({
         }
       }
     },
-    { ...getCategoryRateData }
+    queryParam
   )
   return result
 }

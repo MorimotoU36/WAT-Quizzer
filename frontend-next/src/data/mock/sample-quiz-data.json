@@ -27,18 +27,17 @@
     "quizList": [
         {
             "id": 1,
-            "question": "次のうち、JavaScriptの配列メソッドはどれですか？",
-            "answer": "push",
-            "explanation": "push()は配列の末尾に要素を追加するメソッドです。",
+            "quiz_sentense": "次のうち、Javaのリストのメソッドはどれですか？",
+            "answer": "append",
+            "explanation": "append()はリストの末尾に要素を追加するメソッドです。",
             "quiz_category": [
                 {
                     "id": 1,
-                    "category": "プログラミング",
-                    "deleted_at": null
+                    "category": "Java"
                 }
             ],
             "quiz_format": {
-                "id": 1,
+                "id": 3,
                 "name": "四択問題"
             },
             "quiz_statistics_view": {
@@ -47,12 +46,27 @@
                 "correct_answers": 91
             },
             "file_num": 1,
+            "quiz_num": 1,
+            "quiz_dummy_choice": [
+                {
+                    "dummy_choice_sentense": "print",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "clear",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "remove",
+                    "is_corrected": false
+                }
+            ],
             "created_at": "2024-01-15T10:30:00Z",
             "updated_at": "2024-01-15T10:30:00Z"
         },
         {
             "id": 2,
-            "question": "Reactの状態管理ライブラリはどれですか？",
+            "quiz_sentense": "Reactの状態管理ライブラリはどれですか？",
             "answer": "Redux",
             "explanation": "ReduxはReactでよく使われる状態管理ライブラリです。",
             "quiz_category": [
@@ -63,7 +77,7 @@
                 }
             ],
             "quiz_format": {
-                "id": 1,
+                "id": 3,
                 "name": "四択問題"
             },
             "quiz_statistics_view": {
@@ -71,13 +85,28 @@
                 "total_answers": 95,
                 "correct_answers": 78
             },
-            "file_num": 1,
+            "quiz_dummy_choice": [
+                {
+                    "dummy_choice_sentense": "Formik",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "Next.js",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "Zustand",
+                    "is_corrected": false
+                }
+            ],
+            "file_num": 2,
+            "quiz_num": 1,
             "created_at": "2024-01-16T14:20:00Z",
             "updated_at": "2024-01-16T14:20:00Z"
         },
         {
             "id": 3,
-            "question": "AWSのデータベースサービスはどれですか？",
+            "quiz_sentense": "AWSのデータベースサービスはどれですか？",
             "answer": "RDS",
             "explanation": "RDSはAmazon Relational Database Serviceの略で、マネージドデータベースサービスです。",
             "quiz_category": [
@@ -88,7 +117,7 @@
                 }
             ],
             "quiz_format": {
-                "id": 1,
+                "id": 3,
                 "name": "四択問題"
             },
             "quiz_statistics_view": {
@@ -96,7 +125,22 @@
                 "total_answers": 150,
                 "correct_answers": 103
             },
-            "file_num": 1,
+            "quiz_dummy_choice": [
+                {
+                    "dummy_choice_sentense": "EC2",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "SQS",
+                    "is_corrected": false
+                },
+                {
+                    "dummy_choice_sentense": "S3",
+                    "is_corrected": false
+                }
+            ],
+            "file_num": 3,
+            "quiz_num": 1,
             "created_at": "2024-01-17T09:15:00Z",
             "updated_at": "2024-01-17T09:15:00Z"
         }
@@ -124,40 +168,59 @@
     "quizFormats": [
         {
             "id": 1,
-            "name": "四択問題",
-            "description": "4つの選択肢から正解を選ぶ問題形式"
+            "name": "基礎問題"
         },
         {
             "id": 2,
-            "name": "記述問題",
-            "description": "自由記述で回答する問題形式"
+            "name": "応用問題"
         },
         {
             "id": 3,
-            "name": "真偽問題",
-            "description": "正しいか間違っているかを答える問題形式"
+            "name": "四択問題"
         }
     ],
-    "categories": [
-        {
-            "id": 1,
-            "category": "プログラミング",
-            "description": "プログラミング言語や開発に関する問題"
-        },
-        {
-            "id": 2,
-            "category": "AWS",
-            "description": "Amazon Web Servicesに関する問題"
-        },
-        {
-            "id": 3,
-            "category": "データベース",
-            "description": "データベース設計やSQLに関する問題"
-        },
-        {
-            "id": 4,
-            "category": "ネットワーク",
-            "description": "ネットワーク技術に関する問題"
-        }
-    ]
+    "categories": {
+        "1": [
+            {
+                "id": 1,
+                "category": "Java"
+            },
+            {
+                "id": 2,
+                "category": "Python"
+            },
+            {
+                "id": 3,
+                "category": "HTML"
+            }
+        ],
+        "2": [
+            {
+                "id": 1,
+                "category": "EC2"
+            },
+            {
+                "id": 2,
+                "category": "RDS"
+            },
+            {
+                "id": 3,
+                "category": "Lambda"
+            }
+        ],
+        "3": [
+            {
+                "id": 1,
+                "category": "SQL"
+            },
+            {
+                "id": 2,
+                "category": "NoSQL"
+            },
+            {
+                "id": 3,
+                "category": "Docker"
+            }
+        ]
+    }
 }
