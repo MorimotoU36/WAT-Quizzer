@@ -3,8 +3,6 @@ import { Container } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { GetSayingResponse, initSayingResponseData } from 'quizzer-lib';
 import { getSayingAPI } from '@/utils/api-wrapper';
-import { isMockMode } from '@/utils/api-wrapper';
-import sayingData from '@/data/mock/sample-saying-data.json';
 import { Title } from '@/components/ui-elements/title/Title';
 import { TopButtonGroup } from '@/components/ui-forms/top/topButtonGroup/TopButtonGroup';
 import { SayingCard } from '@/components/ui-forms/top/sayingCard/SayingCard';
