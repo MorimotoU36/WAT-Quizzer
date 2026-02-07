@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Button as MuiButton, CardActions, CardContent, Collapse, Typography, IconButton } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -26,6 +26,7 @@ export const DisplayQuizSection = ({
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
+  const prevQuizSentenseRef = useRef<string>(getQuizResponseData.quiz_sentense);
   const displayQuiz = useMemo(() => {
     return {
       ...getQuizResponseData,
@@ -39,9 +40,15 @@ export const DisplayQuizSection = ({
   };
 
   // 出題変わったら閉じる
-  useEffect(() => {
-    setExpanded(false);
-    setImageUrl && setImageUrl('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
+    if (prevQuizSentenseRef.current !== getQuizResponseData.quiz_sentense) {
+      prevQuizSentenseRef.current = getQuizResponseData.quiz_sentense;
+      setExpanded(false);
+      setImageUrl && setImageUrl('');
+    }
+    // Returning getQuizResponseData.quiz_sentense to satisfy eslint rules for effect dependencies.
+    return getQuizResponseData.quiz_sentense;
   }, [getQuizResponseData.quiz_sentense, setImageUrl]);
 
   return (

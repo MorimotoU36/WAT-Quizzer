@@ -3,20 +3,22 @@ import {
   errorMessage,
   getRandomIntWithRange,
   MESSAGES,
+  quizCategoryMockData,
   quizFileMockData,
+  quizFormatMockData,
+  quizMockData,
   sayingMockData,
   successMessage
 } from 'quizzer-lib';
-import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 
 // モック用のAPI関数群
 export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
-  // 問題を返す（通常取得以外はランダム）
-  const quizList = quizData.quizList.filter((quiz) => quiz.file_num === params.getQuizRequestData.file_num);
+  // 問題を返す（通常取得以外はランダム） TODO チェック済とか問題種別とかカテゴリに対応する？
+  const quizList = quizMockData.filter((quiz) => quiz.file_num === params.getQuizRequestData.file_num);
   const quiz = params.getQuizMethod
-    ? quizList[Math.floor(Math.random() * quizData.quizList.length)]
-    : quizList[params.getQuizRequestData.quiz_num];
+    ? quizList[Math.floor(Math.random() * quizMockData.length)]
+    : quizList.find((quiz) => quiz.quiz_num === params.getQuizRequestData.quiz_num);
 
   return quiz
     ? {
@@ -28,7 +30,7 @@ export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
   // 検索結果として複数の問題を返す
-  const searchResults = quizData.quizList.slice(0, 3);
+  const searchResults = quizMockData.slice(0, 3);
 
   return {
     message: {
@@ -58,18 +60,20 @@ export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: false
     },
-    result: quizData.quizFormats
+    result: quizFormatMockData
   };
 };
 
 export const mockGetCategoryListAPI = async (file_num: string): Promise<ApiResult> => {
+  const quizIdList = quizMockData.filter((quiz) => quiz.file_num === +file_num).map((quiz) => quiz.id);
+  const categoryList = quizCategoryMockData.filter((category) => quizIdList.includes(category.quiz_id));
   return {
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: quizData.categories[file_num as keyof typeof quizData.categories]
+    result: categoryList
   };
 };
 
