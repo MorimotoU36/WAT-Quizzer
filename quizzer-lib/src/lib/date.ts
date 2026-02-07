@@ -110,12 +110,13 @@ export const getPastDate = (n: number) => {
     .replaceAll('/', '-')
 }
 
-// TODO date_unitの型をどこかに定義する dtoファイルの方も
+import { DateUnit } from '../api/quiz/statistics/dto'
+
 // TODO エラーメッセージを定義する
 // (回答数統計データ取得APIで利用)始値を計算して取得する
 export const getStartDateForStatistics = (
   inputDate: Date,
-  date_unit: 'day' | 'week' | 'month'
+  date_unit: DateUnit
 ) => {
   switch (date_unit) {
     case 'day':

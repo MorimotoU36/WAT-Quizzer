@@ -1,4 +1,12 @@
-import { ApiResult, errorMessage, getRandomIntWithRange, MESSAGES, sayingMockData, successMessage } from 'quizzer-lib';
+import {
+  ApiResult,
+  errorMessage,
+  getRandomIntWithRange,
+  MESSAGES,
+  quizFileMockData,
+  sayingMockData,
+  successMessage
+} from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 
@@ -39,7 +47,7 @@ export const mockGetQuizFileListAPI = async (): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: quizData.quizFiles
+    result: quizFileMockData
   };
 };
 
@@ -363,7 +371,7 @@ export const mockGetQuizFileStatisticsDataAPI = async (params: any): Promise<Api
     },
     result: {
       file_num: params.file_num,
-      file_nickname: 'サンプルファイル',
+      file_nickname: quizFileMockData.find((file) => file.file_num === params.file_num)?.file_nickname || '全総合',
       count: 100,
       clear: clearCount,
       fail: failCount,

@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui-elements/card/Card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { GetAnswerLogStatisticsAPIRequestDto, AccuracyRateHistgramApiResponse } from 'quizzer-lib';
 import { getAccuracyRateHistgramDataAPI } from '@/utils/api-wrapper';
 import { Chart } from 'react-chartjs-2';
@@ -20,16 +20,21 @@ import { CircularProgress } from '@mui/material';
 import { ACCRATE_HISTGRAM_LABEL, ACCRATE_HISTGRAM_COLOR, ACCRATE_HISTGRAM_TITLE } from '@/constants/contents/chart';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+
 interface AccuracyRateHistgramCardProps {
   file_num: number;
 }
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardProps) => {
   const [accuracyRateHistgramData, setAccuracyRateHistgramData] = useState<AccuracyRateHistgramApiResponse>({
     result: []
   });
-  const [getAccuracyRateHistgramData, setRequestData] = useState<GetAnswerLogStatisticsAPIRequestDto>({});
+
+  const getAccuracyRateHistgramData = useMemo<GetAnswerLogStatisticsAPIRequestDto>(() => {
+    return {
+      ...(file_num !== undefined && { file_num })
+    };
+  }, [file_num]);
 
   useEffect(() => {
     (async () => {
@@ -37,13 +42,6 @@ export const AccuracyRateHistgramCard = ({ file_num }: AccuracyRateHistgramCardP
       result.result && setAccuracyRateHistgramData(result.result as AccuracyRateHistgramApiResponse);
     })();
   }, [getAccuracyRateHistgramData]);
-
-  useEffect(() => {
-    setRequestData({
-      ...getAccuracyRateHistgramData,
-      file_num
-    });
-  }, [file_num]);
 
   const data: ChartData<'bar' | 'line', number[], string> = {
     labels: accuracyRateHistgramData.result.map((x, index) => {

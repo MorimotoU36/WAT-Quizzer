@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { QuizAnswerLogStatisticsCard } from './QuizAnswerLogStatisticsCard';
 import { useState } from 'react';
+import { DateUnit } from 'quizzer-lib';
 import { Card } from '@/components/ui-elements/card/Card';
 import {
   Chart as ChartJS,
@@ -53,7 +54,7 @@ const mockData = {
 };
 
 const QuizAnswerLogStatisticsCardWithMock = () => {
-  const [dateUnit, setDateUnit] = useState<'day' | 'week' | 'month'>('day');
+  const [dateUnit, setDateUnit] = useState<DateUnit>('day');
   const answerLogStatisticsData = mockData[dateUnit];
 
   const data: ChartData<'bar' | 'line', number[], string> = {
@@ -97,7 +98,7 @@ const QuizAnswerLogStatisticsCardWithMock = () => {
       <PullDown
         label={'日付単位'}
         optionList={DATE_UNIT_OPTION}
-        onChange={(e) => setDateUnit(e.target.value as 'day' | 'week' | 'month')}
+        onChange={(e) => setDateUnit(e.target.value as DateUnit)}
         value={0}
       />
       <div className="h-[300px]" style={{ minHeight: 300 }}>
