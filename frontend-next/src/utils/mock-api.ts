@@ -1,4 +1,4 @@
-import { ApiResult, errorMessage, getRandomIntWithRange, MESSAGES, successMessage } from 'quizzer-lib';
+import { ApiResult, errorMessage, getRandomIntWithRange, MESSAGES, sayingMockData, successMessage } from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
 import sayingData from '../data/mock/sample-saying-data.json';
@@ -235,7 +235,7 @@ export const mockGetImageOfQuizAPI = async (params: any): Promise<ApiResult> => 
 
 export const mockGetSayingAPI = async (params: any): Promise<ApiResult> => {
   // ランダムな格言を返す
-  const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
+  const randomSaying = sayingMockData[Math.floor(Math.random() * sayingMockData.length)];
 
   return {
     message: {

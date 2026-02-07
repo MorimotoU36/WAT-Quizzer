@@ -14,32 +14,19 @@ import { Layout } from '@/components/templates/layout/Layout';
 const inter = Inter({ subsets: ['latin'] });
 
 type Props = {
-  isMock?: boolean;
 };
 
-export default function Top({ isMock }: Props) {
+export default function Top({ }: Props) {
   const [saying, setSaying] = useState<GetSayingResponse>(initSayingResponseData);
 
   useEffect(() => {
-    if (isMock || isMockMode()) {
-      // モック環境ではサンプルデータを使用
-      const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSaying({
-        id: randomSaying.id,
-        saying: randomSaying.saying,
-        explanation: randomSaying.explanation
-      });
-    } else {
-      // 本番環境ではAPIを呼び出し
-      Promise.all([
-        (async () => {
-          const result = await getSayingAPI({ getSayingRequestData: {} });
-          result.result && setSaying(result.result as GetSayingResponse);
-        })()
-      ]);
-    }
-  }, [isMock]);
+    Promise.all([
+      (async () => {
+        const result = await getSayingAPI({ getSayingRequestData: {} });
+        result.result && setSaying(result.result as GetSayingResponse);
+      })()
+    ]);
+  }, []);
 
   const content = (
     <Container>
