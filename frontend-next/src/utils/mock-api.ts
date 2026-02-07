@@ -1,7 +1,6 @@
 import { ApiResult, errorMessage, getRandomIntWithRange, MESSAGES, sayingMockData, successMessage } from 'quizzer-lib';
 import quizData from '../data/mock/sample-quiz-data.json';
 import englishData from '../data/mock/sample-english-data.json';
-import sayingData from '../data/mock/sample-saying-data.json';
 
 // モック用のAPI関数群
 export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
@@ -115,7 +114,7 @@ export const mockGetSourceListAPI = async (): Promise<ApiResult> => {
 
 export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
   // 検索結果として複数の格言を返す
-  const searchResults = sayingData.sayings.slice(0, 3);
+  const searchResults = sayingMockData.slice(0, 3);
 
   return {
     message: {
@@ -124,17 +123,6 @@ export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
       isDisplay: true
     },
     result: searchResults
-  };
-};
-
-export const mockGetSayingCategoryListAPI = async (): Promise<ApiResult> => {
-  return {
-    message: {
-      message: MESSAGES.SUCCESS.MSG00019,
-      messageColor: 'success.light',
-      isDisplay: true
-    },
-    result: sayingData.categories
   };
 };
 
