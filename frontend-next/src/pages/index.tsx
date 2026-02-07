@@ -11,10 +11,9 @@ import { Layout } from '@/components/templates/layout/Layout';
 
 const inter = Inter({ subsets: ['latin'] });
 
-type Props = {
-};
+type Props = {};
 
-export default function Top({ }: Props) {
+export default function Top({}: Props) {
   const [saying, setSaying] = useState<GetSayingResponse>(initSayingResponseData);
 
   useEffect(() => {

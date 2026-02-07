@@ -92,8 +92,8 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
           getAnswerLogStatisticsData.date_unit === 'month'
             ? 'ヶ月'
             : getAnswerLogStatisticsData.date_unit === 'week'
-            ? '週'
-            : '日'
+              ? '週'
+              : '日'
         }間の回答数`
       }
     }
