@@ -172,7 +172,13 @@ export const mockAddQuizAPI = async (params: any): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: { id: 999 }
+    result: {
+      log: 'Added!! [1-999]:test,test',
+      file_num: 1,
+      quiz_num: 1,
+      quiz_sentense: 'test',
+      answer: 'test'
+    }
   };
 };
 
