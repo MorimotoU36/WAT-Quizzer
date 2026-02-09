@@ -189,7 +189,7 @@ export const mockEditQuizAPI = async (params: any): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: { id: params.id }
+    result: { result: 'Edited!' }
   };
 };
 
