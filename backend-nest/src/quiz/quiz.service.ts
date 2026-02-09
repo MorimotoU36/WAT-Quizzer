@@ -222,7 +222,6 @@ export class QuizService {
       }
       const result =
         method === 'random' ||
-        method === 'review' ||
         method === 'todayNotAnswered'
           ? getRandomElementFromArray(results)
           : results[0];
