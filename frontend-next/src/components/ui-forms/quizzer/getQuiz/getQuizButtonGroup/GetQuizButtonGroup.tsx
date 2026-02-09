@@ -76,7 +76,7 @@ export const GetQuizButtonGroup = ({
         setImageUrl={setImageUrl}
       />
       <QuizActionButton
-        label="前回間違えた問題"
+        label="以前間違えた問題"
         variant="contained"
         color="secondary"
         attr="button-array"

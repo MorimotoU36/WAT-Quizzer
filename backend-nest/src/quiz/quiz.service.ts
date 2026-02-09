@@ -57,28 +57,6 @@ export class QuizService {
       } = req;
       // カテゴリは複数選択でカンマ区切りされてるので分割する
       const categories = category && category.split(',').map((s) => s.trim());
-      // 先日間違えた問題の時は、前回間違えた問題がある直近の日付を取得する
-      const lastFailedAnswerLog =
-        method === 'review'
-          ? ((
-              await prisma.quiz_statistics_view.findFirst({
-                where: {
-                  quiz: {
-                    every: {
-                      file_num,
-                    },
-                  },
-                  last_failed_answer_log: {
-                    not: null,
-                    lt: getTodayStart(),
-                  },
-                },
-                orderBy: {
-                  last_failed_answer_log: 'desc',
-                },
-              })
-            )?.last_failed_answer_log ?? null)
-          : null;
       // 取得条件
       const where =
         // methodがある時は条件指定
@@ -100,9 +78,9 @@ export class QuizService {
                   lte: max_rate || 100,
                 },
                 ...(method === 'review' && {
-                  last_failed_answer_log: getPrismaFromPastDayRange(
-                    lastFailedAnswerLog ?? new Date(),
-                  ),
+                  last_failed_answer_log: {
+                    lt: getTodayStart(),
+                  },
                   last_answer_log: {
                     lt: getTodayStart(),
                   },
@@ -176,6 +154,12 @@ export class QuizService {
                       sort: 'asc' as const,
                       nulls: 'first' as const,
                     },
+                  },
+                }
+              : method === 'review'
+              ? {
+                  quiz_statistics_view: {
+                    last_failed_answer_log: 'desc' as const,
                   },
                 }
               : {};
