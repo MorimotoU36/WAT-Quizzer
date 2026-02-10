@@ -157,12 +157,12 @@ export class QuizService {
                   },
                 }
               : method === 'review'
-              ? {
-                  quiz_statistics_view: {
-                    last_failed_answer_log: 'desc' as const,
-                  },
-                }
-              : {};
+                ? {
+                    quiz_statistics_view: {
+                      last_failed_answer_log: 'desc' as const,
+                    },
+                  }
+                : {};
       // データ取得
       const results = await prisma.quiz.findMany({
         select: {
@@ -221,8 +221,7 @@ export class QuizService {
         );
       }
       const result =
-        method === 'random' ||
-        method === 'todayNotAnswered'
+        method === 'random' || method === 'todayNotAnswered'
           ? getRandomElementFromArray(results)
           : results[0];
       return {

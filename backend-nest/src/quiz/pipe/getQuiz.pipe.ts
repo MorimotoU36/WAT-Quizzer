@@ -6,9 +6,10 @@ import {
 } from 'quizzer-lib';
 
 @Injectable()
-export class GetQuizPipe
-  implements PipeTransform<GetQuizAPIRequestReceivedDto, GetQuizAPIRequestDto>
-{
+export class GetQuizPipe implements PipeTransform<
+  GetQuizAPIRequestReceivedDto,
+  GetQuizAPIRequestDto
+> {
   transform(getQuizDTO: GetQuizAPIRequestReceivedDto): GetQuizAPIRequestDto {
     return Object.entries(getQuizDTO).reduce(
       (acc, cur) => {

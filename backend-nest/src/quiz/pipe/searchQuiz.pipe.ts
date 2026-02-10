@@ -6,10 +6,10 @@ import {
 } from 'quizzer-lib';
 
 @Injectable()
-export class SearchQuizPipe
-  implements
-    PipeTransform<SearchQuizAPIRequestReceivedDto, SearchQuizAPIRequestDto>
-{
+export class SearchQuizPipe implements PipeTransform<
+  SearchQuizAPIRequestReceivedDto,
+  SearchQuizAPIRequestDto
+> {
   transform(
     searchQuizDTO: SearchQuizAPIRequestReceivedDto,
   ): SearchQuizAPIRequestDto {

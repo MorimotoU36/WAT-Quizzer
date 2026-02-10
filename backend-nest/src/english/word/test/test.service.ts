@@ -40,10 +40,10 @@ export class EnglishWordTestService {
         startDate && endDate
           ? { ...startDateQuery, ...endDateQuery }
           : startDate
-          ? startDateQuery
-          : endDate
-          ? endDateQuery
-          : null;
+            ? startDateQuery
+            : endDate
+              ? endDateQuery
+              : null;
       // 取得条件
       const where = {
         word_source: {
@@ -77,17 +77,17 @@ export class EnglishWordTestService {
         format === 'random'
           ? [{ id: 'asc' as const }]
           : format === 'lru'
-          ? [
-              {
-                word_statistics_view: {
-                  last_answer_log: {
-                    sort: 'asc' as const,
-                    nulls: 'first' as const,
+            ? [
+                {
+                  word_statistics_view: {
+                    last_answer_log: {
+                      sort: 'asc' as const,
+                      nulls: 'first' as const,
+                    },
                   },
                 },
-              },
-            ]
-          : [];
+              ]
+            : [];
       // 取得件数を先に取得しておく(ランダムの場合のみ)
       const count =
         format === 'random'

@@ -5,13 +5,10 @@ import {
 } from 'quizzer-lib';
 
 @Injectable()
-export class GetQuizFileStatisticsPipe
-  implements
-    PipeTransform<
-      GetQuizFileStatisticsAPIRequestReceivedDto,
-      GetQuizFileStatisticsAPIRequestDto
-    >
-{
+export class GetQuizFileStatisticsPipe implements PipeTransform<
+  GetQuizFileStatisticsAPIRequestReceivedDto,
+  GetQuizFileStatisticsAPIRequestDto
+> {
   transform(
     getQuizFileStatisticsDTO: GetQuizFileStatisticsAPIRequestReceivedDto,
   ): GetQuizFileStatisticsAPIRequestDto {
