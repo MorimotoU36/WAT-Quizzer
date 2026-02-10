@@ -306,6 +306,25 @@ erDiagram
     }
   
 
+  "todo" {
+    Int id "🗝️"
+    String todo 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
+  "todo_diary" {
+    Int id "🗝️"
+    String date 
+    Boolean completed 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
   "category_view" {
     Int file_num 
     String category 
