@@ -8,7 +8,7 @@ import {
   GetQuizAPIRequestDto,
   initGetQuizRequestData,
   GetQuizApiResponseDto,
-  initGetQuizResponseData,
+  initGetQuizResponseData
 } from 'quizzer-lib';
 import { integrateQuizAPI, getQuizAPI } from '@/utils/api-wrapper';
 

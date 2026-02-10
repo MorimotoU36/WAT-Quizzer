@@ -504,7 +504,7 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
 
 export const mockAddCategoryToQuizAPI = async (params: any): Promise<ApiResult> => {
   const { addCategoryToQuizRequestData } = params;
-  
+
   if (!addCategoryToQuizRequestData.quiz_id || addCategoryToQuizRequestData.quiz_id === '') {
     return {
       message: errorMessage(MESSAGES.ERROR.MSG00001)
@@ -519,7 +519,7 @@ export const mockAddCategoryToQuizAPI = async (params: any): Promise<ApiResult> 
 
 export const mockDeleteCategoryOfQuizAPI = async (params: any): Promise<ApiResult> => {
   const { deleteCategoryToQuizRequestData } = params;
-  
+
   if (!deleteCategoryToQuizRequestData.quiz_id || deleteCategoryToQuizRequestData.quiz_id === '') {
     return {
       message: errorMessage(MESSAGES.ERROR.MSG00001)
@@ -534,7 +534,7 @@ export const mockDeleteCategoryOfQuizAPI = async (params: any): Promise<ApiResul
 
 export const mockCheckOnQuizAPI = async (params: any): Promise<ApiResult> => {
   const { checkQuizRequestData } = params;
-  
+
   if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
     return {
       message: errorMessage(MESSAGES.ERROR.MSG00007)
@@ -549,7 +549,7 @@ export const mockCheckOnQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockCheckOffQuizAPI = async (params: any): Promise<ApiResult> => {
   const { checkQuizRequestData } = params;
-  
+
   if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
     return {
       message: errorMessage(MESSAGES.ERROR.MSG00007)
@@ -564,7 +564,7 @@ export const mockCheckOffQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockIntegrateQuizAPI = async (params: any): Promise<ApiResult> => {
   const { integrateToQuizAPIRequestData } = params;
-  
+
   if (!integrateToQuizAPIRequestData.fromQuizId || !integrateToQuizAPIRequestData.toQuizId) {
     return {
       message: errorMessage(MESSAGES.ERROR.MSG00010)
