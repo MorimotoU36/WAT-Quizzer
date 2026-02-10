@@ -30,7 +30,7 @@ export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
   // 検索結果として複数の問題を返す
-  const searchResults = quizMockData.slice(0, 3);
+  const searchResults = quizMockData;
 
   return {
     message: {
@@ -500,5 +500,65 @@ export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<Ap
               },
               { date: '2024-01-07', count: getRandomIntWithRange(0, 100), accuracy_rate: getRandomIntWithRange(0, 100) }
             ]
+  };
+};
+
+export const mockAddCategoryToQuizAPI = async (params: any): Promise<ApiResult> => {
+  const { addCategoryToQuizRequestData } = params;
+  
+  if (!addCategoryToQuizRequestData.quiz_id || addCategoryToQuizRequestData.quiz_id === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00004),
+    result: { id: 999 }
+  };
+};
+
+export const mockDeleteCategoryOfQuizAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteCategoryToQuizRequestData } = params;
+  
+  if (!deleteCategoryToQuizRequestData.quiz_id || deleteCategoryToQuizRequestData.quiz_id === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00004),
+    result: { id: 999 }
+  };
+};
+
+export const mockCheckOnQuizAPI = async (params: any): Promise<ApiResult> => {
+  const { checkQuizRequestData } = params;
+  
+  if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00007)
+    };
+  }
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00005),
+    result: { id: 999 }
+  };
+};
+
+export const mockCheckOffQuizAPI = async (params: any): Promise<ApiResult> => {
+  const { checkQuizRequestData } = params;
+  
+  if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00007)
+    };
+  }
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00005),
+    result: { id: 999 }
   };
 };

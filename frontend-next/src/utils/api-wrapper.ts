@@ -287,3 +287,39 @@ export const getAnswerLogStatisticsDataAPI = async (params: any): Promise<ApiRes
   const { getAnswerLogStatisticsDataAPI: originalGetAnswerLogStatisticsDataAPI } = await import('quizzer-lib');
   return originalGetAnswerLogStatisticsDataAPI(params);
 };
+
+export const addCategoryToQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddCategoryToQuizAPI(params);
+  }
+
+  const { addCategoryToQuizAPI: originalAddCategoryToQuizAPI } = await import('quizzer-lib');
+  return originalAddCategoryToQuizAPI(params);
+};
+
+export const deleteCategoryOfQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteCategoryOfQuizAPI(params);
+  }
+
+  const { deleteCategoryOfQuizAPI: originalDeleteCategoryOfQuizAPI } = await import('quizzer-lib');
+  return originalDeleteCategoryOfQuizAPI(params);
+};
+
+export const checkOnQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockCheckOnQuizAPI(params);
+  }
+
+  const { checkOnQuizAPI: originalCheckOnQuizAPI } = await import('quizzer-lib');
+  return originalCheckOnQuizAPI(params);
+};
+
+export const checkOffQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockCheckOffQuizAPI(params);
+  }
+
+  const { checkOffQuizAPI: originalCheckOffQuizAPI } = await import('quizzer-lib');
+  return originalCheckOffQuizAPI(params);
+};
