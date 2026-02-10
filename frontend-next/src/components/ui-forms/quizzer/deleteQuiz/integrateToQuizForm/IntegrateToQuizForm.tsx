@@ -9,9 +9,8 @@ import {
   initGetQuizRequestData,
   GetQuizApiResponseDto,
   initGetQuizResponseData,
-  getQuizAPI,
-  integrateQuizAPI
 } from 'quizzer-lib';
+import { integrateQuizAPI, getQuizAPI } from '@/utils/api-wrapper';
 
 interface IntegrateToQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;

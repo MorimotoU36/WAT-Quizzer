@@ -1,8 +1,6 @@
 import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import {
-  deleteQuiz,
-  getQuizAPI,
   GetQuizAPIRequestDto,
   GetQuizApiResponseDto,
   initGetQuizRequestData,
@@ -12,6 +10,7 @@ import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
+import { deleteQuizAPI, getQuizAPI } from '@/utils/api-wrapper';
 
 interface DeleteQuizFormProps {
   deleteQuizInfo: GetQuizApiResponseDto;
@@ -109,7 +108,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
         color="primary"
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await deleteQuiz({
+          const result = await deleteQuizAPI({
             deleteQuizAPIRequestData: {
               file_num: deleteQuizInfo.file_num,
               quiz_num: deleteQuizInfo.quiz_num

@@ -10,6 +10,7 @@ export const isMockMode = (): boolean => {
 export const getQuizAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     // ※モック時ではカテゴリ、正解率による出題は実装していない。 (TODO 直す？)
+    console.log('getQuizAPI'); // TODO これ消すとlocalhost時のIntegrateでブラウザが壊れる？
     return mockAPI.mockGetQuizAPI(params);
   }
 
@@ -322,4 +323,13 @@ export const checkOffQuizAPI = async (params: any): Promise<ApiResult> => {
 
   const { checkOffQuizAPI: originalCheckOffQuizAPI } = await import('quizzer-lib');
   return originalCheckOffQuizAPI(params);
+};
+
+export const integrateQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockIntegrateQuizAPI(params);
+  }
+
+  const { integrateQuizAPI: originalIntegrateQuizAPI } = await import('quizzer-lib');
+  return originalIntegrateQuizAPI(params);
 };

@@ -195,12 +195,11 @@ export const mockEditQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockDeleteQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
-    message: {
-      message: MESSAGES.SUCCESS.MSG00009,
-      messageColor: 'success.light',
-      isDisplay: true
-    }
-    //result: null
+    message: successMessage(
+      MESSAGES.SUCCESS.MSG00009,
+      String(params.deleteQuizAPIRequestData.file_num),
+      String(params.deleteQuizAPIRequestData.quiz_num)
+    )
   };
 };
 
@@ -559,6 +558,26 @@ export const mockCheckOffQuizAPI = async (params: any): Promise<ApiResult> => {
 
   return {
     message: successMessage(MESSAGES.SUCCESS.MSG00005),
+    result: { id: 999 }
+  };
+};
+
+export const mockIntegrateQuizAPI = async (params: any): Promise<ApiResult> => {
+  const { integrateToQuizAPIRequestData } = params;
+  
+  if (!integrateToQuizAPIRequestData.fromQuizId || !integrateToQuizAPIRequestData.toQuizId) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00010)
+    };
+  }
+
+  return {
+    message: successMessage(
+      MESSAGES.SUCCESS.MSG00014,
+      'ID',
+      String(integrateToQuizAPIRequestData.fromQuizId),
+      String(integrateToQuizAPIRequestData.toQuizId)
+    ),
     result: { id: 999 }
   };
 };
