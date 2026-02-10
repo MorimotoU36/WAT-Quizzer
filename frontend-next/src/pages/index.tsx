@@ -6,6 +6,7 @@ import { getSayingAPI } from '@/utils/api-wrapper';
 import { Title } from '@/components/ui-elements/title/Title';
 import { TopButtonGroup } from '@/components/ui-forms/top/topButtonGroup/TopButtonGroup';
 import { SayingCard } from '@/components/ui-forms/top/sayingCard/SayingCard';
+import { TodoList } from '@/components/ui-forms/top/todoList/TodoList';
 import React from 'react';
 import { Layout } from '@/components/templates/layout/Layout';
 
@@ -30,6 +31,7 @@ export default function Top({}: Props) {
       <Title label="WAT Quizzer"></Title>
       <TopButtonGroup />
       <SayingCard sayingResponse={saying} setSaying={setSaying} />
+      <TodoList />
     </Container>
   );
 
