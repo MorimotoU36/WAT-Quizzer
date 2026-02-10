@@ -6,6 +6,7 @@ import { CategoryModule } from './category/category.module';
 import { EnglishModule } from './english/english.module';
 import { SayingModule } from './saying/saying.module';
 import { AuthModule } from './auth/auth.module';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
     EnglishModule,
     SayingModule,
     AuthModule,
+    TodoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
