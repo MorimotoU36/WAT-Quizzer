@@ -9,6 +9,7 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { PullDownOptionDto } from 'quizzer-lib';
 import { listBookAPI } from '@/utils/api-wrapper';
 import { SayingSection } from '@/components/ui-forms/settings/sayingSection/SayingSection';
+import { TodoSection } from '@/components/ui-forms/settings/todoSection/TodoSection';
 
 type Props = {
   isMock?: boolean;
@@ -44,6 +45,7 @@ export default function Settings({ isMock }: Props) {
           <CardContent>
             <AddBookForm setBooklistoption={setBooklistoption} />
             <SayingSection booklistoption={booklistoption} />
+            <TodoSection />
           </CardContent>
         </Card>
       </Container>

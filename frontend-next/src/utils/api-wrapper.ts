@@ -333,3 +333,36 @@ export const integrateQuizAPI = async (params: any): Promise<ApiResult> => {
   const { integrateQuizAPI: originalIntegrateQuizAPI } = await import('quizzer-lib');
   return originalIntegrateQuizAPI(params);
 };
+
+export const addTodoAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return { message: { message: 'Mock mode: Todo追加', messageColor: 'success.light', isDisplay: true } };
+  }
+
+  const { addTodoAPI: originalAddTodoAPI } = await import('quizzer-lib');
+  return originalAddTodoAPI(params);
+};
+
+export const deleteTodoAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return { message: { message: 'Mock mode: Todo削除', messageColor: 'success.light', isDisplay: true } };
+  }
+
+  const { deleteTodoAPI: originalDeleteTodoAPI } = await import('quizzer-lib');
+  return originalDeleteTodoAPI(params);
+};
+
+export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return {
+      message: { message: 'Mock mode: Todoリスト取得', messageColor: 'success.light', isDisplay: true },
+      result: []
+    };
+  }
+
+  const { getTodoListAPI: originalGetTodoListAPI } = await import('quizzer-lib');
+  return originalGetTodoListAPI(params);
+};

@@ -26,7 +26,7 @@ export const addTodoAPI = async ({
       if (data.status === 200 || data.status === 201) {
         const result: AddTodoApiResponseDto = data.body as AddTodoApiResponseDto
         return {
-          message: successMessage(MESSAGES.SUCCESS.MSG00016),
+          message: successMessage(MESSAGES.SUCCESS.MSG00025,result.todo),
           result
         }
       } else {
