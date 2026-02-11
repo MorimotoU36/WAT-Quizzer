@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -69,12 +69,13 @@ export const Table = <TData,>({
   });
 
   // 選択が変更されたときにコールバックを呼び出す
-  React.useEffect(() => {
+  useEffect(() => {
     if (enableRowSelection && onRowSelectionChange) {
       const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
       onRowSelectionChange(selectedRows);
     }
-  }, [rowSelection, enableRowSelection, onRowSelectionChange, table]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowSelection]);
 
   return (
     <div className={`w-full ${className}`}>
@@ -84,7 +85,7 @@ export const Table = <TData,>({
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {enableRowSelection && (
-                  <th className="px-4 py-3 w-12 border-b border-gray-200">
+                  <th className="px-6 py-4 w-14 border-b border-gray-200">
                     <input
                       type="checkbox"
                       checked={table.getIsAllRowsSelected()}
@@ -94,14 +95,21 @@ export const Table = <TData,>({
                         }
                       }}
                       onChange={table.getToggleAllRowsSelectedHandler()}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className={`w-5 h-5 rounded cursor-pointer border-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors ${
+                        table.getIsAllRowsSelected()
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'bg-white border-gray-300 hover:border-blue-400'
+                      }`}
+                      style={{
+                        accentColor: '#2563eb'
+                      }}
                     />
                   </th>
                 )}
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200"
+                    className="px-6 py-4 text-left text-sm font-medium text-gray-700 uppercase tracking-wider border-b border-gray-200"
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -133,7 +141,7 @@ export const Table = <TData,>({
               <tr>
                 <td
                   colSpan={enableRowSelection ? columns.length + 1 : columns.length}
-                  className="px-4 py-8 text-center text-gray-500"
+                  className="px-6 py-8 text-center text-gray-500"
                 >
                   データがありません
                 </td>
@@ -145,17 +153,24 @@ export const Table = <TData,>({
                   className={`hover:bg-gray-50 ${enableRowSelection && row.getIsSelected() ? 'bg-blue-50' : ''}`}
                 >
                   {enableRowSelection && (
-                    <td className="px-4 py-3 border-b border-gray-100">
+                    <td className="px-6 py-4 border-b border-gray-100">
                       <input
                         type="checkbox"
                         checked={row.getIsSelected()}
                         onChange={row.getToggleSelectedHandler()}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                        className={`w-5 h-5 rounded cursor-pointer border-2 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors ${
+                          row.getIsSelected()
+                            ? 'bg-blue-600 border-blue-600'
+                            : 'bg-white border-gray-300 hover:border-blue-400'
+                        }`}
+                        style={{
+                          accentColor: '#2563eb'
+                        }}
                       />
                     </td>
                   )}
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                    <td key={cell.id} className="px-6 py-4 text-sm text-gray-900 border-b border-gray-100">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
