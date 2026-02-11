@@ -28,6 +28,7 @@
     "@mui/material": "^5.11.13",
     "@mui/x-data-grid": "^6.0.3",
     "@mui/x-date-pickers": "^6.19.4",
+    "@tanstack/react-table": "^8.20.5",
     "@playwright/test": "^1.42.0",
     "@storybook/nextjs": "^10.1.5",
     "@storybook/react": "^10.1.4",
