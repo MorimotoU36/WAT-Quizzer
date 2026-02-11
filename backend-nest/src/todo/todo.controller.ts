@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { AddTodoDto } from './dto/add-todo.dto';
+import { AddTodoDiaryDto } from './dto/add-todo-diary.dto';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 import { ApiOperation, ApiTags, ApiBody, ApiParam } from '@nestjs/swagger';
 
@@ -39,5 +40,14 @@ export class TodoController {
   })
   async getAllTodos() {
     return await this.todoService.getAllTodosService();
+  }
+
+  @Post('/diary')
+  @ApiOperation({
+    summary: 'Todo日記を追加します（日付とcompleted=trueを登録）。',
+  })
+  @ApiBody({ type: AddTodoDiaryDto })
+  async addTodoDiary(@Body() req: AddTodoDiaryDto) {
+    return await this.todoService.addTodoDiaryService(req.date);
   }
 }
