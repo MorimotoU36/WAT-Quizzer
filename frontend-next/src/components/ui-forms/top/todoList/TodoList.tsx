@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CardContent, Typography, Box } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
-import { getTodayKey } from 'quizzer-lib';
+import { getTodayKey, getTodoListAPI, GetTodoListApiResponseDto } from 'quizzer-lib';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
 
 export interface Todo {
-  id: string;
+  id: number;
   title: string;
   completed: boolean;
 }
@@ -13,14 +15,6 @@ export interface Todo {
 interface TodoListProps {
   todos?: Todo[];
 }
-
-// 仮のデータ
-const initialTodos: Todo[] = [
-  { id: '1', title: '朝の運動をする', completed: false },
-  { id: '2', title: 'プロジェクトの進捗を確認する', completed: false },
-  { id: '3', title: '新しい技術を学ぶ', completed: false },
-  { id: '4', title: 'コードレビューを完了する', completed: false }
-];
 
 // localStorageから今日のチェック状態を読み込む
 const loadTodayTodos = (baseTodos: Todo[]): Todo[] => {
@@ -32,7 +26,7 @@ const loadTodayTodos = (baseTodos: Todo[]): Todo[] => {
 
   if (saved) {
     try {
-      const savedCompletedIds = JSON.parse(saved) as string[];
+      const savedCompletedIds = JSON.parse(saved) as number[];
       return baseTodos.map((todo) => ({
         ...todo,
         completed: savedCompletedIds.includes(todo.id)
@@ -54,6 +48,15 @@ const saveTodayTodos = (todos: Todo[]) => {
   const storageKey = `todos-${todayKey}`;
   const completedIds = todos.filter((todo) => todo.completed).map((todo) => todo.id);
   localStorage.setItem(storageKey, JSON.stringify(completedIds));
+};
+
+// APIから取得したTODOをTodo形式に変換
+const convertApiTodosToTodos = (apiTodos: GetTodoListApiResponseDto[]): Todo[] => {
+  return apiTodos.map((apiTodo) => ({
+    id: apiTodo.id,
+    title: apiTodo.todo,
+    completed: false
+  }));
 };
 
 // 前日以前のlocalStorageデータを削除
@@ -80,9 +83,31 @@ const cleanupOldTodos = () => {
 };
 
 export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
-  const baseTodos = initialTodosProp || initialTodos;
-  const [todos, setTodos] = useState<Todo[]>(() => loadTodayTodos(baseTodos));
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(getTodayKey());
+  const [isLoading, setIsLoading] = useState(false);
+  const setMessage = useSetRecoilState(messageState);
+
+  // APIからTodoリストを取得
+  const fetchTodos = useCallback(async () => {
+    setIsLoading(true);
+    const result = await getTodoListAPI({ getTodoListRequestData: {} });
+    if (result.result && Array.isArray(result.result)) {
+      const apiTodos = result.result as GetTodoListApiResponseDto[];
+      const convertedTodos = convertApiTodosToTodos(apiTodos);
+      // localStorageから今日のチェック状態を読み込んで適用
+      const todosWithCompleted = loadTodayTodos(convertedTodos);
+      setTodos(todosWithCompleted);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // 初回マウント時にTodoリストを取得
+  useEffect(() => {
+    cleanupOldTodos();
+    fetchTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 日付が変わったらリセット
   useEffect(() => {
@@ -92,12 +117,10 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
         // 日付が変わった時に古いデータをクリーンアップ
         cleanupOldTodos();
         setCurrentDate(todayKey);
-        setTodos(loadTodayTodos(baseTodos));
+        // APIから再取得して、チェック状態をリセット
+        fetchTodos();
       }
     };
-
-    // 初回マウント時に古いデータをクリーンアップ
-    cleanupOldTodos();
 
     // 初回マウント時と日付変更時のチェック
     checkDateChange();
@@ -106,14 +129,14 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
     const interval = setInterval(checkDateChange, 60000);
 
     return () => clearInterval(interval);
-  }, [currentDate, baseTodos]);
+  }, [currentDate, fetchTodos]);
 
   // チェック状態が変わったらlocalStorageに保存
   useEffect(() => {
     saveTodayTodos(todos);
   }, [todos]);
 
-  const handleToggle = (id: string) => {
+  const handleToggle = (id: number) => {
     setTodos((prevTodos) => prevTodos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
   };
 
@@ -148,7 +171,11 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
               今日のTodoを全て完了しました！
             </Box>
           )}
-          {todos.length === 0 ? (
+          {isLoading ? (
+            <Typography variant="body2" color="grey.500" sx={{ fontStyle: 'italic' }}>
+              読み込み中...
+            </Typography>
+          ) : todos.length === 0 ? (
             <Typography variant="body2" color="grey.500" sx={{ fontStyle: 'italic' }}>
               Todoがありません
             </Typography>
@@ -169,7 +196,7 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
                   }}
                 >
                   <Checkbox
-                    value={todo.id}
+                    value={String(todo.id)}
                     label={todo.title}
                     checked={todo.completed}
                     onChange={() => handleToggle(todo.id)}
