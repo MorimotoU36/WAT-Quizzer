@@ -142,9 +142,7 @@ export const Table = <TData,>({
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className={`hover:bg-gray-50 ${
-                    enableRowSelection && row.getIsSelected() ? 'bg-blue-50' : ''
-                  }`}
+                  className={`hover:bg-gray-50 ${enableRowSelection && row.getIsSelected() ? 'bg-blue-50' : ''}`}
                 >
                   {enableRowSelection && (
                     <td className="px-4 py-3 border-b border-gray-100">
@@ -157,10 +155,7 @@ export const Table = <TData,>({
                     </td>
                   )}
                   {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100"
-                    >
+                    <td key={cell.id} className="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -208,18 +203,14 @@ export const Table = <TData,>({
             <span>
               {table.getState().pagination.pageIndex + 1} / {table.getPageCount()} ページ
             </span>
-            <span className="text-gray-500">
-              （全 {table.getRowCount()} 件）
-            </span>
+            <span className="text-gray-500">（全 {table.getRowCount()} 件）</span>
           </div>
         </div>
       )}
 
       {/* 選択された行の情報 */}
       {enableRowSelection && Object.keys(rowSelection).length > 0 && (
-        <div className="mt-2 text-sm text-gray-600 px-4">
-          {Object.keys(rowSelection).length} 行が選択されています
-        </div>
+        <div className="mt-2 text-sm text-gray-600 px-4">{Object.keys(rowSelection).length} 行が選択されています</div>
       )}
     </div>
   );
