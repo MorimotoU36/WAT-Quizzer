@@ -12,9 +12,9 @@ import { messageState } from '@/atoms/Message';
 import { SearchSayingAPIRequestDto } from 'quizzer-lib';
 import { searchSayingAPI } from '@/utils/api-wrapper';
 
-interface SearchSayingSectionProps {}
+interface SearchSayingFormProps {}
 
-export const SearchSayingSection = ({}: SearchSayingSectionProps) => {
+export const SearchSayingForm = ({}: SearchSayingFormProps) => {
   const [searchResult, setSearchResult] = useState<GridRowsProp>([] as GridRowsProp);
   const [searchSayingRequestData, setSearchSayingRequestData] = useState<SearchSayingAPIRequestDto>({ saying: '' });
   const setMessage = useSetRecoilState(messageState);
