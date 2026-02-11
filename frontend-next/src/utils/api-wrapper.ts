@@ -366,3 +366,13 @@ export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
   const { getTodoListAPI: originalGetTodoListAPI } = await import('quizzer-lib');
   return originalGetTodoListAPI(params);
 };
+
+export const addTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return { message: { message: 'Mock mode: Todo日記追加', messageColor: 'success.light', isDisplay: true } };
+  }
+
+  const { addTodoDiaryAPI: originalAddTodoDiaryAPI } = await import('quizzer-lib');
+  return originalAddTodoDiaryAPI(params);
+};

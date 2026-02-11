@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CardContent, Typography, Box } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { getTodayKey, getTodoListAPI, GetTodoListApiResponseDto } from 'quizzer-lib';
-import { useSetRecoilState } from 'recoil';
-import { messageState } from '@/atoms/Message';
+import { addTodoDiaryAPI } from '@/utils/api-wrapper';
 
 export interface Todo {
   id: number;
@@ -69,8 +68,8 @@ const cleanupOldTodos = () => {
   // localStorage内の全てのキーをチェック
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
-    if (key && key.startsWith('todos-')) {
-      const dateKey = key.replace('todos-', '');
+    if (key && (key.startsWith('todos-') || key.startsWith('todo-diary-registered-'))) {
+      const dateKey = key.replace('todos-', '').replace('todo-diary-registered-', '');
       // 今日の日付より前のデータを削除対象にする
       if (dateKey < todayKey) {
         keysToRemove.push(key);
@@ -82,11 +81,29 @@ const cleanupOldTodos = () => {
   keysToRemove.forEach((key) => localStorage.removeItem(key));
 };
 
+// その日にTodo日記が既に登録済みかどうかをチェック
+const isTodoDiaryRegisteredToday = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  const todayKey = getTodayKey();
+  const storageKey = `todo-diary-registered-${todayKey}`;
+  return localStorage.getItem(storageKey) === 'true';
+};
+
+// その日のTodo日記登録済みフラグを設定
+const setTodoDiaryRegisteredToday = () => {
+  if (typeof window === 'undefined') return;
+
+  const todayKey = getTodayKey();
+  const storageKey = `todo-diary-registered-${todayKey}`;
+  localStorage.setItem(storageKey, 'true');
+};
+
 export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(getTodayKey());
   const [isLoading, setIsLoading] = useState(false);
-  const setMessage = useSetRecoilState(messageState);
+  const prevAllCompletedRef = useRef<boolean>(false);
 
   // APIからTodoリストを取得
   const fetchTodos = useCallback(async () => {
@@ -117,6 +134,8 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
         // 日付が変わった時に古いデータをクリーンアップ
         cleanupOldTodos();
         setCurrentDate(todayKey);
+        // 前回のallCompleted状態もリセット
+        prevAllCompletedRef.current = false;
         // APIから再取得して、チェック状態をリセット
         fetchTodos();
       }
@@ -141,6 +160,31 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
   };
 
   const allCompleted = todos.length > 0 && todos.every((todo) => todo.completed);
+
+  // 全Todo完了時にTodo日記を登録
+  useEffect(() => {
+    // allCompletedがfalseからtrueに変わった時、かつその日に未登録の場合のみAPIを呼び出す
+    if (allCompleted && !prevAllCompletedRef.current && !isTodoDiaryRegisteredToday()) {
+      const todayKey = getTodayKey();
+      addTodoDiaryAPI({
+        addTodoDiaryAPIRequest: {
+          date: todayKey
+        }
+      })
+        .then((result) => {
+          if (result.message.messageColor === 'success.light') {
+            // 登録成功時、その日の登録済みフラグを設定
+            setTodoDiaryRegisteredToday();
+          }
+          // エラーメッセージは表示しない（バックグラウンド処理のため）
+        })
+        .catch((error) => {
+          console.error('Failed to register todo diary:', error);
+        });
+    }
+    // 前回の状態を更新
+    prevAllCompletedRef.current = allCompleted;
+  }, [allCompleted]);
 
   return (
     <Card variant="outlined" attr={['margin-vertical']}>
