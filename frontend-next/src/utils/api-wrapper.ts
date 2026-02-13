@@ -334,6 +334,15 @@ export const integrateQuizAPI = async (params: any): Promise<ApiResult> => {
   return originalIntegrateQuizAPI(params);
 };
 
+export const getAccuracyRateByCategoryAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetAccuracyRateByCategoryAPI(params);
+  }
+
+  const { getAccuracyRateByCategoryAPI: originalGetAccuracyRateByCategoryAPI } = await import('quizzer-lib');
+  return originalGetAccuracyRateByCategoryAPI(params);
+};
+
 export const addTodoAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     // TODO: モック実装が必要な場合は追加

@@ -581,3 +581,63 @@ export const mockIntegrateQuizAPI = async (params: any): Promise<ApiResult> => {
     result: { id: 999 }
   };
 };
+
+export const mockGetAccuracyRateByCategoryAPI = async (params: any): Promise<ApiResult> => {
+  const { getCategoryRateData } = params;
+
+  if (getCategoryRateData.file_num === -1) {
+    return {
+      message: {
+        message: 'エラー:問題ファイルを選択して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  // 指定されたファイルのカテゴリを取得
+  const quizIdList = quizMockData.filter((quiz) => quiz.file_num === getCategoryRateData.file_num).map((quiz) => quiz.id);
+  const categories = quizCategoryMockData.filter((category) => quizIdList.includes(category.quiz_id));
+  
+  // カテゴリごとの正解率データを生成
+  const result = categories.map((category) => ({
+    file_num: getCategoryRateData.file_num,
+    category: category.category || '',
+    count: getRandomIntWithRange(10, 100),
+    accuracy_rate: getRandomIntWithRange(0, 100)
+  }));
+
+  // チェック済み問題の正解率データ
+  const checked_result = [
+    {
+      checked: true,
+      count: BigInt(getRandomIntWithRange(5, 50)),
+      sum_clear: getRandomIntWithRange(0, 30),
+      sum_fail: getRandomIntWithRange(0, 20),
+      accuracy_rate: getRandomIntWithRange(0, 100)
+    }
+  ];
+
+  // 全問題の正解率データ
+  const all_result = [
+    {
+      count: BigInt(getRandomIntWithRange(50, 200)),
+      sum_clear: getRandomIntWithRange(20, 100),
+      sum_fail: getRandomIntWithRange(10, 80),
+      accuracy_rate: getRandomIntWithRange(0, 100)
+    }
+  ];
+
+  return {
+    message: {
+      message: '　',
+      messageColor: 'common.black',
+      isDisplay: false
+    },
+    result: {
+      result,
+      checked_result,
+      all_result
+    }
+  };
+};

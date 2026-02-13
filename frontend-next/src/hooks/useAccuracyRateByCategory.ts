@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import {
-  getAccuracyRateByCategoryAPI,
-  GetAccuracyRateByCategoryAPIResponseDto,
-  GetCategoryRateAPIRequestDto
-} from 'quizzer-lib';
+import { GetAccuracyRateByCategoryAPIResponseDto, GetCategoryRateAPIRequestDto } from 'quizzer-lib';
+import { getAccuracyRateByCategoryAPI } from '@/utils/api-wrapper';
 
 export const useAccuracyRateByCategory = (getCategoryRateData: GetCategoryRateAPIRequestDto) => {
   const setMessage = useSetRecoilState(messageState);
