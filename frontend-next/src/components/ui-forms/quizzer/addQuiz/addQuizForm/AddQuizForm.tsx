@@ -240,7 +240,12 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
           });
           setMessage(result.message);
           setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
-          result.message.messageColor === 'success.light' && setAddQuizRequestData(initAddQuizRequestData);
+          result.message.messageColor === 'success.light' &&
+            setAddQuizRequestData({
+              ...initAddQuizRequestData,
+              format_id: addQuizRequestData.format_id, // 問題種別のラジオボタンは初期化できないので保持
+              file_num: addQuizRequestData.file_num // 問題ファイル番号も保持
+            });
         }}
       />
     </>
