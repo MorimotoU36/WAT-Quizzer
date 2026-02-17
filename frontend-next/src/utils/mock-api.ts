@@ -641,3 +641,80 @@ export const mockGetAccuracyRateByCategoryAPI = async (params: any): Promise<Api
     }
   };
 };
+
+export const mockAddQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  const { addQuizFileApiRequest } = params;
+
+  if (!addQuizFileApiRequest.file_nickname || addQuizFileApiRequest.file_nickname === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00004)
+    };
+  }
+
+  // モックデータから次のfile_numを計算
+  const maxFileNum = quizFileMockData.length > 0 
+    ? Math.max(...quizFileMockData.map((file) => file.file_num))
+    : 0;
+  const newFileNum = maxFileNum + 1;
+
+  return {
+    message: successMessage(
+      MESSAGES.SUCCESS.MSG00012,
+      String(addQuizFileApiRequest.file_nickname)
+    ),
+    result: { file_num: newFileNum }
+  };
+};
+
+export const mockDeleteQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteQuizFileApiRequest } = params;
+
+  if (!deleteQuizFileApiRequest.file_id || deleteQuizFileApiRequest.file_id === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00004)
+    };
+  }
+
+  return {
+    message: successMessage(
+      MESSAGES.SUCCESS.MSG00013,
+      String(deleteQuizFileApiRequest.file_id)
+    ),
+    result: { result: 'Deleted.' }
+  };
+};
+
+export const mockDeleteAnswerLogOfQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteLogOfFileRequest } = params;
+
+  if (!deleteLogOfFileRequest.file_id || deleteLogOfFileRequest.file_id === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00004)
+    };
+  }
+
+  return {
+    message: successMessage(
+      MESSAGES.SUCCESS.MSG00003,
+      String(deleteLogOfFileRequest.file_id)
+    ),
+    result: { result: 'Deleted.' }
+  };
+};
+
+export const mockDownloadQuizCsvAPI = async (params: any): Promise<ApiResult> => {
+  const { downloadQuizCsvApiRequest } = params;
+
+  if (!downloadQuizCsvApiRequest.file_num || downloadQuizCsvApiRequest.file_num === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  // モックモードではCSVファイルをダウンロードしない
+  // 代わりに成功メッセージを返す
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00022),
+    result: {}
+  };
+};

@@ -343,6 +343,42 @@ export const getAccuracyRateByCategoryAPI = async (params: any): Promise<ApiResu
   return originalGetAccuracyRateByCategoryAPI(params);
 };
 
+export const addQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddQuizFileAPI(params);
+  }
+
+  const { addQuizFileAPI: originalAddQuizFileAPI } = await import('quizzer-lib');
+  return originalAddQuizFileAPI(params);
+};
+
+export const deleteQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteQuizFileAPI(params);
+  }
+
+  const { deleteQuizFileAPI: originalDeleteQuizFileAPI } = await import('quizzer-lib');
+  return originalDeleteQuizFileAPI(params);
+};
+
+export const deleteAnswerLogOfQuizFileAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteAnswerLogOfQuizFileAPI(params);
+  }
+
+  const { deleteAnswerLogOfQuizFileAPI: originalDeleteAnswerLogOfQuizFileAPI } = await import('quizzer-lib');
+  return originalDeleteAnswerLogOfQuizFileAPI(params);
+};
+
+export const downloadQuizCsvAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDownloadQuizCsvAPI(params);
+  }
+
+  const { downloadQuizCsvAPI: originalDownloadQuizCsvAPI } = await import('quizzer-lib');
+  return originalDownloadQuizCsvAPI(params);
+};
+
 export const addTodoAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     // TODO: モック実装が必要な場合は追加

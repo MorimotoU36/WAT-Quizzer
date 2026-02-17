@@ -9,7 +9,8 @@ import {
 } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { deleteAnswerLogOfQuizFileAPI, PullDownOptionDto, Message } from 'quizzer-lib';
+import { PullDownOptionDto, Message } from 'quizzer-lib';
+import { deleteAnswerLogOfQuizFileAPI } from '@/utils/api-wrapper';
 import { useState } from 'react';
 import React from 'react';
 
