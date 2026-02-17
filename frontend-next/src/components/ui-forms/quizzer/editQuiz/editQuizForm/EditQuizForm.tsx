@@ -184,7 +184,11 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
           setMessage(result.message);
           // TODO 成功時の判定法
           if (result.message.messageColor === 'success.light') {
-            setEditQuizRequestData(initEditQuizRequestData);
+            setEditQuizRequestData({
+              ...initEditQuizRequestData,
+              file_num: editQuizRequestData.file_num,
+              quiz_num: editQuizRequestData.quiz_num
+            });
           }
         }}
       />
