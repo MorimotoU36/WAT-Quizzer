@@ -8,9 +8,10 @@ import {
   quizFormatMockData,
   quizMockData,
   sayingMockData,
-  successMessage
+  successMessage,
+  englishDataMock,
+  WordSummaryApiResponse
 } from 'quizzer-lib';
-import englishData from '../data/mock/sample-english-data.json';
 
 // モック用のAPI関数群
 export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
@@ -79,7 +80,7 @@ export const mockGetCategoryListAPI = async (file_num: string): Promise<ApiResul
 
 export const mockSearchWordAPI = async (params: any): Promise<ApiResult> => {
   // 検索結果として複数の単語を返す
-  const searchResults = englishData.words.slice(0, 3);
+  const searchResults = englishDataMock.words.slice(0, 3);
 
   return {
     message: {
@@ -98,7 +99,7 @@ export const mockGetWordDetailAPI = async (params: any): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: englishData.wordDetail
+    result: englishDataMock.wordDetail
   };
 };
 
@@ -109,7 +110,7 @@ export const mockGetPartOfSpeechListAPI = async (): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: englishData.partOfSpeechList
+    result: englishDataMock.partOfSpeechList
   };
 };
 
@@ -120,7 +121,7 @@ export const mockGetSourceListAPI = async (): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: englishData.sourceList
+    result: englishDataMock.sourceList
   };
 };
 
@@ -290,27 +291,21 @@ export const mockGetWordSummaryDataAPI = async (): Promise<ApiResult> => {
       isDisplay: true
     },
     result: [
-      { source: 'TOEIC', count: 150 },
-      { source: '英検1級', count: 200 },
-      { source: 'その他', count: 50 }
-    ]
+      { name: 'vocabulary', count: 150 },
+      { name: 'idiom', count: 200 }
+    ] as WordSummaryApiResponse[]
   };
 };
 
 export const mockGetRandomWordAPI = async (): Promise<ApiResult> => {
-  const randomWord = englishData.words[Math.floor(Math.random() * englishData.words.length)];
+  const randomWord = englishDataMock.words[Math.floor(Math.random() * englishDataMock.words.length)];
   return {
     message: {
       message: 'ランダム単語を取得しました',
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: {
-      id: randomWord.id,
-      name: randomWord.word_name,
-      mean: randomWord.meaning,
-      word_source: randomWord.source
-    }
+    result: randomWord
   };
 };
 
@@ -322,13 +317,13 @@ export const mockGetWordTestStatisticsWeekDataAPI = async (params: any): Promise
       isDisplay: true
     },
     result: [
-      { date: '2024-01-01', correct_count: 5, total_count: 10 },
-      { date: '2024-01-02', correct_count: 7, total_count: 10 },
-      { date: '2024-01-03', correct_count: 6, total_count: 10 },
-      { date: '2024-01-04', correct_count: 8, total_count: 10 },
-      { date: '2024-01-05', correct_count: 9, total_count: 10 },
-      { date: '2024-01-06', correct_count: 7, total_count: 10 },
-      { date: '2024-01-07', correct_count: 8, total_count: 10 }
+      { date: '2024-01-01', count: 5 },
+      { date: '2024-01-02', count: 7 },
+      { date: '2024-01-03', count: 6 },
+      { date: '2024-01-04', count: 8 },
+      { date: '2024-01-05', count: 9 },
+      { date: '2024-01-06', count: 7 },
+      { date: '2024-01-07', count: 8 }
     ]
   };
 };
@@ -596,9 +591,11 @@ export const mockGetAccuracyRateByCategoryAPI = async (params: any): Promise<Api
   }
 
   // 指定されたファイルのカテゴリを取得
-  const quizIdList = quizMockData.filter((quiz) => quiz.file_num === getCategoryRateData.file_num).map((quiz) => quiz.id);
+  const quizIdList = quizMockData
+    .filter((quiz) => quiz.file_num === getCategoryRateData.file_num)
+    .map((quiz) => quiz.id);
   const categories = quizCategoryMockData.filter((category) => quizIdList.includes(category.quiz_id));
-  
+
   // カテゴリごとの正解率データを生成
   const result = categories.map((category) => ({
     file_num: getCategoryRateData.file_num,
@@ -652,16 +649,11 @@ export const mockAddQuizFileAPI = async (params: any): Promise<ApiResult> => {
   }
 
   // モックデータから次のfile_numを計算
-  const maxFileNum = quizFileMockData.length > 0 
-    ? Math.max(...quizFileMockData.map((file) => file.file_num))
-    : 0;
+  const maxFileNum = quizFileMockData.length > 0 ? Math.max(...quizFileMockData.map((file) => file.file_num)) : 0;
   const newFileNum = maxFileNum + 1;
 
   return {
-    message: successMessage(
-      MESSAGES.SUCCESS.MSG00012,
-      String(addQuizFileApiRequest.file_nickname)
-    ),
+    message: successMessage(MESSAGES.SUCCESS.MSG00012, String(addQuizFileApiRequest.file_nickname)),
     result: { file_num: newFileNum }
   };
 };
@@ -676,10 +668,7 @@ export const mockDeleteQuizFileAPI = async (params: any): Promise<ApiResult> => 
   }
 
   return {
-    message: successMessage(
-      MESSAGES.SUCCESS.MSG00013,
-      String(deleteQuizFileApiRequest.file_id)
-    ),
+    message: successMessage(MESSAGES.SUCCESS.MSG00013, String(deleteQuizFileApiRequest.file_id)),
     result: { result: 'Deleted.' }
   };
 };
@@ -694,10 +683,7 @@ export const mockDeleteAnswerLogOfQuizFileAPI = async (params: any): Promise<Api
   }
 
   return {
-    message: successMessage(
-      MESSAGES.SUCCESS.MSG00003,
-      String(deleteLogOfFileRequest.file_id)
-    ),
+    message: successMessage(MESSAGES.SUCCESS.MSG00003, String(deleteLogOfFileRequest.file_id)),
     result: { result: 'Deleted.' }
   };
 };
@@ -716,5 +702,491 @@ export const mockDownloadQuizCsvAPI = async (params: any): Promise<ApiResult> =>
   return {
     message: successMessage(MESSAGES.SUCCESS.MSG00022),
     result: {}
+  };
+};
+
+export const mockGetSourceStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  // モックデータから出典統計データを生成
+  const sourceList = englishDataMock.sourceList || [];
+  const result = sourceList.map((source: any) => ({
+    id: source.id || 1,
+    name: source.name || 'Unknown',
+    clear_count: getRandomIntWithRange(0, 100),
+    fail_count: getRandomIntWithRange(0, 50),
+    count: getRandomIntWithRange(50, 200),
+    not_answered: getRandomIntWithRange(0, 50),
+    accuracy_rate: getRandomIntWithRange(0, 100)
+  }));
+
+  return {
+    message: {
+      message: MESSAGES.DEFAULT.MSG00001,
+      messageColor: 'common.black',
+      isDisplay: false
+    },
+    result
+  };
+};
+
+export const mockGetEnglishWordTestDataAPI = async (params: any): Promise<ApiResult> => {
+  const { getEnglishWordTestData } = params;
+
+  // モックデータからランダムな単語を取得
+  const randomWord = englishDataMock.words[Math.floor(Math.random() * englishDataMock.words.length)];
+
+  if (!randomWord) {
+    return {
+      message: {
+        message: 'エラー:条件に合致するデータはありません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  // 四択問題のダミー選択肢を生成
+  const dummyChoices = englishDataMock.words
+    .filter((w) => w.id !== randomWord.id)
+    .slice(0, 3)
+    .map((w) => ({
+      mean: w.mean[0]?.meaning || 'dummy meaning'
+    }));
+
+  const result = {
+    word: {
+      id: randomWord.id,
+      name: randomWord.name || '',
+      checked: false,
+      mean: randomWord.mean.map((m, index) => ({
+        id: index + 1,
+        word_id: randomWord.id,
+        wordmean_id: index + 1,
+        meaning: m.meaning || '',
+        created_at: new Date(),
+        updated_at: new Date(),
+        deleted_at: null,
+        partsofspeech: {
+          id: 1,
+          name: m.partsofspeech?.name || 'noun'
+        }
+      })),
+      word_source: randomWord.word_source.map((ws, index) => ({
+        source: {
+          id: index + 1,
+          name: ws.source?.name || 'Unknown'
+        }
+      })),
+      word_statistics_view: {
+        accuracy_rate: String(getRandomIntWithRange(0, 100))
+      }
+    },
+    correct: {
+      mean: randomWord.mean[0]?.meaning || ''
+    },
+    dummy: dummyChoices,
+    testType: getEnglishWordTestData?.format === 'random' ? '0' : '1'
+  };
+
+  return {
+    message: {
+      message: '　',
+      messageColor: 'common.black',
+      isDisplay: false
+    },
+    result
+  };
+};
+
+export const mockSubmitEnglishBotTestAPI = async (params: any): Promise<ApiResult> => {
+  const { selectedValue } = params;
+
+  if (selectedValue === undefined) {
+    return {
+      message: {
+        message: 'エラー:解答が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: `${selectedValue ? '正解+1!' : '不正解+1..'} 登録しました`,
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockToggleWordCheckAPI = async (params: any): Promise<ApiResult> => {
+  const { toggleCheckData } = params;
+
+  if (!toggleCheckData.wordId || toggleCheckData.wordId === -1) {
+    return {
+      message: {
+        message: 'エラー:外部APIとの連携に失敗しました',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!編集に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockSearchExampleAPI = async (params: any): Promise<ApiResult> => {
+  const { searchExampleData } = params;
+
+  if (!searchExampleData.query || searchExampleData.query === '') {
+    return {
+      message: {
+        message: 'エラー:検索語句を入力して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  // モックデータから例文を検索
+  const searchResults = englishDataMock.examples
+    ? englishDataMock.examples
+        .filter((example) => {
+          if (searchExampleData.isLinked) {
+            // 紐付いている例文を検索（wordNameは型定義に存在しないため、常にfalseを返す）
+            return false;
+          } else {
+            // 紐付いていない例文を検索
+            return (
+              example.en_example_sentense?.includes(searchExampleData.query) ||
+              example.ja_example_sentense?.includes(searchExampleData.query)
+            );
+          }
+        })
+        .slice(0, 10)
+        .map((example, index) => ({
+          id: example.id || index + 1,
+          en_example_sentense: example.en_example_sentense || '',
+          ja_example_sentense: example.ja_example_sentense || ''
+        }))
+    : [];
+
+  if (searchResults.length === 0) {
+    return {
+      message: {
+        message: 'エラー:条件に合うデータはありません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: searchResults
+  };
+};
+
+export const mockSubmitAssociationExampleAPI = async (params: any): Promise<ApiResult> => {
+  const { submitAssociationExampleData } = params;
+
+  if (!submitAssociationExampleData.wordName || submitAssociationExampleData.wordName === '') {
+    return {
+      message: {
+        message: 'エラー:単語が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  if (!submitAssociationExampleData.checkedIdList || submitAssociationExampleData.checkedIdList.length === 0) {
+    return {
+      message: {
+        message: 'エラー:チェックしたIDリストがありません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: '処理が終了しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockAddSynonymAPI = async (params: any): Promise<ApiResult> => {
+  const { addSynonymData } = params;
+
+  if (!addSynonymData.synonymWordName || addSynonymData.synonymWordName === '') {
+    return {
+      message: {
+        message: 'エラー:類義語が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!追加に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockEditEnglishWordSourceAPI = async (params: any): Promise<ApiResult> => {
+  const { editWordSourceData } = params;
+
+  if (editWordSourceData.newSourceId === -1) {
+    return {
+      message: {
+        message: 'エラー:出典を選択して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!編集に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockDeleteEnglishWordSourceAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteWordSourceData } = params;
+
+  if (!deleteWordSourceData.word_id || !deleteWordSourceData.source_id) {
+    return {
+      message: {
+        message: 'エラー:外部APIとの連携に失敗しました',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!削除に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockEditEnglishWordSubSourceAPI = async (params: any): Promise<ApiResult> => {
+  const { editWordSubSourceData } = params;
+
+  if (!editWordSubSourceData.subSource || editWordSubSourceData.subSource === '') {
+    return {
+      message: {
+        message: 'エラー:サブ出典を入力して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!編集に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockDeleteEnglishWordSubSourceAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteWordSubSourceData } = params;
+
+  if (!deleteWordSubSourceData.id || deleteWordSubSourceData.id === -1) {
+    return {
+      message: {
+        message: 'エラー:サブ出典を入力して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!削除に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockEditEnglishWordMeanAPI = async (params: any): Promise<ApiResult> => {
+  const { editMeanData } = params;
+
+  if (editMeanData.partofspeechId === -1) {
+    return {
+      message: {
+        message: 'エラー:品詞を選択して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!編集に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockDeleteEnglishMeanAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteMeanData } = params;
+
+  if (!deleteMeanData.meanId || deleteMeanData.meanId === -1) {
+    return {
+      message: {
+        message: 'エラー:外部APIとの連携に失敗しました',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!削除に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockLinkWordEtymologyAPI = async (params: any): Promise<ApiResult> => {
+  const { linkWordEtymologyData } = params;
+
+  if (!linkWordEtymologyData.etymologyName || linkWordEtymologyData.etymologyName === '') {
+    return {
+      message: {
+        message: 'エラー:語源名が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  if (linkWordEtymologyData.wordId === -1) {
+    return {
+      message: {
+        message: 'エラー:追加する単語IDを入力して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!追加に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockAddEtymologyAPI = async (params: any): Promise<ApiResult> => {
+  const { addEtymologyData } = params;
+
+  if (!addEtymologyData.etymologyName || addEtymologyData.etymologyName === '') {
+    return {
+      message: {
+        message: 'エラー:語源名が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!追加に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockAddDerivativeAPI = async (params: any): Promise<ApiResult> => {
+  const { addDerivativeData } = params;
+
+  if (!addDerivativeData.wordName || addDerivativeData.wordName === '') {
+    return {
+      message: {
+        message: 'エラー:元単語名が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  if (!addDerivativeData.derivativeName || addDerivativeData.derivativeName === '') {
+    return {
+      message: {
+        message: 'エラー:追加する単語名を入力して下さい',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!追加に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
+  };
+};
+
+export const mockAddAntonymAPI = async (params: any): Promise<ApiResult> => {
+  const { addAntonymData } = params;
+
+  if (!addAntonymData.antonymWordName || addAntonymData.antonymWordName === '') {
+    return {
+      message: {
+        message: 'エラー:対義語が入力されていません',
+        messageColor: 'error',
+        isDisplay: true
+      }
+    };
+  }
+
+  return {
+    message: {
+      message: 'Success!!追加に成功しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    }
   };
 };

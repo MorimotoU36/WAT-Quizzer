@@ -379,6 +379,159 @@ export const downloadQuizCsvAPI = async (params: any): Promise<ApiResult> => {
   return originalDownloadQuizCsvAPI(params);
 };
 
+export const getSourceStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetSourceStatisticsDataAPI(params);
+  }
+
+  const { getSourceStatisticsDataAPI: originalGetSourceStatisticsDataAPI } = await import('quizzer-lib');
+  return originalGetSourceStatisticsDataAPI(params);
+};
+
+export const getEnglishWordTestDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetEnglishWordTestDataAPI(params);
+  }
+
+  const { getEnglishWordTestDataAPI: originalGetEnglishWordTestDataAPI } = await import('quizzer-lib');
+  return originalGetEnglishWordTestDataAPI(params);
+};
+
+export const submitEnglishBotTestAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockSubmitEnglishBotTestAPI(params);
+  }
+
+  const { submitEnglishBotTestAPI: originalSubmitEnglishBotTestAPI } = await import('quizzer-lib');
+  return originalSubmitEnglishBotTestAPI(params);
+};
+
+export const toggleWordCheckAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockToggleWordCheckAPI(params);
+  }
+
+  const { toggleWordCheckAPI: originalToggleWordCheckAPI } = await import('quizzer-lib');
+  return originalToggleWordCheckAPI(params);
+};
+
+export const searchExampleAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockSearchExampleAPI(params);
+  }
+
+  const { searchExampleAPI: originalSearchExampleAPI } = await import('quizzer-lib');
+  return originalSearchExampleAPI(params);
+};
+
+export const submitAssociationExampleAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockSubmitAssociationExampleAPI(params);
+  }
+
+  const { submitAssociationExampleAPI: originalSubmitAssociationExampleAPI } = await import('quizzer-lib');
+  return originalSubmitAssociationExampleAPI(params);
+};
+
+export const addSynonymAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddSynonymAPI(params);
+  }
+
+  const { addSynonymAPI: originalAddSynonymAPI } = await import('quizzer-lib');
+  return originalAddSynonymAPI(params);
+};
+
+export const editEnglishWordSourceAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockEditEnglishWordSourceAPI(params);
+  }
+
+  const { editEnglishWordSourceAPI: originalEditEnglishWordSourceAPI } = await import('quizzer-lib');
+  return originalEditEnglishWordSourceAPI(params);
+};
+
+export const deleteEnglishWordSourceAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteEnglishWordSourceAPI(params);
+  }
+
+  const { deleteEnglishWordSourceAPI: originalDeleteEnglishWordSourceAPI } = await import('quizzer-lib');
+  return originalDeleteEnglishWordSourceAPI(params);
+};
+
+export const editEnglishWordSubSourceAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockEditEnglishWordSubSourceAPI(params);
+  }
+
+  const { editEnglishWordSubSourceAPI: originalEditEnglishWordSubSourceAPI } = await import('quizzer-lib');
+  return originalEditEnglishWordSubSourceAPI(params);
+};
+
+export const deleteEnglishWordSubSourceAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteEnglishWordSubSourceAPI(params);
+  }
+
+  const { deleteEnglishWordSubSourceAPI: originalDeleteEnglishWordSubSourceAPI } = await import('quizzer-lib');
+  return originalDeleteEnglishWordSubSourceAPI(params);
+};
+
+export const editEnglishWordMeanAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockEditEnglishWordMeanAPI(params);
+  }
+
+  const { editEnglishWordMeanAPI: originalEditEnglishWordMeanAPI } = await import('quizzer-lib');
+  return originalEditEnglishWordMeanAPI(params);
+};
+
+export const deleteEnglishMeanAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteEnglishMeanAPI(params);
+  }
+
+  const { deleteEnglishMeanAPI: originalDeleteEnglishMeanAPI } = await import('quizzer-lib');
+  return originalDeleteEnglishMeanAPI(params);
+};
+
+export const linkWordEtymologyAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockLinkWordEtymologyAPI(params);
+  }
+
+  const { linkWordEtymologyAPI: originalLinkWordEtymologyAPI } = await import('quizzer-lib');
+  return originalLinkWordEtymologyAPI(params);
+};
+
+export const addEtymologyAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddEtymologyAPI(params);
+  }
+
+  const { addEtymologyAPI: originalAddEtymologyAPI } = await import('quizzer-lib');
+  return originalAddEtymologyAPI(params);
+};
+
+export const addDerivativeAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddDerivativeAPI(params);
+  }
+
+  const { addDerivativeAPI: originalAddDerivativeAPI } = await import('quizzer-lib');
+  return originalAddDerivativeAPI(params);
+};
+
+export const addAntonymAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddAntonymAPI(params);
+  }
+
+  const { addAntonymAPI: originalAddAntonymAPI } = await import('quizzer-lib');
+  return originalAddAntonymAPI(params);
+};
+
 export const addTodoAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     // TODO: モック実装が必要な場合は追加
