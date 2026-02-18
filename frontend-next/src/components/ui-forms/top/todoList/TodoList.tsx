@@ -58,29 +58,6 @@ const convertApiTodosToTodos = (apiTodos: GetTodoListApiResponseDto[]): Todo[] =
   }));
 };
 
-// 前日以前のlocalStorageデータを削除
-const cleanupOldTodos = () => {
-  if (typeof window === 'undefined') return;
-
-  const todayKey = getTodayKey();
-  const keysToRemove: string[] = [];
-
-  // localStorage内の全てのキーをチェック
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && (key.startsWith('todos-') || key.startsWith('todo-diary-registered-'))) {
-      const dateKey = key.replace('todos-', '').replace('todo-diary-registered-', '');
-      // 今日の日付より前のデータを削除対象にする
-      if (dateKey < todayKey) {
-        keysToRemove.push(key);
-      }
-    }
-  }
-
-  // 古いデータを削除
-  keysToRemove.forEach((key) => localStorage.removeItem(key));
-};
-
 // その日にTodo日記が既に登録済みかどうかをチェック
 const isTodoDiaryRegisteredToday = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -121,7 +98,6 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
 
   // 初回マウント時にTodoリストを取得
   useEffect(() => {
-    cleanupOldTodos();
     fetchTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -131,8 +107,6 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
     const checkDateChange = () => {
       const todayKey = getTodayKey();
       if (todayKey !== currentDate) {
-        // 日付が変わった時に古いデータをクリーンアップ
-        cleanupOldTodos();
         setCurrentDate(todayKey);
         // 前回のallCompleted状態もリセット
         prevAllCompletedRef.current = false;
