@@ -5,21 +5,41 @@ export const makeReadbleQuizzerBucketIamRole = (
   scope: Construct,
   env: string,
   bucketName: string,
-  idPoolId: string
+  idPoolId: string,
+  todoCheckStatusTableArn?: string
 ) => {
-  const iamPolicy = new iam.PolicyDocument({
-    statements: [
+  const statements: iam.PolicyStatement[] = [
+    new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:ListBucket'],
+      resources: [`arn:aws:s3:::${bucketName}`]
+    }),
+    new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:GetObject'],
+      resources: [`arn:aws:s3:::${bucketName}/*`]
+    })
+  ]
+
+  // DynamoDBテーブルへのアクセス権限を追加
+  if (todoCheckStatusTableArn) {
+    statements.push(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['s3:ListBucket'],
-        resources: [`arn:aws:s3:::${bucketName}`]
-      }),
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        actions: ['s3:GetObject'],
-        resources: [`arn:aws:s3:::${bucketName}/*`]
+        actions: [
+          'dynamodb:GetItem',
+          'dynamodb:PutItem',
+          'dynamodb:UpdateItem',
+          'dynamodb:DeleteItem',
+          'dynamodb:Query'
+        ],
+        resources: [todoCheckStatusTableArn]
       })
-    ]
+    )
+  }
+
+  const iamPolicy = new iam.PolicyDocument({
+    statements
   })
 
   const iamRole = new iam.Role(scope, 'authenticatedQuizzerRole', {
