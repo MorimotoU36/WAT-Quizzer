@@ -574,3 +574,26 @@ export const addTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
   const { addTodoDiaryAPI: originalAddTodoDiaryAPI } = await import('quizzer-lib');
   return originalAddTodoDiaryAPI(params);
 };
+
+export const getTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return {
+      message: { message: 'Mock mode: Todoチェック状態取得', messageColor: 'success.light', isDisplay: true },
+      result: { completedTodoIds: [] }
+    };
+  }
+
+  const { getTodoCheckStatusAPI: originalGetTodoCheckStatusAPI } = await import('quizzer-lib');
+  return originalGetTodoCheckStatusAPI(params);
+};
+
+export const saveTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    // TODO: モック実装が必要な場合は追加
+    return { message: { message: 'Mock mode: Todoチェック状態保存', messageColor: 'success.light', isDisplay: true } };
+  }
+
+  const { saveTodoCheckStatusAPI: originalSaveTodoCheckStatusAPI } = await import('quizzer-lib');
+  return originalSaveTodoCheckStatusAPI(params);
+};

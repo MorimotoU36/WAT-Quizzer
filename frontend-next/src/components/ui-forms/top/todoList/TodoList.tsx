@@ -3,7 +3,7 @@ import { CardContent, Typography, Box } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { getTodayKey, getTodoListAPI, GetTodoListApiResponseDto } from 'quizzer-lib';
-import { addTodoDiaryAPI } from '@/utils/api-wrapper';
+import { addTodoDiaryAPI, getTodoCheckStatusAPI, saveTodoCheckStatusAPI } from '@/utils/api-wrapper';
 
 export interface Todo {
   id: number;
@@ -11,43 +11,7 @@ export interface Todo {
   completed: boolean;
 }
 
-interface TodoListProps {
-  todos?: Todo[];
-}
-
-// localStorageから今日のチェック状態を読み込む
-const loadTodayTodos = (baseTodos: Todo[]): Todo[] => {
-  if (typeof window === 'undefined') return baseTodos;
-
-  const todayKey = getTodayKey();
-  const storageKey = `todos-${todayKey}`;
-  const saved = localStorage.getItem(storageKey);
-
-  if (saved) {
-    try {
-      const savedCompletedIds = JSON.parse(saved) as number[];
-      return baseTodos.map((todo) => ({
-        ...todo,
-        completed: savedCompletedIds.includes(todo.id)
-      }));
-    } catch (e) {
-      console.error('Failed to parse saved todos:', e);
-      return baseTodos;
-    }
-  }
-
-  return baseTodos;
-};
-
-// localStorageに今日のチェック状態を保存
-const saveTodayTodos = (todos: Todo[]) => {
-  if (typeof window === 'undefined') return;
-
-  const todayKey = getTodayKey();
-  const storageKey = `todos-${todayKey}`;
-  const completedIds = todos.filter((todo) => todo.completed).map((todo) => todo.id);
-  localStorage.setItem(storageKey, JSON.stringify(completedIds));
-};
+interface TodoListProps {}
 
 // APIから取得したTODOをTodo形式に変換
 const convertApiTodosToTodos = (apiTodos: GetTodoListApiResponseDto[]): Todo[] => {
@@ -58,39 +22,41 @@ const convertApiTodosToTodos = (apiTodos: GetTodoListApiResponseDto[]): Todo[] =
   }));
 };
 
-// その日にTodo日記が既に登録済みかどうかをチェック
-const isTodoDiaryRegisteredToday = (): boolean => {
-  if (typeof window === 'undefined') return false;
-
-  const todayKey = getTodayKey();
-  const storageKey = `todo-diary-registered-${todayKey}`;
-  return localStorage.getItem(storageKey) === 'true';
-};
-
-// その日のTodo日記登録済みフラグを設定
-const setTodoDiaryRegisteredToday = () => {
-  if (typeof window === 'undefined') return;
-
-  const todayKey = getTodayKey();
-  const storageKey = `todo-diary-registered-${todayKey}`;
-  localStorage.setItem(storageKey, 'true');
-};
-
-export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
+export const TodoList = ({}: TodoListProps) => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(getTodayKey());
   const [isLoading, setIsLoading] = useState(false);
   const prevAllCompletedRef = useRef<boolean>(false);
+  const todoDiaryRegisteredRef = useRef<boolean>(false);
 
-  // APIからTodoリストを取得
+  // APIからTodoリストとチェック状態を取得
   const fetchTodos = useCallback(async () => {
     setIsLoading(true);
-    const result = await getTodoListAPI({ getTodoListRequestData: {} });
-    if (result.result && Array.isArray(result.result)) {
-      const apiTodos = result.result as GetTodoListApiResponseDto[];
+    const todayKey = getTodayKey();
+
+    // Todoリストとチェック状態を並列で取得
+    const [todoListResult, checkStatusResult] = await Promise.all([
+      getTodoListAPI({ getTodoListRequestData: {} }),
+      getTodoCheckStatusAPI({
+        getTodoCheckStatusAPIRequest: { date: todayKey }
+      })
+    ]);
+
+    if (todoListResult.result && Array.isArray(todoListResult.result)) {
+      const apiTodos = todoListResult.result as GetTodoListApiResponseDto[];
       const convertedTodos = convertApiTodosToTodos(apiTodos);
-      // localStorageから今日のチェック状態を読み込んで適用
-      const todosWithCompleted = loadTodayTodos(convertedTodos);
+
+      // DynamoDBから取得したチェック状態を適用
+      let completedIds: number[] = [];
+      if (checkStatusResult.result && 'completedTodoIds' in checkStatusResult.result) {
+        completedIds = (checkStatusResult.result as { completedTodoIds: number[] }).completedTodoIds;
+      }
+
+      const todosWithCompleted = convertedTodos.map((todo) => ({
+        ...todo,
+        completed: completedIds.includes(todo.id)
+      }));
+
       setTodos(todosWithCompleted);
     }
     setIsLoading(false);
@@ -110,6 +76,8 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
         setCurrentDate(todayKey);
         // 前回のallCompleted状態もリセット
         prevAllCompletedRef.current = false;
+        // Todo日記の登録済みフラグもリセット
+        todoDiaryRegisteredRef.current = false;
         // APIから再取得して、チェック状態をリセット
         fetchTodos();
       }
@@ -124,9 +92,27 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
     return () => clearInterval(interval);
   }, [currentDate, fetchTodos]);
 
-  // チェック状態が変わったらlocalStorageに保存
+  // チェック状態が変わったらDynamoDBに保存
   useEffect(() => {
-    saveTodayTodos(todos);
+    // 初回マウント時は保存しない（fetchTodosで既に取得済み）
+    if (todos.length === 0) return;
+
+    const todayKey = getTodayKey();
+    const completedIds = todos.filter((todo) => todo.completed).map((todo) => todo.id);
+
+    // デバウンス処理（連続した変更を防ぐ）
+    const timeoutId = setTimeout(() => {
+      saveTodoCheckStatusAPI({
+        saveTodoCheckStatusAPIRequest: {
+          date: todayKey,
+          completedTodoIds: completedIds
+        }
+      }).catch((error) => {
+        console.error('Failed to save todo check status:', error);
+      });
+    }, 500); // 500ms後に保存
+
+    return () => clearTimeout(timeoutId);
   }, [todos]);
 
   const handleToggle = (id: number) => {
@@ -138,7 +124,7 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
   // 全Todo完了時にTodo日記を登録
   useEffect(() => {
     // allCompletedがfalseからtrueに変わった時、かつその日に未登録の場合のみAPIを呼び出す
-    if (allCompleted && !prevAllCompletedRef.current && !isTodoDiaryRegisteredToday()) {
+    if (allCompleted && !prevAllCompletedRef.current && !todoDiaryRegisteredRef.current) {
       const todayKey = getTodayKey();
       addTodoDiaryAPI({
         addTodoDiaryAPIRequest: {
@@ -148,7 +134,7 @@ export const TodoList = ({ todos: initialTodosProp }: TodoListProps) => {
         .then((result) => {
           if (result.message.messageColor === 'success.light') {
             // 登録成功時、その日の登録済みフラグを設定
-            setTodoDiaryRegisteredToday();
+            todoDiaryRegisteredRef.current = true;
           }
           // エラーメッセージは表示しない（バックグラウンド処理のため）
         })
