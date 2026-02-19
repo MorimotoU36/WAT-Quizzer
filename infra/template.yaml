@@ -37,6 +37,9 @@ Parameters:
   SAkey:
     Type: String
     Default: 'infra frontend-next cdk.out'
+  TodoCheckStatusTableArn:
+    Type: String
+    Description: 'DynamoDB Table ARN for Todo check status'
 
 Resources:
   ApiGatewayRestApi:
@@ -64,8 +67,10 @@ Resources:
         Type: EDGE
       Cors:
         AllowMethods: "'DELETE,POST,GET,OPTIONS,PUT,PATCH'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowHeaders: "'Origin,X-Requested-With,Content-Type,Accept,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
+        AllowCredentials: false
+        MaxAge: "'3600'"
   SamQuizzerApiFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -82,7 +87,18 @@ Resources:
           QUIZ_IMAGE_S3_BUCKET: !Ref QuizImageS3BucketName
           AKEY: !Ref Akey
           SAKEY: !Ref SAkey
+          TODO_CHECK_STATUS_TABLE_ARN: !Ref TodoCheckStatusTableArn
           # PRISMA_QUERY_ENGINE_LIBRARY: ../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Query
+              Resource: !Ref TodoCheckStatusTableArn
       Events:
         QuizzerApi:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
