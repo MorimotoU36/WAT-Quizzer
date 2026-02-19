@@ -6,11 +6,14 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { AddTodoDto } from './dto/add-todo.dto';
 import { AddTodoDiaryDto } from './dto/add-todo-diary.dto';
+import { SaveTodoCheckStatusDto } from './dto/save-todo-check-status.dto';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 import { ApiOperation, ApiTags, ApiBody, ApiParam } from '@nestjs/swagger';
 
@@ -49,5 +52,38 @@ export class TodoController {
   @ApiBody({ type: AddTodoDiaryDto })
   async addTodoDiary(@Body() req: AddTodoDiaryDto) {
     return await this.todoService.addTodoDiaryService(req.date);
+  }
+
+  @Get('/check-status/:date')
+  @ApiOperation({
+    summary: '指定日のTodoチェック状態を取得します。',
+  })
+  @ApiParam({ name: 'date', type: String, description: '日付 (YYYY-MM-DD)' })
+  async getTodoCheckStatus(@Request() req: any, @Param('date') date: string) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+    return await this.todoService.getTodoCheckStatusService(userId, date);
+  }
+
+  @Put('/check-status')
+  @ApiOperation({
+    summary: '指定日のTodoチェック状態を保存します。',
+  })
+  @ApiBody({ type: SaveTodoCheckStatusDto })
+  async saveTodoCheckStatus(
+    @Request() req: any,
+    @Body() body: SaveTodoCheckStatusDto,
+  ) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+    return await this.todoService.saveTodoCheckStatusService(
+      userId,
+      body.date,
+      body.completedTodoIds,
+    );
   }
 }
