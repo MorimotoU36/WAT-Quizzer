@@ -20,7 +20,7 @@ import {
 } from 'quizzer-lib';
 import { getWordDetailAPI, getPartOfSpeechListAPI, getSourceListAPI } from '@/utils/api-wrapper';
 import { isMockMode } from '@/utils/api-wrapper';
-import englishData from '@/data/mock/sample-english-data.json';
+import { englishDataMock } from 'quizzer-lib';
 import { SynonymStack } from '@/components/ui-forms/englishbot/detailWord/synonymStack/SynonymStack';
 import { AntonymStack } from '@/components/ui-forms/englishbot/detailWord/antonymStack/AntonymStack';
 import { DerivativeStack } from '@/components/ui-forms/englishbot/detailWord/derivativeStack/DerivativeStack';
@@ -43,11 +43,11 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
     if (isMock || isMockMode()) {
       // モック環境ではサンプルデータを使用
       const mockWordId = parseInt(id);
-      const mockWord = englishData.words.find((word) => word.id === mockWordId) || englishData.wordDetail;
+      const mockWord = englishDataMock.words.find((word) => word.id === mockWordId) || englishDataMock.wordDetail;
       const mockWordDetail: GetWordDetailAPIResponseDto = {
         ...mockWord,
         id: mockWordId,
-        name: mockWord.word_name,
+        name: mockWord.name,
         pronounce: '',
         checked: false,
         mean: [],
@@ -68,7 +68,7 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
 
       // サンプルデータから品詞リストとソースリストを設定
       setPosList(
-        englishData.partOfSpeechList.map((pos) => ({
+        englishDataMock.partOfSpeechList.map((pos) => ({
           label: pos.name,
           id: pos.id,
           name: pos.name,
@@ -77,7 +77,7 @@ export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps
       );
 
       setSourcelistoption(
-        englishData.sourceList.map((source) => ({
+        englishDataMock.sourceList.map((source) => ({
           label: source.name,
           id: source.id,
           name: source.name,
