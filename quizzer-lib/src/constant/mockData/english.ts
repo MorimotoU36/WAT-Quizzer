@@ -190,28 +190,28 @@ export const sourceListMockData: SourceApiResponse[] = [
   },
   {
     id: 2,
-    name: 'software development',
+    name: 'TARGET B',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     deleted_at: undefined
   },
   {
     id: 3,
-    name: 'devops',
+    name: 'FOREST',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     deleted_at: undefined
   },
   {
     id: 4,
-    name: 'system administration',
+    name: 'AMERICAN WORDS',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     deleted_at: undefined
   },
   {
     id: 5,
-    name: 'performance',
+    name: 'BRITISH HILLS',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     deleted_at: undefined
