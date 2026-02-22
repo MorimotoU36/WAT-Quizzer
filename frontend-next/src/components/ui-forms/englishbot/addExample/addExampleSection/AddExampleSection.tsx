@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';
 import { CardContent, CardHeader } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
-import { AddExampleAPIRequestDto, submitExampleSentenseAPI } from 'quizzer-lib';
+import { AddExampleAPIRequestDto } from 'quizzer-lib';
+import { addExampleAPI } from '@/utils/api-wrapper';
 import { Button } from '@/components/ui-elements/button/Button';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
@@ -109,7 +110,7 @@ export const AddExampleSection = ({}: AddExampleSectionProps) => {
               return;
             }
             setMessage && setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-            const result = await submitExampleSentenseAPI({ addExampleData });
+            const result = await addExampleAPI({ addExampleData });
             setMessage && setMessage(result.message);
             // TODO 成功時の条件
             if (result.message.messageColor === 'success.light') {
