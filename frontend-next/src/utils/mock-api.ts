@@ -328,6 +328,21 @@ export const mockGetWordTestStatisticsWeekDataAPI = async (params: any): Promise
   };
 };
 
+export const mockGetWordNumAPI = async (): Promise<ApiResult> => {
+  return {
+    message: {
+      message: '単語数を取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: {
+      _max: {
+        id: englishDataMock.words.length
+      }
+    }
+  };
+};
+
 export const mockEditSayingAPI = async (params: any): Promise<ApiResult> => {
   return {
     message: {

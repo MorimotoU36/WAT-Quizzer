@@ -122,7 +122,16 @@ export const englishWordDetailMockData: GetWordDetailAPIResponseDto = {
       wordmean_id: 1,
       meaning: 'アルゴリズム',
       partsofspeech: {
-        id: 1,
+        id: 3,
+        name: '名詞'
+      }
+    },
+    {
+      id: 2,
+      wordmean_id: 2,
+      meaning: '算法',
+      partsofspeech: {
+        id: 3,
         name: '名詞'
       }
     }
@@ -133,20 +142,108 @@ export const englishWordDetailMockData: GetWordDetailAPIResponseDto = {
         id: 1,
         name: '単語集A'
       }
+    },
+    {
+      source: {
+        id: 2,
+        name: 'TARGET B'
+      }
     }
   ],
-  word_subsource: [],
-  synonym_original: [],
-  synonym_word: [],
-  antonym_original: [],
-  antonym_word: [],
+  word_subsource: [
+    {
+      id: 1,
+      subsource: 'Chapter 3, Section 5',
+      created_at: '2024-01-15T10:30:00Z'
+    },
+    {
+      id: 2,
+      subsource: 'Supplementary Material',
+      created_at: '2024-02-20T14:20:00Z'
+    }
+  ],
+  synonym_original: [
+    {
+      word_id: 1,
+      synonym_word_id: 2,
+      synonym_word: {
+        name: 'procedure'
+      }
+    },
+    {
+      word_id: 1,
+      synonym_word_id: 3,
+      synonym_word: {
+        name: 'method'
+      }
+    }
+  ],
+  synonym_word: [
+    {
+      word_id: 4,
+      synonym_word_id: 1,
+      synonym_original: {
+        name: 'infrastructure'
+      }
+    }
+  ],
+  antonym_original: [
+    {
+      word_id: 1,
+      antonym_word_id: 5,
+      antonym_word: {
+        name: 'chaos'
+      }
+    }
+  ],
+  antonym_word: [
+    {
+      word_id: 2,
+      antonym_word_id: 1,
+      antonym_original: {
+        name: 'framework'
+      }
+    }
+  ],
   derivative: {
-    derivative_group_id: -1,
+    derivative_group_id: 1,
     derivative_group: {
-      derivative: []
+      derivative: [
+        {
+          word_id: 1,
+          word: {
+            name: 'algorithm'
+          }
+        },
+        {
+          word_id: 6,
+          word: {
+            name: 'algorithmic'
+          }
+        },
+        {
+          word_id: 7,
+          word: {
+            name: 'algorithmically'
+          }
+        }
+      ]
     }
   },
-  word_etymology: []
+  word_etymology: [
+    {
+      etymology: {
+        id: 1,
+        name: 'Arabic: al-Khwārizmī'
+      }
+    },
+    {
+      etymology: {
+        id: 2,
+        name: 'Greek: arithmos'
+      }
+    }
+  ]
 }
 
 export const partOfSpeechListMockData: PartofSpeechApiResponse[] = [

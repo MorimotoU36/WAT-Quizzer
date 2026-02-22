@@ -8,14 +8,12 @@ import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {
   Message,
-  deleteEnglishMeanAPI,
-  editEnglishWordMeanAPI,
   EditWordMeanAPIRequestDto,
-  getWordDetailAPI,
   GetWordDetailAPIResponseDto,
   PullDownOptionDto,
   initEditMeanData
 } from 'quizzer-lib';
+import { deleteEnglishMeanAPI, editEnglishWordMeanAPI, getWordDetailAPI } from '@/utils/api-wrapper';
 
 interface MeaningStackProps {
   posList: PullDownOptionDto[];
@@ -72,7 +70,6 @@ export const MeaningStack = ({ posList, wordDetail, setMessage, setWordDetail }:
   const [editMeanData, setEditMeanData] = useState<EditWordMeanAPIRequestDto>(initEditMeanData);
   // TODO これいる？（sourcestackも）
   const [selectedMeanIndex, setSelectedMeanIndex] = useState<number>(-1); //仮
-
   const handleOpen = (wordMeanIndex: number) => {
     setMeaningModalOpen(true);
     setEditMeanData(

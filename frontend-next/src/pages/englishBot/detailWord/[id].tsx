@@ -1,5 +1,5 @@
 import { CircularProgress, Container, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Layout } from '@/components/templates/layout/Layout';
 import { Title } from '@/components/ui-elements/title/Title';
 import { MeaningStack } from '@/components/ui-forms/englishbot/detailWord/meaningStack/MeaningStack';
@@ -14,11 +14,15 @@ import {
   apiResponsePullDownAdapter,
   PartofSpeechApiResponse,
   SourceApiResponse,
-  initWordDetailResponseData,
+  initWordDetailResponseData
+} from 'quizzer-lib';
+import {
+  getWordDetailAPI,
+  getPartOfSpeechListAPI,
+  getSourceListAPI,
   toggleWordCheckAPI,
   getWordNumAPI
-} from 'quizzer-lib';
-import { getWordDetailAPI, getPartOfSpeechListAPI, getSourceListAPI } from '@/utils/api-wrapper';
+} from '@/utils/api-wrapper';
 import { isMockMode } from '@/utils/api-wrapper';
 import { englishDataMock } from 'quizzer-lib';
 import { SynonymStack } from '@/components/ui-forms/englishbot/detailWord/synonymStack/SynonymStack';
@@ -34,79 +38,66 @@ type EachWordPageProps = {
 };
 // TODO dynamic routingだとファイル数膨大・単語追加のたびにデプロイ必要になるので不向き、Next.jsで何か別の使える機能ないか
 export default function EnglishBotEachWordPage({ id, isMock }: EachWordPageProps) {
-  const [wordDetail, setWordDetail] = useState<GetWordDetailAPIResponseDto>(initWordDetailResponseData);
-  const [posList, setPosList] = useState<PullDownOptionDto[]>([]);
-  const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionDto[]>([]);
   const setMessage = useSetRecoilState(messageState);
+
+  // モック環境用のデータをuseMemoで計算
+  const mockData = useMemo(() => {
+    if (!(isMock || isMockMode())) return null;
+
+    const mockWordId = parseInt(id);
+    // englishWordDetailMockDataをベースに、IDと名前だけを更新
+    const mockWordDetail: GetWordDetailAPIResponseDto = {
+      ...englishDataMock.wordDetail,
+      id: mockWordId,
+      name: englishDataMock.words.find((word) => word.id === mockWordId)?.name || englishDataMock.wordDetail.name
+    };
+
+    return {
+      wordDetail: mockWordDetail,
+      posList: englishDataMock.partOfSpeechList.map((pos) => ({
+        label: pos.name,
+        id: pos.id,
+        name: pos.name,
+        value: pos.name
+      })),
+      sourceList: englishDataMock.sourceList.map((source) => ({
+        label: source.name,
+        id: source.id,
+        name: source.name,
+        value: source.name
+      }))
+    };
+  }, [id, isMock]);
+
+  // モック環境では初期値を設定、本番環境では空の初期値
+  const [wordDetail, setWordDetail] = useState<GetWordDetailAPIResponseDto>(
+    mockData?.wordDetail || initWordDetailResponseData
+  );
+  const [posList, setPosList] = useState<PullDownOptionDto[]>(mockData?.posList || []);
+  const [sourcelistoption, setSourcelistoption] = useState<PullDownOptionDto[]>(mockData?.sourceList || []);
 
   useEffect(() => {
     if (isMock || isMockMode()) {
-      // モック環境ではサンプルデータを使用
-      const mockWordId = parseInt(id);
-      const mockWord = englishDataMock.words.find((word) => word.id === mockWordId) || englishDataMock.wordDetail;
-      const mockWordDetail: GetWordDetailAPIResponseDto = {
-        ...mockWord,
-        id: mockWordId,
-        name: mockWord.name,
-        pronounce: '',
-        checked: false,
-        mean: [],
-        word_source: [],
-        word_subsource: [],
-        synonym_original: [],
-        synonym_word: [],
-        antonym_original: [],
-        antonym_word: [],
-        derivative: {
-          derivative_group_id: -1,
-          derivative_group: {
-            derivative: []
-          }
-        },
-        word_etymology: []
-      };
-
-      // サンプルデータから品詞リストとソースリストを設定
-      setPosList(
-        englishDataMock.partOfSpeechList.map((pos) => ({
-          label: pos.name,
-          id: pos.id,
-          name: pos.name,
-          value: pos.name
-        }))
-      );
-
-      setSourcelistoption(
-        englishDataMock.sourceList.map((source) => ({
-          label: source.name,
-          id: source.id,
-          name: source.name,
-          value: source.name
-        }))
-      );
-
-      // 単語詳細を設定
-      setWordDetail({
-        ...mockWordDetail
-      });
-    } else {
-      // 本番環境では従来通りAPIを呼び出し
-      Promise.all([
-        (async () => {
-          const result = await getPartOfSpeechListAPI();
-          result.result && setPosList(apiResponsePullDownAdapter(result.result as PartofSpeechApiResponse[]));
-        })(),
-        (async () => {
-          const result = await getSourceListAPI();
-          result.result && setSourcelistoption(apiResponsePullDownAdapter(result.result as SourceApiResponse[]));
-        })()
-      ]);
-      (async () => {
-        const result = (await getWordDetailAPI({ id })).result as GetWordDetailAPIResponseDto;
-        setWordDetail(result);
-      })();
+      // モック環境では既に初期値が設定されているため、何もしない
+      return;
     }
-  }, [id, isMock, setMessage]);
+
+    // 本番環境では従来通りAPIを呼び出し
+    Promise.all([
+      (async () => {
+        const result = await getPartOfSpeechListAPI();
+        result.result && setPosList(apiResponsePullDownAdapter(result.result as PartofSpeechApiResponse[]));
+      })(),
+      (async () => {
+        const result = await getSourceListAPI();
+        result.result && setSourcelistoption(apiResponsePullDownAdapter(result.result as SourceApiResponse[]));
+      })()
+    ]);
+    (async () => {
+      const result = (await getWordDetailAPI({ id })).result as GetWordDetailAPIResponseDto;
+      setWordDetail(result);
+    })();
+  }, [id, isMock]);
 
   const contents = () => {
     return (

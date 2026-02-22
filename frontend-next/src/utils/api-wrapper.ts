@@ -226,6 +226,15 @@ export const getRandomWordAPI = async (): Promise<ApiResult> => {
   return originalGetRandomWordAPI();
 };
 
+export const getWordNumAPI = async (params?: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetWordNumAPI();
+  }
+
+  const { getWordNumAPI: originalGetWordNumAPI } = await import('quizzer-lib');
+  return originalGetWordNumAPI(params || {});
+};
+
 export const getWordTestStatisticsWeekDataAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     return mockAPI.mockGetWordTestStatisticsWeekDataAPI(params);

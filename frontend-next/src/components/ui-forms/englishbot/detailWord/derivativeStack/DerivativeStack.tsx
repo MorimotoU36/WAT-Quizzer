@@ -9,10 +9,9 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {
   Message,
   AddDerivativeAPIRequestDto,
-  GetWordDetailAPIResponseDto,
-  addDerivativeAPI,
-  getWordDetailAPI
+  GetWordDetailAPIResponseDto
 } from 'quizzer-lib';
+import { addDerivativeAPI, getWordDetailAPI } from '@/utils/api-wrapper';
 import React from 'react';
 
 interface DerivativeStackProps {
