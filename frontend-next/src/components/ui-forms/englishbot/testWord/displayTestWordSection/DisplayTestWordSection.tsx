@@ -16,10 +16,9 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { Chip } from '@/components/ui-elements/chip/Chip';
 import {
   generateFourChoiceSentense,
-  GetEnglishWordTestDataAPIResponseDto,
-  submitEnglishBotTestAPI,
-  toggleWordCheckAPI
+  GetEnglishWordTestDataAPIResponseDto
 } from 'quizzer-lib';
+import { submitEnglishBotTestAPI, toggleWordCheckAPI } from '@/utils/api-wrapper';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';

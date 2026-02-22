@@ -11,11 +11,11 @@ import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import {
   getDateForSqlString,
-  getEnglishWordTestDataAPI,
   GetEnglishWordTestDataAPIRequestDto,
   GetEnglishWordTestDataAPIResponseDto,
   PullDownOptionDto
 } from 'quizzer-lib';
+import { getEnglishWordTestDataAPI } from '@/utils/api-wrapper';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { englishTestTypeRadioButton } from '@/constants/contents/radioButton';
