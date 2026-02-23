@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui-elements/card/Card';
-import { getSourceStatisticsDataAPI, PullDownOptionDto, SourceStatisticsApiResponse } from 'quizzer-lib';
+import { PullDownOptionDto, SourceStatisticsApiResponse } from 'quizzer-lib';
+import { getSourceStatisticsDataAPI } from '@/utils/api-wrapper';
 import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { Doughnut } from 'react-chartjs-2';
