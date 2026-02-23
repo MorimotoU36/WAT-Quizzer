@@ -29,7 +29,10 @@ export const addSayingAPI = async ({
       if (data.status === 200 || data.status === 201) {
         const result: AddQuizApiResponseDto = data.body as AddQuizApiResponseDto
         return {
-          message: successMessage(MESSAGES.SUCCESS.MSG00016),
+          message: successMessage(
+            MESSAGES.SUCCESS.MSG00016,
+            addSayingAPIRequest.saying
+          ),
           result
         }
       } else {
