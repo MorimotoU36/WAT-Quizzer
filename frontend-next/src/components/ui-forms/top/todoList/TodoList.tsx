@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CardContent, Typography, Box } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
-import { getTodayKey, getTodoListAPI, GetTodoListApiResponseDto } from 'quizzer-lib';
-import { addTodoDiaryAPI, getTodoCheckStatusAPI, saveTodoCheckStatusAPI } from '@/utils/api-wrapper';
+import { getTodayKey, GetTodoListApiResponseDto } from 'quizzer-lib';
+import { addTodoDiaryAPI, getTodoCheckStatusAPI, getTodoListAPI, saveTodoCheckStatusAPI } from '@/utils/api-wrapper';
 
 export interface Todo {
   id: number;
