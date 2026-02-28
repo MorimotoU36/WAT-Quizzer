@@ -5,7 +5,8 @@ import styles from '../Settings.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { getTodoListAPI, deleteTodoAPI, GetTodoListApiResponseDto } from 'quizzer-lib';
+import { GetTodoListApiResponseDto } from 'quizzer-lib';
+import { getTodoListAPI, deleteTodoAPI } from '@/utils/api-wrapper';
 import { SearchResultTable } from '@/components/ui-elements/searchResultTable/SearchResultTable';
 import { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
 

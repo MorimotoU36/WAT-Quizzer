@@ -8,6 +8,7 @@ import {
   quizFormatMockData,
   quizMockData,
   sayingMockData,
+  selfhelpBookMockData,
   successMessage,
   englishDataMock,
   WordSummaryApiResponse
@@ -126,8 +127,29 @@ export const mockGetSourceListAPI = async (): Promise<ApiResult> => {
 };
 
 export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
-  // 検索結果として複数の格言を返す
-  const searchResults = sayingMockData.slice(0, 3);
+  const { searchSayingRequestData } = params;
+  const searchQuery = searchSayingRequestData?.saying || '';
+
+  // 検索クエリに基づいて格言をフィルタリング（部分一致）
+  let filteredSayings = sayingMockData;
+  if (searchQuery) {
+    filteredSayings = sayingMockData.filter(
+      (saying) => saying.saying.includes(searchQuery) || saying.explanation?.includes(searchQuery)
+    );
+  }
+
+  // SearchSayingAPIResponseDtoの形式に変換（selfhelp_bookを含める）
+  const searchResults = filteredSayings.slice(0, 10).map((saying) => {
+    const book = selfhelpBookMockData.find((b) => b.id === saying.book_id);
+    return {
+      id: saying.id,
+      saying: saying.saying,
+      explanation: saying.explanation || '',
+      selfhelp_book: {
+        name: book?.name || '不明な本'
+      }
+    };
+  });
 
   return {
     message: {
@@ -340,6 +362,27 @@ export const mockGetWordNumAPI = async (): Promise<ApiResult> => {
         id: englishDataMock.words.length
       }
     }
+  };
+};
+
+export const mockAddSayingAPI = async (params: any): Promise<ApiResult> => {
+  const { addSayingAPIRequest } = params;
+
+  if (!addSayingAPIRequest.book_id || addSayingAPIRequest.book_id === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00011)
+    };
+  }
+
+  if (!addSayingAPIRequest.saying || addSayingAPIRequest.saying === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00012)
+    };
+  }
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00016, addSayingAPIRequest.saying),
+    result: { id: 999 }
   };
 };
 
@@ -1203,5 +1246,150 @@ export const mockAddAntonymAPI = async (params: any): Promise<ApiResult> => {
       messageColor: 'success.light',
       isDisplay: true
     }
+  };
+};
+
+// Todo関連のモックデータ（メモリ上で管理）
+let todoMockData: Array<{ id: number; todo: string }> = [
+  { id: 1, todo: 'APIラッパーの実装を完了する' },
+  { id: 2, todo: 'モックデータの追加を完了する' },
+  { id: 3, todo: 'テストケースの作成' },
+  { id: 4, todo: 'ドキュメントの更新' }
+];
+
+export const mockAddTodoAPI = async (params: any): Promise<ApiResult> => {
+  const { addTodoAPIRequest } = params;
+
+  if (!addTodoAPIRequest.todo || addTodoAPIRequest.todo === '') {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  // 新しいIDを生成
+  const newId = todoMockData.length > 0 ? Math.max(...todoMockData.map((t) => t.id)) + 1 : 1;
+  const newTodo = { id: newId, todo: addTodoAPIRequest.todo };
+  // 新しい配列を作成して再代入（pushではなく）
+  todoMockData = [...todoMockData, newTodo];
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00025, newTodo.todo),
+    result: newTodo
+  };
+};
+
+export const mockDeleteTodoAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteTodoAPIRequestData } = params;
+
+  if (!deleteTodoAPIRequestData.id || deleteTodoAPIRequestData.id === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  const todoIndex = todoMockData.findIndex((t) => t.id === deleteTodoAPIRequestData.id);
+  if (todoIndex === -1) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00004)
+    };
+  }
+
+  const deletedTodo = todoMockData[todoIndex];
+  // 新しい配列を作成して再代入
+  todoMockData = todoMockData.filter((t) => t.id !== deleteTodoAPIRequestData.id);
+
+  return {
+    message: successMessage(MESSAGES.SUCCESS.MSG00009, String(deletedTodo.id)),
+    result: { id: deletedTodo.id, todo: deletedTodo.todo }
+  };
+};
+
+export const mockGetTodoListAPI = async (params: any): Promise<ApiResult> => {
+  return {
+    message: {
+      message: MESSAGES.SUCCESS.MSG00019,
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: todoMockData
+  };
+};
+
+// Todo日記のモックデータ（日付ごとに管理）
+const todoDiaryMockData: Record<string, { date: string; completed: boolean }[]> = {};
+
+export const mockAddTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
+  const { addTodoDiaryAPIRequest } = params;
+
+  if (!addTodoDiaryAPIRequest.date || !addTodoDiaryAPIRequest.todo_id) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  const date = addTodoDiaryAPIRequest.date;
+  if (!todoDiaryMockData[date]) {
+    todoDiaryMockData[date] = [];
+  }
+
+  todoDiaryMockData[date].push({
+    date: date,
+    completed: addTodoDiaryAPIRequest.completed || false
+  });
+
+  return {
+    message: {
+      message: `Todo日記を追加しました（日付: ${date}）`,
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: { date: date }
+  };
+};
+
+// Todoチェック状態のモックデータ（日付ごとに管理）
+const todoCheckStatusMockData: Record<string, number[]> = {};
+
+export const mockGetTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
+  const { getTodoCheckStatusAPIRequest } = params;
+
+  if (!getTodoCheckStatusAPIRequest.date) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  const date = getTodoCheckStatusAPIRequest.date;
+  const completedTodoIds = todoCheckStatusMockData[date] || [];
+
+  return {
+    message: {
+      message: 'Todoチェック状態を取得しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: { completedTodoIds }
+  };
+};
+
+export const mockSaveTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
+  const { saveTodoCheckStatusAPIRequest } = params;
+
+  if (!saveTodoCheckStatusAPIRequest.date) {
+    return {
+      message: errorMessage(MESSAGES.ERROR.MSG00001)
+    };
+  }
+
+  const date = saveTodoCheckStatusAPIRequest.date;
+  todoCheckStatusMockData[date] = saveTodoCheckStatusAPIRequest.completedTodoIds || [];
+
+  return {
+    message: {
+      message: 'Todoチェック状態を保存しました',
+      messageColor: 'success.light',
+      isDisplay: true
+    },
+    result: { date: date, completedTodoIds: todoCheckStatusMockData[date] }
   };
 };

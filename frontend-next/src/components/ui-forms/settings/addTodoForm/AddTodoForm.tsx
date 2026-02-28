@@ -6,7 +6,8 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { addTodoAPI, AddTodoAPIRequestDto } from 'quizzer-lib';
+import { AddTodoAPIRequestDto } from 'quizzer-lib';
+import { addTodoAPI } from '@/utils/api-wrapper';
 
 interface AddTodoFormProps {}
 

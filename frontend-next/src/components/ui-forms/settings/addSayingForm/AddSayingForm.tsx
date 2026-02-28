@@ -7,7 +7,8 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { addSayingAPI, AddSayingAPIRequestDto, initAddSayingMockData, PullDownOptionDto } from 'quizzer-lib';
+import { AddSayingAPIRequestDto, initAddSayingMockData, PullDownOptionDto } from 'quizzer-lib';
+import { addSayingAPI } from '@/utils/api-wrapper';
 
 interface AddSayingFormProps {
   booklistoption: PullDownOptionDto[];

@@ -181,6 +181,15 @@ export const getSayingAPI = async (params: any): Promise<ApiResult> => {
   return originalGetSayingAPI(params);
 };
 
+export const addSayingAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddSayingAPI(params);
+  }
+
+  const { addSayingAPI: originalAddSayingAPI } = await import('quizzer-lib');
+  return originalAddSayingAPI(params);
+};
+
 export const clearQuizAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     return mockAPI.mockClearQuizAPI(params);
@@ -543,8 +552,7 @@ export const addAntonymAPI = async (params: any): Promise<ApiResult> => {
 
 export const addTodoAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return { message: { message: 'Mock mode: Todo追加', messageColor: 'success.light', isDisplay: true } };
+    return mockAPI.mockAddTodoAPI(params);
   }
 
   const { addTodoAPI: originalAddTodoAPI } = await import('quizzer-lib');
@@ -553,8 +561,7 @@ export const addTodoAPI = async (params: any): Promise<ApiResult> => {
 
 export const deleteTodoAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return { message: { message: 'Mock mode: Todo削除', messageColor: 'success.light', isDisplay: true } };
+    return mockAPI.mockDeleteTodoAPI(params);
   }
 
   const { deleteTodoAPI: originalDeleteTodoAPI } = await import('quizzer-lib');
@@ -563,11 +570,7 @@ export const deleteTodoAPI = async (params: any): Promise<ApiResult> => {
 
 export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return {
-      message: { message: 'Mock mode: Todoリスト取得', messageColor: 'success.light', isDisplay: true },
-      result: []
-    };
+    return mockAPI.mockGetTodoListAPI(params);
   }
 
   const { getTodoListAPI: originalGetTodoListAPI } = await import('quizzer-lib');
@@ -576,8 +579,7 @@ export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
 
 export const addTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return { message: { message: 'Mock mode: Todo日記追加', messageColor: 'success.light', isDisplay: true } };
+    return mockAPI.mockAddTodoDiaryAPI(params);
   }
 
   const { addTodoDiaryAPI: originalAddTodoDiaryAPI } = await import('quizzer-lib');
@@ -586,11 +588,7 @@ export const addTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
 
 export const getTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return {
-      message: { message: 'Mock mode: Todoチェック状態取得', messageColor: 'success.light', isDisplay: true },
-      result: { completedTodoIds: [] }
-    };
+    return mockAPI.mockGetTodoCheckStatusAPI(params);
   }
 
   const { getTodoCheckStatusAPI: originalGetTodoCheckStatusAPI } = await import('quizzer-lib');
@@ -599,8 +597,7 @@ export const getTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => 
 
 export const saveTodoCheckStatusAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
-    // TODO: モック実装が必要な場合は追加
-    return { message: { message: 'Mock mode: Todoチェック状態保存', messageColor: 'success.light', isDisplay: true } };
+    return mockAPI.mockSaveTodoCheckStatusAPI(params);
   }
 
   const { saveTodoCheckStatusAPI: originalSaveTodoCheckStatusAPI } = await import('quizzer-lib');
