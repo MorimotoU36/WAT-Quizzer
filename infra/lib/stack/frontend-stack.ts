@@ -12,6 +12,7 @@ dotenv.config()
 
 type FrontendStackProps = {
   env: string
+  todoCheckStatusTableArn?: string
 }
 
 export class FrontendStack extends cdk.Stack {
@@ -118,7 +119,8 @@ export class FrontendStack extends cdk.Stack {
       this,
       props.env,
       this.s3Bucket.bucketName,
-      idPool.ref
+      idPool.ref,
+      props.todoCheckStatusTableArn
     )
     const unauthenticatedRole = makeUnauthenticatedQuizzerBucketIamRole(
       this,

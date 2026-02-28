@@ -6,13 +6,10 @@ import {
 } from 'quizzer-lib';
 
 @Injectable()
-export class WordTestPipe
-  implements
-    PipeTransform<
-      GetEnglishWordTestDataAPIRequestReceivedDto,
-      GetEnglishWordTestDataAPIRequestDto
-    >
-{
+export class WordTestPipe implements PipeTransform<
+  GetEnglishWordTestDataAPIRequestReceivedDto,
+  GetEnglishWordTestDataAPIRequestDto
+> {
   transform(
     wordTestRequestDTO: GetEnglishWordTestDataAPIRequestReceivedDto,
   ): GetEnglishWordTestDataAPIRequestDto {

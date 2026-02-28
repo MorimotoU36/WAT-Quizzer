@@ -2,7 +2,8 @@ import { InputLabel, MenuItem, Select } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
-import { addWordAPI, AddWordAPIRequestDto, PullDownOptionDto, Message } from 'quizzer-lib';
+import { AddWordAPIRequestDto, PullDownOptionDto, Message } from 'quizzer-lib';
+import { addWordAPI } from '@/utils/api-wrapper';
 import React from 'react';
 
 interface InputAddWordFormProps {

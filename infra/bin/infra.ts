@@ -21,9 +21,17 @@ const certificateStack = new CertificateStack(app, `${env}CertificateStack`, {
 })
 certificateStack.addDependency(dnsStack)
 
-const frontendStack = new FrontendStack(app, 'FrontendStack', {
-  env
+const backendStack = new BackendStack(app, 'BackendStack', {
+  env,
+  hostedZone: dnsStack.hostedZone
 })
+backendStack.addDependency(certificateStack)
+
+const frontendStack = new FrontendStack(app, 'FrontendStack', {
+  env,
+  todoCheckStatusTableArn: backendStack.todoCheckStatusTable.tableArn
+})
+frontendStack.addDependency(backendStack)
 
 const usEast1Stack = new UsEast1Stack(app, `UsEast1Stack`, {
   env,
@@ -32,11 +40,5 @@ const usEast1Stack = new UsEast1Stack(app, `UsEast1Stack`, {
   hostedZone: dnsStack.hostedZone
 })
 usEast1Stack.addDependency(frontendStack)
-
-const backendStack = new BackendStack(app, 'BackendStack', {
-  env,
-  hostedZone: dnsStack.hostedZone
-})
-backendStack.addDependency(certificateStack)
 
 new MockStack(app, 'MockStack', {})

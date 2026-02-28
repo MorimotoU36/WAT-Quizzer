@@ -30,13 +30,24 @@ async function bootstrapServer(): Promise<Server> {
       AppModule,
       new ExpressAdapter(expressApp),
     );
+    // CORS設定: OPTIONSリクエスト（プリフライト）を明示的に処理
     nestApp.use((req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', '*');
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
+      );
       res.header(
         'Access-Control-Allow-Methods',
         'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
       );
+      res.header('Access-Control-Max-Age', '3600');
+
+      // OPTIONSリクエスト（プリフライト）の場合は即座に200を返す
+      if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+      }
+
       next();
     });
     await nestApp.init();

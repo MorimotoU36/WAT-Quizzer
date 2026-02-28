@@ -5,7 +5,8 @@ import { DataGrid, GridRowSelectionModel, GridRowsProp } from '@mui/x-data-grid'
 import { meanColumns } from '../../../../../constants/contents/table/englishbot';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Button } from '@/components/ui-elements/button/Button';
-import { AssociateExampleandWordData, searchExampleAPI, submitAssociationExampleAPI } from 'quizzer-lib';
+import { AssociateExampleandWordData } from 'quizzer-lib';
+import { searchExampleAPI, submitAssociationExampleAPI } from '@/utils/api-wrapper';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 

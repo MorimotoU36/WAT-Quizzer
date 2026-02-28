@@ -8,14 +8,12 @@ import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {
   Message,
-  deleteEnglishWordSourceAPI,
-  editEnglishWordSourceAPI,
   EditWordSourceAPIRequestDto,
-  getWordDetailAPI,
   GetWordDetailAPIResponseDto,
   PullDownOptionDto,
   initEditWordSourceData
 } from 'quizzer-lib';
+import { deleteEnglishWordSourceAPI, editEnglishWordSourceAPI, getWordDetailAPI } from '@/utils/api-wrapper';
 
 interface SourceStackProps {
   sourceList: PullDownOptionDto[];

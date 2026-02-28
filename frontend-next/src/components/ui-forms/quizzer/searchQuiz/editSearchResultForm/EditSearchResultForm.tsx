@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FormControl, FormGroup, TextField } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from '@/utils/api-wrapper';
 
 interface EditSearchResultFormProps {
   checkedIdList: number[];

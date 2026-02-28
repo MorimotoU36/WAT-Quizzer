@@ -9,11 +9,9 @@ import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {
   GetWordDetailAPIResponseDto,
-  EditWordSubSourceAPIRequestDto,
-  editEnglishWordSubSourceAPI,
-  deleteEnglishWordSubSourceAPI,
-  getWordDetailAPI
+  EditWordSubSourceAPIRequestDto
 } from 'quizzer-lib';
+import { editEnglishWordSubSourceAPI, deleteEnglishWordSubSourceAPI, getWordDetailAPI } from '@/utils/api-wrapper';
 
 interface SubSourceStackProps {
   wordDetail: GetWordDetailAPIResponseDto;

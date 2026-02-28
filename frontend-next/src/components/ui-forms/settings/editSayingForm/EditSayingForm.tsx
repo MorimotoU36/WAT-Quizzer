@@ -9,9 +9,9 @@ import { messageState } from '@/atoms/Message';
 import { EditSayingAPIRequestDto, GetSayingRequest, GetSayingResponse } from 'quizzer-lib';
 import { editSayingAPI, getSayingAPI } from '@/utils/api-wrapper';
 
-interface EditSayingSectionProps {}
+interface EditSayingFormProps {}
 
-export const EditSayingSection = ({}: EditSayingSectionProps) => {
+export const EditSayingForm = ({}: EditSayingFormProps) => {
   const [getSayingRequestData, setSayingRequestData] = useState<GetSayingRequest>({ id: -1 });
   const [editSayingRequestData, setEditSayingRequestData] = useState<EditSayingAPIRequestDto>({ id: -1, saying: '' });
   const setMessage = useSetRecoilState(messageState);

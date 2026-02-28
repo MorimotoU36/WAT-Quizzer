@@ -366,6 +366,23 @@ model word_subsource {
   @@unique([word_id, subsource])
 }
 
+model todo {
+  id         Int       @id @default(autoincrement())
+  todo       String    @db.VarChar(256)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
+model todo_diary {
+  id         Int       @id @default(autoincrement())
+  date       String    @db.VarChar(256)
+  completed  Boolean   @default(false)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime? @db.Timestamp(6)
+}
+
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view category_view {
   file_num           Int

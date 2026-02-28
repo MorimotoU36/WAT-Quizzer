@@ -10,11 +10,9 @@ import {
   Message,
   AddEtymologyAPIRequestDto,
   GetWordDetailAPIResponseDto,
-  LinkWordEtymologyAPIRequestDto,
-  addEtymologyAPI,
-  getWordDetailAPI,
-  linkWordEtymologyAPI
+  LinkWordEtymologyAPIRequestDto
 } from 'quizzer-lib';
+import { addEtymologyAPI, getWordDetailAPI, linkWordEtymologyAPI } from '@/utils/api-wrapper';
 
 interface EtymologyStackProps {
   wordDetail: GetWordDetailAPIResponseDto;

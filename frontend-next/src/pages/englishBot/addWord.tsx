@@ -3,8 +3,6 @@ import { Container, FormGroup } from '@mui/material';
 import {
   AddWordAPIRequestDto,
   apiResponsePullDownAdapter,
-  getPartOfSpeechListAPI,
-  getSourceListAPI,
   PartofSpeechApiResponse,
   PullDownOptionDto,
   SourceApiResponse
@@ -15,6 +13,7 @@ import { AddMeanForm } from '@/components/ui-forms/englishbot/addWord/addMeanFor
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { InputAddWordForm } from '@/components/ui-forms/englishbot/addWord/inputAddWordForm/InputAddWordForm';
+import { getPartOfSpeechListAPI, getSourceListAPI } from '@/utils/api-wrapper';
 
 type Props = {
   isMock?: boolean;

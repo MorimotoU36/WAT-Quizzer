@@ -9,10 +9,9 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import {
   AddAntonymAPIRequestDto,
   GetWordDetailAPIResponseDto,
-  addAntonymAPI,
-  getWordDetailAPI,
   Message
 } from 'quizzer-lib';
+import { addAntonymAPI, getWordDetailAPI } from '@/utils/api-wrapper';
 import React from 'react';
 
 interface AntonymStackProps {

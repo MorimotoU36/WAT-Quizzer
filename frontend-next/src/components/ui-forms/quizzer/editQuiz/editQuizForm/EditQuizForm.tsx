@@ -1,11 +1,12 @@
 import React from 'react';
 import { CardContent, Input, Typography } from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
-import { editQuizAPI, EditQuizAPIRequestDto, initEditQuizRequestData, insertAtArray } from 'quizzer-lib';
+import { EditQuizAPIRequestDto, initEditQuizRequestData, insertAtArray } from 'quizzer-lib';
 import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import { editQuizAPI } from '@/utils/api-wrapper';
 
 interface EditQuizFormProps {
   editQuizRequestData: EditQuizAPIRequestDto;
@@ -183,7 +184,11 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
           setMessage(result.message);
           // TODO 成功時の判定法
           if (result.message.messageColor === 'success.light') {
-            setEditQuizRequestData(initEditQuizRequestData);
+            setEditQuizRequestData({
+              ...initEditQuizRequestData,
+              file_num: editQuizRequestData.file_num,
+              quiz_num: editQuizRequestData.quiz_num
+            });
           }
         }}
       />

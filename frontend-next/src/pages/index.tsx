@@ -3,44 +3,35 @@ import { Container } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { GetSayingResponse, initSayingResponseData } from 'quizzer-lib';
 import { getSayingAPI } from '@/utils/api-wrapper';
-import { isMockMode } from '@/utils/api-wrapper';
-import sayingData from '@/data/mock/sample-saying-data.json';
 import { Title } from '@/components/ui-elements/title/Title';
 import { TopButtonGroup } from '@/components/ui-forms/top/topButtonGroup/TopButtonGroup';
 import { SayingCard } from '@/components/ui-forms/top/sayingCard/SayingCard';
+import { TodoList } from '@/components/ui-forms/top/todoList/TodoList';
 import React from 'react';
 import { Layout } from '@/components/templates/layout/Layout';
 
 const inter = Inter({ subsets: ['latin'] });
 
-type Props = {
-  isMock?: boolean;
-};
+type Props = {};
 
-export default function Top({ isMock }: Props) {
+export default function Top({}: Props) {
   const [saying, setSaying] = useState<GetSayingResponse>(initSayingResponseData);
 
   useEffect(() => {
-    if (isMock || isMockMode()) {
-      // モック環境ではサンプルデータを使用
-      const randomSaying = sayingData.sayings[Math.floor(Math.random() * sayingData.sayings.length)];
-      setSaying(randomSaying);
-    } else {
-      // 本番環境ではAPIを呼び出し
-      Promise.all([
-        (async () => {
-          const result = await getSayingAPI({ getSayingRequestData: {} });
-          result.result && setSaying(result.result as GetSayingResponse);
-        })()
-      ]);
-    }
-  }, [isMock]);
+    Promise.all([
+      (async () => {
+        const result = await getSayingAPI({ getSayingRequestData: {} });
+        result.result && setSaying(result.result as GetSayingResponse);
+      })()
+    ]);
+  }, []);
 
   const content = (
     <Container>
       <Title label="WAT Quizzer"></Title>
       <TopButtonGroup />
       <SayingCard sayingResponse={saying} setSaying={setSaying} />
+      <TodoList />
     </Container>
   );
 

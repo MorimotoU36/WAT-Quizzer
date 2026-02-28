@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui-elements/card/Card';
-import { useEffect, useState } from 'react';
-import { AnswerLogStatisticsApiResponse, GetAnswerLogStatisticsAPIRequestDto } from 'quizzer-lib';
+import { useEffect, useState, useMemo } from 'react';
+import { AnswerLogStatisticsApiResponse, GetAnswerLogStatisticsAPIRequestDto, DateUnit } from 'quizzer-lib';
 import { getAnswerLogStatisticsDataAPI } from '@/utils/api-wrapper';
 import { Chart } from 'react-chartjs-2';
 import {
@@ -37,7 +37,14 @@ interface QuizAnswerLogStatisticsCardProps {
 
 export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatisticsCardProps) => {
   const [answerLogStatisticsData, setAnswerLogStatisticsData] = useState<AnswerLogStatisticsApiResponse[]>([]);
-  const [getAnswerLogStatisticsData, setRequestData] = useState<GetAnswerLogStatisticsAPIRequestDto>({});
+  const [dateUnit, setDateUnit] = useState<DateUnit | undefined>(undefined);
+
+  const getAnswerLogStatisticsData = useMemo<GetAnswerLogStatisticsAPIRequestDto>(() => {
+    return {
+      ...(file_num !== undefined && { file_num }),
+      ...(dateUnit !== undefined && { date_unit: dateUnit })
+    };
+  }, [file_num, dateUnit]);
 
   useEffect(() => {
     (async () => {
@@ -45,13 +52,6 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
       result.result && setAnswerLogStatisticsData(result.result as AnswerLogStatisticsApiResponse[]);
     })();
   }, [getAnswerLogStatisticsData]);
-
-  useEffect(() => {
-    setRequestData({
-      ...getAnswerLogStatisticsData,
-      file_num
-    });
-  }, [file_num]);
 
   const data: ChartData<'bar' | 'line', number[], string> = {
     labels: answerLogStatisticsData.map((x) => {
@@ -92,8 +92,8 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
           getAnswerLogStatisticsData.date_unit === 'month'
             ? 'ヶ月'
             : getAnswerLogStatisticsData.date_unit === 'week'
-            ? '週'
-            : '日'
+              ? '週'
+              : '日'
         }間の回答数`
       }
     }
@@ -104,12 +104,7 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
       <PullDown
         label={'日付単位'}
         optionList={DATE_UNIT_OPTION}
-        onChange={(e) =>
-          setRequestData({
-            ...getAnswerLogStatisticsData,
-            date_unit: e.target.value as 'day' | 'week' | 'month'
-          })
-        }
+        onChange={(e) => setDateUnit(e.target.value as DateUnit)}
       />
       <div className="h-[300px]">
         {answerLogStatisticsData.length > 0 ? <Chart type="bar" options={options} data={data} /> : <CircularProgress />}

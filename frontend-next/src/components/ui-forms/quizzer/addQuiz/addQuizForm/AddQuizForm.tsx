@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
-import {
-  addQuizAPI,
-  AddQuizAPIRequestDto,
-  AddQuizApiResponseDto,
-  initAddQuizRequestData,
-  insertAtArray
-} from 'quizzer-lib';
+import { AddQuizAPIRequestDto, AddQuizApiResponseDto, initAddQuizRequestData, insertAtArray } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -15,6 +9,7 @@ import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
+import { addQuizAPI } from '@/utils/api-wrapper';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
@@ -245,7 +240,12 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
           });
           setMessage(result.message);
           setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
-          result.message.messageColor === 'success.light' && setAddQuizRequestData(initAddQuizRequestData);
+          result.message.messageColor === 'success.light' &&
+            setAddQuizRequestData({
+              ...initAddQuizRequestData,
+              format_id: addQuizRequestData.format_id, // 問題種別のラジオボタンは初期化できないので保持
+              file_num: addQuizRequestData.file_num // 問題ファイル番号も保持
+            });
         }}
       />
     </>

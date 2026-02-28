@@ -3,14 +3,13 @@ import { useEffect, useState } from 'react';
 import { Layout } from '@/components/templates/layout/Layout';
 import { Title } from '@/components/ui-elements/title/Title';
 import { AddBookForm } from '@/components/ui-forms/settings/addBookForm/AddBookForm';
-import { AddSayingForm } from '@/components/ui-forms/settings/addSayingForm/AddSayingForm';
-import { SearchSayingSection } from '@/components/ui-forms/settings/searchSayingSection/SearchSayingSection';
-import { EditSayingSection } from '@/components/ui-forms/settings/editSayingSection/EditSayingSection';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { Card } from '@/components/ui-elements/card/Card';
 import { PullDownOptionDto } from 'quizzer-lib';
 import { listBookAPI } from '@/utils/api-wrapper';
+import { SayingSection } from '@/components/ui-forms/settings/sayingSection/SayingSection';
+import { TodoSection } from '@/components/ui-forms/settings/todoSection/TodoSection';
 
 type Props = {
   isMock?: boolean;
@@ -45,9 +44,8 @@ export default function Settings({ isMock }: Props) {
         <Card variant="outlined" header="格言設定" attr={['margin-vertical', 'padding']}>
           <CardContent>
             <AddBookForm setBooklistoption={setBooklistoption} />
-            <AddSayingForm booklistoption={booklistoption} />
-            <SearchSayingSection />
-            <EditSayingSection />
+            <SayingSection booklistoption={booklistoption} />
+            <TodoSection />
           </CardContent>
         </Card>
       </Container>

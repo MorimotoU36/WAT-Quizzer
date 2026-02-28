@@ -12,9 +12,12 @@ export const DisplaySentence = ({ checked, sentence, color, id, ...props }: Disp
   return (
     <Typography variant="subtitle1" component="h2" color={color} id={id} {...props}>
       {checked ? '✅' : ''}
-      {sentence.split(/(\n)/).map((item, index) => {
-        return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
-      })}
+      {sentence
+        .replaceAll('\\n', '\n')
+        .split(/(\n)/)
+        .map((item, index) => {
+          return <React.Fragment key={index}>{item.match(/\n/) ? <br /> : item}</React.Fragment>;
+        })}
     </Typography>
   );
 };
