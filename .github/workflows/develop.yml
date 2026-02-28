@@ -111,6 +111,9 @@ jobs:
       - name: Next.js Build and Export(Frontend)
         run: cd ./frontend-next && npm run export
 
+      - name: Build Storybook
+        run: rm -rf storybook-static && npm run build-storybook && mkdir -p out/storybook && cp -r storybook-static/* out/storybook/
+
       - name: Deploy backend stack
         id: cdk-deploy-backend
         run: cd ./infra && npx cdk deploy BackendStack --require-approval never
