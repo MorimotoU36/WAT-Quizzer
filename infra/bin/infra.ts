@@ -41,4 +41,9 @@ const usEast1Stack = new UsEast1Stack(app, `UsEast1Stack`, {
 })
 usEast1Stack.addDependency(frontendStack)
 
-new MockStack(app, 'MockStack', {})
+const mockStack = new MockStack(app, 'MockStack', {
+  env,
+  mockCertificate: certificateStack.mockCertificate,
+  hostedZone: dnsStack.hostedZone
+})
+mockStack.addDependency(certificateStack)
