@@ -65,7 +65,8 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
         }),
         backgroundColor: ANSWER_LOG_HISTGRAM_COLOR[0],
         type: 'bar',
-        order: 2
+        order: 2,
+        yAxisID: 'y'
       },
       {
         label: ANSWER_LOG_HISTGRAM_LABEL[1],
@@ -74,7 +75,8 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
         }),
         backgroundColor: ANSWER_LOG_HISTGRAM_COLOR[1],
         type: 'line',
-        order: 1
+        order: 1,
+        yAxisID: 'y1'
       }
     ]
   };
@@ -95,6 +97,29 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
               ? '週'
               : '日'
         }間の回答数`
+      }
+    },
+    scales: {
+      y: {
+        type: 'linear' as const,
+        position: 'left' as const,
+        title: {
+          display: true,
+          text: ANSWER_LOG_HISTGRAM_LABEL[0]
+        }
+      },
+      y1: {
+        type: 'linear' as const,
+        position: 'right' as const,
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: ANSWER_LOG_HISTGRAM_LABEL[1] + '(%)'
+        },
+        grid: {
+          drawOnChartArea: false
+        }
       }
     }
   };
