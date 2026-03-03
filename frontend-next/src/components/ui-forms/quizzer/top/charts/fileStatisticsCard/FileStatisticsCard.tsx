@@ -36,7 +36,7 @@ export const FileStatisticsCard = ({ file_num }: FileStatisticsCardProps) => {
       ]
     : [];
   const data = {
-    DOUGHNUT_CHART_LABEL,
+    labels: DOUGHNUT_CHART_LABEL,
     datasets
   };
 
@@ -44,13 +44,22 @@ export const FileStatisticsCard = ({ file_num }: FileStatisticsCardProps) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'left' as const
+        display: false
       },
       title: {
         display: true,
         text: `問題ファイル統計(${quizFileStatisticsData ? quizFileStatisticsData.file_nickname : 'null'}): ${
           quizFileStatisticsData ? quizFileStatisticsData.count : '0'
         }問中`
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            return `${label}: ${value}`;
+          }
+        }
       }
     }
   };
