@@ -75,7 +75,55 @@ export const columns = [
     headerName: '正解率(%)',
     sortable: true,
     type: 'number',
-    width: 100
+    width: 100,
+    renderCell: (params: GridRenderCellParams<any>) => {
+      const accuracyRate = params.value as number;
+      // 0~100の値を0~1に正規化
+      const normalized = Math.max(0, Math.min(100, accuracyRate || 0)) / 100;
+
+      // 背景色を計算: 0に近いほど黒に近い、100に近いほど黄緑色
+      // より滑らかなグラデーションを作成
+      let red: number;
+      let green: number;
+      let blue: number;
+
+      if (normalized < 0.5) {
+        // 0~50%: 黒から赤へのグラデーション
+        const t = normalized * 2; // 0~1に変換
+        red = Math.round(100 + 80 * t); // 100~180
+        green = Math.round(20 * t); // 0~20
+        blue = Math.round(20 * t); // 0~20
+      } else {
+        // 50~100%: 赤から黄緑へのグラデーション
+        const t = (normalized - 0.5) * 2; // 0~1に変換
+        red = Math.round(180 - 100 * t); // 180~80
+        green = Math.round(20 + 235 * t); // 20~255
+        blue = Math.round(20 - 20 * t); // 20~0
+      }
+
+      // テキストの色を決定（背景が暗い場合は白、明るい場合は黒）
+      const brightness = (red * 299 + green * 587 + blue * 114) / 1000;
+      const textColor = brightness > 128 ? '#000000' : '#ffffff';
+
+      return (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: `rgb(${red}, ${green}, ${blue})`,
+            color: textColor,
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontWeight: 'bold'
+          }}
+        >
+          {accuracyRate !== null && accuracyRate !== undefined ? `${accuracyRate.toFixed(1)}%` : '-'}
+        </div>
+      );
+    }
   },
   {
     field: 'img_file',
