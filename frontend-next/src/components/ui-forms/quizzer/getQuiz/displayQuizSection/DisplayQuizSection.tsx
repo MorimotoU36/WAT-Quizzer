@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { Button as MuiButton, CardActions, CardContent, Collapse, Typography, IconButton } from '@mui/material';
+import {
+  Button as MuiButton,
+  CardActions,
+  CardContent,
+  Collapse,
+  Typography,
+  IconButton,
+  Checkbox,
+  FormControlLabel
+} from '@mui/material';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
@@ -26,13 +35,22 @@ export const DisplayQuizSection = ({
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
+  const [hideAccuracyRate, setHideAccuracyRate] = useState<boolean>(false);
   const prevQuizSentenseRef = useRef<string>(getQuizResponseData.quiz_sentense);
   const displayQuiz = useMemo(() => {
+    const generated = generateQuizSentense(getQuizResponseData);
+    // チェックボックスがONの時（hideAccuracyRateがtrue）は正解率を削除
+    let quizSentense = generated.quiz_sentense || '';
+    if (hideAccuracyRate && quizSentense) {
+      // 正解率のパターン (正解率XX.XX%) を削除
+      quizSentense = quizSentense.replace(/\(正解率[\d.]+%\)/g, '');
+    }
     return {
       ...getQuizResponseData,
-      ...generateQuizSentense(getQuizResponseData)
+      ...generated,
+      quiz_sentense: quizSentense
     };
-  }, [getQuizResponseData]);
+  }, [getQuizResponseData, hideAccuracyRate]);
   const router = useRouter();
 
   const handleExpandClick = () => {
@@ -40,38 +58,48 @@ export const DisplayQuizSection = ({
   };
 
   // 出題変わったら閉じる
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useMemo(() => {
+  useEffect(() => {
     if (prevQuizSentenseRef.current !== getQuizResponseData.quiz_sentense) {
       prevQuizSentenseRef.current = getQuizResponseData.quiz_sentense;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setExpanded(false);
       setImageUrl && setImageUrl('');
     }
-    // Returning getQuizResponseData.quiz_sentense to satisfy eslint rules for effect dependencies.
-    return getQuizResponseData.quiz_sentense;
   }, [getQuizResponseData.quiz_sentense, setImageUrl]);
 
   return (
     <>
       <Card variant="outlined">
         <CardContent className="!m-[8px] shadow-lg bg-gray-100">
-          <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
-            問題
-            {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
-            {displayQuiz.file_num !== -1 && displayQuiz.quiz_num !== -1 && (
-              <IconButton
-                aria-label={`${displayQuiz.file_num}-${displayQuiz.quiz_num}`}
-                onClick={() => {
-                  router.push({
-                    pathname: '/quizzer/editQuiz',
-                    query: { file_num: displayQuiz.file_num, quiz_num: displayQuiz.quiz_num }
-                  });
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            )}
-          </Typography>
+          <div className="flex items-center justify-between mb-2">
+            <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
+              問題
+              {/**TODO このアイコンをコンポーネント化する　検索テーブルの方でも同じの使ってるから */}
+              {displayQuiz.file_num !== -1 && displayQuiz.quiz_num !== -1 && (
+                <IconButton
+                  aria-label={`${displayQuiz.file_num}-${displayQuiz.quiz_num}`}
+                  onClick={() => {
+                    router.push({
+                      pathname: '/quizzer/editQuiz',
+                      query: { file_num: displayQuiz.file_num, quiz_num: displayQuiz.quiz_num }
+                    });
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              )}
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hideAccuracyRate}
+                  onChange={(e) => setHideAccuracyRate(e.target.checked)}
+                  size="small"
+                />
+              }
+              label="正解率を非表示"
+            />
+          </div>
           <DisplaySentence checked={getQuizResponseData.checked} sentence={displayQuiz.quiz_sentense} />
           {imageUrl && (
             <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
