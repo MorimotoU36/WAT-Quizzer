@@ -13,8 +13,13 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { generateQuizSentense, GetQuizApiResponseDto, initGetQuizResponseData } from 'quizzer-lib';
-import { clearQuizAPI, failQuizAPI, reverseCheckQuizAPI } from '@/utils/api-wrapper';
+import {
+  generateQuizSentense,
+  GetQuizApiResponseDto,
+  initGetQuizResponseData,
+  GetImageOfQuizAPIResponseDto
+} from 'quizzer-lib';
+import { clearQuizAPI, failQuizAPI, reverseCheckQuizAPI, getImageOfQuizAPI } from '@/utils/api-wrapper';
 import { Chip } from '@/components/ui-elements/chip/Chip';
 import { DisplaySentence } from '@/components/ui-elements/sentence/DisplaySentence';
 import EditIcon from '@mui/icons-material/Edit';
@@ -36,6 +41,7 @@ export const DisplayQuizSection = ({
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [hideAccuracyRate, setHideAccuracyRate] = useState<boolean>(false);
+  const [autoDisplayImage, setAutoDisplayImage] = useState<boolean>(false);
   const prevQuizSentenseRef = useRef<string>(getQuizResponseData.quiz_sentense);
   const displayQuiz = useMemo(() => {
     const generated = generateQuizSentense(getQuizResponseData);
@@ -57,15 +63,29 @@ export const DisplayQuizSection = ({
     setExpanded(!expanded);
   };
 
-  // 出題変わったら閉じる
+  // 出題変わったら閉じる、画像自動表示の場合は画像を取得
   useEffect(() => {
     if (prevQuizSentenseRef.current !== getQuizResponseData.quiz_sentense) {
       prevQuizSentenseRef.current = getQuizResponseData.quiz_sentense;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       setExpanded(false);
       setImageUrl && setImageUrl('');
+
+      // 自動画像表示がONで、画像ファイル名がある場合は自動的に画像を取得
+      if (autoDisplayImage && getQuizResponseData.img_file && setImageUrl) {
+        (async () => {
+          setMessage({ message: '画像取得中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await getImageOfQuizAPI({
+            getImageOfQuizRequestData: { fileName: getQuizResponseData.img_file || '' }
+          });
+          setMessage(result.message);
+          if (result.result) {
+            const res = result.result as GetImageOfQuizAPIResponseDto;
+            setImageUrl(res.imageUrl);
+          }
+        })();
+      }
     }
-  }, [getQuizResponseData.quiz_sentense, setImageUrl]);
+  }, [getQuizResponseData.quiz_sentense, getQuizResponseData.img_file, autoDisplayImage, setImageUrl, setMessage]);
 
   return (
     <>
@@ -89,16 +109,28 @@ export const DisplayQuizSection = ({
                 </IconButton>
               )}
             </Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={hideAccuracyRate}
-                  onChange={(e) => setHideAccuracyRate(e.target.checked)}
-                  size="small"
-                />
-              }
-              label="正解率を非表示"
-            />
+            <div className="flex gap-4">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={hideAccuracyRate}
+                    onChange={(e) => setHideAccuracyRate(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label="正解率を非表示"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={autoDisplayImage}
+                    onChange={(e) => setAutoDisplayImage(e.target.checked)}
+                    size="small"
+                  />
+                }
+                label="画像を自動表示"
+              />
+            </div>
           </div>
           <DisplaySentence checked={getQuizResponseData.checked} sentence={displayQuiz.quiz_sentense} />
           {imageUrl && (
