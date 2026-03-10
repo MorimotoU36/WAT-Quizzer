@@ -21,7 +21,6 @@ import {
   MESSAGES,
   AnswerLogStatisticsApiResponse,
   getTodayStart,
-  getPrismaFromPastDayRange,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -54,6 +53,7 @@ export class QuizService {
         category,
         checked,
         format_id,
+        keyword,
       } = req;
       // カテゴリは複数選択でカンマ区切りされてるので分割する
       const categories = category && category.split(',').map((s) => s.trim());
@@ -114,6 +114,20 @@ export class QuizService {
                     checked: true,
                   }
                 : {}),
+              ...(keyword && {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: keyword,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: keyword,
+                    },
+                  },
+                ],
+              }),
             }
           : {
               file_num,
@@ -126,6 +140,20 @@ export class QuizService {
                 },
               }),
               deleted_at: null,
+              ...(keyword && {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: keyword,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: keyword,
+                    },
+                  },
+                ],
+              }),
             };
       const orderBy =
         method === 'worstRate'
