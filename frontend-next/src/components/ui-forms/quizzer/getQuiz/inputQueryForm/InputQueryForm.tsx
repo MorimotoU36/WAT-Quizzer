@@ -46,6 +46,19 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
       </FormControl>
 
       <FormControl className="max-w-full">
+        <TextField
+          label="キーワード"
+          value={getQuizRequestData.keyword || ''}
+          setStater={(value: string) => {
+            setQuizRequestData({
+              ...getQuizRequestData,
+              keyword: value
+            });
+          }}
+        />
+      </FormControl>
+
+      <FormControl className="max-w-full">
         <MultiSelectPullDown
           label={'カテゴリ'}
           optionList={categorylistoption}
