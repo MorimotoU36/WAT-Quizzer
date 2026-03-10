@@ -7,10 +7,15 @@ import { useAccuracyGraphForm } from '@/contexts/AccuracyGraphFormContext';
 
 export const AccuracyRateGraphContent = () => {
   const { getCategoryRateData } = useAccuracyGraphForm();
-  const { accuracyData } = useAccuracyRateByCategory(getCategoryRateData);
+  const { accuracyData, fetchAccuracyData } = useAccuracyRateByCategory();
+
+  const handleDisplayClick = () => {
+    fetchAccuracyData(getCategoryRateData);
+  };
+
   return (
     <Container>
-      <GetAccuracyGraphForm />
+      <GetAccuracyGraphForm onDisplayClick={handleDisplayClick} />
       <DisplayAccuracyChart accuracyData={accuracyData} />
     </Container>
   );
