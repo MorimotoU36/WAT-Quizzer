@@ -71,38 +71,41 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
         />
       </FormControl>
 
-      <FormControl>
-        <CheckboxGroup
-          checkboxProps={quizFormatListoption.map((x) => {
-            return {
-              value: String(x.id),
-              label: x.name
-            };
-          })}
-          setQueryofQuizStater={(checkBoxValue, checked) => {
-            setQuizRequestData({
-              ...getQuizRequestData,
-              format_id: {
-                ...getQuizRequestData.format_id,
-                [checkBoxValue]: checked
-              }
-            });
-          }}
-          label={'問題種別'}
-        />
-      </FormControl>
-
-      <FormControl>
-        <Checkbox
-          value="only-checked"
-          label="チェック済から出題"
-          onChange={(e) => {
-            setQuizRequestData({
-              ...getQuizRequestData,
-              checked: e.target.checked
-            });
-          }}
-        />
+      <FormControl className="!block">
+        <div className="flex flex-row items-start gap-4 flex-nowrap">
+          <div className="flex-shrink-0 !inline-flex">
+            <CheckboxGroup
+              checkboxProps={quizFormatListoption.map((x) => {
+                return {
+                  value: String(x.id),
+                  label: x.name
+                };
+              })}
+              setQueryofQuizStater={(checkBoxValue, checked) => {
+                setQuizRequestData({
+                  ...getQuizRequestData,
+                  format_id: {
+                    ...getQuizRequestData.format_id,
+                    [checkBoxValue]: checked
+                  }
+                });
+              }}
+              label={'問題種別'}
+            />
+          </div>
+          <div className="flex-shrink-0 flex items-center">
+            <Checkbox
+              value="only-checked"
+              label="チェック済から出題"
+              onChange={(e) => {
+                setQuizRequestData({
+                  ...getQuizRequestData,
+                  checked: e.target.checked
+                });
+              }}
+            />
+          </div>
+        </div>
       </FormControl>
     </FormGroup>
   );
