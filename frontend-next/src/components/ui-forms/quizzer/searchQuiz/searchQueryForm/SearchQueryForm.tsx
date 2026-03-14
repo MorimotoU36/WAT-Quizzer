@@ -179,44 +179,47 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           />
         </FormControl>
 
-        <FormControl>
-          <CheckboxGroup
-            checkboxProps={quizFormatListoption.map((x) => {
-              return {
-                value: String(x.id),
-                label: x.name,
-                checked: !!(searchQuizRequestData.format_id && searchQuizRequestData.format_id[String(x.id)])
-              };
-            })}
-            setQueryofQuizStater={(checkBoxValue, checked) => {
-              const setData = {
-                ...searchQuizRequestData,
-                format_id: {
-                  ...searchQuizRequestData.format_id,
-                  [checkBoxValue]: checked
-                }
-              };
-              setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
-            }}
-            label={'問題種別'}
-          />
-        </FormControl>
-
-        <FormControl>
-          <Checkbox
-            value="only-checked"
-            label="チェック済のみ検索"
-            checked={!!searchQuizRequestData.checked}
-            onChange={(e) => {
-              const setData = {
-                ...searchQuizRequestData,
-                checked: e.target.checked
-              };
-              setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
-            }}
-          />
+        <FormControl className="!block">
+          <div className="flex flex-row items-start gap-4 flex-nowrap">
+            <div className="flex-shrink-0 !inline-flex">
+              <CheckboxGroup
+                checkboxProps={quizFormatListoption.map((x) => {
+                  return {
+                    value: String(x.id),
+                    label: x.name,
+                    checked: !!(searchQuizRequestData.format_id && searchQuizRequestData.format_id[String(x.id)])
+                  };
+                })}
+                setQueryofQuizStater={(checkBoxValue, checked) => {
+                  const setData = {
+                    ...searchQuizRequestData,
+                    format_id: {
+                      ...searchQuizRequestData.format_id,
+                      [checkBoxValue]: checked
+                    }
+                  };
+                  setSearchQuizRequestData(setData);
+                  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+                }}
+                label={'問題種別'}
+              />
+            </div>
+            <div className="flex-shrink-0 flex items-center">
+              <Checkbox
+                value="only-checked"
+                label="チェック済のみ検索"
+                checked={!!searchQuizRequestData.checked}
+                onChange={(e) => {
+                  const setData = {
+                    ...searchQuizRequestData,
+                    checked: e.target.checked
+                  };
+                  setSearchQuizRequestData(setData);
+                  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+                }}
+              />
+            </div>
+          </div>
         </FormControl>
       </FormGroup>
       <Button
