@@ -702,18 +702,41 @@ export class QuizService {
                 checked: true,
               }
             : {}),
-          ...(xor(searchInOnlySentense, searchInOnlyAnswer) &&
-          searchInOnlySentense
-            ? {
-                quiz_sentense: {
-                  contains: query,
-                },
+          ...(query &&
+            query !== '' &&
+            (() => {
+              // searchInOnlySentenseのみがtrueの場合：問題文のみ
+              if (searchInOnlySentense && !searchInOnlyAnswer) {
+                return {
+                  quiz_sentense: {
+                    contains: query,
+                  },
+                };
               }
-            : {
-                answer: {
-                  contains: query,
-                },
-              }),
+              // searchInOnlyAnswerのみがtrueの場合：答えのみ
+              if (!searchInOnlySentense && searchInOnlyAnswer) {
+                return {
+                  answer: {
+                    contains: query,
+                  },
+                };
+              }
+              // 両方trueまたは両方falseの場合：問題文または答え（OR条件）
+              return {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: query,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: query,
+                    },
+                  },
+                ],
+              };
+            })()),
         },
         orderBy: {
           quiz_num: 'asc',
