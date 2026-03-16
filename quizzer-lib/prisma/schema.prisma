@@ -37,6 +37,18 @@ model avg_lines_log {
   deleted_at  DateTime? @db.Timestamp(6)
 }
 
+model category {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(256)
+  file_num   Int
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime? @db.Timestamp(6)
+  quiz_file  quiz_file @relation(fields: [file_num], references: [file_num])
+
+  @@unique([name, file_num])
+}
+
 model englishbot_answer_log {
   id         Int       @id @default(autoincrement())
   word_id    Int
@@ -173,12 +185,13 @@ model quiz_explanation {
 }
 
 model quiz_file {
-  file_num      Int       @id @default(autoincrement())
-  file_name     String    @unique @db.VarChar(256)
-  file_nickname String    @unique @db.VarChar(256)
-  created_at    DateTime  @default(now()) @db.Timestamp(6)
-  updated_at    DateTime  @updatedAt
-  deleted_at    DateTime? @db.Timestamp(6)
+  file_num      Int        @id @default(autoincrement())
+  file_name     String     @unique @db.VarChar(256)
+  file_nickname String     @unique @db.VarChar(256)
+  created_at    DateTime   @default(now()) @db.Timestamp(6)
+  updated_at    DateTime   @updatedAt
+  deleted_at    DateTime?  @db.Timestamp(6)
+  category      category[]
 }
 
 model quiz_format {
