@@ -119,16 +119,6 @@ erDiagram
     }
   
 
-  "quiz_category" {
-    Int id "🗝️"
-    String category "❓"
-    DateTime created_at 
-    DateTime updated_at 
-    DateTime deleted_at "❓"
-    Int quiz_id 
-    }
-  
-
   "quiz_dependency" {
     Int id "🗝️"
     Int preliminary_quiz_id 
@@ -425,8 +415,8 @@ erDiagram
   
     "answer_log" }o--|| "quiz" : "quiz"
     "category" }o--|| "quiz_file" : "quiz_file"
-    "category_quiz" }o--|| "quiz" : "quiz"
     "category_quiz" }o--|| "category" : "category"
+    "category_quiz" }o--|| "quiz" : "quiz"
     "englishbot_answer_log" }o--|| "word" : "word"
     "example_explanation" }o--|| "example" : "example"
     "mean" }o--|| "partsofspeech" : "partsofspeech"
@@ -435,7 +425,6 @@ erDiagram
     "quiz" }o--|o "quiz_statistics_view" : "quiz_statistics_view"
     "quiz_basis_advanced_linkage" }o--|| "quiz" : "quiz_advanced_link"
     "quiz_basis_advanced_linkage" }o--|| "quiz" : "quiz_basis_link"
-    "quiz_category" }o--|| "quiz" : "quiz"
     "quiz_dummy_choice" }o--|| "quiz" : "quiz"
     "quiz_explanation" |o--|| "quiz" : "quiz"
     "saying" }o--|| "selfhelp_book" : "selfhelp_book"
