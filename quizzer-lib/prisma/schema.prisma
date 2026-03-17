@@ -38,15 +38,29 @@ model avg_lines_log {
 }
 
 model category {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(256)
-  file_num   Int
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime? @db.Timestamp(6)
-  quiz_file  quiz_file @relation(fields: [file_num], references: [file_num])
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(256)
+  file_num      Int
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  updated_at    DateTime        @updatedAt
+  deleted_at    DateTime?       @db.Timestamp(6)
+  quiz_file     quiz_file       @relation(fields: [file_num], references: [file_num])
+  category_quiz category_quiz[]
 
   @@unique([name, file_num])
+}
+
+model category_quiz {
+  id          Int       @id @default(autoincrement())
+  quiz_id     Int
+  category_id Int
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Timestamp(6)
+  quiz        quiz      @relation(fields: [quiz_id], references: [id])
+  category    category  @relation(fields: [category_id], references: [id])
+
+  @@unique([quiz_id, category_id])
 }
 
 model englishbot_answer_log {
@@ -125,6 +139,7 @@ model quiz {
   quiz_dummy_choice     quiz_dummy_choice[]
   quiz_explanation      quiz_explanation?
   quiz_statistics_view  quiz_statistics_view?         @relation(fields: [id], references: [id])
+  category_quiz         category_quiz[]
 
   @@unique([file_num, quiz_num])
 }
