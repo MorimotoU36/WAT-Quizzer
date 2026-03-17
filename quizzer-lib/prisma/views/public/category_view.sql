@@ -1,6 +1,6 @@
 SELECT
   q.file_num,
-  qc.category,
+  c.name AS category,
   count(*) AS count,
   sum(qv.clear_count) AS sum_of_clear_count,
   sum(qv.fail_count) AS sum_of_fail_count,
@@ -15,12 +15,20 @@ SELECT
 FROM
   (
     (
-      quiz q
-      JOIN quiz_category qc ON (
+      (
+        quiz q
+        JOIN category_quiz cq ON (
+          (
+            (q.id = cq.quiz_id)
+            AND (q.deleted_at IS NULL)
+            AND (cq.deleted_at IS NULL)
+          )
+        )
+      )
+      JOIN category c ON (
         (
-          (q.id = qc.quiz_id)
-          AND (q.deleted_at IS NULL)
-          AND (qc.deleted_at IS NULL)
+          (cq.category_id = c.id)
+          AND (c.deleted_at IS NULL)
         )
       )
     )
@@ -33,7 +41,7 @@ FROM
   )
 GROUP BY
   q.file_num,
-  qc.category
+  c.name
 ORDER BY
   q.file_num,
-  qc.category;
+  c.name;
