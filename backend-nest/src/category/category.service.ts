@@ -11,17 +11,22 @@ export class CategoryService {
   // カテゴリリスト(ファイルごと)取得
   async getCategoryList(file_num: number) {
     try {
-      return await prisma.category_view.findMany({
+      const categories = await prisma.category.findMany({
         where: {
           file_num,
+          deleted_at: null,
         },
         select: {
-          category: true,
+          name: true,
         },
         orderBy: {
-          category: 'asc',
+          name: 'asc',
         },
       });
+      // レスポンス形式を維持（category プロパティ名で返す）
+      return categories.map((c) => ({
+        category: c.name,
+      }));
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -74,9 +79,14 @@ export class CategoryService {
           quiz: {
             select: {
               file_num: true,
-              quiz_category: {
+              category_quiz: {
                 select: {
-                  category: true,
+                  deleted_at: true,
+                  category: {
+                    select: {
+                      name: true,
+                    },
+                  },
                 },
               },
             },
@@ -104,9 +114,9 @@ export class CategoryService {
       }
       for (const log of categorylogs) {
         const file_num = log.quiz.file_num;
-        const categories = log.quiz.quiz_category.map(
-          (c) => c.category ?? '未分類',
-        );
+        const categories = log.quiz.category_quiz
+          .filter((c) => !c.deleted_at)
+          .map((c) => c.category.name ?? '未分類');
 
         for (const category of categories) {
           const key = `${file_num}+${category}`;
