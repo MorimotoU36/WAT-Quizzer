@@ -30,9 +30,16 @@ jest.mock('quizzer-lib', () => {
       findFirst: jest.fn(),
       update: jest.fn(),
     },
-    quiz_category: {
+    category: {
+      upsert: jest.fn(),
+      findUnique: jest.fn(),
+    },
+    category_quiz: {
+      create: jest.fn(),
       updateMany: jest.fn(),
       upsert: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
     },
   };
   return {
@@ -286,6 +293,8 @@ describe('QuizService', () => {
     ];
     (prisma.quiz.findFirst as jest.Mock).mockResolvedValue(testResult);
     (prisma.quiz.create as jest.Mock).mockResolvedValue(correctData);
+    (prisma.category as any).upsert.mockResolvedValue({ id: 1 });
+    (prisma.category_quiz as any).create.mockResolvedValue({});
     expect(await quizService.add(req)).toEqual(correctData);
   });
 
@@ -341,7 +350,7 @@ describe('QuizService', () => {
 
   // 問題検索 正常系1
   it('search - OK', async () => {
-    // モックとして返すDBのクイズデータ
+    // モックとして返すDBのクイズデータ（category_quizはネスト構造）
     const dbResult = [
       {
         id: 1,
@@ -350,7 +359,7 @@ describe('QuizService', () => {
         quiz_num: 1,
         quiz_sentense: '問題文',
         answer: '答え',
-        quiz_category: [{ category: 'カテゴリ', deleted_at: null }],
+        category_quiz: [{ category: { name: 'カテゴリ' }, deleted_at: null }],
         quiz_format: { name: '四択' },
         quiz_statistics_view: {
           accuracy_rate: 80,
@@ -360,7 +369,7 @@ describe('QuizService', () => {
       },
     ];
 
-    // 期待するsearchメソッドの返り値（accuracy_rateがstring化されていることに注意）
+    // 期待するsearchメソッドの返り値（accuracy_rateがstring化、quiz_categoryにマップされる）
     const expectedResult = [
       {
         id: 1,
@@ -369,7 +378,7 @@ describe('QuizService', () => {
         quiz_num: 1,
         quiz_sentense: '問題文',
         answer: '答え',
-        quiz_category: [{ category: 'カテゴリ', deleted_at: null }],
+        quiz_category: [{ category: 'カテゴリ' }],
         quiz_format: { name: '四択' },
         quiz_statistics_view: {
           accuracy_rate: '80',
