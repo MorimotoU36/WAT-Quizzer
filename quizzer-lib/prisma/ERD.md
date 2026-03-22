@@ -32,6 +32,16 @@ erDiagram
     }
   
 
+  "category_parent_child" {
+    Int id "🗝️"
+    Int parent_category_id 
+    Int child_category_id 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
   "category_quiz" {
     Int id "🗝️"
     Int quiz_id 
@@ -415,6 +425,8 @@ erDiagram
   
     "answer_log" }o--|| "quiz" : "quiz"
     "category" }o--|| "quiz_file" : "quiz_file"
+    "category_parent_child" }o--|| "category" : "parent_category"
+    "category_parent_child" }o--|| "category" : "child_category"
     "category_quiz" }o--|| "category" : "category"
     "category_quiz" }o--|| "quiz" : "quiz"
     "englishbot_answer_log" }o--|| "word" : "word"

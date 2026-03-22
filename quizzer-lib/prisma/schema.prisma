@@ -38,16 +38,31 @@ model avg_lines_log {
 }
 
 model category {
-  id            Int             @id @default(autoincrement())
-  name          String          @db.VarChar(256)
-  file_num      Int
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime        @updatedAt
-  deleted_at    DateTime?       @db.Timestamp(6)
-  quiz_file     quiz_file       @relation(fields: [file_num], references: [file_num])
-  category_quiz category_quiz[]
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @db.VarChar(256)
+  file_num               Int
+  created_at             DateTime                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime                @updatedAt
+  deleted_at             DateTime?               @db.Timestamp(6)
+  quiz_file              quiz_file               @relation(fields: [file_num], references: [file_num])
+  category_quiz          category_quiz[]
+  parent_child_as_parent category_parent_child[] @relation("CategoryAsParent")
+  parent_child_as_child  category_parent_child[] @relation("CategoryAsChild")
 
   @@unique([name, file_num])
+}
+
+model category_parent_child {
+  id                 Int       @id @default(autoincrement())
+  parent_category_id Int
+  child_category_id  Int
+  created_at         DateTime  @default(now()) @db.Timestamp(6)
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime? @db.Timestamp(6)
+  parent_category    category  @relation("CategoryAsParent", fields: [parent_category_id], references: [id])
+  child_category     category  @relation("CategoryAsChild", fields: [child_category_id], references: [id])
+
+  @@unique([parent_category_id, child_category_id])
 }
 
 model category_quiz {
