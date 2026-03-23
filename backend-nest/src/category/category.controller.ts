@@ -1,7 +1,10 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
   UsePipes,
@@ -96,5 +99,47 @@ export class CategoryController {
       query.endDate,
       query.format_id,
     );
+  }
+
+  @ApiOperation({
+    summary: 'カテゴリ親子関係一覧取得',
+    description: '指定されたファイル番号のカテゴリ親子関係一覧を取得します。',
+  })
+  @ApiQuery({
+    name: 'file_num',
+    description: 'ファイル番号',
+    type: Number,
+    required: true,
+  })
+  @Get('parent-child')
+  async getCategoryParentChildList(
+    @Query('file_num', ParseIntPipe) file_num: number,
+  ) {
+    return await this.categoryService.getCategoryParentChildList(+file_num);
+  }
+
+  @ApiOperation({
+    summary: 'カテゴリ親子関係追加',
+    description: 'カテゴリの親子関係を新規追加します。',
+  })
+  @Post('parent-child')
+  async addCategoryParentChild(
+    @Body()
+    body: { file_num: number; parent_category: string; child_category: string },
+  ) {
+    return await this.categoryService.addCategoryParentChild(
+      body.file_num,
+      body.parent_category,
+      body.child_category,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'カテゴリ親子関係削除',
+    description: '指定されたIDのカテゴリ親子関係を削除します。',
+  })
+  @Delete('parent-child')
+  async deleteCategoryParentChild(@Body() body: { id: number }) {
+    return await this.categoryService.deleteCategoryParentChild(body.id);
   }
 }

@@ -5,6 +5,7 @@ import {
   PAST_DAY,
   prisma,
 } from 'quizzer-lib';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
@@ -28,6 +29,131 @@ export class CategoryService {
         category: c.name,
       }));
     } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // カテゴリ親子関係一覧取得
+  async getCategoryParentChildList(file_num: number) {
+    try {
+      const records = await prisma.category_parent_child.findMany({
+        where: {
+          deleted_at: null,
+          parent_category: {
+            file_num,
+            deleted_at: null,
+          },
+        },
+        include: {
+          parent_category: {
+            select: { name: true },
+          },
+          child_category: {
+            select: { name: true },
+          },
+        },
+        orderBy: [
+          { parent_category: { name: 'asc' } },
+          { child_category: { name: 'asc' } },
+        ],
+      });
+      return records.map((r) => ({
+        id: r.id,
+        parent_category_id: r.parent_category_id,
+        parent_category_name: r.parent_category.name,
+        child_category_id: r.child_category_id,
+        child_category_name: r.child_category.name,
+      }));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // カテゴリ親子関係追加
+  async addCategoryParentChild(
+    file_num: number,
+    parent_category: string,
+    child_category: string,
+  ) {
+    try {
+      const parent = await prisma.category.findFirst({
+        where: { name: parent_category, file_num, deleted_at: null },
+      });
+      if (!parent) {
+        throw new HttpException(
+          `親カテゴリ「${parent_category}」が見つかりません`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const child = await prisma.category.findFirst({
+        where: { name: child_category, file_num, deleted_at: null },
+      });
+      if (!child) {
+        throw new HttpException(
+          `子カテゴリ「${child_category}」が見つかりません`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const record = await prisma.category_parent_child.create({
+        data: {
+          parent_category_id: parent.id,
+          child_category_id: child.id,
+        },
+      });
+      return record;
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new HttpException(
+          '既に登録されている親子関係です',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // カテゴリ親子関係削除（ソフトデリート）
+  async deleteCategoryParentChild(id: number) {
+    try {
+      const record = await prisma.category_parent_child.findFirst({
+        where: { id, deleted_at: null },
+      });
+      if (!record) {
+        throw new HttpException(
+          '指定された親子関係が見つかりません',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      await prisma.category_parent_child.update({
+        where: { id },
+        data: { deleted_at: new Date() },
+      });
+      return { id };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof Error) {
         throw new HttpException(
           error.message,

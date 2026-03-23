@@ -603,3 +603,18 @@ export const saveTodoCheckStatusAPI = async (params: any): Promise<ApiResult> =>
   const { saveTodoCheckStatusAPI: originalSaveTodoCheckStatusAPI } = await import('quizzer-lib');
   return originalSaveTodoCheckStatusAPI(params);
 };
+
+export const getCategoryParentChildListAPI = async (params: any): Promise<ApiResult> => {
+  const { getCategoryParentChildListAPI: originalAPI } = await import('quizzer-lib');
+  return originalAPI(params);
+};
+
+export const addCategoryParentChildAPI = async (params: any): Promise<ApiResult> => {
+  const { addCategoryParentChildAPI: originalAPI } = await import('quizzer-lib');
+  return originalAPI(params);
+};
+
+export const deleteCategoryParentChildAPI = async (params: any): Promise<ApiResult> => {
+  const { deleteCategoryParentChildAPI: originalAPI } = await import('quizzer-lib');
+  return originalAPI(params);
+};
