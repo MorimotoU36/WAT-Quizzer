@@ -618,3 +618,8 @@ export const deleteCategoryParentChildAPI = async (params: any): Promise<ApiResu
   const { deleteCategoryParentChildAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
+
+export const cleanupEmptyCategoriesAPI = async (): Promise<ApiResult> => {
+  const { cleanupEmptyCategoriesAPI: originalAPI } = await import('quizzer-lib');
+  return originalAPI();
+};

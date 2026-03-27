@@ -7,6 +7,7 @@ import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { DownloadQuizCsvSection } from '@/components/ui-forms/quizzer/settings/downloadQuizCsvSection/DownloadQuizCsvSection';
 import { CategoryParentChildConfigSection } from '@/components/ui-forms/quizzer/settings/categoryParentChildConfigSection/CategoryParentChildConfigSection';
+import { CategoryCleanupSection } from '@/components/ui-forms/quizzer/settings/categoryCleanupSection/CategoryCleanupSection';
 import { useQuizFileList } from '@/hooks/useQuizFileList';
 
 export default function QuizzerSettingPage() {
@@ -20,6 +21,7 @@ export default function QuizzerSettingPage() {
         <LogConfigSection filelistoption={filelistoption} setMessage={setMessage} />
         <DownloadQuizCsvSection filelistoption={filelistoption} />
         <CategoryParentChildConfigSection filelistoption={filelistoption} setMessage={setMessage} />
+        <CategoryCleanupSection setMessage={setMessage} />
       </Container>
     );
   };

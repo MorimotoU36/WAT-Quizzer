@@ -142,4 +142,17 @@ export class CategoryController {
   async deleteCategoryParentChild(@Body() body: { id: number }) {
     return await this.categoryService.deleteCategoryParentChild(body.id);
   }
+
+  @ApiOperation({
+    summary: '空カテゴリ整理',
+    description: '問題が一件も紐付いていないカテゴリを論理削除します。',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '削除されたカテゴリ件数を返します。',
+  })
+  @Delete('cleanup')
+  async cleanupEmptyCategories() {
+    return await this.categoryService.cleanupEmptyCategories();
+  }
 }

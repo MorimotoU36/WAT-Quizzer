@@ -163,6 +163,42 @@ export class CategoryService {
     }
   }
 
+  // 問題が紐付いていない空カテゴリを論理削除
+  async cleanupEmptyCategories() {
+    try {
+      const emptyCategories = await prisma.category.findMany({
+        where: {
+          deleted_at: null,
+          category_quiz: {
+            none: {
+              deleted_at: null,
+            },
+          },
+        },
+        select: { id: true },
+      });
+
+      if (emptyCategories.length === 0) {
+        return { deleted_count: 0 };
+      }
+
+      const ids = emptyCategories.map((c) => c.id);
+      await prisma.category.updateMany({
+        where: { id: { in: ids } },
+        data: { deleted_at: new Date() },
+      });
+
+      return { deleted_count: ids.length };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // カテゴリ正解率取得
   async getAccuracyRateByCategory(
     file_num: number,
