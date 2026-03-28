@@ -33,6 +33,7 @@ jest.mock('quizzer-lib', () => {
     category: {
       upsert: jest.fn(),
       findUnique: jest.fn(),
+      update: jest.fn(),
     },
     category_quiz: {
       create: jest.fn(),
@@ -40,6 +41,9 @@ jest.mock('quizzer-lib', () => {
       upsert: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
+    },
+    category_parent_child: {
+      findMany: jest.fn(),
     },
   };
   return {
@@ -295,6 +299,7 @@ describe('QuizService', () => {
     (prisma.quiz.create as jest.Mock).mockResolvedValue(correctData);
     (prisma.category as any).upsert.mockResolvedValue({ id: 1 });
     (prisma.category_quiz as any).create.mockResolvedValue({});
+    (prisma.category_parent_child as any).findMany.mockResolvedValue([]);
     expect(await quizService.add(req)).toEqual(correctData);
   });
 
