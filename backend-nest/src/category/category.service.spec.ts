@@ -8,6 +8,9 @@ jest.mock('quizzer-lib', () => {
     answer_log: {
       findMany: jest.fn(),
     },
+    category: {
+      findMany: jest.fn(),
+    },
     category_view: {
       findMany: jest.fn(),
     },
@@ -29,21 +32,17 @@ describe('CategoryService', () => {
 
   // カテゴリリスト取得 正常系
   it('getCategoryList - OK', async () => {
-    // テストデータ 正常時の返り値
-    const testResult = {
-      file_num: 0,
-      category: 'categorytest',
-      created_at: '2000-01-01 00:00:00',
-      updated_at: '2000-01-01 00:00:00',
-      deleted_at: null,
-    };
-    (prisma.category_view.findMany as jest.Mock).mockResolvedValue(testResult);
-    expect(await categoryService.getCategoryList(0)).toBe(testResult);
+    // DBから返るデータ（nameプロパティ）
+    const dbResult = [{ name: 'categorytest' }];
+    // 期待するレスポンス（categoryプロパティにマップされる）
+    const expectedResult = [{ category: 'categorytest' }];
+    (prisma.category as any).findMany.mockResolvedValue(dbResult);
+    expect(await categoryService.getCategoryList(0)).toEqual(expectedResult);
   });
 
   // カテゴリリスト取得 異常系
   it('getCategoryList - NG', async () => {
-    (prisma.category_view.findMany as jest.Mock).mockRejectedValue(
+    (prisma.category as any).findMany.mockRejectedValue(
       new Error('error test by jest.'),
     );
     await expect(categoryService.getCategoryList(0)).rejects.toMatchObject({

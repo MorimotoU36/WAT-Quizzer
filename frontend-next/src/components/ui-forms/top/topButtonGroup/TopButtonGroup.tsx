@@ -28,6 +28,14 @@ export const TopButtonGroup = () => {
         color="info"
         href={'/settings' + process.env.NEXT_PUBLIC_URL_END}
       />
+      <Button
+        label={'Storybook'}
+        attr={'top-button'}
+        variant="contained"
+        size="large"
+        color="warning"
+        href={'/storybook' + process.env.NEXT_PUBLIC_URL_END}
+      />
     </div>
   );
 };

@@ -22,6 +22,36 @@ erDiagram
     }
   
 
+  "category" {
+    Int id "🗝️"
+    String name 
+    Int file_num 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
+  "category_parent_child" {
+    Int id "🗝️"
+    Int parent_category_id 
+    Int child_category_id 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
+  "category_quiz" {
+    Int id "🗝️"
+    Int quiz_id 
+    Int category_id 
+    DateTime created_at 
+    DateTime updated_at 
+    DateTime deleted_at "❓"
+    }
+  
+
   "englishbot_answer_log" {
     Int id "🗝️"
     Int word_id 
@@ -96,16 +126,6 @@ erDiagram
     DateTime created_at 
     DateTime updated_at 
     DateTime deleted_at "❓"
-    }
-  
-
-  "quiz_category" {
-    Int id "🗝️"
-    String category "❓"
-    DateTime created_at 
-    DateTime updated_at 
-    DateTime deleted_at "❓"
-    Int quiz_id 
     }
   
 
@@ -403,48 +423,35 @@ erDiagram
     Decimal accuracy_rate "❓"
     }
   
-    "answer_log" o|--|| "quiz" : "quiz"
-    "englishbot_answer_log" o|--|| "word" : "word"
-    "example" o{--}o "example_explanation" : ""
-    "example" o{--}o "word_example" : ""
-    "example_explanation" o|--|| "example" : "example"
-    "mean" o|--|| "partsofspeech" : "partsofspeech"
-    "mean" o|--|| "word" : "word"
-    "quiz" o|--|| "quiz_format" : "quiz_format"
-    "quiz" o{--}o "quiz_basis_advanced_linkage" : ""
-    "quiz" o{--}o "quiz_basis_advanced_linkage" : ""
-    "quiz" o{--}o "quiz_category" : ""
-    "quiz" o{--}o "quiz_dummy_choice" : ""
-    "quiz" o{--}o "quiz_explanation" : ""
-    "quiz" o|--|o "quiz_statistics_view" : "quiz_statistics_view"
-    "quiz_basis_advanced_linkage" o|--|| "quiz" : "quiz_advanced_link"
-    "quiz_basis_advanced_linkage" o|--|| "quiz" : "quiz_basis_link"
-    "quiz_category" o|--|| "quiz" : "quiz"
-    "quiz_dummy_choice" o|--|| "quiz" : "quiz"
-    "quiz_explanation" o|--|| "quiz" : "quiz"
-    "saying" o|--|| "selfhelp_book" : "selfhelp_book"
-    "source" o{--}o "word_source" : ""
-    "word" o{--}o "antonym" : ""
-    "word" o{--}o "antonym" : ""
-    "word" o{--}o "derivative" : ""
-    "word" o{--}o "synonym" : ""
-    "word" o{--}o "synonym" : ""
-    "word" o{--}o "word_etymology" : ""
-    "word" o{--}o "word_example" : ""
-    "word" o{--}o "word_source" : ""
-    "word" o{--}o "word_subsource" : ""
-    "word" o|--|o "word_statistics_view" : "word_statistics_view"
-    "word_etymology" o|--|| "etymology" : "etymology"
-    "word_etymology" o|--|| "word" : "word"
-    "word_example" o|--|| "example" : "example"
-    "word_example" o|--|| "word" : "word"
-    "synonym" o|--|| "word" : "synonym_word"
-    "synonym" o|--|| "word" : "synonym_original"
-    "antonym" o|--|| "word" : "antonym_word"
-    "antonym" o|--|| "word" : "antonym_original"
-    "derivative" o|--|| "derivative_group" : "derivative_group"
-    "derivative" o|--|| "word" : "word"
-    "word_source" o|--|| "source" : "source"
-    "word_source" o|--|| "word" : "word"
-    "word_subsource" o|--|| "word" : "word"
+    "answer_log" }o--|| "quiz" : "quiz"
+    "category" }o--|| "quiz_file" : "quiz_file"
+    "category_parent_child" }o--|| "category" : "parent_category"
+    "category_parent_child" }o--|| "category" : "child_category"
+    "category_quiz" }o--|| "category" : "category"
+    "category_quiz" }o--|| "quiz" : "quiz"
+    "englishbot_answer_log" }o--|| "word" : "word"
+    "example_explanation" }o--|| "example" : "example"
+    "mean" }o--|| "partsofspeech" : "partsofspeech"
+    "mean" }o--|| "word" : "word"
+    "quiz" }o--|| "quiz_format" : "quiz_format"
+    "quiz" }o--|o "quiz_statistics_view" : "quiz_statistics_view"
+    "quiz_basis_advanced_linkage" }o--|| "quiz" : "quiz_advanced_link"
+    "quiz_basis_advanced_linkage" }o--|| "quiz" : "quiz_basis_link"
+    "quiz_dummy_choice" }o--|| "quiz" : "quiz"
+    "quiz_explanation" |o--|| "quiz" : "quiz"
+    "saying" }o--|| "selfhelp_book" : "selfhelp_book"
+    "word" }o--|o "word_statistics_view" : "word_statistics_view"
+    "word_etymology" }o--|| "etymology" : "etymology"
+    "word_etymology" }o--|| "word" : "word"
+    "word_example" }o--|| "example" : "example"
+    "word_example" }o--|| "word" : "word"
+    "synonym" }o--|| "word" : "synonym_word"
+    "synonym" }o--|| "word" : "synonym_original"
+    "antonym" }o--|| "word" : "antonym_word"
+    "antonym" }o--|| "word" : "antonym_original"
+    "derivative" }o--|| "derivative_group" : "derivative_group"
+    "derivative" |o--|| "word" : "word"
+    "word_source" }o--|| "source" : "source"
+    "word_source" }o--|| "word" : "word"
+    "word_subsource" }o--|| "word" : "word"
 ```

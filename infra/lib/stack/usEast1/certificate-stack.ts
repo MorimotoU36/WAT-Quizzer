@@ -15,6 +15,7 @@ type CertificateStackProps = {
 export class CertificateStack extends cdk.Stack {
   readonly frontCertificate: acm.Certificate
   readonly apiCertificate: acm.Certificate
+  readonly mockCertificate: acm.Certificate
 
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, {
@@ -38,6 +39,16 @@ export class CertificateStack extends cdk.Stack {
       `${props.env}-quizzer-api`,
       {
         domainName: process.env.API_DOMAIN_NAME || '',
+        validation: acm.CertificateValidation.fromDns(props.hostedZone)
+      }
+    )
+
+    // ACM（モック用）
+    this.mockCertificate = new acm.Certificate(
+      this,
+      `${props.env}-quizzer-mock`,
+      {
+        domainName: process.env.MOCK_FRONT_DOMAIN_NAME || '',
         validation: acm.CertificateValidation.fromDns(props.hostedZone)
       }
     )

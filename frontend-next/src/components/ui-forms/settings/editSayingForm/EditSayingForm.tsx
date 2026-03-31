@@ -75,7 +75,9 @@ export const EditSayingForm = ({}: EditSayingFormProps) => {
             <label htmlFor="explanation">説明　　：</label>
             <Input
               fullWidth
-              maxRows={1}
+              multiline
+              minRows={3}
+              maxRows={10}
               id="explanation"
               value={editSayingRequestData.explanation || ''}
               onChange={(e) => {
@@ -83,6 +85,13 @@ export const EditSayingForm = ({}: EditSayingFormProps) => {
                   ...editSayingRequestData,
                   explanation: e.target.value
                 });
+              }}
+              sx={{
+                '& .MuiInputBase-input': {
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word'
+                }
               }}
             />
           </Typography>

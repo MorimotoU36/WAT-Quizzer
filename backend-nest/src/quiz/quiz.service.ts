@@ -21,7 +21,6 @@ import {
   MESSAGES,
   AnswerLogStatisticsApiResponse,
   getTodayStart,
-  getPrismaFromPastDayRange,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -54,6 +53,7 @@ export class QuizService {
         category,
         checked,
         format_id,
+        keyword,
       } = req;
       // カテゴリは複数選択でカンマ区切りされてるので分割する
       const categories = category && category.split(',').map((s) => s.trim());
@@ -100,11 +100,14 @@ export class QuizService {
               },
               ...(categories && {
                 OR: categories.map((category) => ({
-                  quiz_category: {
+                  category_quiz: {
                     some: {
                       category: {
-                        contains: category,
+                        name: {
+                          contains: category,
+                        },
                       },
+                      deleted_at: null,
                     },
                   },
                 })),
@@ -114,6 +117,20 @@ export class QuizService {
                     checked: true,
                   }
                 : {}),
+              ...(keyword && {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: keyword,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: keyword,
+                    },
+                  },
+                ],
+              }),
             }
           : {
               file_num,
@@ -126,6 +143,20 @@ export class QuizService {
                 },
               }),
               deleted_at: null,
+              ...(keyword && {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: keyword,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: keyword,
+                    },
+                  },
+                ],
+              }),
             };
       const orderBy =
         method === 'worstRate'
@@ -174,10 +205,14 @@ export class QuizService {
           answer: true,
           img_file: true,
           checked: true,
-          quiz_category: {
+          category_quiz: {
             select: {
-              category: true,
               deleted_at: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           quiz_statistics_view: {
@@ -226,14 +261,15 @@ export class QuizService {
           : results[0];
       return {
         ...result,
-        ...(result.quiz_category && {
-          quiz_category: result.quiz_category
+        category_quiz: undefined,
+        ...(result.category_quiz && {
+          quiz_category: result.category_quiz
             .filter((x) => {
               return !x.deleted_at;
             })
             .map((x) => {
               return {
-                category: x.category,
+                category: x.category.name,
               };
             }),
         }),
@@ -365,7 +401,7 @@ export class QuizService {
         take: 1,
       });
       const new_quiz_num: number = res && res.quiz_num ? res.quiz_num + 1 : 1;
-      return await prisma.quiz.create({
+      const createdQuiz = await prisma.quiz.create({
         data: {
           format_id,
           file_num,
@@ -374,15 +410,6 @@ export class QuizService {
           answer,
           img_file,
           checked: false,
-          quiz_category: {
-            ...(category && {
-              create: category.split(',').map((x) => {
-                return {
-                  category: x,
-                };
-              }),
-            }),
-          },
           quiz_explanation: {
             ...(explanation && {
               create: {
@@ -415,6 +442,62 @@ export class QuizService {
           },
         },
       });
+
+      // カテゴリをcategoryマスター + category_quizに登録
+      // 登録済みカテゴリIDを追跡して重複を防ぐ
+      if (category) {
+        const categories = category.split(',');
+        const registeredCategoryIds = new Set<number>();
+
+        // カテゴリ名からカテゴリをupsertしてquizに紐付ける関数
+        const upsertAndLinkCategory = async (name: string) => {
+          const cat = await prisma.category.upsert({
+            where: { name_file_num: { name, file_num } },
+            update: { deleted_at: null },
+            create: { name, file_num },
+          });
+          if (!registeredCategoryIds.has(cat.id)) {
+            registeredCategoryIds.add(cat.id);
+            await prisma.category_quiz.create({
+              data: { quiz_id: createdQuiz.id, category_id: cat.id },
+            });
+          }
+          return cat.id;
+        };
+
+        // 入力カテゴリを登録し、その後キューで親カテゴリを再帰的に辿る
+        const queue: number[] = [];
+        for (const c of categories) {
+          const catId = await upsertAndLinkCategory(c);
+          queue.push(catId);
+        }
+
+        // BFSで祖先カテゴリをすべて登録
+        while (queue.length > 0) {
+          const childId = queue.shift();
+          const parentRelations = await prisma.category_parent_child.findMany({
+            where: { child_category_id: childId, deleted_at: null },
+            include: { parent_category: true },
+          });
+          for (const rel of parentRelations) {
+            const parentCat = rel.parent_category;
+            if (!registeredCategoryIds.has(parentCat.id)) {
+              // 親カテゴリをupsert（削除済みなら復元）してquizに紐付ける
+              await prisma.category.update({
+                where: { id: parentCat.id },
+                data: { deleted_at: null },
+              });
+              registeredCategoryIds.add(parentCat.id);
+              await prisma.category_quiz.create({
+                data: { quiz_id: createdQuiz.id, category_id: parentCat.id },
+              });
+              queue.push(parentCat.id);
+            }
+          }
+        }
+      }
+
+      return createdQuiz;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -555,8 +638,8 @@ export class QuizService {
             });
           }
         }
-        // カテゴリ更新
-        await prisma.quiz_category.updateMany({
+        // カテゴリ更新（category_quizを使用）
+        await prisma.category_quiz.updateMany({
           where: {
             quiz_id,
           },
@@ -566,11 +649,26 @@ export class QuizService {
         });
         const categories = category.split(',');
         for (const c of categories) {
-          await prisma.quiz_category.upsert({
+          const cat = await prisma.category.upsert({
             where: {
-              quiz_id_category: {
+              name_file_num: {
+                name: c,
+                file_num,
+              },
+            },
+            update: {
+              deleted_at: null,
+            },
+            create: {
+              name: c,
+              file_num,
+            },
+          });
+          await prisma.category_quiz.upsert({
+            where: {
+              quiz_id_category_id: {
                 quiz_id,
-                category: c,
+                category_id: cat.id,
               },
             },
             update: {
@@ -578,7 +676,7 @@ export class QuizService {
             },
             create: {
               quiz_id,
-              category: c,
+              category_id: cat.id,
             },
           });
         }
@@ -624,10 +722,14 @@ export class QuizService {
           quiz_num: true,
           quiz_sentense: true,
           answer: true,
-          quiz_category: {
+          category_quiz: {
             select: {
-              category: true,
               deleted_at: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           quiz_format: {
@@ -661,11 +763,14 @@ export class QuizService {
             },
           },
           ...(category && {
-            quiz_category: {
+            category_quiz: {
               some: {
                 category: {
-                  contains: category,
+                  name: {
+                    contains: category,
+                  },
                 },
+                deleted_at: null,
               },
             },
           }),
@@ -674,18 +779,41 @@ export class QuizService {
                 checked: true,
               }
             : {}),
-          ...(xor(searchInOnlySentense, searchInOnlyAnswer) &&
-          searchInOnlySentense
-            ? {
-                quiz_sentense: {
-                  contains: query,
-                },
+          ...(query &&
+            query !== '' &&
+            (() => {
+              // searchInOnlySentenseのみがtrueの場合：問題文のみ
+              if (searchInOnlySentense && !searchInOnlyAnswer) {
+                return {
+                  quiz_sentense: {
+                    contains: query,
+                  },
+                };
               }
-            : {
-                answer: {
-                  contains: query,
-                },
-              }),
+              // searchInOnlyAnswerのみがtrueの場合：答えのみ
+              if (!searchInOnlySentense && searchInOnlyAnswer) {
+                return {
+                  answer: {
+                    contains: query,
+                  },
+                };
+              }
+              // 両方trueまたは両方falseの場合：問題文または答え（OR条件）
+              return {
+                OR: [
+                  {
+                    quiz_sentense: {
+                      contains: query,
+                    },
+                  },
+                  {
+                    answer: {
+                      contains: query,
+                    },
+                  },
+                ],
+              };
+            })()),
         },
         orderBy: {
           quiz_num: 'asc',
@@ -694,6 +822,12 @@ export class QuizService {
       return result.map((x) => {
         return {
           ...x,
+          category_quiz: undefined,
+          quiz_category: x.category_quiz
+            .filter((cq) => !cq.deleted_at)
+            .map((cq) => ({
+              category: cq.category.name,
+            })),
           quiz_statistics_view: {
             accuracy_rate: x.quiz_statistics_view.accuracy_rate.toString(),
           },
@@ -750,10 +884,14 @@ export class QuizService {
           format_id: true,
           quiz_sentense: true,
           answer: true,
-          quiz_category: {
+          category_quiz: {
             select: {
-              category: true,
               deleted_at: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           img_file: true,
@@ -781,10 +919,14 @@ export class QuizService {
           format_id: true,
           quiz_sentense: true,
           answer: true,
-          quiz_category: {
+          category_quiz: {
             select: {
-              category: true,
               deleted_at: true,
+              category: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           img_file: true,
@@ -813,24 +955,24 @@ export class QuizService {
 
       // 統合データ作成
       const pre_category = new Set(
-        pre_data.quiz_category
-          ? pre_data.quiz_category
+        pre_data.category_quiz
+          ? pre_data.category_quiz
               .filter((x) => {
                 return !x.deleted_at;
               })
               .map((x) => {
-                return x.category;
+                return x.category.name;
               })
           : [],
       );
       const post_category = new Set(
-        post_data.quiz_category
-          ? post_data.quiz_category
+        post_data.category_quiz
+          ? post_data.category_quiz
               .filter((x) => {
                 return !x.deleted_at;
               })
               .map((x) => {
-                return x.category;
+                return x.category.name;
               })
           : [],
       );
@@ -842,7 +984,7 @@ export class QuizService {
       await prisma.$transaction(async (prisma) => {
         // 問題統合(カテゴリのみ)
         //// 元問題のカテゴリ削除
-        await prisma.quiz_category.updateMany({
+        await prisma.category_quiz.updateMany({
           where: {
             quiz_id: fromQuizId,
           },
@@ -850,7 +992,7 @@ export class QuizService {
             deleted_at: new Date(),
           },
         });
-        await prisma.quiz_category.updateMany({
+        await prisma.category_quiz.updateMany({
           where: {
             quiz_id: toQuizId,
           },
@@ -859,12 +1001,28 @@ export class QuizService {
           },
         });
         //// 統合後問題にカテゴリ更新
+        const file_num = post_data.file_num;
         for (const c of new_category) {
-          await prisma.quiz_category.upsert({
+          const cat = await prisma.category.upsert({
             where: {
-              quiz_id_category: {
+              name_file_num: {
+                name: c,
+                file_num,
+              },
+            },
+            update: {
+              deleted_at: null,
+            },
+            create: {
+              name: c,
+              file_num,
+            },
+          });
+          await prisma.category_quiz.upsert({
+            where: {
+              quiz_id_category_id: {
                 quiz_id: toQuizId,
-                category: c,
+                category_id: cat.id,
               },
             },
             update: {
@@ -872,7 +1030,7 @@ export class QuizService {
             },
             create: {
               quiz_id: toQuizId,
-              category: c,
+              category_id: cat.id,
             },
           });
         }
@@ -926,13 +1084,39 @@ export class QuizService {
       // トランザクション
       await prisma.$transaction(async (prisma) => {
         for (const quiz_id of quiz_ids) {
+          // quiz_idからfile_numを取得
+          const quiz = await prisma.quiz.findUnique({
+            select: { file_num: true },
+            where: { id: quiz_id },
+          });
+          if (!quiz) {
+            throw new HttpException(
+              `問題が見つかりません(${quiz_id})`,
+              HttpStatus.NOT_FOUND,
+            );
+          }
           // 更新
           for (const c of categories) {
-            await prisma.quiz_category.upsert({
+            const cat = await prisma.category.upsert({
               where: {
-                quiz_id_category: {
+                name_file_num: {
+                  name: c,
+                  file_num: quiz.file_num,
+                },
+              },
+              update: {
+                deleted_at: null,
+              },
+              create: {
+                name: c,
+                file_num: quiz.file_num,
+              },
+            });
+            await prisma.category_quiz.upsert({
+              where: {
+                quiz_id_category_id: {
                   quiz_id,
-                  category: c,
+                  category_id: cat.id,
                 },
               },
               update: {
@@ -940,7 +1124,7 @@ export class QuizService {
               },
               create: {
                 quiz_id,
-                category: c,
+                category_id: cat.id,
               },
             });
           }
@@ -978,37 +1162,51 @@ export class QuizService {
       await prisma.$transaction(async (prisma) => {
         // 更新
         for (const quiz_id of quiz_ids) {
-          // 現在のカテゴリ取得
-          const nowCategory = (
-            await prisma.quiz_category.findMany({
-              select: {
-                category: true,
-              },
-              where: {
-                quiz_id,
-                deleted_at: null,
-              },
-            })
-          ).map((x) => {
-            return x.category;
+          // quiz_idからfile_numを取得
+          const quiz = await prisma.quiz.findUnique({
+            select: { file_num: true },
+            where: { id: quiz_id },
           });
+          if (!quiz) {
+            continue;
+          }
 
           for (const c of categories) {
-            if (!nowCategory.includes(c)) {
-              continue;
-            }
-
-            await prisma.quiz_category.update({
-              data: {
-                deleted_at: new Date(),
-              },
+            // categoryマスターからIDを取得
+            const cat = await prisma.category.findUnique({
               where: {
-                quiz_id_category: {
-                  quiz_id,
-                  category: c,
+                name_file_num: {
+                  name: c,
+                  file_num: quiz.file_num,
                 },
               },
             });
+            if (!cat) {
+              continue;
+            }
+
+            // category_quizをsoft-delete
+            const existing = await prisma.category_quiz.findUnique({
+              where: {
+                quiz_id_category_id: {
+                  quiz_id,
+                  category_id: cat.id,
+                },
+              },
+            });
+            if (existing && !existing.deleted_at) {
+              await prisma.category_quiz.update({
+                data: {
+                  deleted_at: new Date(),
+                },
+                where: {
+                  quiz_id_category_id: {
+                    quiz_id,
+                    category_id: cat.id,
+                  },
+                },
+              });
+            }
           }
         }
       });
@@ -1351,7 +1549,7 @@ export class QuizService {
             });
             const new_quiz_num: number =
               res && res.quiz_num ? res.quiz_num + 1 : 1;
-            await prisma.quiz.create({
+            const createdQuiz = await prisma.quiz.create({
               data: {
                 format_id: +format_id, // 問題形式
                 file_num: +file_num,
@@ -1360,17 +1558,6 @@ export class QuizService {
                 answer,
                 img_file,
                 checked: false,
-                quiz_category: {
-                  ...(category && {
-                    createMany: {
-                      data: category.map((c) => {
-                        return {
-                          category: c,
-                        };
-                      }),
-                    },
-                  }),
-                },
                 quiz_explanation: {
                   ...(explanation && {
                     create: {
@@ -1380,6 +1567,32 @@ export class QuizService {
                 },
               },
             });
+            // カテゴリをcategoryマスター + category_quizに登録
+            if (category) {
+              for (const c of category) {
+                const cat = await prisma.category.upsert({
+                  where: {
+                    name_file_num: {
+                      name: c,
+                      file_num: +file_num,
+                    },
+                  },
+                  update: {
+                    deleted_at: null,
+                  },
+                  create: {
+                    name: c,
+                    file_num: +file_num,
+                  },
+                });
+                await prisma.category_quiz.create({
+                  data: {
+                    quiz_id: createdQuiz.id,
+                    category_id: cat.id,
+                  },
+                });
+              }
+            }
             console.log(`OK: ${index + 1}行目`);
           }
         },
@@ -1463,7 +1676,7 @@ export class QuizService {
             });
             const new_quiz_num: number =
               res && res.quiz_num ? res.quiz_num + 1 : 1;
-            await prisma.quiz.create({
+            const createdQuiz = await prisma.quiz.create({
               data: {
                 format_id: 3, // 四択問題
                 file_num: +file_num,
@@ -1472,17 +1685,6 @@ export class QuizService {
                 answer,
                 // img_file,
                 checked: false,
-                quiz_category: {
-                  ...(category && {
-                    createMany: {
-                      data: category.map((c) => {
-                        return {
-                          category: c,
-                        };
-                      }),
-                    },
-                  }),
-                },
                 quiz_explanation: {
                   ...(explanation && {
                     create: {
@@ -1498,6 +1700,32 @@ export class QuizService {
                 },
               },
             });
+            // カテゴリをcategoryマスター + category_quizに登録
+            if (category) {
+              for (const c of category) {
+                const cat = await prisma.category.upsert({
+                  where: {
+                    name_file_num: {
+                      name: c,
+                      file_num: +file_num,
+                    },
+                  },
+                  update: {
+                    deleted_at: null,
+                  },
+                  create: {
+                    name: c,
+                    file_num: +file_num,
+                  },
+                });
+                await prisma.category_quiz.create({
+                  data: {
+                    quiz_id: createdQuiz.id,
+                    category_id: cat.id,
+                  },
+                });
+              }
+            }
             console.log(`OK: ${index + 1}行目`);
           }
         },

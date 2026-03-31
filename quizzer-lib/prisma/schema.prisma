@@ -37,6 +37,47 @@ model avg_lines_log {
   deleted_at  DateTime? @db.Timestamp(6)
 }
 
+model category {
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @db.VarChar(256)
+  file_num               Int
+  created_at             DateTime                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime                @updatedAt
+  deleted_at             DateTime?               @db.Timestamp(6)
+  quiz_file              quiz_file               @relation(fields: [file_num], references: [file_num])
+  category_quiz          category_quiz[]
+  parent_child_as_parent category_parent_child[] @relation("CategoryAsParent")
+  parent_child_as_child  category_parent_child[] @relation("CategoryAsChild")
+
+  @@unique([name, file_num])
+}
+
+model category_parent_child {
+  id                 Int       @id @default(autoincrement())
+  parent_category_id Int
+  child_category_id  Int
+  created_at         DateTime  @default(now()) @db.Timestamp(6)
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime? @db.Timestamp(6)
+  parent_category    category  @relation("CategoryAsParent", fields: [parent_category_id], references: [id])
+  child_category     category  @relation("CategoryAsChild", fields: [child_category_id], references: [id])
+
+  @@unique([parent_category_id, child_category_id])
+}
+
+model category_quiz {
+  id          Int       @id @default(autoincrement())
+  quiz_id     Int
+  category_id Int
+  created_at  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime? @db.Timestamp(6)
+  category    category  @relation(fields: [category_id], references: [id])
+  quiz        quiz      @relation(fields: [quiz_id], references: [id])
+
+  @@unique([quiz_id, category_id])
+}
+
 model englishbot_answer_log {
   id         Int       @id @default(autoincrement())
   word_id    Int
@@ -106,10 +147,10 @@ model quiz {
   deleted_at            DateTime?                     @db.Timestamp(6)
   format_id             Int
   answer_log            answer_log[]
+  category_quiz         category_quiz[]
   quiz_format           quiz_format                   @relation(fields: [format_id], references: [id])
   quiz_advanced_linkage quiz_basis_advanced_linkage[] @relation("advanced")
   quiz_basis_linkage    quiz_basis_advanced_linkage[] @relation("basis")
-  quiz_category         quiz_category[]
   quiz_dummy_choice     quiz_dummy_choice[]
   quiz_explanation      quiz_explanation?
   quiz_statistics_view  quiz_statistics_view?         @relation(fields: [id], references: [id])
@@ -128,18 +169,6 @@ model quiz_basis_advanced_linkage {
   quiz_basis_link    quiz      @relation("basis", fields: [basis_quiz_id], references: [id])
 
   @@unique([basis_quiz_id, advanced_quiz_id])
-}
-
-model quiz_category {
-  id         Int       @id @default(autoincrement())
-  category   String?   @db.VarChar(256)
-  created_at DateTime  @default(now()) @db.Timestamp(6)
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime? @db.Timestamp(6)
-  quiz_id    Int
-  quiz       quiz      @relation(fields: [quiz_id], references: [id])
-
-  @@unique([quiz_id, category])
 }
 
 model quiz_dependency {
@@ -173,12 +202,13 @@ model quiz_explanation {
 }
 
 model quiz_file {
-  file_num      Int       @id @default(autoincrement())
-  file_name     String    @unique @db.VarChar(256)
-  file_nickname String    @unique @db.VarChar(256)
-  created_at    DateTime  @default(now()) @db.Timestamp(6)
-  updated_at    DateTime  @updatedAt
-  deleted_at    DateTime? @db.Timestamp(6)
+  file_num      Int        @id @default(autoincrement())
+  file_name     String     @unique @db.VarChar(256)
+  file_nickname String     @unique @db.VarChar(256)
+  created_at    DateTime   @default(now()) @db.Timestamp(6)
+  updated_at    DateTime   @updatedAt
+  deleted_at    DateTime?  @db.Timestamp(6)
+  category      category[]
 }
 
 model quiz_format {

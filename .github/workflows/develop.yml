@@ -111,6 +111,9 @@ jobs:
       - name: Next.js Build and Export(Frontend)
         run: cd ./frontend-next && npm run export
 
+      - name: Build Storybook
+        run: cd ./frontend-next && rm -rf storybook-static && npm run build-storybook && mkdir -p out/storybook && cp -r storybook-static/* out/storybook/
+
       - name: Deploy backend stack
         id: cdk-deploy-backend
         run: cd ./infra && npx cdk deploy BackendStack --require-approval never
@@ -160,10 +163,6 @@ jobs:
           NEXT_PUBLIC_MOCK_MODE: true
           NEXT_PUBLIC_URL_END: '/index.html'
         run: cd ./frontend-next && npm run export
-
-      # モックスタックのデプロイ
-      - name: Deploy mock stack
-        run: cd ./infra && npx cdk deploy MockStack --app "npx ts-node bin/mock-infra.ts" --require-approval never
 
       # モック環境用S3アップロード
       - name: Upload mock files to S3

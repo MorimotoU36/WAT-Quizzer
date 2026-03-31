@@ -8,8 +8,13 @@ import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
 import { getDateForSqlString } from 'quizzer-lib';
 import { CheckboxGroup } from '@/components/ui-parts/checkboxGroup/CheckboxGroup';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
+import { Button } from '@/components/ui-elements/button/Button';
 
-export const GetAccuracyGraphForm = () => {
+interface GetAccuracyGraphFormProps {
+  onDisplayClick: () => void;
+}
+
+export const GetAccuracyGraphForm = ({ onDisplayClick }: GetAccuracyGraphFormProps) => {
   const { graph, order, getCategoryRateData, setGraph, setOrder, setCategoryRateData } = useAccuracyGraphForm();
   const { quizFormatListoption } = useQuizFormatList();
 
@@ -96,6 +101,9 @@ export const GetAccuracyGraphForm = () => {
             }}
             label={'問題種別'}
           />
+        </FormControl>
+        <FormControl>
+          <Button label="表示" variant="contained" color="primary" onClick={onDisplayClick} attr="button-array" />
         </FormControl>
       </FormGroup>
     </Card>

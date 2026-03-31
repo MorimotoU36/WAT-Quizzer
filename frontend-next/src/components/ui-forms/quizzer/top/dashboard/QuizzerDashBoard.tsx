@@ -2,6 +2,7 @@ import React from 'react';
 import { FileStatisticsCard } from '@/components/ui-forms/quizzer/top/charts/fileStatisticsCard/FileStatisticsCard';
 import { QuizAnswerLogStatisticsCard } from '@/components/ui-forms/quizzer/top/charts/quizAnswerLogStatisticsCard/QuizAnswerLogStatisticsCard';
 import { AccuracyRateHistgramCard } from '@/components/ui-forms/quizzer/top/charts/accuracyRateHistgramCard/AccuracyRateHistgramCard';
+import { RandomQuizCard } from '@/components/ui-forms/quizzer/top/charts/randomQuizCard/RandomQuizCard';
 
 interface QuizzerDashboardProps {
   selectedFileNum: number;
@@ -13,6 +14,7 @@ export const QuizzerDashboard: React.FC<QuizzerDashboardProps> = ({ selectedFile
       <FileStatisticsCard file_num={selectedFileNum} />
       <QuizAnswerLogStatisticsCard file_num={selectedFileNum} />
       <AccuracyRateHistgramCard file_num={selectedFileNum} />
+      <RandomQuizCard file_num={selectedFileNum} />
     </div>
   );
 };

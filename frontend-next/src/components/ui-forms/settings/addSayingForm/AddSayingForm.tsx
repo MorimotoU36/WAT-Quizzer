@@ -37,6 +37,7 @@ export const AddSayingForm = ({ booklistoption }: AddSayingFormProps) => {
             label="新規格言"
             variant="outlined"
             className={['fullWidth']}
+            value={addSayingAPIRequest.saying}
             setStater={(value: string) => {
               setAddSayingAPIRequest({
                 ...addSayingAPIRequest,
@@ -50,6 +51,7 @@ export const AddSayingForm = ({ booklistoption }: AddSayingFormProps) => {
             label="格言の説明"
             variant="outlined"
             className={['fullWidth']}
+            value={addSayingAPIRequest.explanation}
             setStater={(value: string) => {
               setAddSayingAPIRequest({
                 ...addSayingAPIRequest,

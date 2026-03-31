@@ -8,6 +8,7 @@ export interface GetQuizAPIRequestDto {
   max_rate?: number
   category?: string
   checked?: boolean //booleanにしたい
+  keyword?: string
 }
 
 //API側で受け取った時のDTO（Pipeで上に変換する）
@@ -19,6 +20,7 @@ export interface GetQuizAPIRequestReceivedDto {
   max_rate?: string
   category?: string
   checked?: string //booleanにしたい
+  keyword?: string
 }
 
 // 問題取得APIのレスポンス（基礎応用込み）、フォーマット込み
