@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormControl, FormGroup } from '@mui/material';
+import { FormControl, FormGroup, SelectChangeEvent } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
 import { GetQuizAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
@@ -19,23 +19,36 @@ interface InputQueryFormProps {
 
 export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: InputQueryFormProps) => {
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
+  const [categoryResetKey, setCategoryResetKey] = useState(0);
   const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
+
+  const selectedFileChangeHandler = useSelectedFileChange({
+    setMessage,
+    setCategorylistoption,
+    setQuizRequestData
+  });
+
+  const handleFileChange = (e: SelectChangeEvent<number | string>) => {
+    selectedFileChangeHandler(e);
+    setQuizRequestData((prev) => ({
+      ...prev,
+      quiz_num: 0,
+      keyword: '',
+      category: ''
+    }));
+    setCategoryResetKey((prev) => prev + 1);
+  };
 
   return (
     <FormGroup className="!mt-4">
       <FormControl className="max-w-full">
-        <QuizFilePullDown
-          onFileChange={useSelectedFileChange({
-            setMessage,
-            setCategorylistoption,
-            setQuizRequestData
-          })}
-        />
+        <QuizFilePullDown onFileChange={handleFileChange} />
       </FormControl>
       <FormControl className="max-w-full">
         <TextField
           label="問題番号"
+          value={(getQuizRequestData.quiz_num ?? 0) > 0 ? String(getQuizRequestData.quiz_num) : ''}
           setStater={(value: string) => {
             setQuizRequestData({
               ...getQuizRequestData,
@@ -60,6 +73,7 @@ export const InputQueryForm = ({ getQuizRequestData, setQuizRequestData }: Input
 
       <FormControl className="max-w-full">
         <MultiSelectPullDown
+          key={categoryResetKey}
           label={'カテゴリ'}
           optionList={categorylistoption}
           onChange={(e) => {
