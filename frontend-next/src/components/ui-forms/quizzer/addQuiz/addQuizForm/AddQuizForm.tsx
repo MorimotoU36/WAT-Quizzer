@@ -10,7 +10,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
 import { addQuizAPI, searchQuizAPI } from '@/utils/api-wrapper';
-import { Modal } from '@/components/ui-elements/modal/Modal';
+import { DuplicateAnswerModal } from '../duplicateAnswerModal/DuplicateAnswerModal';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
@@ -273,43 +273,16 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
         onClick={handleRegisterClick}
       />
 
-      <Modal isOpen={duplicateModalOpen} setIsOpen={setDuplicateModalOpen}>
-        <div className="p-6">
-          <Typography variant="h6" component="h6" className="!mb-4 font-bold text-red-600">
-            同じ答えの問題がすでに登録されています
-          </Typography>
-          <div className="mb-4 max-h-60 overflow-y-auto">
-            {duplicateQuizzes.map((q) => (
-              <div key={q.id} className="mb-2 p-2 border border-gray-200 rounded text-sm">
-                <span className="font-semibold">問題文：</span>
-                {q.quiz_sentense}
-              </div>
-            ))}
-          </div>
-          <Typography variant="body2" className="!mb-4 text-gray-600">
-            答え：<strong>{addQuizRequestData.answer}</strong>
-          </Typography>
-          <div className="flex gap-3 justify-end">
-            <Button
-              label="キャンセル"
-              attr={'button-array'}
-              variant="outlined"
-              color="inherit"
-              onClick={() => setDuplicateModalOpen(false)}
-            />
-            <Button
-              label="それでも登録する"
-              attr={'button-array'}
-              variant="contained"
-              color="warning"
-              onClick={async () => {
-                setDuplicateModalOpen(false);
-                await executeAddQuiz();
-              }}
-            />
-          </div>
-        </div>
-      </Modal>
+      <DuplicateAnswerModal
+        isOpen={duplicateModalOpen}
+        setIsOpen={setDuplicateModalOpen}
+        duplicateQuizzes={duplicateQuizzes}
+        answer={addQuizRequestData.answer ?? ''}
+        onConfirm={async () => {
+          setDuplicateModalOpen(false);
+          await executeAddQuiz();
+        }}
+      />
     </>
   );
 };
