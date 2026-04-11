@@ -102,6 +102,22 @@ export class CategoryController {
   }
 
   @ApiOperation({
+    summary: 'カテゴリ別問題数取得',
+    description: '指定されたファイル番号の各カテゴリに登録されている問題数を取得します。',
+  })
+  @ApiQuery({
+    name: 'file_num',
+    description: 'ファイル番号',
+    type: Number,
+    required: true,
+  })
+  @ApiResponse({ status: 200, description: 'カテゴリ別問題数の取得に成功しました。' })
+  @Get('count')
+  async getCategoryQuizCount(@Query('file_num', ParseIntPipe) file_num: number) {
+    return await this.categoryService.getCategoryQuizCount(+file_num);
+  }
+
+  @ApiOperation({
     summary: 'カテゴリ親子関係一覧取得',
     description: '指定されたファイル番号のカテゴリ親子関係一覧を取得します。',
   })
