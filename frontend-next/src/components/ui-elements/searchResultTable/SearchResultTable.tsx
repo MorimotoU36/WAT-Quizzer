@@ -5,10 +5,17 @@ interface SearchResultTableProps {
   searchResult: GridRowsProp;
   columns: GridColDef<GridValidRowModel>[];
   hasCheck?: boolean;
+  checkedIdList?: number[];
   setCheckedIdList?: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedIdList }: SearchResultTableProps) => {
+export const SearchResultTable = ({
+  searchResult,
+  columns,
+  hasCheck,
+  checkedIdList,
+  setCheckedIdList
+}: SearchResultTableProps) => {
   // チェックした問題のIDをステートに登録
   const registerCheckedIdList = (selectionModel: GridRowSelectionModel) => {
     setCheckedIdList && setCheckedIdList(selectionModel as number[]);
@@ -22,6 +29,7 @@ export const SearchResultTable = ({ searchResult, columns, hasCheck, setCheckedI
         pageSizeOptions={[15]}
         checkboxSelection={hasCheck}
         disableRowSelectionOnClick
+        rowSelectionModel={checkedIdList ?? []}
         onRowSelectionModelChange={(selectionModel, details) => registerCheckedIdList(selectionModel)}
         className="border-0 min-w-[640px]"
         autoHeight

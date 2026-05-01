@@ -19,6 +19,7 @@ export default function SearchQuizPage() {
           searchResult={searchResult}
           columns={columns}
           hasCheck={true}
+          checkedIdList={checkedIdList}
           setCheckedIdList={setCheckedIdList}
         />
         <EditSearchResultForm checkedIdList={checkedIdList} setCheckedIdList={setCheckedIdList} />
