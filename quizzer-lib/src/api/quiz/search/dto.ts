@@ -8,6 +8,7 @@ export interface SearchQuizAPIRequestDto {
   checked?: boolean
   searchInOnlySentense?: boolean
   searchInOnlyAnswer?: boolean
+  onlyDirectCategory?: boolean
 }
 
 //API側で受け取った時のDTO（Pipeで上に変換する）
@@ -21,4 +22,5 @@ export interface SearchQuizAPIRequestReceivedDto {
   checked?: string
   searchInOnlySentense?: string
   searchInOnlyAnswer?: string
+  onlyDirectCategory?: string
 }

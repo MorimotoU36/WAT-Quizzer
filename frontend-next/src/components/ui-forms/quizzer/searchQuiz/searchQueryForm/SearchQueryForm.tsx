@@ -150,9 +150,26 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           optionList={categorylistoption}
           value={searchQuizRequestData.category ?? -1}
           onChange={(e) => {
+            const newCategory = String(e.target.value);
             const setData = {
               ...searchQuizRequestData,
-              category: String(e.target.value)
+              category: newCategory,
+              // カテゴリが未選択になったらonlyDirectCategoryも解除
+              onlyDirectCategory: newCategory === '-1' ? false : searchQuizRequestData.onlyDirectCategory
+            };
+            setSearchQuizRequestData(setData);
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+          }}
+        />
+        <Checkbox
+          value="only-direct-category"
+          label="子カテゴリ未登録のみ（選択カテゴリのみ持つ問題）"
+          checked={!!searchQuizRequestData.onlyDirectCategory}
+          disabled={!searchQuizRequestData.category || searchQuizRequestData.category === '-1'}
+          onChange={(e) => {
+            const setData = {
+              ...searchQuizRequestData,
+              onlyDirectCategory: e.target.checked
             };
             setSearchQuizRequestData(setData);
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));

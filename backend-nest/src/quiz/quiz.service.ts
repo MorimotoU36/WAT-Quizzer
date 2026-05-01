@@ -714,7 +714,25 @@ export class QuizService {
         checked,
         searchInOnlySentense,
         searchInOnlyAnswer,
+        onlyDirectCategory,
       } = req;
+
+      // onlyDirectCategory が true の場合、選択カテゴリの子カテゴリ名を取得
+      let childCategoryNames: string[] = [];
+      if (onlyDirectCategory && category) {
+        const parentCategory = await prisma.category.findFirst({
+          where: { name: category, file_num, deleted_at: null },
+          select: { id: true },
+        });
+        if (parentCategory) {
+          const childRelations = await prisma.category_parent_child.findMany({
+            where: { parent_category_id: parentCategory.id, deleted_at: null },
+            include: { child_category: { select: { name: true } } },
+          });
+          childCategoryNames = childRelations.map((r) => r.child_category.name);
+        }
+      }
+
       const result = await prisma.quiz.findMany({
         select: {
           id: true,
@@ -777,6 +795,19 @@ export class QuizService {
           ...(checked
             ? {
                 checked: true,
+              }
+            : {}),
+          // onlyDirectCategory: 子カテゴリを一切持たない問題のみに絞り込む
+          ...(onlyDirectCategory && childCategoryNames.length > 0
+            ? {
+                NOT: {
+                  category_quiz: {
+                    some: {
+                      category: { name: { in: childCategoryNames } },
+                      deleted_at: null,
+                    },
+                  },
+                },
               }
             : {}),
           ...(query &&

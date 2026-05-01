@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
-import { AddQuizAPIRequestDto, AddQuizApiResponseDto, initAddQuizRequestData, insertAtArray } from 'quizzer-lib';
+import { AddQuizAPIRequestDto, AddQuizApiResponseDto, GetQuizApiResponseDto, initAddQuizRequestData, insertAtArray } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -9,7 +9,8 @@ import { Checkbox } from '@/components/ui-elements/checkBox/CheckBox';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { QuizFilePullDown } from '@/components/ui-elements/pullDown/quizFilePullDown/QuizFilePullDown';
 import { useQuizFormatList } from '@/hooks/useQuizFormatList';
-import { addQuizAPI } from '@/utils/api-wrapper';
+import { addQuizAPI, searchQuizAPI } from '@/utils/api-wrapper';
+import { DuplicateAnswerModal } from '../duplicateAnswerModal/DuplicateAnswerModal';
 
 interface AddQuizFormProps {
   setAddLog: React.Dispatch<React.SetStateAction<string>>;
@@ -19,6 +20,42 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
   const { quizFormatListoption } = useQuizFormatList();
   const [addQuizRequestData, setAddQuizRequestData] = useState<AddQuizAPIRequestDto>(initAddQuizRequestData);
   const setMessage = useSetRecoilState(messageState);
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+  const [duplicateQuizzes, setDuplicateQuizzes] = useState<GetQuizApiResponseDto[]>([]);
+
+  const executeAddQuiz = async () => {
+    setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+    const result = await addQuizAPI({ addQuizRequestData });
+    setMessage(result.message);
+    setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
+    result.message.messageColor === 'success.light' &&
+      setAddQuizRequestData({
+        ...initAddQuizRequestData,
+        format_id: addQuizRequestData.format_id,
+        file_num: addQuizRequestData.file_num
+      });
+  };
+
+  const handleRegisterClick = async () => {
+    if (addQuizRequestData.answer && addQuizRequestData.file_num !== -1) {
+      setMessage({ message: '重複確認中...', messageColor: '#d3d3d3', isDisplay: true });
+      const searchResult = await searchQuizAPI({
+        searchQuizRequestData: {
+          query: addQuizRequestData.answer,
+          file_num: addQuizRequestData.file_num,
+          searchInOnlyAnswer: true
+        }
+      });
+      setMessage({ message: '', messageColor: '', isDisplay: false });
+      const hits = (searchResult.result as GetQuizApiResponseDto[] | undefined) ?? [];
+      if (hits.length > 0) {
+        setDuplicateQuizzes(hits);
+        setDuplicateModalOpen(true);
+        return;
+      }
+    }
+    await executeAddQuiz();
+  };
 
   return (
     <>
@@ -233,19 +270,17 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
         attr={'button-array'}
         variant="contained"
         color="primary"
-        onClick={async (e) => {
-          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await addQuizAPI({
-            addQuizRequestData
-          });
-          setMessage(result.message);
-          setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
-          result.message.messageColor === 'success.light' &&
-            setAddQuizRequestData({
-              ...initAddQuizRequestData,
-              format_id: addQuizRequestData.format_id, // 問題種別のラジオボタンは初期化できないので保持
-              file_num: addQuizRequestData.file_num // 問題ファイル番号も保持
-            });
+        onClick={handleRegisterClick}
+      />
+
+      <DuplicateAnswerModal
+        isOpen={duplicateModalOpen}
+        setIsOpen={setDuplicateModalOpen}
+        duplicateQuizzes={duplicateQuizzes}
+        answer={addQuizRequestData.answer ?? ''}
+        onConfirm={async () => {
+          setDuplicateModalOpen(false);
+          await executeAddQuiz();
         }}
       />
     </>

@@ -163,6 +163,42 @@ export class CategoryService {
     }
   }
 
+  // カテゴリ別問題数取得
+  async getCategoryQuizCount(file_num: number) {
+    try {
+      const categories = await prisma.category.findMany({
+        where: {
+          file_num,
+          deleted_at: null,
+        },
+        select: {
+          id: true,
+          name: true,
+          _count: {
+            select: {
+              category_quiz: {
+                where: { deleted_at: null },
+              },
+            },
+          },
+        },
+        orderBy: { name: 'asc' },
+      });
+      return categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        count: c._count.category_quiz,
+      }));
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // 問題が紐付いていない空カテゴリを論理削除
   async cleanupEmptyCategories() {
     try {
