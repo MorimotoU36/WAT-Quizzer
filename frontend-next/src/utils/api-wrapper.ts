@@ -628,3 +628,8 @@ export const getCategoryQuizCountAPI = async (params: any): Promise<ApiResult> =
   const { getCategoryQuizCountAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
+
+export const getRecommendedCategoriesAPI = async (params: { file_num: number }): Promise<ApiResult> => {
+  const { getRecommendedCategoriesAPI: originalAPI } = await import('quizzer-lib');
+  return originalAPI(params);
+};
