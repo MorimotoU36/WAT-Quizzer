@@ -1,4 +1,4 @@
-import { errorMessage, MESSAGES, successMessage } from '../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
 import { RecommendedCategoryDto } from './dto'
 import { ApiResult, get, ProcessingApiReponse } from '../..'
 
