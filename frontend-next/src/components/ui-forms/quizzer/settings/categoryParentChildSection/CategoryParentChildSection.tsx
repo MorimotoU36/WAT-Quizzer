@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  CardContent,
-  CardHeader,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { CardContent, CardHeader } from '@mui/material';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { PullDownOptionDto, Message, CategoryParentChildAPIResponseDto } from 'quizzer-lib';
@@ -19,6 +10,11 @@ import {
   addCategoryParentChildAPI,
   deleteCategoryParentChildAPI,
 } from '@/utils/api-wrapper';
+
+const CategoryTreeGraph = dynamic(
+  () => import('./CategoryTreeGraph').then((mod) => mod.CategoryTreeGraph),
+  { ssr: false, loading: () => <p className="text-gray-400 text-sm">グラフを読み込み中...</p> }
+);
 
 interface CategoryParentChildSectionProps {
   filelistoption: PullDownOptionDto[];
@@ -143,32 +139,7 @@ export const CategoryParentChildSection = ({
 
           <CardHeader subheader="登録済み親子関係" />
           <CardContent>
-            {parentChildList.length === 0 ? (
-              <p className="text-gray-500">登録されている親子関係はありません</p>
-            ) : (
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>親カテゴリ</TableCell>
-                    <TableCell>子カテゴリ</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {parentChildList.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.parent_category_name}</TableCell>
-                      <TableCell>{row.child_category_name}</TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" onClick={() => handleDelete(row.id)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+            <CategoryTreeGraph parentChildList={parentChildList} onDelete={handleDelete} />
           </CardContent>
         </>
       )}
