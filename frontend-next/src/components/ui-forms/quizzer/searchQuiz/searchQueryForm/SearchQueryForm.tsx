@@ -66,7 +66,8 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                         .join(',')
                     : '',
                   format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
-                  accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
+                  accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN,
+                  explanation: x.quiz_explanation?.explanation ?? ''
                 };
               });
               setSearchResult(apiResult);
@@ -142,6 +143,20 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
               sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
             name="checkedB"
+          />
+          <Checkbox
+            value=""
+            label="解説"
+            checked={!!searchQuizRequestData.searchInExplanation}
+            onChange={(e) => {
+              const setData = {
+                ...searchQuizRequestData,
+                searchInExplanation: e.target.checked
+              };
+              setSearchQuizRequestData(setData);
+              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+            }}
+            name="checkedC"
           />
         </FormGroup>
 
@@ -260,7 +275,8 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                       .join(',')
                   : '',
                 format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
-                accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
+                accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN,
+                explanation: x.quiz_explanation?.explanation ?? ''
               };
             });
             setSearchResult(apiResult);

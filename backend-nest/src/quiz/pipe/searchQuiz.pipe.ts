@@ -28,6 +28,7 @@ export class SearchQuizPipe implements PipeTransform<
           case 'checked':
           case 'searchInOnlySentense':
           case 'searchInOnlyAnswer':
+          case 'searchInExplanation':
           case 'onlyDirectCategory':
             return { ...acc, [key]: parseStrToBool(cur[1]) };
           case 'format_id':

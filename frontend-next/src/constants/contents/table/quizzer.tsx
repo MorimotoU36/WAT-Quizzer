@@ -126,6 +126,13 @@ export const columns = [
     }
   },
   {
+    field: 'explanation',
+    headerName: '解説',
+    sortable: false,
+    type: 'string',
+    width: 300
+  },
+  {
     field: 'img_file',
     headerName: '画像ファイル',
     sortable: false,

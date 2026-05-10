@@ -8,6 +8,7 @@ export interface SearchQuizAPIRequestDto {
   checked?: boolean
   searchInOnlySentense?: boolean
   searchInOnlyAnswer?: boolean
+  searchInExplanation?: boolean
   onlyDirectCategory?: boolean
 }
 
@@ -22,5 +23,6 @@ export interface SearchQuizAPIRequestReceivedDto {
   checked?: string
   searchInOnlySentense?: string
   searchInOnlyAnswer?: string
+  searchInExplanation?: string
   onlyDirectCategory?: string
 }

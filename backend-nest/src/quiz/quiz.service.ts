@@ -714,6 +714,7 @@ export class QuizService {
         checked,
         searchInOnlySentense,
         searchInOnlyAnswer,
+        searchInExplanation,
         onlyDirectCategory,
       } = req;
 
@@ -762,6 +763,11 @@ export class QuizService {
           },
           img_file: true,
           checked: true,
+          quiz_explanation: {
+            select: {
+              explanation: true,
+            },
+          },
         },
         where: {
           // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
@@ -813,37 +819,30 @@ export class QuizService {
           ...(query &&
             query !== '' &&
             (() => {
-              // searchInOnlySentenseのみがtrueの場合：問題文のみ
-              if (searchInOnlySentense && !searchInOnlyAnswer) {
-                return {
-                  quiz_sentense: {
-                    contains: query,
-                  },
-                };
-              }
-              // searchInOnlyAnswerのみがtrueの場合：答えのみ
-              if (!searchInOnlySentense && searchInOnlyAnswer) {
-                return {
-                  answer: {
-                    contains: query,
-                  },
-                };
-              }
-              // 両方trueまたは両方falseの場合：問題文または答え（OR条件）
-              return {
-                OR: [
-                  {
-                    quiz_sentense: {
-                      contains: query,
-                    },
-                  },
-                  {
-                    answer: {
-                      contains: query,
-                    },
-                  },
-                ],
-              };
+              const noneChecked =
+                !searchInOnlySentense &&
+                !searchInOnlyAnswer &&
+                !searchInExplanation;
+              const conditions = [
+                ...(noneChecked || searchInOnlySentense
+                  ? [{ quiz_sentense: { contains: query } }]
+                  : []),
+                ...(noneChecked || searchInOnlyAnswer
+                  ? [{ answer: { contains: query } }]
+                  : []),
+                ...(noneChecked || searchInExplanation
+                  ? [
+                      {
+                        quiz_explanation: {
+                          explanation: { contains: query },
+                        },
+                      },
+                    ]
+                  : []),
+              ];
+              return conditions.length === 1
+                ? conditions[0]
+                : { OR: conditions };
             })()),
         },
         orderBy: {
