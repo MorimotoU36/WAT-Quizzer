@@ -7,7 +7,8 @@ import {
   GetQuizApiResponseDto,
   initSearchQuizRequestData,
   PullDownOptionDto,
-  SearchQuizAPIRequestDto
+  SearchQuizAPIRequestDto,
+  SEARCH_LIMITS
 } from 'quizzer-lib';
 import { searchQuizAPI } from '@/utils/api-wrapper';
 import { useSetRecoilState } from 'recoil';
@@ -283,6 +284,9 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           }
         }}
       />
+      <p className="text-xs text-gray-400 mt-1">
+        ※ 検索結果は最大 {SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS} 問まで表示されます
+      </p>
     </>
   );
 };

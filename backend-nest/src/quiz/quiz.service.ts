@@ -21,6 +21,7 @@ import {
   MESSAGES,
   AnswerLogStatisticsApiResponse,
   getTodayStart,
+  SEARCH_LIMITS,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -848,6 +849,7 @@ export class QuizService {
         orderBy: {
           quiz_num: 'asc',
         },
+        take: SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS,
       });
       return result.map((x) => {
         return {
