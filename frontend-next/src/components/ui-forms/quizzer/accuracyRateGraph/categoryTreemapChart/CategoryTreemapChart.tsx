@@ -29,45 +29,20 @@ interface CustomContentProps {
   size?: number;
   depth?: number;
   index?: number;
-  root?: { children?: unknown[] };
+  _colorIndex?: number;
 }
 
 const CustomContent = (props: CustomContentProps) => {
-  const { x = 0, y = 0, width = 0, height = 0, name, size, depth, index = 0, root } = props;
+  const { x = 0, y = 0, width = 0, height = 0, name, size, depth = 0, index = 0, _colorIndex } = props;
+  const colorIndex = (_colorIndex ?? index) % COLORS.length;
 
-  if (depth === 1) {
-    // 親カテゴリのグループ背景
-    const colorIndex = index % COLORS.length;
-    return (
-      <g>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          style={{ fill: COLORS[colorIndex], stroke: '#fff', strokeWidth: 2, opacity: 0.15 }}
-        />
-        {width > 60 && height > 20 && (
-          <text
-            x={x + width / 2}
-            y={y + 14}
-            textAnchor="middle"
-            fill="#333"
-            fontSize={12}
-            fontWeight="bold"
-            style={{ pointerEvents: 'none' }}
-          >
-            {name}
-          </text>
-        )}
-      </g>
-    );
+  if (depth === 0) {
+    // ルートノード：非表示
+    return <g />;
   }
 
-  if (depth === 2) {
-    // 子カテゴリの葉ノード
-    const parentIndex = ((root?.children as unknown[]) ?? []).findIndex((_, i) => i === Math.floor(index / 1));
-    const colorIndex = (parentIndex >= 0 ? parentIndex : index) % COLORS.length;
+  if (size !== undefined) {
+    // 葉ノード（任意の深さ）：塗りつぶしセル
     return (
       <g>
         <rect
@@ -106,8 +81,8 @@ const CustomContent = (props: CustomContentProps) => {
     );
   }
 
-  // depth=0: ルートノード（スタンドアローンな葉ノード）
-  const colorIndex = index % COLORS.length;
+  // グループノード（子カテゴリあり、任意の深さ）：背景と見出し
+  const opacity = Math.max(0.05, 0.18 - (depth - 1) * 0.04);
   return (
     <g>
       <rect
@@ -115,32 +90,20 @@ const CustomContent = (props: CustomContentProps) => {
         y={y}
         width={width}
         height={height}
-        style={{ fill: COLORS[colorIndex], stroke: '#fff', strokeWidth: 2, opacity: 0.85 }}
+        style={{ fill: COLORS[colorIndex], stroke: '#fff', strokeWidth: 2, opacity }}
       />
-      {width > 50 && height > 30 && (
-        <>
-          <text
-            x={x + width / 2}
-            y={y + height / 2 - 6}
-            textAnchor="middle"
-            fill="#fff"
-            fontSize={11}
-            style={{ pointerEvents: 'none' }}
-          >
-            {name}
-          </text>
-          <text
-            x={x + width / 2}
-            y={y + height / 2 + 10}
-            textAnchor="middle"
-            fill="#fff"
-            fontSize={11}
-            fontWeight="bold"
-            style={{ pointerEvents: 'none' }}
-          >
-            {size}問
-          </text>
-        </>
+      {width > 60 && height > 20 && (
+        <text
+          x={x + width / 2}
+          y={y + 14}
+          textAnchor="middle"
+          fill="#333"
+          fontSize={12}
+          fontWeight="bold"
+          style={{ pointerEvents: 'none' }}
+        >
+          {name}
+        </text>
       )}
     </g>
   );
