@@ -66,6 +66,9 @@ export const AddMeanForm = ({ posList, addWordState, setAddWordState }: AddMeanF
               {x.label}
             </MenuItem>
           ))}
+          <MenuItem value={-2} key={-2}>
+            その他
+          </MenuItem>
         </Select>
         {posInput}
       </>
