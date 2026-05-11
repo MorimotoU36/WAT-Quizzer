@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { CategoryTreeGraph } from './CategoryTreeGraph';
 import { CategoryParentChildAPIResponseDto } from 'quizzer-lib';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 const mockParentChildList: CategoryParentChildAPIResponseDto[] = [
   { id: 1, file_num: 1, parent_category_name: '文法', child_category_name: '動詞' },
