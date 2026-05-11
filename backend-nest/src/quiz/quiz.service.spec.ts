@@ -52,6 +52,9 @@ jest.mock('quizzer-lib', () => {
     getPrismaFromPastDayRange: jest.fn(),
     getTodayStart: jest.fn(),
     xor: jest.fn(),
+    SEARCH_LIMITS: {
+      MAX_QUIZ_SEARCH_RESULTS: 200,
+    },
   };
 });
 
