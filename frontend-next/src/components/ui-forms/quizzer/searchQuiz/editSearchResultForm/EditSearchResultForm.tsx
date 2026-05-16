@@ -4,6 +4,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { addCategoryToQuizAPI, checkOffQuizAPI, checkOnQuizAPI, deleteCategoryOfQuizAPI } from '@/utils/api-wrapper';
+import { expandCategoriesWithAncestors } from '@/utils/categoryUtils';
 
 interface EditSearchResultFormProps {
   checkedIdList: number[];
@@ -24,7 +25,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
   const [changedCategory, setChangedCategory] = useState<string>('');
   const setMessage = useSetRecoilState(messageState);
 
-  // チェックした問題に指定カテゴリを一括登録する
+  // チェックした問題に指定カテゴリを一括登録する（親カテゴリも自動登録）
   const registerCategoryToChecked = async () => {
     if (checkedIdList.length === 0) {
       setMessage({
@@ -42,18 +43,35 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
       return;
     }
 
-    const chunks = chunkArray(checkedIdList, BATCH_SIZE);
-    for (let i = 0; i < chunks.length; i++) {
-      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
-      const result = await addCategoryToQuizAPI({
-        addCategoryToQuizRequestData: {
-          quiz_id: chunks[i].map(String).join(','),
-          category: changedCategory
+    // sessionStorageからfile_numを取得して親カテゴリも含めて展開
+    let categoriesToRegister = [changedCategory];
+    try {
+      const saved = sessionStorage.getItem('searchQuizRequestData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const fileNum = parsed.file_num ?? -1;
+        if (fileNum !== -1) {
+          categoriesToRegister = await expandCategoriesWithAncestors([changedCategory], fileNum);
         }
-      });
-      if (result.message.messageColor === 'error') {
-        setMessage({ ...result.message });
-        return;
+      }
+    } catch (e) {
+      // 取得失敗時は指定カテゴリのみ登録
+    }
+
+    const chunks = chunkArray(checkedIdList, BATCH_SIZE);
+    for (const category of categoriesToRegister) {
+      for (let i = 0; i < chunks.length; i++) {
+        setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
+        const result = await addCategoryToQuizAPI({
+          addCategoryToQuizRequestData: {
+            quiz_id: chunks[i].map(String).join(','),
+            category
+          }
+        });
+        if (result.message.messageColor === 'error') {
+          setMessage({ ...result.message });
+          return;
+        }
       }
     }
     setMessage({ message: `${checkedIdList.length}問にカテゴリを登録しました`, messageColor: 'success', isDisplay: true });
