@@ -29,20 +29,22 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
     if (checkedIdList.length === 0) {
       setMessage({
         message: 'エラー:チェックされた問題がありません',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     } else if (changedCategory === '') {
       setMessage({
         message: 'エラー:一括登録するカテゴリ名を入力して下さい',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     }
 
     const chunks = chunkArray(checkedIdList, BATCH_SIZE);
     for (let i = 0; i < chunks.length; i++) {
-      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3' });
+      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
       const result = await addCategoryToQuizAPI({
         addCategoryToQuizRequestData: {
           quiz_id: chunks[i].map(String).join(','),
@@ -54,7 +56,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         return;
       }
     }
-    setMessage({ message: `${checkedIdList.length}問にカテゴリを登録しました`, messageColor: 'success' });
+    setMessage({ message: `${checkedIdList.length}問にカテゴリを登録しました`, messageColor: 'success', isDisplay: true });
     setCheckedIdList([]);
     setChangedCategory('');
   };
@@ -64,20 +66,22 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
     if (checkedIdList.length === 0) {
       setMessage({
         message: 'エラー:チェックされた問題がありません',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     } else if (changedCategory === '') {
       setMessage({
         message: 'エラー:一括削除するカテゴリ名を入力して下さい',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     }
 
     const chunks = chunkArray(checkedIdList, BATCH_SIZE);
     for (let i = 0; i < chunks.length; i++) {
-      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3' });
+      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
       const result = await deleteCategoryOfQuizAPI({
         deleteCategoryToQuizRequestData: {
           quiz_id: chunks[i].map(String).join(','),
@@ -89,7 +93,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         return;
       }
     }
-    setMessage({ message: `${checkedIdList.length}問からカテゴリを削除しました`, messageColor: 'success' });
+    setMessage({ message: `${checkedIdList.length}問からカテゴリを削除しました`, messageColor: 'success', isDisplay: true });
     setCheckedIdList([]);
     setChangedCategory('');
   };
@@ -99,14 +103,15 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
     if (checkedIdList.length === 0) {
       setMessage({
         message: 'エラー:選択された問題がありません',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     }
 
     const chunks = chunkArray(checkedIdList, BATCH_SIZE);
     for (let i = 0; i < chunks.length; i++) {
-      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3' });
+      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
       const result = await checkOnQuizAPI({
         checkQuizRequestData: { quiz_id: chunks[i].map(String).join(',') }
       });
@@ -115,7 +120,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         return;
       }
     }
-    setMessage({ message: `${checkedIdList.length}問に✅をつけました`, messageColor: 'success' });
+    setMessage({ message: `${checkedIdList.length}問に✅をつけました`, messageColor: 'success', isDisplay: true });
     setCheckedIdList([]);
     setChangedCategory('');
   };
@@ -125,14 +130,15 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
     if (checkedIdList.length === 0) {
       setMessage({
         message: 'エラー:選択された問題がありません',
-        messageColor: 'error'
+        messageColor: 'error',
+        isDisplay: true
       });
       return;
     }
 
     const chunks = chunkArray(checkedIdList, BATCH_SIZE);
     for (let i = 0; i < chunks.length; i++) {
-      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3' });
+      setMessage({ message: `通信中... (${i + 1}/${chunks.length})`, messageColor: '#d3d3d3', isDisplay: true });
       const result = await checkOffQuizAPI({
         checkQuizRequestData: { quiz_id: chunks[i].map(String).join(',') }
       });
@@ -141,7 +147,7 @@ export const EditSearchResultForm = ({ checkedIdList, setCheckedIdList }: EditSe
         return;
       }
     }
-    setMessage({ message: `${checkedIdList.length}問の✅を外しました`, messageColor: 'success' });
+    setMessage({ message: `${checkedIdList.length}問の✅を外しました`, messageColor: 'success', isDisplay: true });
     setCheckedIdList([]);
     setChangedCategory('');
   };
