@@ -140,6 +140,26 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
           }
         }}
       />
+      <Button
+        label={'REVIEW'}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await getEnglishWordTestDataAPI({
+            getEnglishWordTestData: {
+              ...queryOfTestData,
+              format: 'review'
+            }
+          });
+          setMessage(result.message);
+          if (result.message.messageColor === 'common.black') {
+            setDisplayTestData &&
+              setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
+          }
+        }}
+      />
     </>
   );
 };
