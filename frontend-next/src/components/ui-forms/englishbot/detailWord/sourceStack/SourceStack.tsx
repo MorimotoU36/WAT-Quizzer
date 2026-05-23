@@ -3,6 +3,7 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Item } from '@/components/ui-elements/item/Item';
 import { Modal } from '@/components/ui-elements/modal/Modal';
 import { Box, CircularProgress, IconButton, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { pullDownMenuProps } from '@/constants/pullDown';
 import { style } from '../Stack.style';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -37,6 +38,7 @@ const displaySourceInput = (
       label="source"
       key={i}
       sx={{ width: 1 }}
+      MenuProps={pullDownMenuProps}
       onChange={(e) => {
         setEditWordSourceData({
           ...editWordSourceData,

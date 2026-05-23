@@ -1,6 +1,7 @@
 import React from 'react';
 import { Checkbox, FormControl, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent } from '@mui/material';
 import { getRandomStr } from 'quizzer-lib';
+import { pullDownMenuProps } from '@/constants/pullDown';
 
 interface MultiSelectPullDownProps {
   optionList: {
@@ -12,17 +13,6 @@ interface MultiSelectPullDownProps {
   value?: number | string;
   onChange?: (e: SelectChangeEvent<string[]>) => void;
 }
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
-      //width: 250
-    }
-  }
-};
 
 export const MultiSelectPullDown = ({ optionList, label, className, value, onChange }: MultiSelectPullDownProps) => {
   const [selectedValue, setSelectedValue] = React.useState<string[]>([]);
@@ -66,7 +56,7 @@ export const MultiSelectPullDown = ({ optionList, label, className, value, onCha
     id: `quiz-file-id-${getRandomStr()}`,
     value: selectedValue,
     onChange: handleChange,
-    MenuProps
+    MenuProps: pullDownMenuProps
   };
 
   return (
