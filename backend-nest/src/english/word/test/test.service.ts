@@ -6,6 +6,7 @@ import {
   getPrismaPastDayRange,
   getRandomElementsFromArray,
   getRandomInt,
+  getTodayStart,
   prisma,
 } from 'quizzer-lib';
 
@@ -72,6 +73,20 @@ export class EnglishWordTestService {
             }
           : {}),
       };
+      // review時の追加条件
+      const reviewWhere =
+        format === 'review'
+          ? {
+              word_statistics_view: {
+                last_failed_answer_log: {
+                  lt: getTodayStart(),
+                },
+                last_answer_log: {
+                  lt: getTodayStart(),
+                },
+              },
+            }
+          : {};
       // ソート条件
       const orderBy =
         format === 'random'
@@ -87,12 +102,21 @@ export class EnglishWordTestService {
                   },
                 },
               ]
-            : [];
+            : format === 'review'
+              ? [
+                  {
+                    word_statistics_view: {
+                      last_failed_answer_log: 'desc' as const,
+                    },
+                  },
+                ]
+              : [];
       // 取得件数を先に取得しておく(ランダムの場合のみ)
+      const finalWhere = { ...where, ...reviewWhere };
       const count =
         format === 'random'
           ? await prisma.word.count({
-              where,
+              where: finalWhere,
             })
           : -1;
       // データ取得
@@ -134,7 +158,7 @@ export class EnglishWordTestService {
             },
           },
         },
-        where,
+        where: finalWhere,
         orderBy,
         skip: count !== -1 ? getRandomInt(count) : 0,
       });
