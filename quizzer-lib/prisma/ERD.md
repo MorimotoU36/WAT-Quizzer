@@ -410,6 +410,7 @@ erDiagram
     BigInt fail_count "❓"
     BigInt accuracy_rate "❓"
     DateTime last_answer_log "❓"
+    DateTime last_failed_answer_log "❓"
     }
   
 

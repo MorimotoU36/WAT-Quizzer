@@ -1,3 +1,4 @@
+CREATE OR REPLACE VIEW word_statistics_view AS
 SELECT
   word.id,
   word.name,
