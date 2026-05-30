@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormControl, FormGroup } from '@mui/material';
+import { FormControl, FormGroup, TextField as MuiTextField } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -24,9 +24,10 @@ import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
 
 interface SearchQueryFormProps {
   setSearchResult: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+  setTotalCount: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
+export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryFormProps) => {
   const [searchQuizRequestData, setSearchQuizRequestData] =
     useState<SearchQuizAPIRequestDto>(initSearchQuizRequestData);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
@@ -56,6 +57,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
             setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
             const result = await searchQuizAPI({ searchQuizRequestData: parsed });
             setMessage(result.message);
+            setTotalCount(result.total);
             if (result.result) {
               const apiResult = (result.result as GetQuizApiResponseDto[]).map((x) => {
                 return {
@@ -79,7 +81,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
         // パース失敗時は何もしない
       }
     }
-  }, [setMessage, setSearchResult]);
+  }, [setMessage, setSearchResult, setTotalCount]);
 
   // カテゴリリストが更新されたとき、category値がリストに含まれていなければ-1にリセット
   useEffect(() => {
@@ -254,6 +256,43 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
             </div>
           </div>
         </FormControl>
+        <FormControl>
+          <div className="flex flex-row items-center gap-2 flex-wrap">
+            <span className="text-sm whitespace-nowrap">上位</span>
+            <MuiTextField
+              className="!my-[8px]"
+              variant="outlined"
+              label="x件目から"
+              type="number"
+              inputProps={{ min: 1 }}
+              value={searchQuizRequestData.result_from !== undefined ? String(searchQuizRequestData.result_from) : ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                const setData = { ...searchQuizRequestData, result_from: val };
+                setSearchQuizRequestData(setData);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+              }}
+              sx={{ width: 120 }}
+            />
+            <span className="text-sm whitespace-nowrap">〜</span>
+            <MuiTextField
+              className="!my-[8px]"
+              variant="outlined"
+              label="y件目まで"
+              type="number"
+              inputProps={{ min: 1 }}
+              value={searchQuizRequestData.result_to !== undefined ? String(searchQuizRequestData.result_to) : ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                const setData = { ...searchQuizRequestData, result_to: val };
+                setSearchQuizRequestData(setData);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+              }}
+              sx={{ width: 120 }}
+            />
+            <span className="text-sm whitespace-nowrap">を表示（空欄で上位{SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS}件）</span>
+          </div>
+        </FormControl>
       </FormGroup>
       <Button
         label={'検索'}
@@ -265,6 +304,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await searchQuizAPI({ searchQuizRequestData });
           setMessage(result.message);
+          setTotalCount(result.total);
           if (result.result) {
             const apiResult = (result.result as GetQuizApiResponseDto[]).map((x) => {
               return {

@@ -10,11 +10,17 @@ import { EditSearchResultForm } from '@/components/ui-forms/quizzer/searchQuiz/e
 export default function SearchQuizPage() {
   const [searchResult, setSearchResult] = useState<GridRowsProp>([] as GridRowsProp);
   const [checkedIdList, setCheckedIdList] = useState<number[]>([] as number[]);
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
 
   const contents = () => {
     return (
       <Container className="!py-4">
-        <SearchQueryForm setSearchResult={setSearchResult} />
+        <SearchQueryForm setSearchResult={setSearchResult} setTotalCount={setTotalCount} />
+        {totalCount !== undefined && (
+          <p className="text-sm text-gray-600 mt-1">
+            全{totalCount}件中 {searchResult.length}件表示
+          </p>
+        )}
         <SearchResultTable
           searchResult={searchResult}
           columns={columns}
