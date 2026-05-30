@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataGrid, GridColDef, GridRowSelectionModel, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowClassNameParams, GridRowSelectionModel, GridRowsProp, GridValidRowModel } from '@mui/x-data-grid';
 
 interface SearchResultTableProps {
   searchResult: GridRowsProp;
@@ -7,6 +7,7 @@ interface SearchResultTableProps {
   hasCheck?: boolean;
   checkedIdList?: number[];
   setCheckedIdList?: React.Dispatch<React.SetStateAction<number[]>>;
+  getRowClassName?: (params: GridRowClassNameParams) => string;
 }
 
 export const SearchResultTable = ({
@@ -14,7 +15,8 @@ export const SearchResultTable = ({
   columns,
   hasCheck,
   checkedIdList,
-  setCheckedIdList
+  setCheckedIdList,
+  getRowClassName
 }: SearchResultTableProps) => {
   // チェックした問題のIDをステートに登録
   const registerCheckedIdList = (selectionModel: GridRowSelectionModel) => {
@@ -34,6 +36,7 @@ export const SearchResultTable = ({
         className="border-0 min-w-[640px]"
         autoHeight
         density="compact"
+        getRowClassName={getRowClassName}
       />
     </div>
   );

@@ -577,6 +577,16 @@ export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
   return originalGetTodoListAPI(params);
 };
 
+export const getTodoListAllAPI = async (): Promise<ApiResult> => {
+  const { getTodoListAllAPI: originalGetTodoListAllAPI } = await import('quizzer-lib');
+  return originalGetTodoListAllAPI();
+};
+
+export const restoreTodoAPI = async (params: any): Promise<ApiResult> => {
+  const { restoreTodoAPI: originalRestoreTodoAPI } = await import('quizzer-lib');
+  return originalRestoreTodoAPI(params);
+};
+
 export const addTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     return mockAPI.mockAddTodoDiaryAPI(params);
