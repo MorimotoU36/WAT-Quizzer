@@ -111,14 +111,11 @@ export class EnglishWordTestService {
                   },
                 ]
               : [];
-      // 取得件数を先に取得しておく(ランダムの場合のみ)
+      // 取得件数を先に取得しておく
       const finalWhere = { ...where, ...reviewWhere };
-      const count =
-        format === 'random'
-          ? await prisma.word.count({
-              where: finalWhere,
-            })
-          : -1;
+      const count = await prisma.word.count({
+        where: finalWhere,
+      });
       // データ取得
       const result = await prisma.word.findFirst({
         select: {
@@ -160,7 +157,7 @@ export class EnglishWordTestService {
         },
         where: finalWhere,
         orderBy,
-        skip: count !== -1 ? getRandomInt(count) : 0,
+        skip: format === 'random' ? getRandomInt(count) : 0,
       });
       if (!result) {
         throw new HttpException(
@@ -194,6 +191,7 @@ export class EnglishWordTestService {
       );
 
       return {
+        total: count,
         word: {
           id: result.id,
           name: result.name,
