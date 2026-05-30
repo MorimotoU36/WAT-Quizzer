@@ -17,6 +17,7 @@ jest.mock('quizzer-lib', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     },
     answer_log: {
       create: jest.fn(),
@@ -396,6 +397,7 @@ describe('QuizService', () => {
       },
     ];
     (prisma.quiz.findMany as jest.Mock).mockResolvedValue(dbResult);
+    (prisma.quiz.count as jest.Mock).mockResolvedValue(1);
     (xor as jest.Mock).mockReturnValue({}); // モック関数としてxorを実装
 
     await expect(
@@ -410,7 +412,7 @@ describe('QuizService', () => {
         searchInOnlyAnswer: true,
         file_num: 1,
       }),
-    ).resolves.toEqual(expectedResult);
+    ).resolves.toEqual({ total: 1, quizzes: expectedResult });
   });
 
   // 問題検索 異常系1
@@ -418,6 +420,7 @@ describe('QuizService', () => {
     (prisma.quiz.findMany as jest.Mock).mockRejectedValue(
       new Error('error test by jest.'),
     );
+    (prisma.quiz.count as jest.Mock).mockResolvedValue(0);
     (xor as jest.Mock).mockResolvedValue({});
     await expect(
       quizService.search({
