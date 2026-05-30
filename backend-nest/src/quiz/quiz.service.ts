@@ -717,7 +717,16 @@ export class QuizService {
         searchInOnlyAnswer,
         searchInExplanation,
         onlyDirectCategory,
+        result_from,
+        result_to,
       } = req;
+
+      const skip = result_from ? result_from - 1 : 0;
+      const rangeCount =
+        result_from !== undefined && result_to !== undefined
+          ? result_to - result_from + 1
+          : SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS;
+      const take = Math.min(rangeCount, SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS);
 
       // onlyDirectCategory が true の場合、選択カテゴリの子カテゴリ名を取得
       let childCategoryNames: string[] = [];
@@ -735,123 +744,129 @@ export class QuizService {
         }
       }
 
-      const result = await prisma.quiz.findMany({
-        select: {
-          id: true,
-          file_num: true,
-          quiz_num: true,
-          quiz_sentense: true,
-          answer: true,
+      const whereClause = {
+        // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
+        ...(format_id && {
+          format_id: {
+            in: Object.entries(format_id)
+              .filter((x) => x[1])
+              .map((x) => +x[0]),
+          },
+        }),
+        file_num,
+        deleted_at: null,
+        quiz_statistics_view: {
+          accuracy_rate: {
+            gte: min_rate || 0,
+            lte: max_rate || 100,
+          },
+        },
+        ...(category && {
           category_quiz: {
-            select: {
-              deleted_at: true,
+            some: {
               category: {
-                select: {
-                  name: true,
+                name: {
+                  contains: category,
                 },
               },
+              deleted_at: null,
             },
           },
-          quiz_format: {
-            select: {
-              name: true,
-            },
-          },
-          quiz_statistics_view: {
-            select: {
-              accuracy_rate: true,
-            },
-          },
-          img_file: true,
-          checked: true,
-          quiz_explanation: {
-            select: {
-              explanation: true,
-            },
-          },
-        },
-        where: {
-          // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
-          ...(format_id && {
-            format_id: {
-              in: Object.entries(format_id)
-                .filter((x) => x[1])
-                .map((x) => +x[0]),
-            },
-          }),
-          file_num,
-          deleted_at: null,
-          quiz_statistics_view: {
-            accuracy_rate: {
-              gte: min_rate || 0,
-              lte: max_rate || 100,
-            },
-          },
-          ...(category && {
-            category_quiz: {
-              some: {
-                category: {
-                  name: {
-                    contains: category,
+        }),
+        ...(checked
+          ? {
+              checked: true,
+            }
+          : {}),
+        // onlyDirectCategory: 子カテゴリを一切持たない問題のみに絞り込む
+        ...(onlyDirectCategory && childCategoryNames.length > 0
+          ? {
+              NOT: {
+                category_quiz: {
+                  some: {
+                    category: { name: { in: childCategoryNames } },
+                    deleted_at: null,
                   },
                 },
-                deleted_at: null,
               },
-            },
-          }),
-          ...(checked
-            ? {
-                checked: true,
-              }
-            : {}),
-          // onlyDirectCategory: 子カテゴリを一切持たない問題のみに絞り込む
-          ...(onlyDirectCategory && childCategoryNames.length > 0
-            ? {
-                NOT: {
-                  category_quiz: {
-                    some: {
-                      category: { name: { in: childCategoryNames } },
-                      deleted_at: null,
-                    },
-                  },
-                },
-              }
-            : {}),
-          ...(query &&
-            query !== '' &&
-            (() => {
-              const noneChecked =
-                !searchInOnlySentense &&
-                !searchInOnlyAnswer &&
-                !searchInExplanation;
-              const conditions = [
-                ...(noneChecked || searchInOnlySentense
-                  ? [{ quiz_sentense: { contains: query } }]
-                  : []),
-                ...(noneChecked || searchInOnlyAnswer
-                  ? [{ answer: { contains: query } }]
-                  : []),
-                ...(noneChecked || searchInExplanation
-                  ? [
-                      {
-                        quiz_explanation: {
-                          explanation: { contains: query },
-                        },
+            }
+          : {}),
+        ...(query &&
+          query !== '' &&
+          (() => {
+            const noneChecked =
+              !searchInOnlySentense &&
+              !searchInOnlyAnswer &&
+              !searchInExplanation;
+            const conditions = [
+              ...(noneChecked || searchInOnlySentense
+                ? [{ quiz_sentense: { contains: query } }]
+                : []),
+              ...(noneChecked || searchInOnlyAnswer
+                ? [{ answer: { contains: query } }]
+                : []),
+              ...(noneChecked || searchInExplanation
+                ? [
+                    {
+                      quiz_explanation: {
+                        explanation: { contains: query },
                       },
-                    ]
-                  : []),
-              ];
-              return conditions.length === 1
-                ? conditions[0]
-                : { OR: conditions };
-            })()),
-        },
-        orderBy: {
-          quiz_num: 'asc',
-        },
-        take: SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS,
-      });
-      return result.map((x) => {
+                    },
+                  ]
+                : []),
+            ];
+            return conditions.length === 1
+              ? conditions[0]
+              : { OR: conditions };
+          })()),
+      };
+
+      const [result, total] = await Promise.all([
+        prisma.quiz.findMany({
+          select: {
+            id: true,
+            file_num: true,
+            quiz_num: true,
+            quiz_sentense: true,
+            answer: true,
+            category_quiz: {
+              select: {
+                deleted_at: true,
+                category: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+            quiz_format: {
+              select: {
+                name: true,
+              },
+            },
+            quiz_statistics_view: {
+              select: {
+                accuracy_rate: true,
+              },
+            },
+            img_file: true,
+            checked: true,
+            quiz_explanation: {
+              select: {
+                explanation: true,
+              },
+            },
+          },
+          where: whereClause,
+          orderBy: {
+            quiz_num: 'asc',
+          },
+          skip,
+          take,
+        }),
+        prisma.quiz.count({ where: whereClause }),
+      ]);
+      const quizzes = result.map((x) => {
         return {
           ...x,
           category_quiz: undefined,
@@ -865,6 +880,7 @@ export class QuizService {
           },
         };
       });
+      return { total, quizzes };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
