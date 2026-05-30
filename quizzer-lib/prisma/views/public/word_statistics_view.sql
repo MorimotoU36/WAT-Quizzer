@@ -17,7 +17,8 @@ SELECT
       )
     )
   END AS accuracy_rate,
-  last_answer_stat.last_answer_log
+  last_answer_stat.last_answer_log,
+  fail_stat.last_failed_answer_log
 FROM
   (
     (
@@ -38,7 +39,8 @@ FROM
       LEFT JOIN (
         SELECT
           englishbot_answer_log.word_id,
-          count(*) AS fail_count
+          count(*) AS fail_count,
+          max(englishbot_answer_log.created_at) AS last_failed_answer_log
         FROM
           englishbot_answer_log
         WHERE

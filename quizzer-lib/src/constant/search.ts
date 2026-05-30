@@ -1,0 +1,3 @@
+export const SEARCH_LIMITS = {
+  MAX_QUIZ_SEARCH_RESULTS: 200,
+}

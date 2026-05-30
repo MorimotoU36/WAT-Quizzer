@@ -6,6 +6,7 @@ import {
   getPrismaPastDayRange,
   getRandomElementsFromArray,
   getRandomInt,
+  getTodayStart,
   prisma,
 } from 'quizzer-lib';
 
@@ -72,6 +73,20 @@ export class EnglishWordTestService {
             }
           : {}),
       };
+      // review時の追加条件
+      const reviewWhere =
+        format === 'review'
+          ? {
+              word_statistics_view: {
+                last_failed_answer_log: {
+                  lt: getTodayStart(),
+                },
+                last_answer_log: {
+                  lt: getTodayStart(),
+                },
+              },
+            }
+          : {};
       // ソート条件
       const orderBy =
         format === 'random'
@@ -87,14 +102,20 @@ export class EnglishWordTestService {
                   },
                 },
               ]
-            : [];
-      // 取得件数を先に取得しておく(ランダムの場合のみ)
-      const count =
-        format === 'random'
-          ? await prisma.word.count({
-              where,
-            })
-          : -1;
+            : format === 'review'
+              ? [
+                  {
+                    word_statistics_view: {
+                      last_failed_answer_log: 'desc' as const,
+                    },
+                  },
+                ]
+              : [];
+      // 取得件数を先に取得しておく
+      const finalWhere = { ...where, ...reviewWhere };
+      const count = await prisma.word.count({
+        where: finalWhere,
+      });
       // データ取得
       const result = await prisma.word.findFirst({
         select: {
@@ -134,9 +155,9 @@ export class EnglishWordTestService {
             },
           },
         },
-        where,
+        where: finalWhere,
         orderBy,
-        skip: count !== -1 ? getRandomInt(count) : 0,
+        skip: format === 'random' ? getRandomInt(count) : 0,
       });
       if (!result) {
         throw new HttpException(
@@ -170,6 +191,7 @@ export class EnglishWordTestService {
       );
 
       return {
+        total: count,
         word: {
           id: result.id,
           name: result.name,

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Item } from '@/components/ui-elements/item/Item';
 import { Box, CircularProgress, IconButton, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { pullDownMenuProps } from '@/constants/pullDown';
 import { Modal } from '@/components/ui-elements/modal/Modal';
 import { style } from '../Stack.style';
 import { useState } from 'react';
@@ -37,6 +38,7 @@ const displayPosInput = (
       label="partOfSpeech"
       key={i}
       sx={{ width: 1 }}
+      MenuProps={pullDownMenuProps}
       onChange={(e) => {
         let posData;
         for (let i = 0; i < posList.length; i++) {

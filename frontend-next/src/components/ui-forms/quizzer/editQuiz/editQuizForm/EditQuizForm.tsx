@@ -7,6 +7,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { editQuizAPI } from '@/utils/api-wrapper';
+import { expandCategoriesWithAncestors } from '@/utils/categoryUtils';
 
 interface EditQuizFormProps {
   editQuizRequestData: EditQuizAPIRequestDto;
@@ -180,7 +181,14 @@ export const EditQuizForm = ({ editQuizRequestData, setEditQuizRequestData }: Ed
         color="primary"
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-          const result = await editQuizAPI({ editQuizRequestData });
+          // カテゴリを祖先カテゴリも含めて展開してから送信
+          let expandedCategory = editQuizRequestData.category;
+          if (editQuizRequestData.category && editQuizRequestData.file_num !== -1) {
+            const categories = editQuizRequestData.category.split(',').map((s) => s.trim()).filter(Boolean);
+            const expanded = await expandCategoriesWithAncestors(categories, editQuizRequestData.file_num);
+            expandedCategory = expanded.join(',');
+          }
+          const result = await editQuizAPI({ editQuizRequestData: { ...editQuizRequestData, category: expandedCategory } });
           setMessage(result.message);
           // TODO 成功時の判定法
           if (result.message.messageColor === 'success.light') {

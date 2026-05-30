@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FormControl, FormGroup } from '@mui/material';
+import { FormControl, FormGroup, TextField as MuiTextField } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { RangeSliderSection } from '@/components/ui-parts/card-contents/rangeSliderSection/RangeSliderSection';
@@ -7,7 +7,8 @@ import {
   GetQuizApiResponseDto,
   initSearchQuizRequestData,
   PullDownOptionDto,
-  SearchQuizAPIRequestDto
+  SearchQuizAPIRequestDto,
+  SEARCH_LIMITS
 } from 'quizzer-lib';
 import { searchQuizAPI } from '@/utils/api-wrapper';
 import { useSetRecoilState } from 'recoil';
@@ -23,9 +24,10 @@ import { getCategoryListOptions } from '@/utils/getCategoryListOptions';
 
 interface SearchQueryFormProps {
   setSearchResult: React.Dispatch<React.SetStateAction<GridRowsProp>>;
+  setTotalCount: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
+export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryFormProps) => {
   const [searchQuizRequestData, setSearchQuizRequestData] =
     useState<SearchQuizAPIRequestDto>(initSearchQuizRequestData);
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
@@ -55,6 +57,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
             setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
             const result = await searchQuizAPI({ searchQuizRequestData: parsed });
             setMessage(result.message);
+            setTotalCount(result.total);
             if (result.result) {
               const apiResult = (result.result as GetQuizApiResponseDto[]).map((x) => {
                 return {
@@ -66,7 +69,8 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                         .join(',')
                     : '',
                   format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
-                  accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
+                  accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN,
+                  explanation: x.quiz_explanation?.explanation ?? ''
                 };
               });
               setSearchResult(apiResult);
@@ -77,7 +81,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
         // パース失敗時は何もしない
       }
     }
-  }, [setMessage, setSearchResult]);
+  }, [setMessage, setSearchResult, setTotalCount]);
 
   // カテゴリリストが更新されたとき、category値がリストに含まれていなければ-1にリセット
   useEffect(() => {
@@ -142,6 +146,20 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
               sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
             name="checkedB"
+          />
+          <Checkbox
+            value=""
+            label="解説"
+            checked={!!searchQuizRequestData.searchInExplanation}
+            onChange={(e) => {
+              const setData = {
+                ...searchQuizRequestData,
+                searchInExplanation: e.target.checked
+              };
+              setSearchQuizRequestData(setData);
+              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+            }}
+            name="checkedC"
           />
         </FormGroup>
 
@@ -238,6 +256,43 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
             </div>
           </div>
         </FormControl>
+        <FormControl>
+          <div className="flex flex-row items-center gap-2 flex-wrap">
+            <span className="text-sm whitespace-nowrap">上位</span>
+            <MuiTextField
+              className="!my-[8px]"
+              variant="outlined"
+              label="x件目から"
+              type="number"
+              inputProps={{ min: 1 }}
+              value={searchQuizRequestData.result_from !== undefined ? String(searchQuizRequestData.result_from) : ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                const setData = { ...searchQuizRequestData, result_from: val };
+                setSearchQuizRequestData(setData);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+              }}
+              sx={{ width: 120 }}
+            />
+            <span className="text-sm whitespace-nowrap">〜</span>
+            <MuiTextField
+              className="!my-[8px]"
+              variant="outlined"
+              label="y件目まで"
+              type="number"
+              inputProps={{ min: 1 }}
+              value={searchQuizRequestData.result_to !== undefined ? String(searchQuizRequestData.result_to) : ''}
+              onChange={(e) => {
+                const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                const setData = { ...searchQuizRequestData, result_to: val };
+                setSearchQuizRequestData(setData);
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
+              }}
+              sx={{ width: 120 }}
+            />
+            <span className="text-sm whitespace-nowrap">を表示（空欄で上位{SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS}件）</span>
+          </div>
+        </FormControl>
       </FormGroup>
       <Button
         label={'検索'}
@@ -249,6 +304,7 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await searchQuizAPI({ searchQuizRequestData });
           setMessage(result.message);
+          setTotalCount(result.total);
           if (result.result) {
             const apiResult = (result.result as GetQuizApiResponseDto[]).map((x) => {
               return {
@@ -260,13 +316,17 @@ export const SearchQueryForm = ({ setSearchResult }: SearchQueryFormProps) => {
                       .join(',')
                   : '',
                 format_name: x.quiz_format ? x.quiz_format.name.replace('問題', '') : '',
-                accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN
+                accuracy_rate: x.quiz_statistics_view ? +x.quiz_statistics_view.accuracy_rate : NaN,
+                explanation: x.quiz_explanation?.explanation ?? ''
               };
             });
             setSearchResult(apiResult);
           }
         }}
       />
+      <p className="text-xs text-gray-400 mt-1">
+        ※ 検索結果は最大 {SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS} 問まで表示されます
+      </p>
     </>
   );
 };

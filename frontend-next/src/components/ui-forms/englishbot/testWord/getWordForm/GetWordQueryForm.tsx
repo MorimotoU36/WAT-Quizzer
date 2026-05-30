@@ -24,9 +24,10 @@ import { DateRange } from '@/components/ui-parts/dateRange/DateRange';
 interface GetWordQueryFormProps {
   sourcelistoption: PullDownOptionDto[];
   setDisplayTestData?: React.Dispatch<React.SetStateAction<GetEnglishWordTestDataAPIResponseDto>>;
+  setTotalCount?: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWordQueryFormProps) => {
+export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTotalCount }: GetWordQueryFormProps) => {
   const [queryOfTestData, setQueryOfTestData] = useState<GetEnglishWordTestDataAPIRequestDto>({ format: 'random' });
   const setMessage = useSetRecoilState(messageState);
   // TODO テスト形式の値の管理方法　他のファイルでプロパティ形式で管理した方が良い？ constant.tsみたいなの作って　quizzeer側にもこんなのあったよね
@@ -114,6 +115,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
             }
           });
           setMessage(result.message);
+          setTotalCount && setTotalCount(result.total);
           if (result.message.messageColor === 'common.black') {
             setDisplayTestData &&
               setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
@@ -134,6 +136,28 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData }: GetWo
             }
           });
           setMessage(result.message);
+          setTotalCount && setTotalCount(result.total);
+          if (result.message.messageColor === 'common.black') {
+            setDisplayTestData &&
+              setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });
+          }
+        }}
+      />
+      <Button
+        label={'REVIEW'}
+        attr={'button-array'}
+        variant="contained"
+        color="primary"
+        onClick={async (e) => {
+          setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+          const result = await getEnglishWordTestDataAPI({
+            getEnglishWordTestData: {
+              ...queryOfTestData,
+              format: 'review'
+            }
+          });
+          setMessage(result.message);
+          setTotalCount && setTotalCount(result.total);
           if (result.message.messageColor === 'common.black') {
             setDisplayTestData &&
               setDisplayTestData({ ...(result.result as GetEnglishWordTestDataAPIResponseDto), testType });

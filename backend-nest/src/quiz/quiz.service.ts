@@ -21,6 +21,7 @@ import {
   MESSAGES,
   AnswerLogStatisticsApiResponse,
   getTodayStart,
+  SEARCH_LIMITS,
 } from 'quizzer-lib';
 import { Readable } from 'stream';
 import { parse, ParseResult } from 'papaparse';
@@ -714,8 +715,18 @@ export class QuizService {
         checked,
         searchInOnlySentense,
         searchInOnlyAnswer,
+        searchInExplanation,
         onlyDirectCategory,
+        result_from,
+        result_to,
       } = req;
+
+      const skip = result_from ? result_from - 1 : 0;
+      const rangeCount =
+        result_from !== undefined && result_to !== undefined
+          ? result_to - result_from + 1
+          : SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS;
+      const take = Math.min(rangeCount, SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS);
 
       // onlyDirectCategory が true の場合、選択カテゴリの子カテゴリ名を取得
       let childCategoryNames: string[] = [];
@@ -733,124 +744,129 @@ export class QuizService {
         }
       }
 
-      const result = await prisma.quiz.findMany({
-        select: {
-          id: true,
-          file_num: true,
-          quiz_num: true,
-          quiz_sentense: true,
-          answer: true,
+      const whereClause = {
+        // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
+        ...(format_id && {
+          format_id: {
+            in: Object.entries(format_id)
+              .filter((x) => x[1])
+              .map((x) => +x[0]),
+          },
+        }),
+        file_num,
+        deleted_at: null,
+        quiz_statistics_view: {
+          accuracy_rate: {
+            gte: min_rate || 0,
+            lte: max_rate || 100,
+          },
+        },
+        ...(category && {
           category_quiz: {
-            select: {
-              deleted_at: true,
+            some: {
               category: {
-                select: {
-                  name: true,
+                name: {
+                  contains: category,
                 },
               },
+              deleted_at: null,
             },
           },
-          quiz_format: {
-            select: {
-              name: true,
-            },
-          },
-          quiz_statistics_view: {
-            select: {
-              accuracy_rate: true,
-            },
-          },
-          img_file: true,
-          checked: true,
-        },
-        where: {
-          // TODO 問題取得 format_idチェックボックス化による条件対応、、画面・pipe含めなんかやり方ややこしいのよな・・　もっと効率いいやり方模索したい
-          ...(format_id && {
-            format_id: {
-              in: Object.entries(format_id)
-                .filter((x) => x[1])
-                .map((x) => +x[0]),
-            },
-          }),
-          file_num,
-          deleted_at: null,
-          quiz_statistics_view: {
-            accuracy_rate: {
-              gte: min_rate || 0,
-              lte: max_rate || 100,
-            },
-          },
-          ...(category && {
+        }),
+        ...(checked
+          ? {
+              checked: true,
+            }
+          : {}),
+        // onlyDirectCategory: 子カテゴリを一切持たない問題のみに絞り込む
+        ...(onlyDirectCategory && childCategoryNames.length > 0
+          ? {
+              NOT: {
+                category_quiz: {
+                  some: {
+                    category: { name: { in: childCategoryNames } },
+                    deleted_at: null,
+                  },
+                },
+              },
+            }
+          : {}),
+        ...(query &&
+          query !== '' &&
+          (() => {
+            const noneChecked =
+              !searchInOnlySentense &&
+              !searchInOnlyAnswer &&
+              !searchInExplanation;
+            const conditions = [
+              ...(noneChecked || searchInOnlySentense
+                ? [{ quiz_sentense: { contains: query } }]
+                : []),
+              ...(noneChecked || searchInOnlyAnswer
+                ? [{ answer: { contains: query } }]
+                : []),
+              ...(noneChecked || searchInExplanation
+                ? [
+                    {
+                      quiz_explanation: {
+                        explanation: { contains: query },
+                      },
+                    },
+                  ]
+                : []),
+            ];
+            return conditions.length === 1
+              ? conditions[0]
+              : { OR: conditions };
+          })()),
+      };
+
+      const [result, total] = await Promise.all([
+        prisma.quiz.findMany({
+          select: {
+            id: true,
+            file_num: true,
+            quiz_num: true,
+            quiz_sentense: true,
+            answer: true,
             category_quiz: {
-              some: {
+              select: {
+                deleted_at: true,
                 category: {
-                  name: {
-                    contains: category,
+                  select: {
+                    name: true,
                   },
                 },
-                deleted_at: null,
               },
             },
-          }),
-          ...(checked
-            ? {
-                checked: true,
-              }
-            : {}),
-          // onlyDirectCategory: 子カテゴリを一切持たない問題のみに絞り込む
-          ...(onlyDirectCategory && childCategoryNames.length > 0
-            ? {
-                NOT: {
-                  category_quiz: {
-                    some: {
-                      category: { name: { in: childCategoryNames } },
-                      deleted_at: null,
-                    },
-                  },
-                },
-              }
-            : {}),
-          ...(query &&
-            query !== '' &&
-            (() => {
-              // searchInOnlySentenseのみがtrueの場合：問題文のみ
-              if (searchInOnlySentense && !searchInOnlyAnswer) {
-                return {
-                  quiz_sentense: {
-                    contains: query,
-                  },
-                };
-              }
-              // searchInOnlyAnswerのみがtrueの場合：答えのみ
-              if (!searchInOnlySentense && searchInOnlyAnswer) {
-                return {
-                  answer: {
-                    contains: query,
-                  },
-                };
-              }
-              // 両方trueまたは両方falseの場合：問題文または答え（OR条件）
-              return {
-                OR: [
-                  {
-                    quiz_sentense: {
-                      contains: query,
-                    },
-                  },
-                  {
-                    answer: {
-                      contains: query,
-                    },
-                  },
-                ],
-              };
-            })()),
-        },
-        orderBy: {
-          quiz_num: 'asc',
-        },
-      });
-      return result.map((x) => {
+            quiz_format: {
+              select: {
+                name: true,
+              },
+            },
+            quiz_statistics_view: {
+              select: {
+                accuracy_rate: true,
+              },
+            },
+            img_file: true,
+            checked: true,
+            quiz_explanation: {
+              select: {
+                explanation: true,
+              },
+            },
+          },
+          where: whereClause,
+          orderBy: {
+            quiz_num: 'asc',
+          },
+          skip,
+          take,
+        }),
+        prisma.quiz.count({ where: whereClause }),
+      ]);
+      const quizzes = result.map((x) => {
         return {
           ...x,
           category_quiz: undefined,
@@ -864,6 +880,7 @@ export class QuizService {
           },
         };
       });
+      return { total, quizzes };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new HttpException(
@@ -1817,5 +1834,115 @@ export class QuizService {
     } catch (error) {
       throw error; //
     }
+  }
+
+  // おすすめカテゴリ取得
+  async getRecommendedCategories(file_num: number) {
+    const RECENT_DAYS = 30;
+    const recentDate = new Date();
+    recentDate.setDate(recentDate.getDate() - RECENT_DAYS);
+
+    // カテゴリとそのquiz_idを取得
+    const categories = await prisma.category.findMany({
+      where: { file_num, deleted_at: null },
+      select: {
+        id: true,
+        name: true,
+        category_quiz: {
+          where: { deleted_at: null },
+          select: { quiz_id: true },
+        },
+      },
+    });
+
+    if (categories.length === 0) return [];
+
+    // 全カテゴリに紐づくquiz_idをまとめて取得
+    const allQuizIds = [
+      ...new Set(
+        categories.flatMap((c) => c.category_quiz.map((cq) => cq.quiz_id)),
+      ),
+    ];
+
+    // 対象quizの解答履歴を一括取得
+    const answerLogs = await prisma.answer_log.findMany({
+      where: {
+        quiz_id: { in: allQuizIds },
+        deleted_at: null,
+      },
+      select: {
+        quiz_id: true,
+        is_corrected: true,
+        created_at: true,
+      },
+    });
+
+    // quiz_id → 解答ログのマップを作成
+    const logsByQuizId = new Map<number, { is_corrected: boolean | null; created_at: Date }[]>();
+    for (const log of answerLogs) {
+      if (!logsByQuizId.has(log.quiz_id)) logsByQuizId.set(log.quiz_id, []);
+      logsByQuizId.get(log.quiz_id)!.push(log);
+    }
+
+    const scored = categories
+      // 問題が一件も紐づいていないカテゴリは除外
+      .filter((cat) => cat.category_quiz.length > 0)
+      .map((cat) => {
+        const quizIds = cat.category_quiz.map((cq) => cq.quiz_id);
+        const catLogs = quizIds.flatMap((qid) => logsByQuizId.get(qid) ?? []);
+
+        if (catLogs.length === 0) {
+          return {
+            category_name: cat.name,
+            reason: 'neverAnswered' as const,
+            days_since_last_answered: null,
+            recent_accuracy_rate: null,
+            score: 1.0,
+          };
+        }
+
+        // 最終解答日
+        const lastAnsweredAt = catLogs.reduce(
+          (max, log) => (log.created_at > max ? log.created_at : max),
+          catLogs[0].created_at,
+        );
+        const daysSinceLast = Math.floor(
+          (Date.now() - lastAnsweredAt.getTime()) / (1000 * 60 * 60 * 24),
+        );
+
+        // 直近30日の正解率
+        const recentLogs = catLogs.filter((log) => log.created_at >= recentDate);
+        const recentAccuracy =
+          recentLogs.length > 0
+            ? recentLogs.filter((log) => log.is_corrected).length / recentLogs.length
+            : null;
+
+        // スコア算出（高いほど優先）
+        const lruScore = Math.min(daysSinceLast, 30) / 30;
+        const accuracyScore =
+          recentAccuracy !== null ? 1 - recentAccuracy : 0.5;
+        const score = lruScore * 0.4 + accuracyScore * 0.6;
+
+        const reason: 'notRecent' | 'lowAccuracy' =
+          recentAccuracy !== null && recentAccuracy < 0.5
+            ? 'lowAccuracy'
+            : 'notRecent';
+
+        return {
+          category_name: cat.name,
+          reason,
+          days_since_last_answered: daysSinceLast,
+          recent_accuracy_rate:
+            recentAccuracy !== null
+              ? Math.round(recentAccuracy * 1000) / 1000
+              : null,
+          score,
+        };
+      });
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map(({ score: _score, ...rest }) => rest);
   }
 }

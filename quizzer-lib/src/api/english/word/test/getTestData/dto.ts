@@ -1,6 +1,6 @@
 // 英単語テストデータ取得APIリクエスト型
 export interface GetEnglishWordTestDataAPIRequestDto {
-  format: 'random' | 'lru'
+  format: 'random' | 'lru' | 'review'
   source?: string
   checked?: boolean
   startDate?: string
@@ -11,7 +11,7 @@ export interface GetEnglishWordTestDataAPIRequestDto {
 
 //API側で受け取った時のDTO（Pipeで上に変換する）
 export interface GetEnglishWordTestDataAPIRequestReceivedDto {
-  format: 'random' | 'lru'
+  format: 'random' | 'lru' | 'review'
   source?: string
   checked?: string
   startDate?: string
@@ -22,6 +22,7 @@ export interface GetEnglishWordTestDataAPIRequestReceivedDto {
 
 // 英単語テストデータ取得APIレスポンス型
 export interface GetEnglishWordTestDataAPIResponseDto extends FourChoiceData {
+  total?: number
   word?: {
     id: number
     name: string

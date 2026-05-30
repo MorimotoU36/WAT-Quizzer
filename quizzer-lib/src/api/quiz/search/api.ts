@@ -36,14 +36,15 @@ export const searchQuizAPI = async ({
         (String(data.status)[0] === '2' || String(data.status)[0] === '3') &&
         data.body
       ) {
-        const result: GetQuizApiResponseDto[] =
-          data.body as GetQuizApiResponseDto[]
+        const body = data.body as { total: number; quizzes: GetQuizApiResponseDto[] }
+        const quizzes = body.quizzes
         return {
           message: successMessage(
             MESSAGES.SUCCESS.MSG00015,
-            String(result.length)
+            String(quizzes.length)
           ),
-          result
+          result: quizzes,
+          total: body.total
         }
       } else if (data.status === 404 || data.body) {
         return { message: errorMessage(MESSAGES.ERROR.MSG00003) }

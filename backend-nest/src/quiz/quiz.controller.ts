@@ -304,4 +304,14 @@ export class QuizController {
   async getAccuracyRateHistgramData(@Query('file_num') file_num: string) {
     return await this.quizService.getAccuracyRateHistgramData(+file_num);
   }
+
+  @ApiOperation({
+    summary: 'おすすめカテゴリ取得',
+    description:
+      '最近解いていない、または最近の正解率が低いカテゴリを最大5件返します。',
+  })
+  @Get('/recommend-categories')
+  async getRecommendedCategories(@Query('file_num') file_num: string) {
+    return await this.quizService.getRecommendedCategories(+file_num);
+  }
 }

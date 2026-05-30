@@ -59,6 +59,50 @@ export class TodoService {
     }
   }
 
+  // 全Todo取得（deleted_at含む）
+  async getAllTodosIncludingDeletedService() {
+    try {
+      return await prisma.todo.findMany({
+        select: {
+          id: true,
+          todo: true,
+          deleted_at: true,
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
+  // Todo復元（deleted_atをnullに戻す）
+  async restoreTodoService(id: number) {
+    try {
+      return await prisma.todo.update({
+        data: {
+          deleted_at: null,
+        },
+        where: {
+          id,
+        },
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+  }
+
   // 有効なTodo全てを取得（deleted_atがnullのもの）
   async getAllTodosService() {
     try {

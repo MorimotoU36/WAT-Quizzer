@@ -10,10 +10,18 @@ interface WordTestSectionProps {
 
 export const WordTestSection = ({ sourcelistoption }: WordTestSectionProps) => {
   const [displayTestData, setDisplayTestData] = useState<GetEnglishWordTestDataAPIResponseDto>({});
+  const [totalCount, setTotalCount] = useState<number | undefined>(undefined);
 
   return (
     <>
-      <GetWordQueryForm sourcelistoption={sourcelistoption} setDisplayTestData={setDisplayTestData} />
+      <GetWordQueryForm
+        sourcelistoption={sourcelistoption}
+        setDisplayTestData={setDisplayTestData}
+        setTotalCount={setTotalCount}
+      />
+      {totalCount !== undefined && (
+        <p className="text-sm text-gray-600 mt-1">対象単語数：全{totalCount}件</p>
+      )}
       <DisplayTestWordSection displayTestData={displayTestData} setDisplayTestData={setDisplayTestData} />
     </>
   );

@@ -40,6 +40,12 @@ Parameters:
   TodoCheckStatusTableArn:
     Type: String
     Description: 'DynamoDB Table ARN for Todo check status'
+  WiktionaryApiUrl:
+    Type: String
+    Description: 'Wiktionary MediaWiki API endpoint'
+  FreeDictionaryApiUrl:
+    Type: String
+    Description: 'Free Dictionary API base endpoint'
 
 Resources:
   ApiGatewayRestApi:
@@ -88,6 +94,7 @@ Resources:
           AKEY: !Ref Akey
           SAKEY: !Ref SAkey
           TODO_CHECK_STATUS_TABLE_ARN: !Ref TodoCheckStatusTableArn
+          WORD_DERIVATIVES_FUNCTION_NAME: !Ref WordDerivativesFunction
           # PRISMA_QUERY_ENGINE_LIBRARY: ../node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node
       Policies:
         - Statement:
@@ -99,6 +106,10 @@ Resources:
                 - dynamodb:DeleteItem
                 - dynamodb:Query
               Resource: !Ref TodoCheckStatusTableArn
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !GetAtt WordDerivativesFunction.Arn
       Events:
         QuizzerApi:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -113,6 +124,18 @@ Resources:
       DockerContext: ../
       Dockerfile: Dockerfile
 
+  WordDerivativesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/word-derivatives/
+      Handler: app.handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          WIKTIONARY_API_URL: !Ref WiktionaryApiUrl
+          FREE_DICTIONARY_API_URL: !Ref FreeDictionaryApiUrl
 Outputs:
   # SamQuizzerApi:
   #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -123,3 +146,6 @@ Outputs:
   SamQuizzerApiFunctionIamRole:
     Description: 'Implicit IAM Role created for SAM Quizzer Api function'
     Value: !GetAtt SamQuizzerApiFunctionRole.Arn
+  WordDerivativesFunctionArn:
+    Description: 'Word Derivatives Lambda Function ARN'
+    Value: !GetAtt WordDerivativesFunction.Arn

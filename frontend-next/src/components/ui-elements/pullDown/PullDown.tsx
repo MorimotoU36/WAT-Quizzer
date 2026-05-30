@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { getRandomStr } from 'quizzer-lib';
+import { pullDownMenuProps } from '@/constants/pullDown';
 
 interface PullDownProps {
   optionList: {
@@ -13,17 +14,6 @@ interface PullDownProps {
   onChange?: (e: SelectChangeEvent<number | string>) => void;
 }
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
-      //width: 250
-    }
-  }
-};
-
 export const PullDown = ({ optionList, label, className, value, onChange }: PullDownProps) => {
   const selectProps = {
     className: `my-[8px] ${className || ''}`,
@@ -34,7 +24,7 @@ export const PullDown = ({ optionList, label, className, value, onChange }: Pull
     ...(value && {
       value
     }),
-    MenuProps
+    MenuProps: pullDownMenuProps
   };
 
   return (

@@ -1,4 +1,5 @@
 import { InputLabel, MenuItem, Select } from '@mui/material';
+import { pullDownMenuProps } from '@/constants/pullDown';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -53,6 +54,7 @@ export const InputAddWordForm = ({ sourceList, addWordState, setMessage, setAddW
           label="source"
           key="source"
           sx={{ width: 1 }}
+          MenuProps={pullDownMenuProps}
           onChange={(e) => {
             setAddWordState &&
               setAddWordState({

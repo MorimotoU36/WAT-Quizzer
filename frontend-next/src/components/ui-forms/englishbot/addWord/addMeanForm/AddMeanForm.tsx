@@ -15,6 +15,7 @@ import {
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { AddWordAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
+import { pullDownMenuProps } from '@/constants/pullDown';
 // TODO @mui/material はなくす
 
 interface AddMeanFormProps {
@@ -57,6 +58,7 @@ export const AddMeanForm = ({ posList, addWordState, setAddWordState }: AddMeanF
           onChange={(e) => {
             changePosSelect(String(e.target.value), i);
           }}
+          MenuProps={pullDownMenuProps}
         >
           <MenuItem value={-1} key={-1}>
             選択なし
@@ -66,6 +68,9 @@ export const AddMeanForm = ({ posList, addWordState, setAddWordState }: AddMeanF
               {x.label}
             </MenuItem>
           ))}
+          <MenuItem value={-2} key={-2}>
+            その他
+          </MenuItem>
         </Select>
         {posInput}
       </>

@@ -55,7 +55,9 @@ jobs:
                         CognitoAppClientId=$AWS_COGNITO_APPCLIENT_ID \
                         QuizImageS3BucketName=$QUIZ_IMAGE_S3_BUCKET \
                         Akey=$AKEY \
-                        SAkey=$SAKEY
+                        SAkey=$SAKEY \
+                        WiktionaryApiUrl=$WIKTIONARY_API_URL \
+                        FreeDictionaryApiUrl=$FREE_DICTIONARY_API_URL
         env:
           AKEY: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           SAKEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}

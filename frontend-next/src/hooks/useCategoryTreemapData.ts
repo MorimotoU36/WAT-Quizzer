@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { CategoryParentChildAPIResponseDto, CategoryQuizCountDto } from 'quizzer-lib';
 import { getCategoryQuizCountAPI, getCategoryParentChildListAPI } from '@/utils/api-wrapper';
 
+const COLORS_LENGTH = 10;
+
 export interface CategoryTreemapItem {
   name: string;
   size?: number;
+  _colorIndex?: number;
   children?: ReadonlyArray<CategoryTreemapItem>;
   [key: string]: unknown;
 }
@@ -30,36 +33,47 @@ const buildTreemapData = (
     childSet.add(rel.child_category_id);
   }
 
-  const result: CategoryTreemapItem[] = [];
+  const buildNode = (catId: number, colorIndex: number): CategoryTreemapItem | null => {
+    const count = countMap.get(catId) ?? 0;
+    if (count === 0) return null;
 
-  for (const cat of categories) {
-    if (childSet.has(cat.id)) continue;
-    if (cat.count === 0) continue;
+    const name = nameMap.get(catId) ?? '';
+    const childIds = parentToChildren.get(catId) ?? [];
 
-    if (parentToChildren.has(cat.id)) {
-      const children: CategoryTreemapItem[] = [];
-      let childrenTotalCount = 0;
-
-      for (const childId of parentToChildren.get(cat.id)!) {
-        const childCount = countMap.get(childId) ?? 0;
-        const childName = nameMap.get(childId) ?? '';
-        if (childCount > 0) {
-          children.push({ name: childName, size: childCount });
-          childrenTotalCount += childCount;
-        }
-      }
-
-      const exclusiveCount = cat.count - childrenTotalCount;
-      if (exclusiveCount > 0) {
-        children.push({ name: `${cat.name}（直接）`, size: exclusiveCount });
-      }
-
-      if (children.length > 0) {
-        result.push({ name: cat.name, children });
-      }
-    } else {
-      result.push({ name: cat.name, size: cat.count });
+    if (childIds.length === 0) {
+      return { name, size: count, _colorIndex: colorIndex };
     }
+
+    const children: CategoryTreemapItem[] = [];
+    let childrenTotalCount = 0;
+
+    for (const childId of childIds) {
+      const childCount = countMap.get(childId) ?? 0;
+      const childNode = buildNode(childId, colorIndex);
+      if (childNode) {
+        children.push(childNode);
+        childrenTotalCount += childCount;
+      }
+    }
+
+    const exclusiveCount = count - childrenTotalCount;
+    if (exclusiveCount > 0) {
+      children.push({ name: `${name}（直接）`, size: exclusiveCount, _colorIndex: colorIndex });
+    }
+
+    if (children.length === 0) {
+      return { name, size: count, _colorIndex: colorIndex };
+    }
+
+    return { name, children, _colorIndex: colorIndex };
+  };
+
+  const result: CategoryTreemapItem[] = [];
+  const rootCategories = categories.filter((cat) => !childSet.has(cat.id));
+
+  for (let i = 0; i < rootCategories.length; i++) {
+    const node = buildNode(rootCategories[i].id, i % COLORS_LENGTH);
+    if (node) result.push(node);
   }
 
   return result;

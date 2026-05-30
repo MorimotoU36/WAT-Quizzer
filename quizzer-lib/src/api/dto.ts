@@ -19,6 +19,7 @@ export interface ErrorResponse extends ApiResponse {
 export interface ApiResult {
   message: Message
   result?: ApiResponse | ApiResponse[] | Response
+  total?: number
 }
 
 export interface AddAPIResponseDto {
