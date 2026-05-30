@@ -22,6 +22,7 @@ export interface GetEnglishWordTestDataAPIRequestReceivedDto {
 
 // 英単語テストデータ取得APIレスポンス型
 export interface GetEnglishWordTestDataAPIResponseDto extends FourChoiceData {
+  total?: number
   word?: {
     id: number
     name: string

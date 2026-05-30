@@ -23,7 +23,8 @@ export const getEnglishWordTestDataAPI = async ({
             messageColor: 'common.black',
             isDisplay: false
           },
-          result
+          result,
+          total: result.total
         }
       } else if (data.status === 404 || !data.body) {
         return {
