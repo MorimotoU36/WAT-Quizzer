@@ -37,12 +37,27 @@ export class TodoController {
     return await this.todoService.deleteTodoService(id);
   }
 
+  @Get('/all')
+  @ApiOperation({
+    summary: '全Todoを取得します（論理削除済みを含む）。',
+  })
+  async getAllTodosIncludingDeleted() {
+    return await this.todoService.getAllTodosIncludingDeletedService();
+  }
+
   @Get()
   @ApiOperation({
     summary: '有効なTodo全てを取得します（deleted_atがnullのもの）。',
   })
   async getAllTodos() {
     return await this.todoService.getAllTodosService();
+  }
+
+  @Put('/:id/restore')
+  @ApiOperation({ summary: 'Todoを復元します（deleted_atをnullに戻す）。' })
+  @ApiParam({ name: 'id', type: Number, description: 'Todo ID' })
+  async restoreTodo(@Param('id', ParseIntPipe) id: number) {
+    return await this.todoService.restoreTodoService(id);
   }
 
   @Post('/diary')
