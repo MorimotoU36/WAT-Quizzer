@@ -40,6 +40,12 @@ Parameters:
   TodoCheckStatusTableArn:
     Type: String
     Description: 'DynamoDB Table ARN for Todo check status'
+  WiktionaryApiUrl:
+    Type: String
+    Description: 'Wiktionary MediaWiki API endpoint'
+  FreeDictionaryApiUrl:
+    Type: String
+    Description: 'Free Dictionary API base endpoint'
 
 Resources:
   ApiGatewayRestApi:
@@ -113,6 +119,42 @@ Resources:
       DockerContext: ../
       Dockerfile: Dockerfile
 
+  WordDerivativesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+        MaxAge: "'3600'"
+
+  WordDerivativesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/word-derivatives/
+      Handler: app.handler
+      Runtime: python3.12
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          WIKTIONARY_API_URL: !Ref WiktionaryApiUrl
+          FREE_DICTIONARY_API_URL: !Ref FreeDictionaryApiUrl
+      Events:
+        GetDerivatives:
+          Type: Api
+          Properties:
+            Path: /derivatives
+            Method: GET
+            RestApiId: !Ref WordDerivativesApi
+        OptionsDerivatives:
+          Type: Api
+          Properties:
+            Path: /derivatives
+            Method: OPTIONS
+            RestApiId: !Ref WordDerivativesApi
+
 Outputs:
   # SamQuizzerApi:
   #   Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -123,3 +165,9 @@ Outputs:
   SamQuizzerApiFunctionIamRole:
     Description: 'Implicit IAM Role created for SAM Quizzer Api function'
     Value: !GetAtt SamQuizzerApiFunctionRole.Arn
+  WordDerivativesApiUrl:
+    Description: 'Word Derivatives API endpoint URL'
+    Value: !Sub 'https://${WordDerivativesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/derivatives'
+  WordDerivativesFunctionArn:
+    Description: 'Word Derivatives Lambda Function ARN'
+    Value: !GetAtt WordDerivativesFunction.Arn
