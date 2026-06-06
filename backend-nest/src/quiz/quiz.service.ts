@@ -161,11 +161,21 @@ export class QuizService {
             };
       const orderBy =
         method === 'worstRate'
-          ? {
-              quiz_statistics_view: {
-                accuracy_rate: 'asc' as const,
+          ? [
+              {
+                quiz_statistics_view: {
+                  accuracy_rate: 'asc' as const,
+                },
               },
-            }
+              {
+                quiz_statistics_view: {
+                  fail_count: 'desc' as const,
+                },
+              },
+              {
+                id: 'asc' as const,
+              },
+            ]
           : method === 'leastClear'
             ? [
                 {
