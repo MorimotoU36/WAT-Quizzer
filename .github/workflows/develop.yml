@@ -65,8 +65,8 @@ jobs:
       # ECRの古いイメージを手動削除とライフサイクルポリシー適用
       - name: cleanup old ECR images and apply lifecycle policy
         run: |
-          # SAMが作成するECRリポジトリ名を取得（通常はsam-prisma-<stack-name>形式）
-          REPO_NAME=$(aws ecr describe-repositories --query 'repositories[?contains(repositoryName, `sam-prisma`)].repositoryName' --output text | head -1)
+          # SAMが作成するECRリポジトリ名を取得（通常はsam-prisma-<stack-name>形式→いつの間にか変わってるのでsamquizzerapiに変更）
+          REPO_NAME=$(aws ecr describe-repositories --query 'repositories[?contains(repositoryName, `samquizzerapi`)].repositoryName' --output text | head -1)
           if [ -n "$REPO_NAME" ]; then
             # ライフサイクルポリシーを適用
             aws ecr put-lifecycle-policy --repository-name $REPO_NAME --lifecycle-policy-text '{
