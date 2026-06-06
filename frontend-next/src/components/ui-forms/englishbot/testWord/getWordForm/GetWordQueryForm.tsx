@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { FormControl, FormGroup } from '@mui/material';
+import { FormControl, FormGroup, TextField as MuiTextField } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Card } from '@/components/ui-elements/card/Card';
 import { RadioGroup } from '@/components/ui-parts/radioGroup/RadioGroup';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -32,6 +29,11 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTota
   const setMessage = useSetRecoilState(messageState);
   // TODO テスト形式の値の管理方法　他のファイルでプロパティ形式で管理した方が良い？ constant.tsみたいなの作って　quizzeer側にもこんなのあったよね
   const [testType, setTestType] = useState<string>('0');
+
+  const isRangeInvalid =
+    queryOfTestData.result_from !== undefined &&
+    queryOfTestData.result_to !== undefined &&
+    queryOfTestData.result_from > queryOfTestData.result_to;
 
   return (
     <>
@@ -89,6 +91,42 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTota
             />
           </FormControl>
           <FormControl>
+            <div className="flex flex-row items-center gap-2 flex-wrap">
+              <span className="text-sm whitespace-nowrap">上位</span>
+              <MuiTextField
+                className="!my-[8px]"
+                variant="outlined"
+                label="x件目から"
+                type="number"
+                inputProps={{ min: 1 }}
+                value={queryOfTestData.result_from !== undefined ? String(queryOfTestData.result_from) : ''}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                  setQueryOfTestData({ ...queryOfTestData, result_from: val });
+                }}
+                sx={{ width: 120 }}
+              />
+              <span className="text-sm whitespace-nowrap">〜</span>
+              <MuiTextField
+                className="!my-[8px]"
+                variant="outlined"
+                label="y件目まで"
+                type="number"
+                inputProps={{ min: 1 }}
+                value={queryOfTestData.result_to !== undefined ? String(queryOfTestData.result_to) : ''}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? undefined : parseInt(e.target.value);
+                  setQueryOfTestData({ ...queryOfTestData, result_to: val });
+                }}
+                sx={{ width: 120 }}
+              />
+              <span className="text-sm whitespace-nowrap">を対象（空欄で全件）</span>
+            </div>
+            {isRangeInvalid && (
+              <span className="text-red-500 text-xs mt-1">x件目はy件目以下の値を入力してください</span>
+            )}
+          </FormControl>
+          <FormControl>
             テスト形式：
             <RadioGroup
               radioButtonProps={englishTestTypeRadioButton}
@@ -106,6 +144,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTota
         attr={'button-array'}
         variant="contained"
         color="primary"
+        disabled={isRangeInvalid}
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getEnglishWordTestDataAPI({
@@ -127,6 +166,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTota
         attr={'button-array'}
         variant="contained"
         color="primary"
+        disabled={isRangeInvalid}
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getEnglishWordTestDataAPI({
@@ -148,6 +188,7 @@ export const GetWordQueryForm = ({ sourcelistoption, setDisplayTestData, setTota
         attr={'button-array'}
         variant="contained"
         color="primary"
+        disabled={isRangeInvalid}
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getEnglishWordTestDataAPI({

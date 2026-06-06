@@ -19,6 +19,8 @@ export class WordTestPipe implements PipeTransform<
         switch (key) {
           case 'min_rate':
           case 'max_rate':
+          case 'result_from':
+          case 'result_to':
             if (cur[1] === '-1' || isNaN(parseInt(cur[1]))) {
               return { ...acc };
             } else {
