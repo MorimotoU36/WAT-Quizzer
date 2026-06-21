@@ -205,61 +205,70 @@ export class QuizService {
                     },
                   }
                 : {};
-      // データ取得
-      const results = await prisma.quiz.findMany({
-        select: {
-          id: true,
-          file_num: true,
-          quiz_num: true,
-          format_id: true,
-          quiz_sentense: true,
-          answer: true,
-          img_file: true,
-          checked: true,
-          category_quiz: {
-            select: {
-              deleted_at: true,
-              category: {
-                select: {
-                  name: true,
-                },
+      // 順位確定メソッド（全件ではなく先頭1件のみ取得すればよい）
+      const needsAllResults =
+        !method || method === 'random' || method === 'todayNotAnswered';
+      const selectFields = {
+        id: true,
+        file_num: true,
+        quiz_num: true,
+        format_id: true,
+        quiz_sentense: true,
+        answer: true,
+        img_file: true,
+        checked: true,
+        category_quiz: {
+          select: {
+            deleted_at: true,
+            category: {
+              select: {
+                name: true,
               },
             },
           },
-          quiz_statistics_view: {
-            select: {
-              clear_count: true,
-              fail_count: true,
-              accuracy_rate: true,
-            },
-          },
-          quiz_explanation: {
-            select: {
-              explanation: true,
-            },
-          },
-          quiz_dummy_choice: {
-            select: {
-              dummy_choice_sentense: true,
-              is_corrected: true,
-            },
-          },
-          quiz_basis_linkage: {
-            select: {
-              basis_quiz_id: true,
-              advanced_quiz_id: true,
-            },
-          },
-          quiz_advanced_linkage: {
-            select: {
-              basis_quiz_id: true,
-              advanced_quiz_id: true,
-            },
+        },
+        quiz_statistics_view: {
+          select: {
+            clear_count: true,
+            fail_count: true,
+            accuracy_rate: true,
           },
         },
-        where,
-        orderBy,
-      });
+        quiz_explanation: {
+          select: {
+            explanation: true,
+          },
+        },
+        quiz_dummy_choice: {
+          select: {
+            dummy_choice_sentense: true,
+            is_corrected: true,
+          },
+        },
+        quiz_basis_linkage: {
+          select: {
+            basis_quiz_id: true,
+            advanced_quiz_id: true,
+          },
+        },
+        quiz_advanced_linkage: {
+          select: {
+            basis_quiz_id: true,
+            advanced_quiz_id: true,
+          },
+        },
+      };
+      // データ取得
+      // needsAllResults=false の場合は先頭1件のみ取得してDBからの転送量を削減
+      const [results, totalCount] = await Promise.all([
+        prisma.quiz.findMany({
+          select: selectFields,
+          where,
+          orderBy,
+          ...(needsAllResults ? {} : { take: 1 }),
+        }),
+        needsAllResults ? Promise.resolve(null) : prisma.quiz.count({ where }),
+      ]);
       if (results.length === 0) {
         throw new HttpException(
           `条件に合致するデータはありません`,
@@ -291,7 +300,7 @@ export class QuizService {
             accuracy_rate: result.quiz_statistics_view.accuracy_rate.toString(),
           },
         }),
-        count: results.length,
+        count: totalCount ?? results.length,
       };
     } catch (error: unknown) {
       if (error instanceof HttpException) {
