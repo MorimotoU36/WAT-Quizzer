@@ -25,6 +25,8 @@ model answer_log {
   deleted_at   DateTime? @db.Timestamp(6)
   quiz_id      Int
   quiz         quiz      @relation(fields: [quiz_id], references: [id])
+
+  @@index([quiz_id, is_corrected, created_at])
 }
 
 model avg_lines_log {
