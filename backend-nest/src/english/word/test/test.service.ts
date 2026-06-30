@@ -23,6 +23,8 @@ export class EnglishWordTestService {
         checked,
         min_rate,
         max_rate,
+        result_from,
+        result_to,
       } = req;
       // サブ出典・日時に関するクエリ
       const startDateQuery = startDate
@@ -116,6 +118,24 @@ export class EnglishWordTestService {
       const count = await prisma.word.count({
         where: finalWhere,
       });
+      // result_from/result_toによる範囲指定
+      if (
+        result_from !== undefined &&
+        result_to !== undefined &&
+        result_from > result_to
+      ) {
+        throw new HttpException(
+          'result_fromはresult_to以下の値を指定してください',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const fromIndex = result_from !== undefined ? result_from - 1 : 0;
+      const toIndex = result_to !== undefined ? Math.min(result_to, count) - 1 : count - 1;
+      const effectiveCount = Math.max(0, toIndex - fromIndex + 1);
+      const skip =
+        format === 'random'
+          ? fromIndex + getRandomInt(effectiveCount)
+          : fromIndex;
       // データ取得
       const result = await prisma.word.findFirst({
         select: {
@@ -157,7 +177,7 @@ export class EnglishWordTestService {
         },
         where: finalWhere,
         orderBy,
-        skip: format === 'random' ? getRandomInt(count) : 0,
+        skip,
       });
       if (!result) {
         throw new HttpException(

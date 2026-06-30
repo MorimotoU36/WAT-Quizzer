@@ -7,6 +7,8 @@ export interface GetEnglishWordTestDataAPIRequestDto {
   endDate?: string
   min_rate?: number
   max_rate?: number
+  result_from?: number
+  result_to?: number
 }
 
 //API側で受け取った時のDTO（Pipeで上に変換する）
@@ -18,6 +20,8 @@ export interface GetEnglishWordTestDataAPIRequestReceivedDto {
   endDate?: string
   min_rate?: string
   max_rate?: string
+  result_from?: string
+  result_to?: string
 }
 
 // 英単語テストデータ取得APIレスポンス型
