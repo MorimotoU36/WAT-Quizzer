@@ -12,6 +12,7 @@ import {
   AddExampleAPIRequestDto,
   RegisterWordsToSourceDto,
   SubmitAssociationExampleAPIRequestDto,
+  SubmitExampleTestDataAPIRequestDto,
 } from 'quizzer-lib';
 import { CognitoAuthGuard } from 'src/auth/cognito/cognito-auth.guard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -59,8 +60,22 @@ export class EnglishController {
 
   @ApiOperation({ summary: '例文テストデータを取得する' })
   @Get('/example/test')
-  async getExampleTest() {
-    return await this.englishService.getExampleTestService();
+  async getExampleTest(@Query('sourceId') sourceId?: string) {
+    return await this.englishService.getExampleTestService(
+      sourceId !== undefined ? +sourceId : undefined,
+    );
+  }
+
+  @ApiOperation({ summary: '例文テストを正解として記録' })
+  @Post('/example/test/clear')
+  async exampleTestCleared(@Body() req: SubmitExampleTestDataAPIRequestDto) {
+    return await this.englishService.exampleTestClearedService(req);
+  }
+
+  @ApiOperation({ summary: '例文テストを不正解として記録' })
+  @Post('/example/test/fail')
+  async exampleTestFailed(@Body() req: SubmitExampleTestDataAPIRequestDto) {
+    return await this.englishService.exampleTestFailedService(req);
   }
 
   @ApiOperation({ summary: '出典ごとの統計情報を取得する' })

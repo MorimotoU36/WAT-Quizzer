@@ -1,0 +1,92 @@
+import React, { useState } from 'react';
+import { Card } from '@/components/ui-elements/card/Card';
+import { Button } from '@/components/ui-elements/button/Button';
+import { Button as MuiButton, CardActions, CardContent, Collapse, Typography } from '@mui/material';
+import { EXAMPLE_TEST_TYPE, GetExampleTestDataAPIResponseDto } from 'quizzer-lib';
+import { useSetRecoilState } from 'recoil';
+import { messageState } from '@/atoms/Message';
+import { submitExampleTestDataAPI } from '@/utils/api-wrapper';
+
+interface DisplayTestExampleSectionProps {
+  displayTestData: GetExampleTestDataAPIResponseDto;
+  setDisplayTestData?: React.Dispatch<React.SetStateAction<GetExampleTestDataAPIResponseDto>>;
+}
+
+export const DisplayTestExampleSection = ({ displayTestData, setDisplayTestData }: DisplayTestExampleSectionProps) => {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const setMessage = useSetRecoilState(messageState);
+
+  return (
+    <>
+      <Card variant="outlined">
+        <CardContent>
+          {displayTestData.example?.ja_example_sentense && (
+            <p>{displayTestData.example.ja_example_sentense}</p>
+          )}
+        </CardContent>
+        <CardActions>
+          <MuiButton
+            size="small"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+            disabled={!displayTestData.example?.id}
+          >
+            答え
+          </MuiButton>
+        </CardActions>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <CardContent>
+            {displayTestData.example?.en_example_sentense && (
+              <p>{displayTestData.example.en_example_sentense}</p>
+            )}
+            {displayTestData.example?.example_explanation?.map((item, index) => (
+              <Typography key={index} variant="subtitle2" component="p">
+                {item.explanation.split(/(\\n)/).map((part, i) =>
+                  part.match(/\\n/) ? <br key={i} /> : part
+                )}
+              </Typography>
+            ))}
+            <Button
+              label={'正解!!'}
+              attr={'button-array'}
+              variant="contained"
+              color="primary"
+              disabled={!displayTestData.example?.id}
+              onClick={async () => {
+                setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+                const result = await submitExampleTestDataAPI({
+                  testResult: { exampleId: displayTestData.example!.id, testType: EXAMPLE_TEST_TYPE.COMPOSITION },
+                  selectedValue: true
+                });
+                setMessage(result.message);
+                if (result.message.messageColor === 'success.light') {
+                  setDisplayTestData && setDisplayTestData({});
+                  setExpanded(false);
+                }
+              }}
+            />
+            <Button
+              label={'不正解...'}
+              attr={'button-array'}
+              variant="contained"
+              color="secondary"
+              disabled={!displayTestData.example?.id}
+              onClick={async () => {
+                setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+                const result = await submitExampleTestDataAPI({
+                  testResult: { exampleId: displayTestData.example!.id, testType: EXAMPLE_TEST_TYPE.COMPOSITION },
+                  selectedValue: false
+                });
+                setMessage(result.message);
+                if (result.message.messageColor === 'success.light') {
+                  setDisplayTestData && setDisplayTestData({});
+                  setExpanded(false);
+                }
+              }}
+            />
+          </CardContent>
+        </Collapse>
+      </Card>
+    </>
+  );
+};

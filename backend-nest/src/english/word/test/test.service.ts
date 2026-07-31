@@ -25,6 +25,7 @@ export class EnglishWordTestService {
         max_rate,
         result_from,
         result_to,
+        word_type,
       } = req;
       // サブ出典・日時に関するクエリ
       const startDateQuery = startDate
@@ -47,8 +48,16 @@ export class EnglishWordTestService {
             : endDate
               ? endDateQuery
               : null;
+      // 単語種別フィルタ（スペースあり=熟語、スペースなし=単語）
+      const wordTypeFilter =
+        word_type === 'word'
+          ? { name: { not: { contains: ' ' } } }
+          : word_type === 'phrase'
+            ? { name: { contains: ' ' } }
+            : {};
       // 取得条件
       const where = {
+        ...wordTypeFilter,
         word_source: {
           ...(source &&
             +source !== -1 && {
@@ -172,6 +181,8 @@ export class EnglishWordTestService {
           word_statistics_view: {
             select: {
               accuracy_rate: true,
+              clear_count: true,
+              fail_count: true,
             },
           },
         },
@@ -220,6 +231,7 @@ export class EnglishWordTestService {
           word_source: result.word_source,
           word_statistics_view: {
             accuracy_rate: result.word_statistics_view.accuracy_rate.toString(),
+            answer_count: Number(result.word_statistics_view.clear_count ?? 0) + Number(result.word_statistics_view.fail_count ?? 0),
           },
         },
         correct: {
