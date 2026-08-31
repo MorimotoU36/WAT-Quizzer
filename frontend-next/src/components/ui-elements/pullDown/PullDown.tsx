@@ -15,9 +15,10 @@ interface PullDownProps {
 }
 
 export const PullDown = ({ optionList, label, className, value, onChange }: PullDownProps) => {
+  const labelId = `quiz-file-name-${getRandomStr()}`;
   const selectProps = {
     className: `my-[8px] ${className || ''}`,
-    labelId: `quiz-file-name-${getRandomStr()}`,
+    labelId,
     id: `quiz-file-id-${getRandomStr()}`,
     defaultValue: -1,
     onChange,
@@ -29,8 +30,8 @@ export const PullDown = ({ optionList, label, className, value, onChange }: Pull
 
   return (
     <FormControl disabled={optionList.length <= 1 ? true : false} className="min-w-[200px]">
-      <InputLabel id={`quiz-file-input-${getRandomStr()}`} className="my-[2px]">
-        {label}
+      <InputLabel id={labelId} className="my-[2px]" sx={{ '&.Mui-disabled': { color: '#595959' } }}>
+        {label || 'ファイル選択'}
       </InputLabel>
       <Select {...selectProps}>
         <MenuItem value={-1} key={-1}>

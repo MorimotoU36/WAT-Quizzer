@@ -172,6 +172,15 @@ export const getImageOfQuizAPI = async (params: any): Promise<ApiResult> => {
   return originalGetImageOfQuizAPI(params);
 };
 
+export const uploadImageOfQuizAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockUploadImageOfQuizAPI(params);
+  }
+
+  const { uploadImageOfQuizAPI: originalUploadImageOfQuizAPI } = await import('quizzer-lib');
+  return originalUploadImageOfQuizAPI(params);
+};
+
 export const getSayingAPI = async (params: any): Promise<ApiResult> => {
   if (isMockMode()) {
     return mockAPI.mockGetSayingAPI(params);
@@ -443,11 +452,19 @@ export const searchExampleAPI = async (params: any): Promise<ApiResult> => {
 };
 
 export const getExampleTestDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetExampleTestDataAPI(params);
+  }
+
   const { getExampleTestDataAPI: originalGetExampleTestDataAPI } = await import('quizzer-lib');
   return originalGetExampleTestDataAPI(params);
 };
 
 export const submitExampleTestDataAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockSubmitExampleTestDataAPI(params);
+  }
+
   const { submitExampleTestDataAPI: originalSubmitExampleTestDataAPI } = await import('quizzer-lib');
   return originalSubmitExampleTestDataAPI(params);
 };
@@ -588,11 +605,19 @@ export const getTodoListAPI = async (params: any): Promise<ApiResult> => {
 };
 
 export const getTodoListAllAPI = async (): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetTodoListAllAPI();
+  }
+
   const { getTodoListAllAPI: originalGetTodoListAllAPI } = await import('quizzer-lib');
   return originalGetTodoListAllAPI();
 };
 
 export const restoreTodoAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockRestoreTodoAPI(params);
+  }
+
   const { restoreTodoAPI: originalRestoreTodoAPI } = await import('quizzer-lib');
   return originalRestoreTodoAPI(params);
 };
@@ -625,31 +650,55 @@ export const saveTodoCheckStatusAPI = async (params: any): Promise<ApiResult> =>
 };
 
 export const getCategoryParentChildListAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetCategoryParentChildListAPI(params);
+  }
+
   const { getCategoryParentChildListAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
 
 export const addCategoryParentChildAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockAddCategoryParentChildAPI(params);
+  }
+
   const { addCategoryParentChildAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
 
 export const deleteCategoryParentChildAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockDeleteCategoryParentChildAPI(params);
+  }
+
   const { deleteCategoryParentChildAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
 
 export const cleanupEmptyCategoriesAPI = async (): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockCleanupEmptyCategoriesAPI();
+  }
+
   const { cleanupEmptyCategoriesAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI();
 };
 
 export const getCategoryQuizCountAPI = async (params: any): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetCategoryQuizCountAPI(params);
+  }
+
   const { getCategoryQuizCountAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };
 
 export const getRecommendedCategoriesAPI = async (params: { file_num: number }): Promise<ApiResult> => {
+  if (isMockMode()) {
+    return mockAPI.mockGetRecommendedCategoriesAPI(params);
+  }
+
   const { getRecommendedCategoriesAPI: originalAPI } = await import('quizzer-lib');
   return originalAPI(params);
 };

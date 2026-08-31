@@ -18,6 +18,7 @@ import {
 } from 'chart.js';
 import { CircularProgress } from '@mui/material';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
+import { useChartAriaLabel } from '@/hooks/useChartAriaLabel';
 import { ANSWER_LOG_HISTGRAM_LABEL, ANSWER_LOG_HISTGRAM_COLOR, DATE_UNIT_OPTION } from '@/constants/contents/chart';
 
 ChartJS.register(
@@ -36,6 +37,7 @@ interface QuizAnswerLogStatisticsCardProps {
 }
 
 export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatisticsCardProps) => {
+  const chartRef = useChartAriaLabel('回答数推移グラフ');
   const [answerLogStatisticsData, setAnswerLogStatisticsData] = useState<AnswerLogStatisticsApiResponse[]>([]);
   const [dateUnit, setDateUnit] = useState<DateUnit | undefined>(undefined);
 
@@ -132,7 +134,11 @@ export const QuizAnswerLogStatisticsCard = ({ file_num }: QuizAnswerLogStatistic
         onChange={(e) => setDateUnit(e.target.value as DateUnit)}
       />
       <div className="h-[300px]">
-        {answerLogStatisticsData.length > 0 ? <Chart type="bar" options={options} data={data} /> : <CircularProgress />}
+        {answerLogStatisticsData.length > 0 ? (
+          <Chart ref={chartRef} type="bar" options={options} data={data} />
+        ) : (
+          <CircularProgress aria-label="読み込み中" />
+        )}
       </div>
     </Card>
   );

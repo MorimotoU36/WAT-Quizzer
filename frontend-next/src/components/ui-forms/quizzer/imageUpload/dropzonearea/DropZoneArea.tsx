@@ -2,7 +2,7 @@ import Dropzone from 'react-dropzone';
 import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
-import { uploadImageOfQuizAPI } from 'quizzer-lib';
+import { uploadImageOfQuizAPI } from '@/utils/api-wrapper';
 
 interface DropZoneAreaProps {}
 
@@ -51,7 +51,7 @@ export const DropZoneArea = ({}: DropZoneAreaProps) => {
             {...getRootProps()}
             className="bg-gray-100 m-[10px] p-2.5 border-4 border-dashed border-gray-300 min-h-[200px] text-center"
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps({ 'aria-label': '画像ファイルを選択' })} />
             <p>Drag and drop some files here, or click to select files</p>
             {isUploading ? <p>ファイルをアップロードしています</p> : <p>ここに画像をドラックまたはクリック</p>}
           </div>
