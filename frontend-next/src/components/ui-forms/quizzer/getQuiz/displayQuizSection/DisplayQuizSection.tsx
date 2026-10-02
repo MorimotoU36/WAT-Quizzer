@@ -30,19 +30,24 @@ interface DisplayQuizSectionProps {
   setQuizResponseData?: React.Dispatch<React.SetStateAction<GetQuizApiResponseDto>>;
   imageUrl: string;
   setImageUrl?: React.Dispatch<React.SetStateAction<string>>;
+  // 指定時は正解/不正解ボタン押下時にこちらへ委譲する。結果登録に成功したら、実際に次の問題へ進める「確定関数」を返す
+  // （答えの表示エリアが閉じきってから確定関数を呼ぶことで、次の問題の答えが一瞬見えてしまうのを防ぐ）
+  onAnswer?: (isCorrect: boolean) => Promise<(() => void) | null>;
 }
 
 export const DisplayQuizSection = ({
   getQuizResponseData,
   setQuizResponseData,
   imageUrl,
-  setImageUrl
+  setImageUrl,
+  onAnswer
 }: DisplayQuizSectionProps) => {
   const setMessage = useSetRecoilState(messageState);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [hideAccuracyRate, setHideAccuracyRate] = useState<boolean>(false);
   const [autoDisplayImage, setAutoDisplayImage] = useState<boolean>(false);
   const prevQuizSentenseRef = useRef<string>(getQuizResponseData.quiz_sentense);
+  const pendingAdvanceRef = useRef<(() => void) | null>(null);
   const displayQuiz = useMemo(() => {
     const generated = generateQuizSentense(getQuizResponseData);
     // チェックボックスがONの時（hideAccuracyRateがtrue）は正解率を削除
@@ -61,6 +66,29 @@ export const DisplayQuizSection = ({
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
+  };
+
+  // 正解/不正解ボタン押下時の処理。onAnswerが指定されていればそちらに委譲する
+  const handleAnswer = async (isCorrect: boolean) => {
+    if (onAnswer) {
+      const advance = await onAnswer(isCorrect);
+      if (!advance) return;
+      // 答えの表示エリアを閉じ始める。実際に次の問題へ進めるのはCollapseが閉じきってから（onExited）
+      pendingAdvanceRef.current = advance;
+      setExpanded(false);
+      return;
+    }
+    setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
+    const result = isCorrect
+      ? await clearQuizAPI({ getQuizResponseData })
+      : await failQuizAPI({ getQuizResponseData });
+    setMessage(result.message);
+    // TODO 成功時の判定法
+    if (result.message.messageColor === 'success.light' && setQuizResponseData) {
+      setQuizResponseData(initGetQuizResponseData);
+      setExpanded(false);
+      setImageUrl && setImageUrl('');
+    }
   };
 
   // 出題変わったら閉じる、画像自動表示の場合は画像を取得
@@ -90,7 +118,7 @@ export const DisplayQuizSection = ({
   return (
     <>
       <Card variant="outlined">
-        <CardContent className="!m-[8px] shadow-lg bg-gray-100">
+        <CardContent className="!m-[8px] shadow-lg bg-gray-100 dark:bg-gray-800">
           <div className="flex items-center justify-between mb-2">
             <Typography variant="h5" component="h2" className="flex items-center justify-start h-full">
               問題
@@ -140,7 +168,7 @@ export const DisplayQuizSection = ({
             displayQuiz.quiz_category.map((category, index) => {
               return <Chip key={index} label={category.category} />;
             })}
-          <Typography variant="subtitle2" component="span" className="text-gray-400">
+          <Typography variant="subtitle2" component="span" className="text-gray-400 dark:text-gray-500">
             {displayQuiz.count && `(取得問題数${String(displayQuiz.count)}問中)`}
           </Typography>
         </CardContent>
@@ -150,7 +178,19 @@ export const DisplayQuizSection = ({
             答え
           </MuiButton>
         </CardActions>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Collapse
+          in={expanded}
+          timeout="auto"
+          unmountOnExit
+          onExited={() => {
+            if (pendingAdvanceRef.current) {
+              const advance = pendingAdvanceRef.current;
+              pendingAdvanceRef.current = null;
+              advance();
+              setImageUrl && setImageUrl('');
+            }
+          }}
+        >
           <CardContent>
             <DisplaySentence sentence={displayQuiz.answer} />
             <Typography variant="subtitle2" component="h3">
@@ -164,19 +204,7 @@ export const DisplayQuizSection = ({
               variant="contained"
               color="primary"
               disabled={getQuizResponseData.quiz_num === -1}
-              onClick={async (e) => {
-                setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-                const result = await clearQuizAPI({
-                  getQuizResponseData
-                });
-                setMessage(result.message);
-                // TODO 成功時の判定法
-                if (result.message.messageColor === 'success.light' && setQuizResponseData) {
-                  setQuizResponseData(initGetQuizResponseData);
-                  setExpanded(false);
-                  setImageUrl && setImageUrl('');
-                }
-              }}
+              onClick={() => handleAnswer(true)}
             />
             <Button
               label={'不正解...'}
@@ -184,19 +212,7 @@ export const DisplayQuizSection = ({
               variant="contained"
               color="secondary"
               disabled={getQuizResponseData.quiz_num === -1}
-              onClick={async (e) => {
-                setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
-                const result = await failQuizAPI({
-                  getQuizResponseData
-                });
-                setMessage(result.message);
-                // TODO 成功時の判定法
-                if (result.message.messageColor === 'success.light' && setQuizResponseData) {
-                  setQuizResponseData(initGetQuizResponseData);
-                  setExpanded(false);
-                  setImageUrl && setImageUrl('');
-                }
-              }}
+              onClick={() => handleAnswer(false)}
             />
             <Button
               label={'チェックつける/外す'}

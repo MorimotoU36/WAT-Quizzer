@@ -8,6 +8,7 @@ import {
   CheckQuizAPIRequestDto,
   DeleteAnswerLogOfFileApiRequestDto,
   getRandomElementFromArray,
+  getRandomElementsFromArray,
   AddCategoryToQuizAPIRequestDto,
   IntegrateToQuizAPIRequestDto,
   GetQuizAPIRequestDto,
@@ -43,7 +44,8 @@ export class QuizService {
       | 'leastClear'
       | 'LRU'
       | 'review'
-      | 'todayNotAnswered',
+      | 'todayNotAnswered'
+      | 'recentlyUpdated',
   ) {
     try {
       const {
@@ -55,9 +57,38 @@ export class QuizService {
         checked,
         format_id,
         keyword,
+        keywordTarget,
+        count,
       } = req;
+      // countはmethod指定時（条件検索）のみ有効。件数指定がなければ従来通り1件取得
+      const isBatchRequest = !!method && !!count && count > 0;
       // カテゴリは複数選択でカンマ区切りされてるので分割する
       const categories = category && category.split(',').map((s) => s.trim());
+      // キーワード検索条件（対象：問題文+解答 or 解説）
+      const keywordCondition = keyword
+        ? keywordTarget === 'explanation'
+          ? {
+              quiz_explanation: {
+                explanation: {
+                  contains: keyword,
+                },
+              },
+            }
+          : {
+              OR: [
+                {
+                  quiz_sentense: {
+                    contains: keyword,
+                  },
+                },
+                {
+                  answer: {
+                    contains: keyword,
+                  },
+                },
+              ],
+            }
+        : undefined;
       // 取得条件
       const where =
         // methodがある時は条件指定
@@ -104,9 +135,7 @@ export class QuizService {
                   category_quiz: {
                     some: {
                       category: {
-                        name: {
-                          contains: category,
-                        },
+                        name: category,
                       },
                       deleted_at: null,
                     },
@@ -118,20 +147,7 @@ export class QuizService {
                     checked: true,
                   }
                 : {}),
-              ...(keyword && {
-                OR: [
-                  {
-                    quiz_sentense: {
-                      contains: keyword,
-                    },
-                  },
-                  {
-                    answer: {
-                      contains: keyword,
-                    },
-                  },
-                ],
-              }),
+              ...keywordCondition,
             }
           : {
               file_num,
@@ -144,20 +160,7 @@ export class QuizService {
                 },
               }),
               deleted_at: null,
-              ...(keyword && {
-                OR: [
-                  {
-                    quiz_sentense: {
-                      contains: keyword,
-                    },
-                  },
-                  {
-                    answer: {
-                      contains: keyword,
-                    },
-                  },
-                ],
-              }),
+              ...keywordCondition,
             };
       const orderBy =
         method === 'worstRate'
@@ -204,10 +207,12 @@ export class QuizService {
                       last_failed_answer_log: 'desc' as const,
                     },
                   }
-                : {};
-      // 順位確定メソッド（全件ではなく先頭1件のみ取得すればよい）
-      const needsAllResults =
-        !method || method === 'random' || method === 'todayNotAnswered';
+                : method === 'recentlyUpdated'
+                  ? [{ updated_at: 'desc' as const }, { id: 'desc' as const }]
+                  : {};
+      // ランダム系メソッド（条件に合う全件から抽選する）
+      const isRandomMethod =
+        method === 'random' || method === 'todayNotAnswered';
       const selectFields = {
         id: true,
         file_num: true,
@@ -259,27 +264,50 @@ export class QuizService {
         },
       };
       // データ取得
-      // needsAllResults=false の場合は先頭1件のみ取得してDBからの転送量を削減
-      const [results, totalCount] = await Promise.all([
-        prisma.quiz.findMany({
-          select: selectFields,
-          where,
-          orderBy,
-          ...(needsAllResults ? {} : { take: 1 }),
-        }),
-        needsAllResults ? Promise.resolve(null) : prisma.quiz.count({ where }),
-      ]);
+      // ランダム系は全件の詳細を取得するとLambdaのメモリ・実行時間の上限を超えるため、
+      // 条件に合う問題のIDだけ全件取得 → 抽選 → 抽選した問題の詳細だけ取得する
+      // それ以外は必要件数のみ取得してDBからの転送量を削減（method無し=問題番号指定は元々1件）
+      const fetchRandomQuizzes = async () => {
+        const ids = await prisma.quiz.findMany({ select: { id: true }, where });
+        const pickedIds = (
+          isBatchRequest
+            ? getRandomElementsFromArray(ids, count)
+            : [getRandomElementFromArray(ids)]
+        )
+          .filter((x) => x !== undefined)
+          .map((x) => x.id);
+        const picked =
+          pickedIds.length > 0
+            ? await prisma.quiz.findMany({
+                select: selectFields,
+                where: { id: { in: pickedIds } },
+              })
+            : [];
+        // 抽選した順に並べ直す
+        const shuffled = pickedIds
+          .map((id) => picked.find((quiz) => quiz.id === id))
+          .filter((quiz) => quiz !== undefined);
+        return [shuffled, ids.length] as const;
+      };
+      const [results, totalCount] = isRandomMethod
+        ? await fetchRandomQuizzes()
+        : await Promise.all([
+            prisma.quiz.findMany({
+              select: selectFields,
+              where,
+              orderBy,
+              ...(method ? { take: isBatchRequest ? count : 1 } : {}),
+            }),
+            method ? prisma.quiz.count({ where }) : Promise.resolve(null),
+          ]);
       if (results.length === 0) {
         throw new HttpException(
           `条件に合致するデータはありません`,
           HttpStatus.NOT_FOUND,
         );
       }
-      const result =
-        method === 'random' || method === 'todayNotAnswered'
-          ? getRandomElementFromArray(results)
-          : results[0];
-      return {
+      // 1件分の結果を返却用の形に整形する
+      const shapeResult = (result: (typeof results)[number]) => ({
         ...result,
         category_quiz: undefined,
         ...(result.category_quiz && {
@@ -300,6 +328,16 @@ export class QuizService {
             accuracy_rate: result.quiz_statistics_view.accuracy_rate.toString(),
           },
         }),
+      });
+      // count指定時（出題数分まとめて取得）は複数件返却する
+      if (isBatchRequest) {
+        return {
+          total: totalCount ?? results.length,
+          quizzes: results.map(shapeResult),
+        };
+      }
+      return {
+        ...shapeResult(results[0]),
         count: totalCount ?? results.length,
       };
     } catch (error: unknown) {
@@ -784,9 +822,7 @@ export class QuizService {
           category_quiz: {
             some: {
               category: {
-                name: {
-                  contains: category,
-                },
+                name: category,
               },
               deleted_at: null,
             },

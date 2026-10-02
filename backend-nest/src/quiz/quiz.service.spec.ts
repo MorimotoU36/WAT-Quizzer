@@ -2,6 +2,7 @@ import { QuizService } from './quiz.service';
 import {
   prisma,
   getRandomElementFromArray,
+  getRandomElementsFromArray,
   xor,
   getPrismaFromPastDayRange,
 } from 'quizzer-lib';
@@ -50,6 +51,7 @@ jest.mock('quizzer-lib', () => {
   return {
     prisma: mockPrisma,
     getRandomElementFromArray: jest.fn(),
+    getRandomElementsFromArray: jest.fn(),
     getPrismaFromPastDayRange: jest.fn(),
     getTodayStart: jest.fn(),
     xor: jest.fn(),
@@ -121,12 +123,13 @@ describe('QuizService', () => {
 
   // 問題ランダム取得 正常系
   it('getRandomQuiz - OK', async () => {
-    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
-      getQuizResultTest,
-    );
-    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce(
-      getQuizResultTest[0],
-    );
+    // 1回目: 条件に合う問題のID一覧、2回目: 抽選した問題の詳細
+    (prisma.quiz.findMany as jest.Mock)
+      .mockResolvedValueOnce([{ id: getQuizResultTest[0].id }])
+      .mockResolvedValueOnce(getQuizResultTest);
+    (getRandomElementFromArray as jest.Mock).mockReturnValueOnce({
+      id: getQuizResultTest[0].id,
+    });
     expect(
       await quizService.getQuiz({ file_num: 1, quiz_num: 1 }, 'random'),
     ).toEqual({
@@ -194,6 +197,32 @@ describe('QuizService', () => {
     });
   });
 
+  // 直近更新のあった問題を取得 正常系
+  it('getRecentlyUpdatedQuiz - OK', async () => {
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTest,
+    );
+    expect(
+      await quizService.getQuiz(
+        { file_num: 1, quiz_num: 1 },
+        'recentlyUpdated',
+      ),
+    ).toEqual({
+      ...getQuizResultTest[0],
+      count: 1,
+      quiz_statistics_view: {
+        clear_count: '1',
+        fail_count: '1',
+        accuracy_rate: '50',
+      },
+    });
+    expect(prisma.quiz.findMany).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        orderBy: [{ updated_at: 'desc' }, { id: 'desc' }],
+      }),
+    );
+  });
+
   // 昨日間違えた問題（reviewメソッド）の取得 正常系テスト
   it('getReviewQuiz - OK', async () => {
     // quiz_statistics_view.findFirstでlast_failed_answer_logを返すモック
@@ -229,6 +258,66 @@ describe('QuizService', () => {
         fail_count: '1',
         accuracy_rate: '50',
       },
+    });
+  });
+
+  // 出題数(count)指定時の複数件取得テスト用データ
+  const getQuizResultTestBatch = [
+    getQuizResultTest[0],
+    {
+      ...getQuizResultTest[0],
+      id: 1,
+      quiz_num: 1,
+      quiz_sentense: '品詞テスト2',
+      answer: '品詞テスト2',
+    },
+  ];
+
+  // 最低正解率問題取得（出題数指定）正常系
+  it('getWorstRateQuiz - count指定でN件取得', async () => {
+    (prisma.quiz.findMany as jest.Mock).mockResolvedValueOnce(
+      getQuizResultTestBatch,
+    );
+    (prisma.quiz.count as jest.Mock).mockResolvedValueOnce(2);
+    expect(
+      await quizService.getQuiz(
+        { file_num: 1, count: 2 },
+        'worstRate',
+      ),
+    ).toEqual({
+      total: 2,
+      quizzes: getQuizResultTestBatch.map((quiz) => ({
+        ...quiz,
+        quiz_statistics_view: {
+          clear_count: '1',
+          fail_count: '1',
+          accuracy_rate: '50',
+        },
+      })),
+    });
+  });
+
+  // ランダム問題取得（出題数指定）正常系
+  it('getRandomQuiz - count指定でN件取得', async () => {
+    // 1回目: 条件に合う問題のID一覧、2回目: 抽選した問題の詳細
+    (prisma.quiz.findMany as jest.Mock)
+      .mockResolvedValueOnce(getQuizResultTestBatch.map(({ id }) => ({ id })))
+      .mockResolvedValueOnce(getQuizResultTestBatch);
+    (getRandomElementsFromArray as jest.Mock).mockReturnValueOnce(
+      getQuizResultTestBatch.map(({ id }) => ({ id })),
+    );
+    expect(
+      await quizService.getQuiz({ file_num: 1, count: 2 }, 'random'),
+    ).toEqual({
+      total: 2,
+      quizzes: getQuizResultTestBatch.map((quiz) => ({
+        ...quiz,
+        quiz_statistics_view: {
+          clear_count: '1',
+          fail_count: '1',
+          accuracy_rate: '50',
+        },
+      })),
     });
   });
 

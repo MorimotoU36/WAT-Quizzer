@@ -33,6 +33,8 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
   const [categorylistoption, setCategorylistoption] = useState<PullDownOptionDto[]>([]);
   const { quizFormatListoption } = useQuizFormatList();
   const setMessage = useSetRecoilState(messageState);
+  // sessionStorageからの復元が済んだか（済む前に初期値で上書き保存しないため）
+  const [isRestored, setIsRestored] = useState(false);
 
   // セッションストレージキー
   const STORAGE_KEY = 'searchQuizRequestData';
@@ -40,6 +42,7 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
   // 初期化・復元・自動検索
   useEffect(() => {
     const saved = sessionStorage.getItem(STORAGE_KEY);
+    setIsRestored(true);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -83,6 +86,12 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
     }
   }, [setMessage, setSearchResult, setTotalCount]);
 
+  // 検索条件が変わったらsessionStorageに保存（ファイル選択など、どの入力経路からの変更も漏らさないよう一箇所で行う）
+  useEffect(() => {
+    if (!isRestored) return;
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(searchQuizRequestData));
+  }, [isRestored, searchQuizRequestData]);
+
   // カテゴリリストが更新されたとき、category値がリストに含まれていなければ-1にリセット
   useEffect(() => {
     if (categorylistoption.length > 0) {
@@ -112,7 +121,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 query: value
               };
               setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
           />
         </FormControl>
@@ -129,7 +137,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 searchInOnlySentense: e.target.checked
               };
               setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
             name="checkedA"
           />
@@ -143,7 +150,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 searchInOnlyAnswer: e.target.checked
               };
               setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
             name="checkedB"
           />
@@ -157,7 +163,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 searchInExplanation: e.target.checked
               };
               setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
             name="checkedC"
           />
@@ -166,6 +171,7 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
         <PullDown
           label={'カテゴリ'}
           optionList={categorylistoption}
+          searchable
           value={searchQuizRequestData.category ?? -1}
           onChange={(e) => {
             const newCategory = String(e.target.value);
@@ -173,10 +179,9 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
               ...searchQuizRequestData,
               category: newCategory,
               // カテゴリが未選択になったらonlyDirectCategoryも解除
-              onlyDirectCategory: newCategory === '-1' ? false : searchQuizRequestData.onlyDirectCategory
+              onlyDirectCategory: newCategory === '-1' ? false : !!searchQuizRequestData.onlyDirectCategory
             };
             setSearchQuizRequestData(setData);
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
           }}
         />
         <Checkbox
@@ -190,7 +195,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
               onlyDirectCategory: e.target.checked
             };
             setSearchQuizRequestData(setData);
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
           }}
         />
 
@@ -209,7 +213,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 max_rate: Array.isArray(value) ? value[1] : value
               };
               setSearchQuizRequestData(setData);
-              sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
             }}
           />
         </FormControl>
@@ -234,7 +237,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                     }
                   };
                   setSearchQuizRequestData(setData);
-                  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
                 }}
                 label={'問題種別'}
               />
@@ -250,7 +252,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                     checked: e.target.checked
                   };
                   setSearchQuizRequestData(setData);
-                  sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
                 }}
               />
             </div>
@@ -270,7 +271,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 const val = e.target.value === '' ? undefined : parseInt(e.target.value);
                 const setData = { ...searchQuizRequestData, result_from: val };
                 setSearchQuizRequestData(setData);
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
               }}
               sx={{ width: 120 }}
             />
@@ -286,7 +286,6 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
                 const val = e.target.value === '' ? undefined : parseInt(e.target.value);
                 const setData = { ...searchQuizRequestData, result_to: val };
                 setSearchQuizRequestData(setData);
-                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(setData));
               }}
               sx={{ width: 120 }}
             />
@@ -324,7 +323,7 @@ export const SearchQueryForm = ({ setSearchResult, setTotalCount }: SearchQueryF
           }
         }}
       />
-      <p className="text-xs text-gray-400 mt-1">
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
         ※ 検索結果は最大 {SEARCH_LIMITS.MAX_QUIZ_SEARCH_RESULTS} 問まで表示されます
       </p>
     </>
