@@ -6,7 +6,7 @@ import { TextField } from '@/components/ui-elements/textField/TextField';
 import styles from '../Settings.module.css';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { PullDownOptionDto } from 'quizzer-lib';
+import type { PullDownOptionDto } from 'quizzer-lib';
 import { addBookAPI, listBookAPI } from '@/utils/api-wrapper';
 
 interface AddBookFormProps {
@@ -33,7 +33,7 @@ export const AddBookForm = ({ setBooklistoption }: AddBookFormProps) => {
               });
               const result = await addBookAPI({ addBookAPIRequest: { book_name: bookName } });
               setMessage(result.message);
-              if (result.message.messageColor === 'success.light') {
+              if (result.isSuccess) {
                 // 問題ファイル再取得
                 const result = await listBookAPI();
                 if (result.result && Array.isArray(result.result)) {

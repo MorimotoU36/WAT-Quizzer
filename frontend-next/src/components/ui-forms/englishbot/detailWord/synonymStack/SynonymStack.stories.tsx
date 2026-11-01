@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { SynonymStack } from './SynonymStack';
-import { GetWordDetailAPIResponseDto, Message, initWordDetailResponseData } from 'quizzer-lib';
+import type { GetWordDetailAPIResponseDto, Message } from 'quizzer-lib';
+import { initWordDetailResponseData } from 'quizzer-lib';
 import { useState } from 'react';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -25,9 +26,8 @@ const SynonymStackWithState = ({ wordDetail }: { wordDetail: GetWordDetailAPIRes
     messageColor: 'common.black',
     isDisplay: false
   });
-  const [currentWordDetail, setCurrentWordDetail] = useState<GetWordDetailAPIResponseDto>(wordDetail);
 
-  return <SynonymStack wordDetail={currentWordDetail} setMessage={setMessage} setWordDetail={setCurrentWordDetail} />;
+  return <SynonymStack wordDetail={wordDetail} setMessage={setMessage} />;
 };
 
 // Mock data for stories

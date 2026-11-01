@@ -6,18 +6,23 @@ WAT-Quizzer の REST API サーバー。[NestJS](https://nestjs.com/) 製。
 
 ## 構成
 
-`src/` 直下は機能ごとの NestJS モジュールに分かれている（`app.module.ts` で束ねる）。DB アクセスは Prisma を利用するが、スキーマ・生成クライアントの実体は `../quizzer-lib`（backend-nest / batch / frontend-next 共有パッケージ）にあり、本アプリは `quizzer-lib` から `prisma` クライアントや共通 DTO/ユーティリティを import して使う（スキーマ本体は `../quizzer-lib/prisma/schema.prisma`）。
+`src/` 直下は機能ごとの NestJS モジュールに分かれている（`app.module.ts` で束ねる）。`src/common/` はモジュールではなく、複数モジュールで使う共通処理を置く（`common/csv/`: CSV の読み込み `parseCsv` と、行番号付きでエラーを集めて 400 で返すなどの検証用部品）。DB アクセスは Prisma を利用するが、スキーマ・生成クライアントの実体は `../quizzer-lib`（backend-nest / batch / frontend-next 共有パッケージ）にあり、本アプリは `quizzer-lib` から `prisma` クライアントや共通 DTO/ユーティリティを import して使う（スキーマ本体は `../quizzer-lib/prisma/schema.prisma`）。
 
 | モジュール | ベースパス | 概要 |
 |---|---|---|
-| `quiz/` | `/quiz`, `/quiz/file` | 基礎・応用問題の CRUD、出題形式別の問題取得（ランダム・低正解率・最小回答数・LRU・復習・今日未回答・直近更新）、正誤記録、CSV アップロード、画像アップロード、統計 |
+| `quiz/` | `/quiz`, `/quiz/file` | 問題（基礎・応用・四択）の CRUD、出題形式別の問題取得（ランダム・低正解率・最小回答数・LRU・復習・今日未回答・直近更新）、問題検索（`/quiz/search`。カテゴリは `category_and`（すべて含む）・`category_not`（含まない）に JSON 文字列化したカテゴリ名の配列で指定）、正誤記録、問題統合、チェック・カテゴリの付け外し、CSV 一括登録（`/quiz/upload`: 基礎・応用、`/quiz/upload/fourchoice`: 四択。検証は `quiz/csv/`）、画像アップロード、統計 |
 | `category/` | `/category` | 問題カテゴリの一覧・正答率・親子関係・件数集計 |
 | `english/` | `/english`, `/english/word`, `/english/derivatives` | 英単語帳（EnglishBot）: 単語/派生語/類義語/反意語/語源、例文とテスト、出典管理 |
-| `saying/` | `/saying` | 格言（さやいん）の登録・検索・出典（書籍）管理 |
+| `saying/` | `/saying` | 格言（さやいん）の登録・検索・出典（書籍）管理、CSV 一括登録（`/saying/upload`。検証は `saying/csv/`） |
 | `todo/` | `/todo` | ToDo とチェック状況、日記 |
 | `auth/` | `/auth` | サインイン・新パスワード設定・アクセストークン再取得（`/auth/refresh`）・ログアウト（`/auth/logout`）。Cognito (`auth/cognito/`、AWS SDK v3) を用いたユーザー認証と、accessToken（JWT）の検証 (`CognitoAuthGuard`。失敗時は 401) |
 
 各コントローラーが受け付ける具体的なエンドポイントは各 `*.controller.ts` を参照。ローカル起動時は Swagger UI が `http://localhost:4000/api` で閲覧できる。
+
+- `quiz/` の更新・操作系 API（編集・統合・カテゴリの付け外し・チェックの付け外し）は、変更後の問題を返す（カテゴリ関連は有効なカテゴリ付き）。ファイル指定の回答ログ削除は削除件数（`{ count }`）を返す
+- カテゴリ親子関係（`/category/parent-child`）の削除は論理削除（`deleted_at` を設定）。過去に削除した組み合わせを再度追加すると、そのレコードを復活させる（削除されていない同じ組み合わせがあれば 409）。追加時、子カテゴリが付いている問題に親カテゴリが付いていなければ親カテゴリも付与する
+- 派生語の追加（`POST /english/word/derivative`）: 1 つの単語が属せる派生語グループは 1 つだけ。両単語の所属状況に応じて、既存グループへの追加・新規グループの作成・2 グループの統合（派生語側のグループの単語を元単語側のグループへ移し、空になったグループを削除）を行う。同じ単語同士、または既に同じグループに属している場合は 400
+- CSV 一括登録（問題・格言）は、登録前に全行を検証する。誤りが 1 件でもあれば 1 件も登録せず、`{ message, errors }`（`errors` は `3行目: 問題文が空です` のような行ごとの一覧）を 400 で返す。登録は各テーブルへまとめて書き込む。入力ファイルの形式は `../batch/README.md` を参照
 
 ### 認証
 
@@ -60,6 +65,15 @@ pnpm run test:e2e
 # カバレッジ
 pnpm run test:cov
 ```
+
+## Lint
+
+```bash
+pnpm run lint        # ESLint（Prettier の書式チェックを含む）。--fix 付きなので書式などは自動修正される
+pnpm run lint:check  # --fix なしでチェックだけ行う（CI・pre-push フックでルートの pnpm lint から使う）
+```
+
+設定は `eslint.config.mjs`。ルールの方針はリポジトリルートの README の「Lint」を参照。
 
 ## 環境変数
 

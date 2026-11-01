@@ -1,5 +1,6 @@
-import { AddEtymologyAPIRequestDto } from '.'
-import { ErrorResponse, ProcessingApiReponse, post } from '../../../..'
+import type { AddEtymologyAPIRequestDto } from '.'
+import type { ErrorResponse, ApiResult, ProcessingApiReponse } from '../../../..'
+import { post } from '../../../..'
 
 interface AddEtymologyAPIProps {
   addEtymologyData: AddEtymologyAPIRequestDto
@@ -7,12 +8,13 @@ interface AddEtymologyAPIProps {
 
 export const addEtymologyAPI = async ({
   addEtymologyData
-}: AddEtymologyAPIProps) => {
+}: AddEtymologyAPIProps): Promise<ApiResult> => {
   if (
     !addEtymologyData.etymologyName ||
     addEtymologyData.etymologyName === ''
   ) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:語源名が入力されていません',
         messageColor: 'error',
@@ -45,8 +47,9 @@ export const addEtymologyAPI = async ({
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',

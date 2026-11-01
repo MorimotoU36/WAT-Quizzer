@@ -1,11 +1,8 @@
-import { AddSayingAPIRequestDto } from './dto'
-import { ApiResult, post, ProcessingApiReponse } from '../..'
-import {
-  AddQuizApiResponseDto,
-  errorMessage,
-  MESSAGES,
-  successMessage
-} from '../../../..'
+import type { AddSayingAPIRequestDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { post } from '../..'
+import type { AddQuizApiResponseDto } from '../../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
 
 interface AddSayingButtonProps {
   addSayingAPIRequest: AddSayingAPIRequestDto
@@ -15,9 +12,9 @@ export const addSayingAPI = async ({
   addSayingAPIRequest
 }: AddSayingButtonProps): Promise<ApiResult> => {
   if (!addSayingAPIRequest.book_id || addSayingAPIRequest.book_id === -1) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00011) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00011) }
   } else if (!addSayingAPIRequest.saying || addSayingAPIRequest.saying === '') {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00012) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00012) }
   }
 
   const result = await post(

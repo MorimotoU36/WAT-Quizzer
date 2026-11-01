@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { EtymologyStack } from './EtymologyStack';
-import { GetWordDetailAPIResponseDto, Message, initWordDetailResponseData } from 'quizzer-lib';
+import type { GetWordDetailAPIResponseDto, Message } from 'quizzer-lib';
+import { initWordDetailResponseData } from 'quizzer-lib';
 import { useState } from 'react';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -25,9 +26,8 @@ const EtymologyStackWithState = ({ wordDetail }: { wordDetail: GetWordDetailAPIR
     messageColor: 'common.black',
     isDisplay: false
   });
-  const [currentWordDetail, setCurrentWordDetail] = useState<GetWordDetailAPIResponseDto>(wordDetail);
 
-  return <EtymologyStack wordDetail={currentWordDetail} setMessage={setMessage} setWordDetail={setCurrentWordDetail} />;
+  return <EtymologyStack wordDetail={wordDetail} setMessage={setMessage} />;
 };
 
 // Mock data for stories

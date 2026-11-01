@@ -1,5 +1,6 @@
-import { get, ProcessingApiReponse } from '../../..'
-import { SearchExampleAPIRequestDto, SearchExampleAPIResponseDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../..'
+import { get } from '../../..'
+import type { SearchExampleAPIRequestDto, SearchExampleAPIResponseDto } from '.'
 
 // 例文検索
 interface SearchExampleAPIProps {
@@ -8,9 +9,10 @@ interface SearchExampleAPIProps {
 
 export const searchExampleAPI = async ({
   searchExampleData
-}: SearchExampleAPIProps) => {
+}: SearchExampleAPIProps): Promise<ApiResult> => {
   if (!searchExampleData.query || searchExampleData.query === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:検索語句を入力して下さい',
         messageColor: 'error',
@@ -27,6 +29,7 @@ export const searchExampleAPI = async ({
 
         if (result.length === 0) {
           return {
+            isSuccess: false,
             message: {
               message: 'エラー:条件に合うデータはありません',
               messageColor: 'error',

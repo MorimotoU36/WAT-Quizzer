@@ -1,5 +1,6 @@
-import { AddQuizAPIRequestDto, AddQuizApiResponseDto } from './dto'
-import { ApiResult, post, ProcessingApiReponse } from '../..'
+import type { AddQuizAPIRequestDto, AddQuizApiResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { post } from '../..'
 import {
   containsAny,
   errorMessage,
@@ -16,9 +17,9 @@ export const addQuizAPI = async ({
   addQuizRequestData
 }: AddQuizButtonProps): Promise<ApiResult> => {
   if (addQuizRequestData.file_num === -1) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00001) }
   } else if (!addQuizRequestData.question || !addQuizRequestData.answer) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00005) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00005) }
   }
 
   // 問題文・答えとダミー選択肢にカンマとハイフンが入っていたらエラー終了
@@ -30,7 +31,7 @@ export const addQuizAPI = async ({
       return accummulate || containsAny(currentValue.sentense, ngChar)
     }, false)
   ) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00015) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00015) }
   }
 
   const result = await post(

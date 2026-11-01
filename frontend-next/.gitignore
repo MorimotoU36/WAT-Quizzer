@@ -44,7 +44,6 @@ test-result/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-
-# e2e coverage (monocart-reporter)
+# e2e coverage (pnpm run e2e:coverage)
+/e2e-coverage/
 /monocart-report/
-/coverage-report/

@@ -1,22 +1,14 @@
 import { useCallback, useReducer } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { GetQuizAPIRequestDto, GetQuizApiResponseDto, initGetQuizResponseData } from 'quizzer-lib';
+import type { GetQuizAPIRequestDto, GetQuizApiResponseDto, GetQuizMethod } from 'quizzer-lib';
+import { initGetQuizResponseData } from 'quizzer-lib';
 import { getQuizAPI, clearQuizAPI, failQuizAPI } from '@/utils/api-wrapper';
 import { initialQuizSessionState, quizSessionReducer } from './quizSession/reducer';
 
-export type QuizSessionMethod =
-  | 'random'
-  | 'worstRate'
-  | 'leastClear'
-  | 'LRU'
-  | 'review'
-  | 'todayNotAnswered'
-  | 'recentlyUpdated';
-
 export interface StartQuizSessionParams {
   getQuizRequestData: GetQuizAPIRequestDto;
-  getQuizMethod: QuizSessionMethod;
+  getQuizMethod: GetQuizMethod;
   count: number;
 }
 
@@ -54,14 +46,18 @@ export const useQuizSession = () => {
         ? await clearQuizAPI({ getQuizResponseData: currentQuiz })
         : await failQuizAPI({ getQuizResponseData: currentQuiz });
       setMessage(result.message);
-      // TODO 成功時の判定法（DisplayQuizSectionの既存実装と同様のmessageColorでの判定）
-      if (result.message.messageColor !== 'success.light') {
+      if (!result.isSuccess) {
         return null;
       }
       return () => dispatch({ type: 'ANSWER', isCorrect });
     },
     [state.queue, state.currentIndex, state.status, setMessage]
   );
+
+  // 全問終わる前に出題を終了し、それまでの解答結果で終了画面を表示する
+  const finishSession = useCallback(() => {
+    dispatch({ type: 'FINISH' });
+  }, []);
 
   // 出題設定に戻るためセッションを初期状態にリセットする
   const resetSession = useCallback(() => {
@@ -78,6 +74,7 @@ export const useQuizSession = () => {
     results: state.results,
     startSession,
     answer,
+    finishSession,
     resetSession
   };
 };

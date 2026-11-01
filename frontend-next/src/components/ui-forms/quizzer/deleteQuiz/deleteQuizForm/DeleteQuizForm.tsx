@@ -1,11 +1,7 @@
 import { Card, CardContent, FormControl, FormGroup, Paper, TextField, Typography } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
-import {
-  GetQuizAPIRequestDto,
-  GetQuizApiResponseDto,
-  initGetQuizRequestData,
-  initGetQuizResponseData
-} from 'quizzer-lib';
+import type { GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
+import { initGetQuizRequestData, initGetQuizResponseData } from 'quizzer-lib';
 import { useState } from 'react';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
@@ -106,6 +102,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
         attr={'button-array'}
         variant="contained"
         color="primary"
+        disabled={deleteQuizInfo.quiz_num === -1}
         onClick={async (e) => {
           setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await deleteQuizAPI({
@@ -115,7 +112,7 @@ export const DeleteQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: DeleteQuiz
             }
           });
           setMessage(result.message);
-          if (result.message.messageColor === 'success.light') {
+          if (result.isSuccess) {
             setQuizRequestData(initGetQuizRequestData);
             setDeleteQuizInfo(initGetQuizResponseData);
           }

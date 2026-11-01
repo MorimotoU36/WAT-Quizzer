@@ -12,8 +12,8 @@ const nextConfig = withInterceptStdout(
       externalDir: true
     },
     trailingSlash: true,
-    // E2Eカバレッジ計測(monocart-reporter)がバンドル済みJSを元のTSXへマッピングするために必要
-    productionBrowserSourceMaps: true
+    // E2Eのカバレッジ計測(pnpm run e2e:coverage)の時だけ、実行されたJSを元のTSXに対応づけるためソースマップを出力する
+    productionBrowserSourceMaps: process.env.E2E_COVERAGE === 'true'
   },
   (text) => (text.includes('Duplicate atom key') ? '' : text)
 );

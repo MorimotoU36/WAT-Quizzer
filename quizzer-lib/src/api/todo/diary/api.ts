@@ -3,8 +3,9 @@ import {
   MESSAGES,
   successMessage
 } from '../../../..'
-import { ApiResult, post, ProcessingApiReponse } from '../..'
-import { AddTodoDiaryAPIRequestDto, AddTodoDiaryApiResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { post } from '../..'
+import type { AddTodoDiaryAPIRequestDto, AddTodoDiaryApiResponseDto } from './dto'
 
 interface AddTodoDiaryAPIProps {
   addTodoDiaryAPIRequest: AddTodoDiaryAPIRequestDto
@@ -20,6 +21,7 @@ export const addTodoDiaryAPI = async ({
     !dateRegex.test(addTodoDiaryAPIRequest.date)
   ) {
     return {
+      isSuccess: false,
       message: errorMessage('エラー:日付はYYYY-MM-DD形式で入力してください')
     }
   }

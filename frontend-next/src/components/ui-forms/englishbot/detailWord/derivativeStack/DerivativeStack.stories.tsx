@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { DerivativeStack } from './DerivativeStack';
-import {
-  GetWordDetailAPIResponseDto,
-  Message,
-  mockWordDetailLoading,
-  mockWordDetailWithAntonyms,
-  mockWordDetailWithoutAntonyms
-} from 'quizzer-lib';
+import type { GetWordDetailAPIResponseDto, Message } from 'quizzer-lib';
+import { mockWordDetailLoading, mockWordDetailWithAntonyms, mockWordDetailWithoutAntonyms } from 'quizzer-lib';
 import { useState } from 'react';
 
 // 派生語を持つモックデータを追加
@@ -51,11 +46,8 @@ const DerivativeStackWithState = ({ wordDetail }: { wordDetail: GetWordDetailAPI
     messageColor: 'common.black',
     isDisplay: false
   });
-  const [currentWordDetail, setCurrentWordDetail] = useState<GetWordDetailAPIResponseDto>(wordDetail);
 
-  return (
-    <DerivativeStack wordDetail={currentWordDetail} setMessage={setMessage} setWordDetail={setCurrentWordDetail} />
-  );
+  return <DerivativeStack wordDetail={wordDetail} setMessage={setMessage} />;
 };
 
 export const WithDerivatives: Story = {

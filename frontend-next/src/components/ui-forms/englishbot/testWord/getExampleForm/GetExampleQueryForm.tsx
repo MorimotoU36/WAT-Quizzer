@@ -5,7 +5,7 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { GetExampleTestDataAPIResponseDto, PullDownOptionDto } from 'quizzer-lib';
+import type { GetExampleTestDataAPIResponseDto, PullDownOptionDto } from 'quizzer-lib';
 import { getExampleTestDataAPI } from '@/utils/api-wrapper';
 
 interface GetExampleQueryFormProps {
@@ -47,9 +47,8 @@ export const GetExampleQueryForm = ({
           });
           setMessage(result.message);
           setTotalCount && setTotalCount(result.total);
-          if (result.message.messageColor === 'common.black') {
-            setDisplayTestData &&
-              setDisplayTestData(result.result as GetExampleTestDataAPIResponseDto);
+          if (result.isSuccess) {
+            setDisplayTestData && setDisplayTestData(result.result as GetExampleTestDataAPIResponseDto);
           }
         }}
       />

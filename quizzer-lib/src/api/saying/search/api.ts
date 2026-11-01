@@ -1,5 +1,9 @@
-import { SearchSayingAPIRequestDto, SearchSayingAPIResponseDto } from './dto'
-import { ApiResult, get, ProcessingApiReponse } from '../..'
+import type {
+  SearchSayingAPIRequestDto,
+  SearchSayingAPIResponseDto
+} from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { get } from '../..'
 import { defaultMessage, errorMessage, MESSAGES } from '../../../..'
 
 interface searchSayingAPIProps {
@@ -23,9 +27,9 @@ export const searchSayingAPI = async ({
         data.status === 404 ||
         (Array.isArray(data.body) && data.body?.length === 0)
       ) {
-        return { message: errorMessage(MESSAGES.ERROR.MSG00003) }
+        return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00003) }
       } else {
-        return { message: errorMessage(MESSAGES.ERROR.MSG00004) }
+        return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00004) }
       }
     },
     {

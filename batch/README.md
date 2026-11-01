@@ -15,6 +15,10 @@ WAT-Quizzer 用の単発実行バッチ/CLIスクリプト集。`quizzer-lib` �
 (...の連続)
 ```
 
+- 問題・答えは必須。問題・答えにカンマ(`,`)、ハイフン(`-`)は使えない（画面からの登録と同じ）
+- ファイル番号は登録済みの問題ファイルのもの、問題は登録済み・ファイル内のどちらとも重複しないこと
+- 解説・カテゴリ・画像ファイル名は空欄可
+
 # fourchoice.quiz.uploader.ts
 
 四択問題が書かれたファイルを読み込んで問題登録する
@@ -27,6 +31,13 @@ WAT-Quizzer 用の単発実行バッチ/CLIスクリプト集。`quizzer-lib` �
 ```
 
 ※答えの数が 2 以上の場合、正解の選択肢はダミー 1 選択肢から順に書いていくこと
+
+- 答えの数は 1〜4。問題・答え・ダミー選択肢 1〜3 は必須で、カンマ(`,`)、ハイフン(`-`)は使えない
+- ファイル番号・問題の重複についての制約は `quiz.uploader.ts` と同じ。解説・カテゴリは空欄可
+
+## 入力内容のチェック（quiz.uploader.ts / fourchoice.quiz.uploader.ts 共通）
+
+登録前に全行をチェックし、誤りが 1 件でもあれば 1 問も登録せず、行ごとのエラー一覧を表示して終了する（例: `3行目: 問題文が空です`）。行番号は空行を除いて数える。
 
 # englishword.source.register.ts
 
@@ -74,6 +85,9 @@ pnpm exec ts-node src/englishword.source.register.ts <ファイル名> --source-
 (...の連続)
 ```
 
+- 出典IDは登録済みの本のもの。格言は必須（256文字以内）で、登録済み・ファイル内のどちらとも重複しないこと。解説は空欄可
+- 問題のアップロードと同じく、誤りが 1 件でもあれば 1 件も登録せず、行ごとのエラー一覧を表示して終了する
+
 # tools/avg_line.register.ts
 
 全ファイルの合計行数・ファイル数から平均行数を計算し記録する（API を経由せず `quizzer-lib` の `prisma` クライアントで直接 DB に書き込む）。
@@ -82,4 +96,4 @@ pnpm exec ts-node src/englishword.source.register.ts <ファイル名> --source-
 pnpm exec ts-node src/tools/avg_line.register.ts (全ファイルの行数合計) (全ファイル数)
 ```
 
-リポジトリルートの `update_avg_lines.sh`（push 前フックでの実行を想定）から、対象ファイルの行数を集計した上で呼び出される。
+`tools/update_avg_lines.sh`（`.githooks/pre-push` から push 前に自動実行される）から、対象ファイルの行数を集計した上で呼び出される。

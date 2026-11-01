@@ -1,5 +1,11 @@
-import {
+import type {
   ApiResult,
+  WordSummaryApiResponse,
+  CategoryParentChildAPIResponseDto,
+  CategoryQuizCountDto,
+  RecommendedCategoryDto
+} from 'quizzer-lib';
+import {
   errorMessage,
   getRandomIntWithRange,
   MESSAGES,
@@ -11,11 +17,7 @@ import {
   selfhelpBookMockData,
   successMessage,
   englishDataMock,
-  englishExamplesMockData,
-  WordSummaryApiResponse,
-  CategoryParentChildAPIResponseDto,
-  CategoryQuizCountDto,
-  RecommendedCategoryDto
+  englishExamplesMockData
 } from 'quizzer-lib';
 
 // モック用のAPI関数群
@@ -28,6 +30,7 @@ export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
   if (params.getQuizMethod && count && count > 0) {
     const quizzes = [...quizList].sort(() => Math.random() - 0.5).slice(0, count);
     return {
+      isSuccess: true,
       message: successMessage(MESSAGES.SUCCESS.MSG00015, String(quizzes.length)),
       result: quizzes,
       total: quizList.length
@@ -40,19 +43,33 @@ export const mockGetQuizAPI = async (params: any): Promise<ApiResult> => {
 
   return quiz
     ? {
+        isSuccess: true,
         message: successMessage(MESSAGES.SUCCESS.MSG00001),
         result: quiz
       }
-    : { message: errorMessage(MESSAGES.ERROR.MSG00004) };
+    : { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00004) };
 };
 
 export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
   const { searchQuizRequestData } = params;
-  const { query, file_num, checked, searchInOnlySentense, searchInOnlyAnswer } = searchQuizRequestData || {};
+  const {
+    query,
+    file_num,
+    checked,
+    searchInOnlySentense,
+    searchInOnlyAnswer,
+    category_and = [],
+    category_not = []
+  } = searchQuizRequestData || {};
 
   const searchResults = quizMockData.filter((quiz) => {
     if (file_num !== undefined && file_num !== -1 && quiz.file_num !== file_num) return false;
     if (checked !== undefined && quiz.checked !== checked) return false;
+    const quizCategories = quizCategoryMockData
+      .filter((category) => category.quiz_id === quiz.id && !category.deleted_at)
+      .map((category) => category.category);
+    if (!category_and.every((c: string) => quizCategories.includes(c))) return false;
+    if (category_not.some((c: string) => quizCategories.includes(c))) return false;
     if (!query) return true;
 
     const targets = searchInOnlyAnswer
@@ -64,6 +81,7 @@ export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
   });
 
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00015.replace('{0}', String(searchResults.length)),
       messageColor: 'success.light',
@@ -76,6 +94,7 @@ export const mockSearchQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetQuizFileListAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -87,6 +106,7 @@ export const mockGetQuizFileListAPI = async (): Promise<ApiResult> => {
 
 export const mockGetQuizFormatListAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -100,6 +120,7 @@ export const mockGetCategoryListAPI = async (file_num: string): Promise<ApiResul
   const quizIdList = quizMockData.filter((quiz) => quiz.file_num === +file_num).map((quiz) => quiz.id);
   const categoryList = quizCategoryMockData.filter((category) => quizIdList.includes(category.quiz_id));
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -114,6 +135,7 @@ export const mockSearchWordAPI = async (params: any): Promise<ApiResult> => {
   const searchResults = englishDataMock.words.slice(0, 3);
 
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -125,6 +147,7 @@ export const mockSearchWordAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetWordDetailAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -136,6 +159,7 @@ export const mockGetWordDetailAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetPartOfSpeechListAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -147,6 +171,7 @@ export const mockGetPartOfSpeechListAPI = async (): Promise<ApiResult> => {
 
 export const mockGetSourceListAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -182,6 +207,7 @@ export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
   });
 
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -194,6 +220,7 @@ export const mockSearchSayingAPI = async (params: any): Promise<ApiResult> => {
 // 認証関連のモック関数（常に成功を返す）
 export const mockLoginAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00023,
       messageColor: 'success.light',
@@ -208,6 +235,7 @@ export const mockLoginAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockLogoutAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00024,
       messageColor: 'success.light',
@@ -220,6 +248,7 @@ export const mockLogoutAPI = async (): Promise<ApiResult> => {
 // その他のAPI関数も必要に応じて追加
 export const mockAddQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00002,
       messageColor: 'success.light',
@@ -235,19 +264,33 @@ export const mockAddQuizAPI = async (params: any): Promise<ApiResult> => {
   };
 };
 
+// 更新・操作系APIが返す問題データ（更新後の状態）のモック
+const mockUpdatedQuiz = {
+  id: 1,
+  file_num: 1,
+  quiz_num: 1,
+  format_id: 1,
+  quiz_sentense: 'test',
+  answer: 'test',
+  img_file: null,
+  checked: false
+};
+
 export const mockEditQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00018,
       messageColor: 'success.light',
       isDisplay: true
     },
-    result: { result: 'Edited!' }
+    result: mockUpdatedQuiz
   };
 };
 
 export const mockDeleteQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: successMessage(
       MESSAGES.SUCCESS.MSG00009,
       String(params.deleteQuizAPIRequestData.file_num),
@@ -258,6 +301,7 @@ export const mockDeleteQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockAddWordAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '単語を追加しました',
       messageColor: 'success.light',
@@ -269,6 +313,7 @@ export const mockAddWordAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockAddExampleAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '例文を追加しました',
       messageColor: 'success.light',
@@ -280,6 +325,7 @@ export const mockAddExampleAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetImageOfQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '画像を取得しました',
       messageColor: 'success.light',
@@ -296,11 +342,13 @@ export const mockUploadImageOfQuizAPI = async (params: any): Promise<ApiResult> 
 
   if (!uploadQuizRequestData?.file) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00002),
     result: { fileName: uploadQuizRequestData.file.name }
   };
@@ -311,6 +359,7 @@ export const mockGetSayingAPI = async (params: any): Promise<ApiResult> => {
   const randomSaying = sayingMockData[Math.floor(Math.random() * sayingMockData.length)];
 
   return {
+    isSuccess: true,
     message: {
       message: '格言を取得しました',
       messageColor: 'success.light',
@@ -322,6 +371,7 @@ export const mockGetSayingAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockClearQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00008.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
@@ -332,6 +382,7 @@ export const mockClearQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockFailQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00011.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
@@ -342,6 +393,7 @@ export const mockFailQuizAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockReverseCheckQuizAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00006.replace('{0}', String(params.getQuizResponseData.quiz_num)),
       messageColor: 'success.light',
@@ -352,6 +404,7 @@ export const mockReverseCheckQuizAPI = async (params: any): Promise<ApiResult> =
 
 export const mockGetWordSummaryDataAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '単語サマリーデータを取得しました',
       messageColor: 'success.light',
@@ -367,6 +420,7 @@ export const mockGetWordSummaryDataAPI = async (): Promise<ApiResult> => {
 export const mockGetRandomWordAPI = async (): Promise<ApiResult> => {
   const randomWord = englishDataMock.words[Math.floor(Math.random() * englishDataMock.words.length)];
   return {
+    isSuccess: true,
     message: {
       message: 'ランダム単語を取得しました',
       messageColor: 'success.light',
@@ -378,6 +432,7 @@ export const mockGetRandomWordAPI = async (): Promise<ApiResult> => {
 
 export const mockGetWordTestStatisticsWeekDataAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '週間テスト統計データを取得しました',
       messageColor: 'success.light',
@@ -397,6 +452,7 @@ export const mockGetWordTestStatisticsWeekDataAPI = async (params: any): Promise
 
 export const mockGetWordNumAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '単語数を取得しました',
       messageColor: 'success.light',
@@ -415,17 +471,20 @@ export const mockAddSayingAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addSayingAPIRequest.book_id || addSayingAPIRequest.book_id === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00011)
     };
   }
 
   if (!addSayingAPIRequest.saying || addSayingAPIRequest.saying === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00012)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00016, addSayingAPIRequest.saying),
     result: { id: 999 }
   };
@@ -433,6 +492,7 @@ export const mockAddSayingAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockEditSayingAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '格言を更新しました',
       messageColor: 'success.light',
@@ -443,6 +503,7 @@ export const mockEditSayingAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockAddBookAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '啓発本を追加しました',
       messageColor: 'success.light',
@@ -454,6 +515,7 @@ export const mockAddBookAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockListBookAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '啓発本リストを取得しました',
       messageColor: 'success.light',
@@ -471,6 +533,7 @@ export const mockGetQuizFileStatisticsDataAPI = async (params: any): Promise<Api
   const clearCount = getRandomIntWithRange(0, 50);
   const failCount = getRandomIntWithRange(0, 50);
   return {
+    isSuccess: true,
     message: {
       message: '問題ファイル統計データを取得しました',
       messageColor: 'success.light',
@@ -490,6 +553,7 @@ export const mockGetQuizFileStatisticsDataAPI = async (params: any): Promise<Api
 
 export const mockGetAccuracyRateHistgramDataAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '正解率ヒストグラムデータを取得しました',
       messageColor: 'success.light',
@@ -514,6 +578,7 @@ export const mockGetAccuracyRateHistgramDataAPI = async (params: any): Promise<A
 
 export const mockGetAnswerLogStatisticsDataAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '回答ログ統計データを取得しました',
       messageColor: 'success.light',
@@ -605,13 +670,15 @@ export const mockAddCategoryToQuizAPI = async (params: any): Promise<ApiResult> 
 
   if (!addCategoryToQuizRequestData.quiz_id || addCategoryToQuizRequestData.quiz_id === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00004),
-    result: { id: 999 }
+    result: [{ ...mockUpdatedQuiz, category_quiz: [{ category: { name: 'test' } }] }]
   };
 };
 
@@ -620,13 +687,15 @@ export const mockDeleteCategoryOfQuizAPI = async (params: any): Promise<ApiResul
 
   if (!deleteCategoryToQuizRequestData.quiz_id || deleteCategoryToQuizRequestData.quiz_id === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00004),
-    result: { id: 999 }
+    result: [{ ...mockUpdatedQuiz, category_quiz: [{ category: { name: 'test' } }] }]
   };
 };
 
@@ -635,13 +704,15 @@ export const mockCheckOnQuizAPI = async (params: any): Promise<ApiResult> => {
 
   if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00007)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00005),
-    result: { id: 999 }
+    result: [mockUpdatedQuiz]
   };
 };
 
@@ -650,13 +721,15 @@ export const mockCheckOffQuizAPI = async (params: any): Promise<ApiResult> => {
 
   if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00007)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00005),
-    result: { id: 999 }
+    result: [mockUpdatedQuiz]
   };
 };
 
@@ -665,18 +738,20 @@ export const mockIntegrateQuizAPI = async (params: any): Promise<ApiResult> => {
 
   if (!integrateToQuizAPIRequestData.fromQuizId || !integrateToQuizAPIRequestData.toQuizId) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00010)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(
       MESSAGES.SUCCESS.MSG00014,
       'ID',
       String(integrateToQuizAPIRequestData.fromQuizId),
       String(integrateToQuizAPIRequestData.toQuizId)
     ),
-    result: { id: 999 }
+    result: { ...mockUpdatedQuiz, category_quiz: [{ category: { name: 'test' } }] }
   };
 };
 
@@ -685,6 +760,7 @@ export const mockGetAccuracyRateByCategoryAPI = async (params: any): Promise<Api
 
   if (getCategoryRateData.file_num === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:問題ファイルを選択して下さい',
         messageColor: 'error',
@@ -729,6 +805,7 @@ export const mockGetAccuracyRateByCategoryAPI = async (params: any): Promise<Api
   ];
 
   return {
+    isSuccess: true,
     message: {
       message: '　',
       messageColor: 'common.black',
@@ -747,6 +824,7 @@ export const mockAddQuizFileAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addQuizFileApiRequest.file_nickname || addQuizFileApiRequest.file_nickname === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
@@ -756,6 +834,7 @@ export const mockAddQuizFileAPI = async (params: any): Promise<ApiResult> => {
   const newFileNum = maxFileNum + 1;
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00012, String(addQuizFileApiRequest.file_nickname)),
     result: { file_num: newFileNum }
   };
@@ -766,11 +845,13 @@ export const mockDeleteQuizFileAPI = async (params: any): Promise<ApiResult> => 
 
   if (!deleteQuizFileApiRequest.file_id || deleteQuizFileApiRequest.file_id === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00013, String(deleteQuizFileApiRequest.file_id)),
     result: { result: 'Deleted.' }
   };
@@ -781,13 +862,15 @@ export const mockDeleteAnswerLogOfQuizFileAPI = async (params: any): Promise<Api
 
   if (!deleteLogOfFileRequest.file_id || deleteLogOfFileRequest.file_id === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00003, String(deleteLogOfFileRequest.file_id)),
-    result: { result: 'Deleted.' }
+    result: { count: 0 }
   };
 };
 
@@ -796,6 +879,7 @@ export const mockDownloadQuizCsvAPI = async (params: any): Promise<ApiResult> =>
 
   if (!downloadQuizCsvApiRequest.file_num || downloadQuizCsvApiRequest.file_num === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -803,6 +887,7 @@ export const mockDownloadQuizCsvAPI = async (params: any): Promise<ApiResult> =>
   // モックモードではCSVファイルをダウンロードしない
   // 代わりに成功メッセージを返す
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00022),
     result: {}
   };
@@ -822,6 +907,7 @@ export const mockGetSourceStatisticsDataAPI = async (params: any): Promise<ApiRe
   }));
 
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.DEFAULT.MSG00001,
       messageColor: 'common.black',
@@ -839,6 +925,7 @@ export const mockGetEnglishWordTestDataAPI = async (params: any): Promise<ApiRes
 
   if (!randomWord) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:条件に合致するデータはありません',
         messageColor: 'error',
@@ -891,6 +978,7 @@ export const mockGetEnglishWordTestDataAPI = async (params: any): Promise<ApiRes
   };
 
   return {
+    isSuccess: true,
     message: {
       message: '　',
       messageColor: 'common.black',
@@ -905,6 +993,7 @@ export const mockSubmitEnglishBotTestAPI = async (params: any): Promise<ApiResul
 
   if (selectedValue === undefined) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:解答が入力されていません',
         messageColor: 'error',
@@ -914,6 +1003,7 @@ export const mockSubmitEnglishBotTestAPI = async (params: any): Promise<ApiResul
   }
 
   return {
+    isSuccess: true,
     message: {
       message: `${selectedValue ? '正解+1!' : '不正解+1..'} 登録しました`,
       messageColor: 'success.light',
@@ -927,6 +1017,7 @@ export const mockToggleWordCheckAPI = async (params: any): Promise<ApiResult> =>
 
   if (!toggleCheckData.wordId || toggleCheckData.wordId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',
@@ -936,6 +1027,7 @@ export const mockToggleWordCheckAPI = async (params: any): Promise<ApiResult> =>
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!編集に成功しました',
       messageColor: 'success.light',
@@ -949,6 +1041,7 @@ export const mockSearchExampleAPI = async (params: any): Promise<ApiResult> => {
 
   if (!searchExampleData.query || searchExampleData.query === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:検索語句を入力して下さい',
         messageColor: 'error',
@@ -982,6 +1075,7 @@ export const mockSearchExampleAPI = async (params: any): Promise<ApiResult> => {
 
   if (searchResults.length === 0) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:条件に合うデータはありません',
         messageColor: 'error',
@@ -991,6 +1085,7 @@ export const mockSearchExampleAPI = async (params: any): Promise<ApiResult> => {
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!取得しました',
       messageColor: 'success.light',
@@ -1005,6 +1100,7 @@ export const mockSubmitAssociationExampleAPI = async (params: any): Promise<ApiR
 
   if (!submitAssociationExampleData.wordName || submitAssociationExampleData.wordName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:単語が入力されていません',
         messageColor: 'error',
@@ -1015,6 +1111,7 @@ export const mockSubmitAssociationExampleAPI = async (params: any): Promise<ApiR
 
   if (!submitAssociationExampleData.checkedIdList || submitAssociationExampleData.checkedIdList.length === 0) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:チェックしたIDリストがありません',
         messageColor: 'error',
@@ -1024,6 +1121,7 @@ export const mockSubmitAssociationExampleAPI = async (params: any): Promise<ApiR
   }
 
   return {
+    isSuccess: true,
     message: {
       message: '処理が終了しました',
       messageColor: 'success.light',
@@ -1037,6 +1135,7 @@ export const mockAddSynonymAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addSynonymData.synonymWordName || addSynonymData.synonymWordName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:類義語が入力されていません',
         messageColor: 'error',
@@ -1046,6 +1145,7 @@ export const mockAddSynonymAPI = async (params: any): Promise<ApiResult> => {
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!追加に成功しました',
       messageColor: 'success.light',
@@ -1059,6 +1159,7 @@ export const mockEditEnglishWordSourceAPI = async (params: any): Promise<ApiResu
 
   if (editWordSourceData.newSourceId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:出典を選択して下さい',
         messageColor: 'error',
@@ -1068,6 +1169,7 @@ export const mockEditEnglishWordSourceAPI = async (params: any): Promise<ApiResu
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!編集に成功しました',
       messageColor: 'success.light',
@@ -1081,6 +1183,7 @@ export const mockDeleteEnglishWordSourceAPI = async (params: any): Promise<ApiRe
 
   if (!deleteWordSourceData.word_id || !deleteWordSourceData.source_id) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',
@@ -1090,6 +1193,7 @@ export const mockDeleteEnglishWordSourceAPI = async (params: any): Promise<ApiRe
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!削除に成功しました',
       messageColor: 'success.light',
@@ -1103,6 +1207,7 @@ export const mockEditEnglishWordSubSourceAPI = async (params: any): Promise<ApiR
 
   if (!editWordSubSourceData.subSource || editWordSubSourceData.subSource === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:サブ出典を入力して下さい',
         messageColor: 'error',
@@ -1112,6 +1217,7 @@ export const mockEditEnglishWordSubSourceAPI = async (params: any): Promise<ApiR
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!編集に成功しました',
       messageColor: 'success.light',
@@ -1125,6 +1231,7 @@ export const mockDeleteEnglishWordSubSourceAPI = async (params: any): Promise<Ap
 
   if (!deleteWordSubSourceData.id || deleteWordSubSourceData.id === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:サブ出典を入力して下さい',
         messageColor: 'error',
@@ -1134,6 +1241,7 @@ export const mockDeleteEnglishWordSubSourceAPI = async (params: any): Promise<Ap
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!削除に成功しました',
       messageColor: 'success.light',
@@ -1147,6 +1255,7 @@ export const mockEditEnglishWordMeanAPI = async (params: any): Promise<ApiResult
 
   if (editMeanData.partofspeechId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:品詞を選択して下さい',
         messageColor: 'error',
@@ -1156,6 +1265,7 @@ export const mockEditEnglishWordMeanAPI = async (params: any): Promise<ApiResult
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!編集に成功しました',
       messageColor: 'success.light',
@@ -1169,6 +1279,7 @@ export const mockDeleteEnglishMeanAPI = async (params: any): Promise<ApiResult> 
 
   if (!deleteMeanData.meanId || deleteMeanData.meanId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',
@@ -1178,6 +1289,7 @@ export const mockDeleteEnglishMeanAPI = async (params: any): Promise<ApiResult> 
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!削除に成功しました',
       messageColor: 'success.light',
@@ -1191,6 +1303,7 @@ export const mockLinkWordEtymologyAPI = async (params: any): Promise<ApiResult> 
 
   if (!linkWordEtymologyData.etymologyName || linkWordEtymologyData.etymologyName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:語源名が入力されていません',
         messageColor: 'error',
@@ -1201,6 +1314,7 @@ export const mockLinkWordEtymologyAPI = async (params: any): Promise<ApiResult> 
 
   if (linkWordEtymologyData.wordId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:追加する単語IDを入力して下さい',
         messageColor: 'error',
@@ -1210,6 +1324,7 @@ export const mockLinkWordEtymologyAPI = async (params: any): Promise<ApiResult> 
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!追加に成功しました',
       messageColor: 'success.light',
@@ -1223,6 +1338,7 @@ export const mockAddEtymologyAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addEtymologyData.etymologyName || addEtymologyData.etymologyName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:語源名が入力されていません',
         messageColor: 'error',
@@ -1232,6 +1348,7 @@ export const mockAddEtymologyAPI = async (params: any): Promise<ApiResult> => {
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!追加に成功しました',
       messageColor: 'success.light',
@@ -1245,6 +1362,7 @@ export const mockAddDerivativeAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addDerivativeData.wordName || addDerivativeData.wordName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:元単語名が入力されていません',
         messageColor: 'error',
@@ -1255,6 +1373,7 @@ export const mockAddDerivativeAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addDerivativeData.derivativeName || addDerivativeData.derivativeName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:追加する単語名を入力して下さい',
         messageColor: 'error',
@@ -1264,6 +1383,7 @@ export const mockAddDerivativeAPI = async (params: any): Promise<ApiResult> => {
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!追加に成功しました',
       messageColor: 'success.light',
@@ -1277,6 +1397,7 @@ export const mockAddAntonymAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addAntonymData.antonymWordName || addAntonymData.antonymWordName === '') {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:対義語が入力されていません',
         messageColor: 'error',
@@ -1286,6 +1407,7 @@ export const mockAddAntonymAPI = async (params: any): Promise<ApiResult> => {
   }
 
   return {
+    isSuccess: true,
     message: {
       message: 'Success!!追加に成功しました',
       messageColor: 'success.light',
@@ -1309,6 +1431,7 @@ export const mockAddTodoAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addTodoAPIRequest.todo || addTodoAPIRequest.todo === '') {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1320,6 +1443,7 @@ export const mockAddTodoAPI = async (params: any): Promise<ApiResult> => {
   todoMockData = [...todoMockData, newTodo];
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00025, newTodo.todo),
     result: newTodo
   };
@@ -1330,6 +1454,7 @@ export const mockDeleteTodoAPI = async (params: any): Promise<ApiResult> => {
 
   if (!deleteTodoAPIRequestData.id || deleteTodoAPIRequestData.id === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1337,6 +1462,7 @@ export const mockDeleteTodoAPI = async (params: any): Promise<ApiResult> => {
   const todoIndex = todoMockData.findIndex((t) => t.id === deleteTodoAPIRequestData.id);
   if (todoIndex === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
@@ -1348,6 +1474,7 @@ export const mockDeleteTodoAPI = async (params: any): Promise<ApiResult> => {
   deletedTodoMockData = [...deletedTodoMockData, { ...deletedTodo, deleted_at: new Date().toISOString() }];
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00009, String(deletedTodo.id)),
     result: { id: deletedTodo.id, todo: deletedTodo.todo }
   };
@@ -1355,6 +1482,7 @@ export const mockDeleteTodoAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetTodoListAllAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -1369,6 +1497,7 @@ export const mockRestoreTodoAPI = async (params: any): Promise<ApiResult> => {
 
   if (!restoreTodoAPIRequestData.id || restoreTodoAPIRequestData.id === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1376,6 +1505,7 @@ export const mockRestoreTodoAPI = async (params: any): Promise<ApiResult> => {
   const deletedIndex = deletedTodoMockData.findIndex((t) => t.id === restoreTodoAPIRequestData.id);
   if (deletedIndex === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00004)
     };
   }
@@ -1385,6 +1515,7 @@ export const mockRestoreTodoAPI = async (params: any): Promise<ApiResult> => {
   todoMockData = [...todoMockData, { id: restoredTodo.id, todo: restoredTodo.todo }];
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00018),
     result: { id: restoredTodo.id, todo: restoredTodo.todo, deleted_at: null }
   };
@@ -1392,6 +1523,7 @@ export const mockRestoreTodoAPI = async (params: any): Promise<ApiResult> => {
 
 export const mockGetTodoListAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: MESSAGES.SUCCESS.MSG00019,
       messageColor: 'success.light',
@@ -1409,6 +1541,7 @@ export const mockAddTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
 
   if (!addTodoDiaryAPIRequest.date || !addTodoDiaryAPIRequest.todo_id) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1424,6 +1557,7 @@ export const mockAddTodoDiaryAPI = async (params: any): Promise<ApiResult> => {
   });
 
   return {
+    isSuccess: true,
     message: {
       message: `Todo日記を追加しました（日付: ${date}）`,
       messageColor: 'success.light',
@@ -1441,6 +1575,7 @@ export const mockGetTodoCheckStatusAPI = async (params: any): Promise<ApiResult>
 
   if (!getTodoCheckStatusAPIRequest.date) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1449,6 +1584,7 @@ export const mockGetTodoCheckStatusAPI = async (params: any): Promise<ApiResult>
   const completedTodoIds = todoCheckStatusMockData[date] || [];
 
   return {
+    isSuccess: true,
     message: {
       message: 'Todoチェック状態を取得しました',
       messageColor: 'success.light',
@@ -1463,6 +1599,7 @@ export const mockSaveTodoCheckStatusAPI = async (params: any): Promise<ApiResult
 
   if (!saveTodoCheckStatusAPIRequest.date) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1471,6 +1608,7 @@ export const mockSaveTodoCheckStatusAPI = async (params: any): Promise<ApiResult
   todoCheckStatusMockData[date] = saveTodoCheckStatusAPIRequest.completedTodoIds || [];
 
   return {
+    isSuccess: true,
     message: {
       message: 'Todoチェック状態を保存しました',
       messageColor: 'success.light',
@@ -1486,6 +1624,7 @@ export const mockGetExampleTestDataAPI = async (params: any): Promise<ApiResult>
 
   if (candidates.length === 0) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00003)
     };
   }
@@ -1493,6 +1632,7 @@ export const mockGetExampleTestDataAPI = async (params: any): Promise<ApiResult>
   const picked = candidates[Math.floor(Math.random() * candidates.length)];
 
   return {
+    isSuccess: true,
     message: {
       message: '　',
       messageColor: 'common.black',
@@ -1516,11 +1656,13 @@ export const mockSubmitExampleTestDataAPI = async (params: any): Promise<ApiResu
 
   if (selectedValue === undefined) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
 
   return {
+    isSuccess: true,
     message: successMessage(selectedValue ? '正解として登録しました' : '不正解として登録しました')
   };
 };
@@ -1536,6 +1678,7 @@ let categoryParentChildMockData: CategoryParentChildAPIResponseDto[] = [
 
 export const mockGetCategoryParentChildListAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '　',
       messageColor: 'common.black',
@@ -1550,6 +1693,7 @@ export const mockAddCategoryParentChildAPI = async (params: any): Promise<ApiRes
 
   if (!addCategoryParentChildData?.parent_category || !addCategoryParentChildData?.child_category) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1568,6 +1712,7 @@ export const mockAddCategoryParentChildAPI = async (params: any): Promise<ApiRes
   ];
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00004)
   };
 };
@@ -1578,6 +1723,7 @@ export const mockDeleteCategoryParentChildAPI = async (params: any): Promise<Api
   categoryParentChildMockData = categoryParentChildMockData.filter((x) => x.id !== deleteCategoryParentChildData?.id);
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00004)
   };
 };
@@ -1596,6 +1742,7 @@ const categoryQuizCountMockData: CategoryQuizCountDto[] = [
 
 export const mockGetCategoryQuizCountAPI = async (params: any): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: {
       message: '　',
       messageColor: 'common.black',
@@ -1607,6 +1754,7 @@ export const mockGetCategoryQuizCountAPI = async (params: any): Promise<ApiResul
 
 export const mockCleanupEmptyCategoriesAPI = async (): Promise<ApiResult> => {
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00004),
     result: { deleted_count: 0 }
   };
@@ -1615,6 +1763,7 @@ export const mockCleanupEmptyCategoriesAPI = async (): Promise<ApiResult> => {
 export const mockGetRecommendedCategoriesAPI = async (params: { file_num: number }): Promise<ApiResult> => {
   if (params.file_num === -1) {
     return {
+      isSuccess: false,
       message: errorMessage(MESSAGES.ERROR.MSG00001)
     };
   }
@@ -1626,6 +1775,7 @@ export const mockGetRecommendedCategoriesAPI = async (params: { file_num: number
   ];
 
   return {
+    isSuccess: true,
     message: successMessage(MESSAGES.SUCCESS.MSG00019),
     result
   };

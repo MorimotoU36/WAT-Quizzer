@@ -1,5 +1,6 @@
-import { LinkWordEtymologyAPIRequestDto } from '.'
-import { ErrorResponse, ProcessingApiReponse, post } from '../../../..'
+import type { LinkWordEtymologyAPIRequestDto } from '.'
+import type { ErrorResponse, ApiResult, ProcessingApiReponse } from '../../../..'
+import { post } from '../../../..'
 
 interface LinkWordEtymologyAPIProps {
   linkWordEtymologyData: LinkWordEtymologyAPIRequestDto
@@ -7,12 +8,13 @@ interface LinkWordEtymologyAPIProps {
 
 export const linkWordEtymologyAPI = async ({
   linkWordEtymologyData
-}: LinkWordEtymologyAPIProps) => {
+}: LinkWordEtymologyAPIProps): Promise<ApiResult> => {
   if (
     !linkWordEtymologyData.etymologyName ||
     linkWordEtymologyData.etymologyName === ''
   ) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:語源名が入力されていません',
         messageColor: 'error',
@@ -22,6 +24,7 @@ export const linkWordEtymologyAPI = async ({
   }
   if (linkWordEtymologyData.wordId === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:追加する単語IDを入力して下さい',
         messageColor: 'error',
@@ -54,8 +57,9 @@ export const linkWordEtymologyAPI = async ({
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',

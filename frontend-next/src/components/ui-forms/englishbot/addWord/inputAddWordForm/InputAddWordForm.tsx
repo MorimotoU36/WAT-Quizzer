@@ -1,9 +1,9 @@
-import { InputLabel, MenuItem, Select } from '@mui/material';
-import { pullDownMenuProps } from '@/constants/pullDown';
+import { PULLDOWN_NONE_VALUE, PULLDOWN_OTHER_VALUE } from '@/constants/pullDown';
+import { PullDownWithOther } from '@/components/ui-parts/pullDownWithOther/PullDownWithOther';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
-import { AddWordAPIRequestDto, PullDownOptionDto, Message } from 'quizzer-lib';
+import type { AddWordAPIRequestDto, PullDownOptionDto, Message } from 'quizzer-lib';
 import { addWordAPI } from '@/utils/api-wrapper';
 import React from 'react';
 
@@ -15,74 +15,6 @@ interface InputAddWordFormProps {
 }
 
 export const InputAddWordForm = ({ sourceList, addWordState, setMessage, setAddWordState }: InputAddWordFormProps) => {
-  // 出典プルダウン表示、「その他」だったら入力用テキストボックスを出す
-  // TODO これもlibいく？
-  const displaySourceInput = () => {
-    const sourceInput =
-      addWordState.inputWord.sourceId === -2 ? (
-        <>
-          <InputLabel id="demo-simple-select-label"></InputLabel>
-          <TextField
-            label="出典"
-            variant="outlined"
-            setStater={(value: string) => {
-              setAddWordState &&
-                setAddWordState({
-                  ...addWordState,
-                  inputWord: {
-                    ...addWordState.inputWord,
-                    newSourceName: value
-                  }
-                });
-            }}
-            id="input-pos-01"
-            key="addWordInputSource"
-            className={['fullWidth', 'textField']}
-          />
-        </>
-      ) : (
-        <></>
-      );
-
-    return (
-      <>
-        <Select
-          inputProps={{ 'aria-label': '出典' }}
-          id="demo-simple-select"
-          defaultValue={-1}
-          value={addWordState.inputWord.sourceId}
-          label="source"
-          key="source"
-          sx={{ width: 1 }}
-          MenuProps={pullDownMenuProps}
-          onChange={(e) => {
-            setAddWordState &&
-              setAddWordState({
-                ...addWordState,
-                inputWord: {
-                  ...addWordState.inputWord,
-                  sourceId: +e.target.value
-                }
-              });
-          }}
-        >
-          <MenuItem value={-1} key={-1}>
-            選択なし
-          </MenuItem>
-          {sourceList.map((x) => (
-            <MenuItem value={x.value} key={x.value}>
-              {x.label}
-            </MenuItem>
-          ))}
-          <MenuItem value={-2} key={-2}>
-            その他
-          </MenuItem>
-        </Select>
-        {sourceInput}
-      </>
-    );
-  };
-
   return (
     <>
       <Button
@@ -98,13 +30,12 @@ export const InputAddWordForm = ({ sourceList, addWordState, setMessage, setAddW
             });
           const result = await addWordAPI({ addWordData: addWordState });
           setMessage && setMessage(result.message);
-          // TODO 成功時の条件
-          if (result.message.messageColor === 'success.light') {
+          if (result.isSuccess) {
             setAddWordState &&
               setAddWordState({
                 inputWord: {
                   wordName: '',
-                  sourceId: -1,
+                  sourceId: PULLDOWN_NONE_VALUE,
                   subSourceName: ''
                 },
                 pronounce: '',
@@ -130,7 +61,35 @@ export const InputAddWordForm = ({ sourceList, addWordState, setMessage, setAddW
               });
           }}
         />
-        {displaySourceInput()}
+        <PullDownWithOther
+          label="出典"
+          id="source-select"
+          optionList={sourceList}
+          value={addWordState.inputWord.sourceId}
+          otherValue={addWordState.inputWord.newSourceName}
+          onChange={(value) => {
+            setAddWordState &&
+              setAddWordState({
+                ...addWordState,
+                inputWord: {
+                  ...addWordState.inputWord,
+                  sourceId: value,
+                  // 「その他」以外に切り替えたら、入力していた新しい出典名は送らない
+                  newSourceName: value === PULLDOWN_OTHER_VALUE ? addWordState.inputWord.newSourceName : undefined
+                }
+              });
+          }}
+          onOtherChange={(value) => {
+            setAddWordState &&
+              setAddWordState({
+                ...addWordState,
+                inputWord: {
+                  ...addWordState.inputWord,
+                  newSourceName: value
+                }
+              });
+          }}
+        />
         <TextField
           className={['fullWidth', 'textField']}
           label="サブ出典"

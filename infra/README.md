@@ -1,6 +1,6 @@
 # infra
 
-WAT-Quizzer の AWS インフラを定義する [AWS CDK](https://aws.amazon.com/cdk/)（TypeScript）プロジェクト。pnpm workspace には含まれず、独立した CDK アプリとして npm で管理する（`infra/` で `npm install`）。
+WAT-Quizzer の AWS インフラを定義する [AWS CDK](https://aws.amazon.com/cdk/)（TypeScript）プロジェクト。pnpm workspace の一員として管理する（依存はリポジトリルートの `pnpm install` で一括インストール。CDK コマンドは `infra/` で `pnpm exec cdk ...`）。
 
 ## エントリーポイント (`bin/`)
 
@@ -10,8 +10,7 @@ WAT-Quizzer の AWS インフラを定義する [AWS CDK](https://aws.amazon.com
   - `BackendStack`（`lib/stack/backend-stack.ts`）— `backend-nest` 用インフラ
   - `FrontendStack`（`lib/stack/frontend-stack.ts`）— `frontend-next` の静的サイト配信用インフラ（S3 バケット等。`BackendStack` の `todoCheckStatusTable` を参照）と、Cognito（ユーザープール・アプリクライアント・ID プール）。アプリクライアントのトークン有効期限は accessToken / idToken 1時間、refreshToken 6時間
   - `UsEast1Stack`（`lib/stack/us-east1-stack.ts`）— us-east-1 リージョン依存のリソース（CloudFront 用証明書と連携）
-  - `MockStack`（`lib/stack/mock-stack.ts`）— モック環境用スタック
-- `mock-infra.ts` — `MockStack` のみをデプロイする、モック/ローカル確認用の簡易エントリーポイント
+  - `MockStack`（`lib/stack/mock-stack.ts`）— モック環境用スタック。単体でデプロイする場合は `pnpm exec cdk deploy MockStack`
 
 ## 補助リソース (`lib/service/`)
 
@@ -23,10 +22,10 @@ WAT-Quizzer の AWS インフラを定義する [AWS CDK](https://aws.amazon.com
 `backend-nest` の API は CDK ではなく AWS SAM（`template.yaml` / `samconfig.toml`）でデプロイする。`BackendStack` は `SAM_APIGATEWAY_ID` でこの API Gateway を参照する。
 
 - `ApiGatewayRestApi` — API Gateway（カスタムドメイン `QuizzerApiDomainName`）。CORS は `FrontOrigin` パラメータのオリジンのみ許可し、credentials（Cookie）を許可する
-- `SamQuizzerApiFunction` — `backend-nest` を動かす Lambda（リポジトリルートの `Dockerfile` からビルドするコンテナイメージ。`/{proxy+}` の全メソッドを受ける）
+- `SamQuizzerApiFunction` — `backend-nest` を動かす Lambda（リポジトリルートの `Dockerfile` からビルドするコンテナイメージ。`/{proxy+}` の全メソッドを受ける。メモリは 512MB）
 - `WordDerivativesFunction` — 下記 `lambda/word-derivatives/` の Lambda
 
-develop ブランチへの push で `.github/workflows/develop.yml` が `sam build` / `sam deploy` を実行する（パラメータは同ワークフローの `--parameter-overrides` を参照）。
+develop ブランチへの push で `.github/workflows/develop.yml` の `deploy-backend` ジョブが `sam build` / `sam deploy` を実行する（バックエンドに関係する変更があるときのみ。パラメータは同ワークフローの `--parameter-overrides` を参照）。CDK の `BackendStack` / `FrontendStack` は `deploy-frontend` ジョブでデプロイする。
 
 ## Lambda (`lambda/`)
 
@@ -34,9 +33,11 @@ develop ブランチへの push で `.github/workflows/develop.yml` が `sam bui
 
 ## Useful commands
 
-* `npm run build` — TypeScript をコンパイル
-* `npm run watch` — 変更を監視してコンパイル
-* `npm run test` — jest による unit test
-* `npx cdk deploy --context env=<env>` — 対象環境へデプロイ（`env` コンテキストで環境を切り替える。`bin/infra.ts` が `app.node.tryGetContext('env')` を参照）
-* `npx cdk diff --context env=<env>` — デプロイ済みスタックとの差分確認
-* `npx cdk synth --context env=<env>` — CloudFormation テンプレートを出力
+`infra/` ディレクトリで実行する。
+
+* `pnpm run build` — TypeScript をコンパイル
+* `pnpm run watch` — 変更を監視してコンパイル
+* `pnpm run test` — jest による unit test
+* `pnpm exec cdk deploy --context env=<env>` — 対象環境へデプロイ（`env` コンテキストで環境を切り替える。`bin/infra.ts` が `app.node.tryGetContext('env')` を参照）
+* `pnpm exec cdk diff --context env=<env>` — デプロイ済みスタックとの差分確認
+* `pnpm exec cdk synth --context env=<env>` — CloudFormation テンプレートを出力

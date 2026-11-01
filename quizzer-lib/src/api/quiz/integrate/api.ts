@@ -1,11 +1,8 @@
-import {
-  AddQuizApiResponseDto,
-  errorMessage,
-  MESSAGES,
-  successMessage
-} from '../../../..'
-import { ApiResult, post, ProcessingApiReponse } from '../..'
-import { IntegrateToQuizAPIRequestDto } from './dto'
+import type { QuizWithCategoryApiResponseDto } from '..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { post } from '../..'
+import type { IntegrateToQuizAPIRequestDto } from './dto'
 
 interface IntegrateQuizAPIProps {
   integrateToQuizAPIRequestData: IntegrateToQuizAPIRequestDto
@@ -18,7 +15,7 @@ export const integrateQuizAPI = async ({
     !integrateToQuizAPIRequestData.fromQuizId ||
     !integrateToQuizAPIRequestData.toQuizId
   ) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00010) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00010) }
   }
 
   const result = await post(
@@ -28,7 +25,7 @@ export const integrateQuizAPI = async ({
     },
     (data: ProcessingApiReponse) => {
       if (data.status === 200 || data.status === 201) {
-        const result: AddQuizApiResponseDto = data.body as AddQuizApiResponseDto
+        const result = data.body as QuizWithCategoryApiResponseDto
         return {
           message: successMessage(
             MESSAGES.SUCCESS.MSG00014,

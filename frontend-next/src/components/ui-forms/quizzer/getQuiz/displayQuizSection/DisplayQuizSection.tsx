@@ -13,11 +13,10 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import type { GetQuizApiResponseDto, GetImageOfQuizAPIResponseDto } from 'quizzer-lib';
 import {
   generateQuizSentense,
-  GetQuizApiResponseDto,
-  initGetQuizResponseData,
-  GetImageOfQuizAPIResponseDto
+  initGetQuizResponseData
 } from 'quizzer-lib';
 import { clearQuizAPI, failQuizAPI, reverseCheckQuizAPI, getImageOfQuizAPI } from '@/utils/api-wrapper';
 import { Chip } from '@/components/ui-elements/chip/Chip';
@@ -84,7 +83,7 @@ export const DisplayQuizSection = ({
       : await failQuizAPI({ getQuizResponseData });
     setMessage(result.message);
     // TODO 成功時の判定法
-    if (result.message.messageColor === 'success.light' && setQuizResponseData) {
+    if (result.isSuccess && setQuizResponseData) {
       setQuizResponseData(initGetQuizResponseData);
       setExpanded(false);
       setImageUrl && setImageUrl('');
@@ -95,12 +94,14 @@ export const DisplayQuizSection = ({
   useEffect(() => {
     if (prevQuizSentenseRef.current !== getQuizResponseData.quiz_sentense) {
       prevQuizSentenseRef.current = getQuizResponseData.quiz_sentense;
+      // 出題が変わったときに表示状態をリセットするため、effect内でstateを更新する
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpanded(false);
       setImageUrl && setImageUrl('');
 
       // 自動画像表示がONで、画像ファイル名がある場合は自動的に画像を取得
       if (autoDisplayImage && getQuizResponseData.img_file && setImageUrl) {
-        (async () => {
+        void (async () => {
           setMessage({ message: '画像取得中...', messageColor: '#d3d3d3', isDisplay: true });
           const result = await getImageOfQuizAPI({
             getImageOfQuizRequestData: { fileName: getQuizResponseData.img_file || '' }
@@ -127,7 +128,7 @@ export const DisplayQuizSection = ({
                 <IconButton
                   aria-label={`${displayQuiz.file_num}-${displayQuiz.quiz_num}`}
                   onClick={() => {
-                    router.push({
+                    void router.push({
                       pathname: '/quizzer/editQuiz',
                       query: { file_num: displayQuiz.file_num, quiz_num: displayQuiz.quiz_num }
                     });
@@ -162,6 +163,8 @@ export const DisplayQuizSection = ({
           </div>
           <DisplaySentence checked={getQuizResponseData.checked} sentence={displayQuiz.quiz_sentense} />
           {imageUrl && (
+            // 取得した画像のURLはサイズが不定で、静的エクスポート(output: 'export')では画像最適化も使えないため<img>を使う
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={imageUrl} alt="取得した画像" className="max-h-[192px] max-w-full object-contain my-[8px] block" />
           )}
           {displayQuiz.quiz_category &&
@@ -227,7 +230,7 @@ export const DisplayQuizSection = ({
                 });
                 setMessage(result.message);
                 // TODO 成功時の判定法
-                result.message.messageColor === 'success.light' &&
+                result.isSuccess &&
                   setQuizResponseData &&
                   setQuizResponseData((prev) => ({
                     ...prev,

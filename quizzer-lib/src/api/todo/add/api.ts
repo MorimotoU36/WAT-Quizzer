@@ -1,5 +1,6 @@
-import { AddTodoAPIRequestDto, AddTodoApiResponseDto } from './dto'
-import { ApiResult, post, ProcessingApiReponse } from '../..'
+import type { AddTodoAPIRequestDto, AddTodoApiResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { post } from '../..'
 import {
   errorMessage,
   MESSAGES,
@@ -14,7 +15,7 @@ export const addTodoAPI = async ({
   addTodoAPIRequest
 }: AddTodoAPIProps): Promise<ApiResult> => {
   if (!addTodoAPIRequest.todo || addTodoAPIRequest.todo === '') {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00012) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00012) }
   }
 
   const result = await post(

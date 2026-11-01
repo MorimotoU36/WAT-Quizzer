@@ -3,7 +3,7 @@ import { CardContent, CardHeader } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { PullDownOptionDto, Message, CategoryParentChildAPIResponseDto, CategoryQuizCountDto } from 'quizzer-lib';
+import type { PullDownOptionDto, Message, CategoryParentChildAPIResponseDto, CategoryQuizCountDto } from 'quizzer-lib';
 import {
   getCategoryListAPI,
   getCategoryParentChildListAPI,
@@ -64,20 +64,25 @@ export const CategoryParentChildSection = ({
 
   useEffect(() => {
     if (fileNum === -1) {
+      // ファイル未選択時にAPIから取得した一覧をクリアするため、effect内でstateを更新する
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCategoryNames([]);
       setParentChildList([]);
       setCategoryCounts([]);
       return;
     }
-    fetchCategories(fileNum);
-    fetchParentChildList(fileNum);
-    fetchCategoryCounts(fileNum);
+    void fetchCategories(fileNum);
+    void fetchParentChildList(fileNum);
+    void fetchCategoryCounts(fileNum);
   }, [fileNum]);
 
   const categoryPullDownOptions: PullDownOptionDto[] = categoryNames.map((name) => ({
     value: name,
     label: name,
   }));
+
+  // 選択解除時はPullDownから-1が渡されるため、未選択（空文字）として扱う
+  const toCategory = (value: number | string) => (value === -1 ? '' : String(value));
 
   const handleAdd = async () => {
     if (fileNum === -1) {
@@ -101,8 +106,8 @@ export const CategoryParentChildSection = ({
       },
     });
     setMessage(result.message);
-    if (result.message.messageColor === 'success.light') {
-      fetchParentChildList(fileNum);
+    if (result.isSuccess) {
+      void fetchParentChildList(fileNum);
     }
   };
 
@@ -112,7 +117,7 @@ export const CategoryParentChildSection = ({
       deleteCategoryParentChildData: { id },
     });
     setMessage(result.message);
-    if (result.message.messageColor === 'success.light') {
+    if (result.isSuccess) {
       setParentChildList((prev) => prev.filter((r) => r.id !== id));
     }
   };
@@ -137,15 +142,17 @@ export const CategoryParentChildSection = ({
           <CardContent className="flex items-center gap-2 flex-wrap">
             <PullDown
               label="親カテゴリ"
+              searchable
               optionList={categoryPullDownOptions}
               value={parentCategory}
-              onChange={(e) => setParentCategory(String(e.target.value))}
+              onChange={(e) => setParentCategory(toCategory(e.target.value))}
             />
             <PullDown
               label="子カテゴリ"
+              searchable
               optionList={categoryPullDownOptions}
               value={childCategory}
-              onChange={(e) => setChildCategory(String(e.target.value))}
+              onChange={(e) => setChildCategory(toCategory(e.target.value))}
             />
             <Button label="追加" variant="contained" attr="after-inline" onClick={handleAdd} />
           </CardContent>

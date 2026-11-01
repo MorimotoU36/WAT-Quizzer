@@ -1,5 +1,6 @@
-import { GetPastWeekTestStatisticsAPIResponseDto } from '.'
-import { get, ApiResult, ProcessingApiReponse } from '../../../..'
+import type { GetPastWeekTestStatisticsAPIResponseDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../../..'
+import { get } from '../../../..'
 
 interface GetWordTestStatisticsWeekDataAPIProps {}
 
@@ -39,8 +40,9 @@ export const getWordTestStatisticsWeekDataAPI =
         }
       },
       {}
-    ).catch((err) => {
+    ).catch(() => {
       return {
+        isSuccess: false,
         message: {
           message: 'エラー:外部APIとの連携に失敗しました',
           messageColor: 'error',

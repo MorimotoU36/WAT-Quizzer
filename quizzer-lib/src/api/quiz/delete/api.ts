@@ -1,11 +1,8 @@
-import {
-  AddQuizApiResponseDto,
-  errorMessage,
-  MESSAGES,
-  successMessage
-} from '../../../..'
-import { ApiResult, del, ProcessingApiReponse } from '../..'
-import { DeleteQuizAPIRequestDto } from './dto'
+import type { AddQuizApiResponseDto } from '../../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { del } from '../..'
+import type { DeleteQuizAPIRequestDto } from './dto'
 
 interface DeleteQuizAPIProps {
   deleteQuizAPIRequestData: DeleteQuizAPIRequestDto
@@ -19,7 +16,7 @@ export const deleteQuiz = async ({
     deleteQuizAPIRequestData.file_num === -1 ||
     deleteQuizAPIRequestData.quiz_num === -1
   ) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00009) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00009) }
   }
 
   const result = await del(

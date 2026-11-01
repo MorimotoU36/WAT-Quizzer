@@ -1,5 +1,6 @@
-import { get, ApiResult, ProcessingApiReponse } from '../../..'
-import { SearchWordAPIRequestDto, SearchWordAPIResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../../..'
+import { get } from '../../..'
+import type { SearchWordAPIRequestDto, SearchWordAPIResponseDto } from './dto'
 
 interface SearchWordAPIProps {
   searchWordData: SearchWordAPIRequestDto
@@ -15,6 +16,7 @@ export const searchWordAPI = async ({
 
   if (isEmptyQuery) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:検索語句を入力して下さい',
         messageColor: 'error',
@@ -46,6 +48,7 @@ export const searchWordAPI = async ({
         (Array.isArray(data.body) && data.body?.length === 0)
       ) {
         return {
+          isSuccess: false,
           message: {
             message: 'エラー:条件に合致するデータはありません',
             messageColor: 'error',
@@ -54,6 +57,7 @@ export const searchWordAPI = async ({
         }
       } else {
         return {
+          isSuccess: false,
           message: {
             message: 'エラー:外部APIとの連携に失敗しました',
             messageColor: 'error',

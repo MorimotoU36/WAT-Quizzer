@@ -3,8 +3,9 @@ import {
   MESSAGES,
   successMessage
 } from '../../../..'
-import { ApiResult, del, ProcessingApiReponse } from '../..'
-import { DeleteTodoAPIRequestDto, DeleteTodoApiResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { del } from '../..'
+import type { DeleteTodoAPIRequestDto, DeleteTodoApiResponseDto } from './dto'
 
 interface DeleteTodoAPIProps {
   deleteTodoAPIRequestData: DeleteTodoAPIRequestDto
@@ -17,7 +18,7 @@ export const deleteTodoAPI = async ({
     !deleteTodoAPIRequestData.id ||
     deleteTodoAPIRequestData.id === -1
   ) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00009) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00009) }
   }
 
   const result = await del(

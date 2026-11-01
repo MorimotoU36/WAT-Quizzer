@@ -3,8 +3,9 @@ import {
   MESSAGES,
   successMessage
 } from '../../../..'
-import { ApiResult, put, ProcessingApiReponse } from '../..'
-import { RestoreTodoAPIRequestDto, RestoreTodoApiResponseDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { put } from '../..'
+import type { RestoreTodoAPIRequestDto, RestoreTodoApiResponseDto } from './dto'
 
 interface RestoreTodoAPIProps {
   restoreTodoAPIRequestData: RestoreTodoAPIRequestDto
@@ -17,7 +18,7 @@ export const restoreTodoAPI = async ({
     !restoreTodoAPIRequestData.id ||
     restoreTodoAPIRequestData.id === -1
   ) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00009) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00009) }
   }
 
   const result = await put(

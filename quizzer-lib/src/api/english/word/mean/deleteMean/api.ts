@@ -1,5 +1,6 @@
-import { del, ApiResult, ProcessingApiReponse } from '../../../..'
-import { DeleteMeanAPIRequestDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../../..'
+import { del } from '../../../..'
+import type { DeleteMeanAPIRequestDto } from '.'
 
 interface DeleteEnglishMeanAPIButtonProps {
   deleteMeanData: DeleteMeanAPIRequestDto
@@ -30,8 +31,9 @@ export const deleteEnglishMeanAPI = async ({
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',

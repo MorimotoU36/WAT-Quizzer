@@ -1,0 +1,69 @@
+name: Frontend E2E
+
+# developへのpush時にdevelop.ymlから呼び出され、成功した場合だけデプロイに進む
+# Actionsの画面から手動でも実行できる
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm・依存インストール・quizzer-libのビルド
+      - name: Setup workspace
+        uses: ./.github/actions/setup
+
+      # Next.jsのビルドキャッシュ。ソースが変わっていない部分の再ビルドを省略できる
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: frontend-next/.next/cache
+          key: nextjs-e2e-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('frontend-next/src/**', 'quizzer-lib/src/**') }}
+          restore-keys: |
+            nextjs-e2e-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      # ブラウザはランナーにインストール済みのGoogle Chromeを使うため、playwright installは不要
+      # カバレッジも合わせて計測する(結果は frontend-next/e2e-coverage/)
+      - name: Run Playwright E2E (with coverage)
+        run: pnpm run e2e:coverage
+        working-directory: frontend-next
+
+      # カバレッジの要約をジョブの画面(Summary)に表示する
+      - name: Add coverage summary
+        if: always()
+        run: |
+          if [ -f e2e-coverage/coverage/coverage-summary.md ]; then
+            cat e2e-coverage/coverage/coverage-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+        working-directory: frontend-next
+
+      # ファイルごとのカバレッジ(どの行が実行されたか)を含む詳細レポート
+      # ダウンロードして展開し、coverage/index.html をブラウザで開く
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-coverage-report
+          path: frontend-next/e2e-coverage/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      # 失敗したテストの操作記録(trace)とスクリーンショットを含むレポート
+      # ダウンロードして `pnpm exec playwright show-report <展開したフォルダ>` で開ける
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend-next/playwright-report/
+          retention-days: 14

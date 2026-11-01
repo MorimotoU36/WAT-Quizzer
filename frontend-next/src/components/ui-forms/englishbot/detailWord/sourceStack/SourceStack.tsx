@@ -1,78 +1,29 @@
-import { Button } from '@/components/ui-elements/button/Button';
 import { Card } from '@/components/ui-elements/card/Card';
-import { Item } from '@/components/ui-elements/item/Item';
-import { Modal } from '@/components/ui-elements/modal/Modal';
-import { Box, CircularProgress, IconButton, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { pullDownMenuProps } from '@/constants/pullDown';
-import { style } from '../Stack.style';
+import { WordDetailItem } from '../wordDetailItem/WordDetailItem';
+import { Box, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import {
-  Message,
-  EditWordSourceAPIRequestDto,
-  GetWordDetailAPIResponseDto,
-  PullDownOptionDto,
-  initEditWordSourceData
-} from 'quizzer-lib';
-import { deleteEnglishWordSourceAPI, editEnglishWordSourceAPI, getWordDetailAPI } from '@/utils/api-wrapper';
+import type { Message, GetWordDetailAPIResponseDto, PullDownOptionDto } from 'quizzer-lib';
+import { EditSourceModal } from '../editSourceModal/EditSourceModal';
 
 interface SourceStackProps {
   sourceList: PullDownOptionDto[];
   wordDetail: GetWordDetailAPIResponseDto;
   setMessage?: React.Dispatch<React.SetStateAction<Message>>;
-  setWordDetail?: React.Dispatch<React.SetStateAction<GetWordDetailAPIResponseDto>>;
+  // 更新が成功した後に呼ぶ。単語詳細を取り直す
+  onUpdated?: () => Promise<void>;
 }
 
-// 出典プルダウン表示、「その他」だったら入力用テキストボックスを出す
-const displaySourceInput = (
-  i: number, // TODO iはキーだけ使ってるんでuuidとかで代用できるので消す
-  sourceList: PullDownOptionDto[],
-  editWordSourceData: EditWordSourceAPIRequestDto,
-  setEditWordSourceData: React.Dispatch<React.SetStateAction<EditWordSourceAPIRequestDto>>
-) => {
-  return (
-    <Select
-      inputProps={{ 'aria-label': '出典' }}
-      id="demo-simple-select"
-      defaultValue={editWordSourceData.oldSourceId || -1}
-      label="source"
-      key={i}
-      sx={{ width: 1 }}
-      MenuProps={pullDownMenuProps}
-      onChange={(e) => {
-        setEditWordSourceData({
-          ...editWordSourceData,
-          newSourceId: +e.target.value
-        });
-      }}
-    >
-      <MenuItem value={-1} key={-1}>
-        選択なし
-      </MenuItem>
-      {sourceList.map((x) => (
-        <MenuItem value={x.value} key={x.value}>
-          {x.label}
-        </MenuItem>
-      ))}
-    </Select>
-  );
-};
-
-export const SourceStack = ({ sourceList, wordDetail, setMessage, setWordDetail }: SourceStackProps) => {
-  // TODO word-sourceの構造変えたらここも直したい
+export const SourceStack = ({ sourceList, wordDetail, setMessage, onUpdated }: SourceStackProps) => {
   const [sourceModalOpen, setSourceModalOpen] = useState(false);
-  const [editWordSourceData, setEditWordSourceData] = useState<EditWordSourceAPIRequestDto>(initEditWordSourceData);
-  const [selectedWordSourceIndex, setSelectedWordSourceIndex] = useState<number>(-1); //仮
+  // 編集する出典のwordDetail.word_source上の番号。-1は新規追加
+  const [selectedWordSourceIndex, setSelectedWordSourceIndex] = useState<number>(-1);
 
   const handleOpen = (index: number) => {
-    setSourceModalOpen(true);
     setSelectedWordSourceIndex(index);
-    setEditWordSourceData({
-      wordId: wordDetail.id,
-      oldSourceId: index === -1 ? index : wordDetail.word_source[index].source.id,
-      newSourceId: index === -1 ? index : wordDetail.word_source[index].source.id
-    });
+    setSourceModalOpen(true);
   };
+
   return (
     <Card variant="outlined" attr={['silver-card']}>
       <Typography align="left" variant="h4" component="p">
@@ -84,86 +35,25 @@ export const SourceStack = ({ sourceList, wordDetail, setMessage, setWordDetail 
         ) : (
           <Stack spacing={2}>
             {wordDetail.word_source.map((x, index) => {
-              return (
-                // eslint-disable-next-line react/jsx-key
-                <Item key={index}>
-                  <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography component="div">
-                      <Typography align="left" variant="h5" component="p">
-                        {x.source.name}
-                      </Typography>
-                    </Typography>
-                    <Typography component="div" sx={{ marginLeft: 'auto' }}>
-                      <Button label="編集" variant="outlined" onClick={(e) => handleOpen(index)} />
-                    </Typography>
-                  </Typography>
-                </Item>
-              );
+              return <WordDetailItem key={index} title={x.source.name} onEdit={() => handleOpen(index)} />;
             })}
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
               <IconButton aria-label="出典追加" onClick={(e) => handleOpen(-1)}>
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
-            <Modal isOpen={sourceModalOpen} setIsOpen={setSourceModalOpen}>
-              <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h4" component="h4">
-                  {'出典' + (selectedWordSourceIndex === -1 ? '追加' : '更新')}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  出典：
-                  {displaySourceInput(3, sourceList, editWordSourceData, setEditWordSourceData)}
-                </Typography>
-                <Button
-                  label={'出典' + (selectedWordSourceIndex === -1 ? '追加' : '更新')}
-                  attr={'button-array'}
-                  variant="contained"
-                  color="primary"
-                  onClick={async (e) => {
-                    setSourceModalOpen(false);
-                    const result = await editEnglishWordSourceAPI({
-                      editWordSourceData
-                    });
-                    setMessage && setMessage(result.message);
-                    // TODO 成功時の判定法
-                    // 更新確認後、単語の意味を再取得させる
-                    if (result.message.messageColor === 'success.light') {
-                      const newWordDetail = (await getWordDetailAPI({ id: String(wordDetail.id) }))
-                        .result as GetWordDetailAPIResponseDto;
-                      setWordDetail && setWordDetail(newWordDetail);
-                    }
-                    setEditWordSourceData(initEditWordSourceData);
-                    setSelectedWordSourceIndex(-1);
-                  }}
-                />
-                <Button
-                  label={'出典削除'}
-                  attr={'button-array'}
-                  variant="contained"
-                  color="primary"
-                  disabled={selectedWordSourceIndex === -1}
-                  onClick={async (e) => {
-                    setSourceModalOpen(false);
-                    const result = await deleteEnglishWordSourceAPI({
-                      deleteWordSourceData: {
-                        word_id: wordDetail.id,
-                        source_id: wordDetail.word_source[selectedWordSourceIndex].source.id
-                      }
-                    });
-                    setMessage && setMessage(result.message);
-                    // TODO 成功時の判定法
-                    // 更新確認後、単語の意味を再取得させる
-                    if (result.message.messageColor === 'success.light') {
-                      const newWordDetail = (await getWordDetailAPI({ id: String(wordDetail.id) }))
-                        .result as GetWordDetailAPIResponseDto;
-                      setWordDetail && setWordDetail(newWordDetail);
-                    }
-                    setEditWordSourceData(initEditWordSourceData);
-                    setSelectedWordSourceIndex(-1);
-                  }}
-                />
-              </Box>
-            </Modal>
+            {/* 開くたびに入力を初期化するため、開いている間だけ描画する */}
+            {sourceModalOpen && (
+              <EditSourceModal
+                isOpen={sourceModalOpen}
+                setIsOpen={setSourceModalOpen}
+                sourceIndex={selectedWordSourceIndex}
+                sourceList={sourceList}
+                wordDetail={wordDetail}
+                setMessage={setMessage}
+                onUpdated={onUpdated}
+              />
+            )}
           </Stack>
         )}
       </Box>

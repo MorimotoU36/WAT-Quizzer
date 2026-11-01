@@ -1,12 +1,9 @@
-import {
-  errorMessage,
-  MESSAGES,
-  SignInResult,
-  successMessage
-} from '../../../..'
-import { ApiResult, baseURL } from '../..'
+import type { SignInResult } from '../../../..'
+import { errorMessage, MESSAGES, successMessage } from '../../../..'
+import type { ApiResult } from '../..'
+import { baseURL } from '../..'
 import { setAccessToken } from '../token'
-import { AuthSigninRequestDto } from './dto'
+import type { AuthSigninRequestDto } from './dto'
 
 interface AuthSigninAPIProps {
   authSigninRequestData: AuthSigninRequestDto
@@ -30,18 +27,24 @@ const signinRequest = async (
       // TODO 型定義
       const result = (await response.json()) as SignInResult
       if (response.status !== 200) {
-        return { result, message: errorMessage(MESSAGES.ERROR.MSG00016) }
+        return {
+          isSuccess: false,
+          result,
+          message: errorMessage(MESSAGES.ERROR.MSG00016)
+        }
       }
       if (result.status === 'SUCCESS') {
         setAccessToken(result.accessToken)
       }
       return {
+        isSuccess: true,
         result,
         message: successMessage(MESSAGES.SUCCESS.MSG00020)
       }
     })
     .catch((error) => {
       return {
+        isSuccess: false,
         message: {
           message: String(error.message),
           messageColor: 'error',

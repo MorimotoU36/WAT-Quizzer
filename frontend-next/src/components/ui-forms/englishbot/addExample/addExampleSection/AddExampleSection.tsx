@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';
-import { CardContent, CardHeader, InputLabel, MenuItem, Select } from '@mui/material';
+import { CardContent, CardHeader } from '@mui/material';
 import { TextField } from '@/components/ui-elements/textField/TextField';
-import { AddExampleAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
+import type { AddExampleAPIRequestDto, PullDownOptionDto } from 'quizzer-lib';
 import { addExampleAPI } from '@/utils/api-wrapper';
 import { Button } from '@/components/ui-elements/button/Button';
 import { messageState } from '@/atoms/Message';
 import { useSetRecoilState } from 'recoil';
 import { clearInputValuesByIds } from '@/utils/dom';
-import { pullDownMenuProps } from '@/constants/pullDown';
+import { PULLDOWN_NONE_VALUE } from '@/constants/pullDown';
+import { PullDownWithOther } from '@/components/ui-parts/pullDownWithOther/PullDownWithOther';
 
 interface AddExampleSectionProps {
   sourceList: PullDownOptionDto[];
@@ -19,7 +20,7 @@ export const AddExampleSection = ({ sourceList }: AddExampleSectionProps) => {
     exampleEn: '',
     exampleJa: '',
     wordName: '',
-    sourceId: -1
+    sourceId: PULLDOWN_NONE_VALUE
   });
   const setMessage = useSetRecoilState(messageState);
 
@@ -90,51 +91,26 @@ export const AddExampleSection = ({ sourceList }: AddExampleSectionProps) => {
             </CardContent>
             <CardHeader subheader="出典(あれば)" />
             <CardContent className="flex" style={{ flexDirection: 'column', gap: '8px' }}>
-              <Select
-                inputProps={{ 'aria-label': '出典' }}
+              <PullDownWithOther
+                label="出典"
                 id="example-source-select"
-                defaultValue={-1}
-                value={addExampleData.sourceId ?? -1}
-                label="source"
-                sx={{ width: 1 }}
-                MenuProps={pullDownMenuProps}
-                onChange={(e) => {
+                optionList={sourceList}
+                value={addExampleData.sourceId ?? PULLDOWN_NONE_VALUE}
+                otherValue={addExampleData.newSourceName}
+                onChange={(value) => {
                   setAddExampleData({
                     ...addExampleData,
-                    sourceId: +e.target.value,
+                    sourceId: value,
                     newSourceName: undefined
                   });
                 }}
-              >
-                <MenuItem value={-1} key={-1}>
-                  選択なし
-                </MenuItem>
-                {sourceList.map((x) => (
-                  <MenuItem value={x.value} key={x.value}>
-                    {x.label}
-                  </MenuItem>
-                ))}
-                <MenuItem value={-2} key={-2}>
-                  その他
-                </MenuItem>
-              </Select>
-              {addExampleData.sourceId === -2 && (
-                <>
-                  <InputLabel id="example-source-select-label"></InputLabel>
-                  <TextField
-                    label="出典"
-                    variant="outlined"
-                    setStater={(value: string) => {
-                      setAddExampleData({
-                        ...addExampleData,
-                        newSourceName: value
-                      });
-                    }}
-                    id="addExampleNewSourceField"
-                    className={['fullWidth']}
-                  />
-                </>
-              )}
+                onOtherChange={(value) => {
+                  setAddExampleData({
+                    ...addExampleData,
+                    newSourceName: value
+                  });
+                }}
+              />
             </CardContent>
           </Card>
         </CardContent>
@@ -164,8 +140,7 @@ export const AddExampleSection = ({ sourceList }: AddExampleSectionProps) => {
             setMessage && setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
             const result = await addExampleAPI({ addExampleData });
             setMessage && setMessage(result.message);
-            // TODO 成功時の条件
-            if (result.message.messageColor === 'success.light') {
+            if (result.isSuccess) {
               setAddExampleData({
                 exampleEn: '',
                 exampleJa: '',

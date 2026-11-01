@@ -1,39 +1,21 @@
-import { Button } from '@/components/ui-elements/button/Button';
 import { Card } from '@/components/ui-elements/card/Card';
-import { Item } from '@/components/ui-elements/item/Item';
-import { Modal } from '@/components/ui-elements/modal/Modal';
-import { Box, CircularProgress, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { style } from '../Stack.style';
+import { WordDetailItem } from '../wordDetailItem/WordDetailItem';
+import { Box, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import {
-  AddAntonymAPIRequestDto,
-  GetWordDetailAPIResponseDto,
-  Message
-} from 'quizzer-lib';
-import { addAntonymAPI, getWordDetailAPI } from '@/utils/api-wrapper';
+import type { GetWordDetailAPIResponseDto, Message } from 'quizzer-lib';
 import React from 'react';
+import { AddAntonymModal } from '../addAntonymModal/AddAntonymModal';
 
 interface AntonymStackProps {
   wordDetail: GetWordDetailAPIResponseDto;
   setMessage?: React.Dispatch<React.SetStateAction<Message>>;
-  setWordDetail?: React.Dispatch<React.SetStateAction<GetWordDetailAPIResponseDto>>;
+  // 更新が成功した後に呼ぶ。単語詳細を取り直す
+  onUpdated?: () => Promise<void>;
 }
 
-export const AntonymStack = ({ wordDetail, setMessage, setWordDetail }: AntonymStackProps) => {
+export const AntonymStack = ({ wordDetail, setMessage, onUpdated }: AntonymStackProps) => {
   const [antonymModalOpen, setAntonymModalOpen] = useState<boolean>(false);
-  const [addAntonymData, setAddAntonymData] = useState<AddAntonymAPIRequestDto>({
-    wordId: -1,
-    antonymWordName: ''
-  });
-
-  const handleAntonymModalOpen = () => {
-    setAddAntonymData({
-      ...addAntonymData,
-      wordId: wordDetail.id
-    });
-    setAntonymModalOpen(true);
-  };
 
   return (
     <Card variant="outlined" attr={['silver-card']}>
@@ -47,92 +29,24 @@ export const AntonymStack = ({ wordDetail, setMessage, setWordDetail }: AntonymS
           <Stack spacing={2}>
             <>
               {wordDetail.antonym_original.map((x, xindex) => {
-                return (
-                  <Item key={xindex}>
-                    <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography component="div">
-                        <Typography align="left" variant="h5" component="p">
-                          {x.antonym_word.name}
-                        </Typography>
-                      </Typography>
-                      {/* <Typography component="div" sx={{ marginLeft: 'auto' }}>
-                          <Button label="編集" variant="outlined" onClick={(e) => handleOpen(index)}></Button>
-                        </Typography> */}
-                    </Typography>
-                  </Item>
-                );
+                return <WordDetailItem key={xindex} title={x.antonym_word.name} />;
               })}
               {wordDetail.antonym_word.map((x, xindex) => {
-                return (
-                  <Item key={xindex}>
-                    <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography component="div">
-                        <Typography align="left" variant="h5" component="p">
-                          {x.antonym_original.name}
-                        </Typography>
-                      </Typography>
-                      {/* <Typography component="div" sx={{ marginLeft: 'auto' }}>
-                          <Button label="編集" variant="outlined" onClick={(e) => handleOpen(index)}></Button>
-                        </Typography> */}
-                    </Typography>
-                  </Item>
-                );
+                return <WordDetailItem key={xindex} title={x.antonym_original.name} />;
               })}
             </>
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
-              <IconButton aria-label="反意語追加" onClick={(e) => handleAntonymModalOpen()}>
+              <IconButton aria-label="反意語追加" onClick={() => setAntonymModalOpen(true)}>
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
-            {/* TODO モーダル類は別コンポーネントに切り分けたい */}
-            <Modal isOpen={antonymModalOpen} setIsOpen={setAntonymModalOpen}>
-              <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h4" component="h4">
-                  {'対義語追加'}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  対義語名：
-                  <TextField
-                    error={addAntonymData.antonymWordName === wordDetail.name}
-                    helperText={addAntonymData.antonymWordName === wordDetail.name ? '元の単語は入力できません' : ' '}
-                    variant="outlined"
-                    defaultValue={addAntonymData.antonymWordName}
-                    onChange={(e) => {
-                      setAddAntonymData({
-                        ...addAntonymData,
-                        antonymWordName: e.target.value
-                      });
-                    }}
-                  />
-                </Typography>
-                <Button
-                  label={'対義語追加'}
-                  attr={'button-array'}
-                  variant="contained"
-                  color="primary"
-                  disabled={addAntonymData.antonymWordName === wordDetail.name}
-                  onClick={async (e) => {
-                    setAntonymModalOpen(false);
-                    const result = await addAntonymAPI({
-                      addAntonymData
-                    });
-                    setMessage && setMessage(result.message);
-                    // TODO 成功時の判定法
-                    // 更新確認後、単語の意味を再取得させる
-                    // TODO この再取得の部分は共通関数化できないかな
-                    if (result.message.messageColor === 'success.light') {
-                      const newWordDetail = (await getWordDetailAPI({ id: String(wordDetail.id) }))
-                        .result as GetWordDetailAPIResponseDto;
-                      setWordDetail && setWordDetail(newWordDetail);
-                    }
-                    setAddAntonymData({
-                      wordId: -1,
-                      antonymWordName: ''
-                    });
-                  }}
-                />
-              </Box>
-            </Modal>
+            <AddAntonymModal
+              isOpen={antonymModalOpen}
+              setIsOpen={setAntonymModalOpen}
+              wordDetail={wordDetail}
+              setMessage={setMessage}
+              onUpdated={onUpdated}
+            />
           </Stack>
         )}
       </Box>

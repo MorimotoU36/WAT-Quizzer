@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui-elements/card/Card';
 import { Button } from '@/components/ui-elements/button/Button';
 import { Button as MuiButton, CardActions, CardContent, Collapse, Typography } from '@mui/material';
-import { EXAMPLE_TEST_TYPE, GetExampleTestDataAPIResponseDto } from 'quizzer-lib';
+import type { GetExampleTestDataAPIResponseDto } from 'quizzer-lib';
+import { EXAMPLE_TEST_TYPE } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { submitExampleTestDataAPI } from '@/utils/api-wrapper';
@@ -59,7 +60,7 @@ export const DisplayTestExampleSection = ({ displayTestData, setDisplayTestData 
                   selectedValue: true
                 });
                 setMessage(result.message);
-                if (result.message.messageColor === 'success.light') {
+                if (result.isSuccess) {
                   setDisplayTestData && setDisplayTestData({});
                   setExpanded(false);
                 }
@@ -78,7 +79,7 @@ export const DisplayTestExampleSection = ({ displayTestData, setDisplayTestData 
                   selectedValue: false
                 });
                 setMessage(result.message);
-                if (result.message.messageColor === 'success.light') {
+                if (result.isSuccess) {
                   setDisplayTestData && setDisplayTestData({});
                   setExpanded(false);
                 }

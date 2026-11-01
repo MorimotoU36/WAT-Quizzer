@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui-elements/card/Card';
 import { CardContent, Typography, CircularProgress, Chip } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { RecommendedCategoryDto } from 'quizzer-lib';
+import type { RecommendedCategoryDto } from 'quizzer-lib';
 import { getRecommendedCategoriesAPI } from '@/utils/api-wrapper';
 
 interface RecommendedCategoryCardProps {
@@ -38,11 +38,13 @@ export const RecommendedCategoryCard = ({ file_num }: RecommendedCategoryCardPro
 
   useEffect(() => {
     if (file_num === -1) {
+      // ファイルが変わったときにAPIから取得し直すため、effect内でstateを更新する
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCategories(null);
       return;
     }
     setLoading(true);
-    (async () => {
+    void (async () => {
       const result = await getRecommendedCategoriesAPI({ file_num });
       setCategories(result.result ? (result.result as RecommendedCategoryDto[]) : []);
       setLoading(false);

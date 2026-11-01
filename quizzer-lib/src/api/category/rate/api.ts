@@ -1,5 +1,6 @@
-import { ApiResult, get, ProcessingApiReponse } from '../..'
-import {
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { get } from '../..'
+import type {
   GetAccuracyRateByCategoryAPIResponseDto,
   GetCategoryRateAPIRequestDto
 } from './dto'
@@ -13,6 +14,7 @@ export const getAccuracyRateByCategoryAPI = async ({
 }: GetAccuracyProps): Promise<ApiResult> => {
   if (getCategoryRateData.file_num === -1) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:問題ファイルを選択して下さい',
         messageColor: 'error',

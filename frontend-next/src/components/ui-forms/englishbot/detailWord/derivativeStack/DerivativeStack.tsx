@@ -1,39 +1,21 @@
-import { Button } from '@/components/ui-elements/button/Button';
 import { Card } from '@/components/ui-elements/card/Card';
-import { Item } from '@/components/ui-elements/item/Item';
-import { Modal } from '@/components/ui-elements/modal/Modal';
-import { Box, CircularProgress, IconButton, Stack, TextField, Typography } from '@mui/material';
-import { style } from '../Stack.style';
+import { WordDetailItem } from '../wordDetailItem/WordDetailItem';
+import { Box, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import {
-  Message,
-  AddDerivativeAPIRequestDto,
-  GetWordDetailAPIResponseDto
-} from 'quizzer-lib';
-import { addDerivativeAPI, getWordDetailAPI } from '@/utils/api-wrapper';
+import type { Message, GetWordDetailAPIResponseDto } from 'quizzer-lib';
 import React from 'react';
+import { AddDerivativeModal } from '../addDerivativeModal/AddDerivativeModal';
 
 interface DerivativeStackProps {
   wordDetail: GetWordDetailAPIResponseDto;
   setMessage?: React.Dispatch<React.SetStateAction<Message>>;
-  setWordDetail?: React.Dispatch<React.SetStateAction<GetWordDetailAPIResponseDto>>;
+  // 更新が成功した後に呼ぶ。単語詳細を取り直す
+  onUpdated?: () => Promise<void>;
 }
 
-export const DerivativeStack = ({ wordDetail, setMessage, setWordDetail }: DerivativeStackProps) => {
+export const DerivativeStack = ({ wordDetail, setMessage, onUpdated }: DerivativeStackProps) => {
   const [derivativeModalOpen, setDerivativeModalOpen] = useState<boolean>(false);
-  const [addDerivativeData, setAddDerivativeData] = useState<AddDerivativeAPIRequestDto>({
-    wordName: '',
-    derivativeName: ''
-  });
-
-  const handleDerivativeModalOpen = () => {
-    setAddDerivativeData({
-      ...addDerivativeData,
-      wordName: wordDetail.name
-    });
-    setDerivativeModalOpen(true);
-  };
 
   return (
     <Card variant="outlined" attr={['silver-card']}>
@@ -45,83 +27,24 @@ export const DerivativeStack = ({ wordDetail, setMessage, setWordDetail }: Deriv
           <CircularProgress aria-label="読み込み中" />
         ) : (
           <Stack spacing={2}>
-            {wordDetail.derivative ? (
-              wordDetail.derivative.derivative_group.derivative.map((x, xindex) => {
-                return x.word_id !== wordDetail.id ? (
-                  // TODO ここも別コンポーネント化できない？
-                  <Item key={xindex}>
-                    <Typography component="div" sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography component="div">
-                        <Typography align="left" variant="h5" component="p">
-                          {x.word.name}
-                        </Typography>
-                      </Typography>
-                      {/* <Typography component="div" sx={{ marginLeft: 'auto' }}>
-                          <Button label="編集" variant="outlined" onClick={(e) => handleOpen(index)}></Button>
-                        </Typography> */}
-                    </Typography>
-                  </Item>
-                ) : (
-                  <></>
-                );
-              })
-            ) : (
-              <></>
-            )}
+            {/* 派生語グループには元単語自身も含まれるので除く */}
+            {wordDetail.derivative?.derivative_group.derivative
+              .filter((x) => x.word_id !== wordDetail.id)
+              .map((x) => (
+                <WordDetailItem key={x.word_id} title={x.word.name} />
+              ))}
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={2}>
-              <IconButton aria-label="派生語追加" onClick={(e) => handleDerivativeModalOpen()}>
+              <IconButton aria-label="派生語追加" onClick={() => setDerivativeModalOpen(true)}>
                 <AddCircleOutlineIcon />
               </IconButton>
             </Stack>
-            {/* TODO モーダル類は別コンポーネントに切り分けたい */}
-            <Modal isOpen={derivativeModalOpen} setIsOpen={setDerivativeModalOpen}>
-              <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h4" component="h4">
-                  {'派生語追加'}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  派生語名：
-                  <TextField
-                    error={addDerivativeData.derivativeName === wordDetail.name}
-                    helperText={addDerivativeData.derivativeName === wordDetail.name ? '元の単語は入力できません' : ' '}
-                    variant="outlined"
-                    defaultValue={addDerivativeData.derivativeName}
-                    onChange={(e) => {
-                      setAddDerivativeData({
-                        ...addDerivativeData,
-                        derivativeName: e.target.value
-                      });
-                    }}
-                  />
-                </Typography>
-                <Button
-                  label={'派生語追加'}
-                  attr={'button-array'}
-                  variant="contained"
-                  color="primary"
-                  disabled={addDerivativeData.derivativeName === wordDetail.name}
-                  onClick={async (e) => {
-                    setDerivativeModalOpen(false);
-                    const result = await addDerivativeAPI({
-                      addDerivativeData
-                    });
-                    setMessage && setMessage(result.message);
-                    // TODO 成功時の判定法
-                    // 更新確認後、単語の意味を再取得させる
-                    // TODO この再取得の部分は共通関数化できないかな
-                    if (result.message.messageColor === 'success.light') {
-                      const newWordDetail = (await getWordDetailAPI({ id: String(wordDetail.id) }))
-                        .result as GetWordDetailAPIResponseDto;
-                      setWordDetail && setWordDetail(newWordDetail);
-                    }
-                    setAddDerivativeData({
-                      wordName: '',
-                      derivativeName: ''
-                    });
-                  }}
-                />
-              </Box>
-            </Modal>
+            <AddDerivativeModal
+              isOpen={derivativeModalOpen}
+              setIsOpen={setDerivativeModalOpen}
+              wordDetail={wordDetail}
+              setMessage={setMessage}
+              onUpdated={onUpdated}
+            />
           </Stack>
         )}
       </Box>

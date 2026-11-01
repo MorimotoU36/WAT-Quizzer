@@ -1,11 +1,7 @@
-import { CheckQuizAPIRequestDto } from '../..'
+import type { CheckQuizAPIRequestDto, QuizApiResponseDto } from '../..'
 import { errorMessage, MESSAGES, successMessage } from '../../../../..'
-import {
-  AddAPIResponseDto,
-  ApiResult,
-  ProcessingApiReponse,
-  put
-} from '../../..'
+import type { ApiResult, ProcessingApiReponse } from '../../..'
+import { put } from '../../..'
 
 interface CheckOffQuizButtonProps {
   checkQuizRequestData: CheckQuizAPIRequestDto
@@ -15,7 +11,7 @@ export const checkOffQuizAPI = async ({
   checkQuizRequestData
 }: CheckOffQuizButtonProps): Promise<ApiResult> => {
   if (!checkQuizRequestData.quiz_id || checkQuizRequestData.quiz_id === '') {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00007) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00007) }
   }
 
   const result = await put(
@@ -25,7 +21,7 @@ export const checkOffQuizAPI = async ({
     },
     (data: ProcessingApiReponse) => {
       if (data.status === 200 || data.status === 201) {
-        const result: AddAPIResponseDto = data.body as AddAPIResponseDto
+        const result = data.body as QuizApiResponseDto[]
         return {
           message: successMessage(MESSAGES.SUCCESS.MSG00005),
           result

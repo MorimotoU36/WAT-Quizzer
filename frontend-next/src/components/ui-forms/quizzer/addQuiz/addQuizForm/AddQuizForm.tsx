@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent, FormGroup, IconButton, Input, SelectChangeEvent, Stack, Typography } from '@mui/material';
-import { AddQuizAPIRequestDto, AddQuizApiResponseDto, GetQuizApiResponseDto, initAddQuizRequestData, insertAtArray } from 'quizzer-lib';
+import type { SelectChangeEvent } from '@mui/material';
+import { Card, CardContent, FormGroup, IconButton, Input, Stack, Typography } from '@mui/material';
+import type { AddQuizAPIRequestDto, AddQuizApiResponseDto, GetQuizApiResponseDto } from 'quizzer-lib';
+import { initAddQuizRequestData, insertAtArray } from 'quizzer-lib';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
 import { Button } from '@/components/ui-elements/button/Button';
@@ -28,7 +30,7 @@ export const AddQuizForm = ({ setAddLog }: AddQuizFormProps) => {
     const result = await addQuizAPI({ addQuizRequestData });
     setMessage(result.message);
     setAddLog(result.result ? (result.result as AddQuizApiResponseDto).log : '');
-    result.message.messageColor === 'success.light' &&
+    result.isSuccess &&
       setAddQuizRequestData({
         ...initAddQuizRequestData,
         format_id: addQuizRequestData.format_id,

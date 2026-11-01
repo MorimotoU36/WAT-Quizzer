@@ -1,5 +1,6 @@
-import { SubmitAssociationExampleAPIRequestDto } from '.'
-import { post, ProcessingApiReponse } from '../../..'
+import type { SubmitAssociationExampleAPIRequestDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../..'
+import { post } from '../../..'
 
 // TODO 名前なんか違う気するので変えたい
 // 例文と単語を紐付けしたり外したりだから・・何がいい？
@@ -9,11 +10,12 @@ interface SubmitAssociationExampleButtonProps {
 
 export const submitAssociationExampleAPI = async ({
   submitAssociationExampleData
-}: SubmitAssociationExampleButtonProps) => {
+}: SubmitAssociationExampleButtonProps): Promise<ApiResult> => {
   const { wordName, checkedIdList, isAssociation } =
     submitAssociationExampleData
   if (!wordName) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:単語が入力されていません',
         messageColor: 'error',
@@ -23,6 +25,7 @@ export const submitAssociationExampleAPI = async ({
   }
   if (!checkedIdList) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:チェックしたIDリストがありません',
         messageColor: 'error',
@@ -32,7 +35,7 @@ export const submitAssociationExampleAPI = async ({
   }
 
   // TODO 配列でのデータをAPIでどう送るのが良いか？途中で失敗した時のロールバック方法とかも考えたい
-  for (let checkedId of checkedIdList) {
+  for (const checkedId of checkedIdList) {
     await post(
       '/english/example/association',
       {
@@ -59,7 +62,7 @@ export const submitAssociationExampleAPI = async ({
           }
         }
       }
-    ).catch((err) => {
+    ).catch(() => {
       return {
         message: {
           message: 'エラー:外部APIとの連携に失敗しました',
@@ -70,6 +73,7 @@ export const submitAssociationExampleAPI = async ({
     })
   }
   return {
+    isSuccess: true,
     message: {
       message: '処理が終了しました',
       messageColor: 'success.light',

@@ -1,6 +1,7 @@
 import { errorMessage, MESSAGES, successMessage } from '../../../..'
-import { RecommendedCategoryDto } from './dto'
-import { ApiResult, get, ProcessingApiReponse } from '../..'
+import type { RecommendedCategoryDto } from './dto'
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { get } from '../..'
 
 interface GetRecommendedCategoriesProps {
   file_num: number
@@ -10,7 +11,7 @@ export const getRecommendedCategoriesAPI = async ({
   file_num
 }: GetRecommendedCategoriesProps): Promise<ApiResult> => {
   if (file_num === -1) {
-    return { message: errorMessage(MESSAGES.ERROR.MSG00001) }
+    return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00001) }
   }
 
   return await get(
@@ -25,7 +26,7 @@ export const getRecommendedCategoriesAPI = async ({
       } else if (data.status === 404) {
         return { message: errorMessage(MESSAGES.ERROR.MSG00003) }
       } else {
-        return { message: errorMessage(MESSAGES.ERROR.MSG00004) }
+        return { isSuccess: false, message: errorMessage(MESSAGES.ERROR.MSG00004) }
       }
     },
     { file_num }

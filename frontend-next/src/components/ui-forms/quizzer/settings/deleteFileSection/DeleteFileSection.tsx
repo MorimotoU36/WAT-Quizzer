@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
 import { useState } from 'react';
-import { PullDownOptionDto, Message } from 'quizzer-lib';
+import type { PullDownOptionDto, Message } from 'quizzer-lib';
 import { deleteQuizFileAPI } from '@/utils/api-wrapper';
 import React from 'react';
 
@@ -49,7 +49,7 @@ export const DeleteFileSection = ({ filelistoption, setMessage }: DeleteFileSect
     });
     const result = await deleteQuizFileAPI({ deleteQuizFileApiRequest: { file_id: deleteFileNum } });
     setMessage(result.message);
-    if (result.message.messageColor === 'success.light') {
+    if (result.isSuccess) {
       setDeleteFileNum(-1);
     }
   };

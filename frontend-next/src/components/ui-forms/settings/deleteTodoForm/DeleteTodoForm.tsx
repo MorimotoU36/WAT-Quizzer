@@ -6,10 +6,10 @@ import styles from '../Settings.module.css';
 import { Card } from '@/components/ui-elements/card/Card';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { GetTodoListApiResponseDto } from 'quizzer-lib';
+import type { GetTodoListApiResponseDto } from 'quizzer-lib';
 import { getTodoListAPI, getTodoListAllAPI, deleteTodoAPI, restoreTodoAPI } from '@/utils/api-wrapper';
 import { SearchResultTable } from '@/components/ui-elements/searchResultTable/SearchResultTable';
-import { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
 
 interface DeleteTodoFormProps {}
 
@@ -36,7 +36,7 @@ export const DeleteTodoForm = ({}: DeleteTodoFormProps) => {
 
   // 初回マウント時にTodoリストを取得
   useEffect(() => {
-    fetchTodoList(false);
+    void fetchTodoList(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -52,7 +52,7 @@ export const DeleteTodoForm = ({}: DeleteTodoFormProps) => {
       setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
       const result = await deleteTodoAPI({ deleteTodoAPIRequestData: { id } });
       setMessage(result.message);
-      if (result.message.messageColor === 'success.light') {
+      if (result.isSuccess) {
         await fetchTodoList(showDeleted);
       }
     },
@@ -65,7 +65,7 @@ export const DeleteTodoForm = ({}: DeleteTodoFormProps) => {
       setMessage({ message: '通信中...', messageColor: '#d3d3d3', isDisplay: true });
       const result = await restoreTodoAPI({ restoreTodoAPIRequestData: { id } });
       setMessage(result.message);
-      if (result.message.messageColor === 'success.light') {
+      if (result.isSuccess) {
         await fetchTodoList(showDeleted);
       }
     },

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Button } from '@/components/ui-elements/button/Button';
 import { PullDown } from '@/components/ui-elements/pullDown/PullDown';
-import { PullDownOptionDto, Message } from 'quizzer-lib';
+import type { PullDownOptionDto, Message } from 'quizzer-lib';
 import { deleteAnswerLogOfQuizFileAPI } from '@/utils/api-wrapper';
 import { useState } from 'react';
 import React from 'react';
@@ -43,7 +43,7 @@ export const DeleteAnswerLogFileSection = ({ filelistoption, setMessage }: Delet
     });
     const result = await deleteAnswerLogOfQuizFileAPI({ deleteLogOfFileRequest: { file_id: deleteLogOfFileNum } });
     setMessage(result.message);
-    if (result.message.messageColor === 'success.light') {
+    if (result.isSuccess) {
       setDeleteLogOfFileNum(-1);
     }
   };
@@ -82,7 +82,7 @@ export const DeleteAnswerLogFileSection = ({ filelistoption, setMessage }: Delet
             <Button
               label="削除"
               onClick={(e) => {
-                deleteAnswerData();
+                void deleteAnswerData();
               }}
               variant="contained"
             />

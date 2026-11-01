@@ -1,4 +1,4 @@
-import { ApiResponse } from '../..'
+import type { QuizApiResponseDto } from '../dto'
 
 export interface EditQuizAPIRequestDto {
   quiz_id: number
@@ -10,6 +10,7 @@ export interface EditQuizAPIRequestDto {
   category?: string
   img_file?: string
   matched_basic_quiz_id?: string
+  // 四択問題(format_id=3)の場合のみ。登録済みのダミー選択肢と同じ件数(常に3件)・id昇順で送る
   dummyChoice?: {
     sentense: string
     isCorrect: boolean
@@ -33,10 +34,5 @@ export interface EditQuizAPIRequestReceivedDto {
   explanation?: string // 解説
 }
 
-// 問題編集APIのレスポンス（ログだけ）
-export interface EditQuizApiResponseDto extends ApiResponse {
-  file_num: number
-  quiz_num: number
-  quiz_sentense: string
-  answer: string
-}
+// 問題編集APIのレスポンス（更新後の問題）
+export type EditQuizApiResponseDto = QuizApiResponseDto

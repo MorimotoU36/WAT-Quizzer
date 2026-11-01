@@ -3,8 +3,9 @@ import {
   MESSAGES,
   successMessage
 } from '../../../..'
-import { ApiResult, get, put, ProcessingApiReponse } from '../..'
-import {
+import type { ApiResult, ProcessingApiReponse } from '../..'
+import { get, put } from '../..'
+import type {
   GetTodoCheckStatusAPIRequestDto,
   GetTodoCheckStatusApiResponseDto,
   SaveTodoCheckStatusAPIRequestDto,
@@ -25,6 +26,7 @@ export const getTodoCheckStatusAPI = async ({
     !dateRegex.test(getTodoCheckStatusAPIRequest.date)
   ) {
     return {
+      isSuccess: false,
       message: errorMessage('エラー:日付はYYYY-MM-DD形式で入力してください')
     }
   }
@@ -61,6 +63,7 @@ export const saveTodoCheckStatusAPI = async ({
     !dateRegex.test(saveTodoCheckStatusAPIRequest.date)
   ) {
     return {
+      isSuccess: false,
       message: errorMessage('エラー:日付はYYYY-MM-DD形式で入力してください')
     }
   }

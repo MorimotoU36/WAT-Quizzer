@@ -6,7 +6,7 @@ import { Card } from '@/components/ui-elements/card/Card';
 import { TextField } from '@/components/ui-elements/textField/TextField';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
-import { AddTodoAPIRequestDto } from 'quizzer-lib';
+import type { AddTodoAPIRequestDto } from 'quizzer-lib';
 import { addTodoAPI } from '@/utils/api-wrapper';
 
 interface AddTodoFormProps {}
@@ -43,7 +43,7 @@ export const AddTodoForm = ({}: AddTodoFormProps) => {
               });
               const result = await addTodoAPI({ addTodoAPIRequest });
               setMessage(result.message);
-              if (result.message.messageColor === 'success.light') {
+              if (result.isSuccess) {
                 setAddTodoAPIRequest({ todo: '' });
               }
             }}

@@ -1,5 +1,6 @@
-import { DeleteWordSourceAPIRequestDto } from '.'
-import { ProcessingApiReponse, del } from '../../../..'
+import type { DeleteWordSourceAPIRequestDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../../..'
+import { del } from '../../../..'
 
 interface DeleteEnglishWordSourceAPIRequestProps {
   deleteWordSourceData: DeleteWordSourceAPIRequestDto
@@ -7,7 +8,7 @@ interface DeleteEnglishWordSourceAPIRequestProps {
 
 export const deleteEnglishWordSourceAPI = async ({
   deleteWordSourceData
-}: DeleteEnglishWordSourceAPIRequestProps) => {
+}: DeleteEnglishWordSourceAPIRequestProps): Promise<ApiResult> => {
   const result = await del(
     '/english/word/source',
     deleteWordSourceData,
@@ -30,8 +31,9 @@ export const deleteEnglishWordSourceAPI = async ({
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',

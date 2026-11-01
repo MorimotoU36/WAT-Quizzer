@@ -4,10 +4,9 @@ import { Button } from '@/components/ui-elements/button/Button';
 import { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { messageState } from '@/atoms/Message';
+import type { GetQuizAPIRequestDto, GetQuizApiResponseDto } from 'quizzer-lib';
 import {
-  GetQuizAPIRequestDto,
   initGetQuizRequestData,
-  GetQuizApiResponseDto,
   initGetQuizResponseData
 } from 'quizzer-lib';
 import { integrateQuizAPI, getQuizAPI } from '@/utils/api-wrapper';
@@ -31,7 +30,8 @@ export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: Integ
           </Typography>
 
           <FormGroup>
-            <PullDown label={'問題ファイル'} optionList={[{ value: -1, label: '同左' }]} onChange={(e) => {}} />
+            {/* 統合先は常に統合元と同じファイルのため、選べないようにしている */}
+            <PullDown label={'問題ファイル'} optionList={[{ value: -1, label: '同左' }]} onChange={(e) => {}} disabled />
             <FormControl>
               <TextField
                 label="問題番号"
@@ -114,7 +114,7 @@ export const IntegrateToQuizForm = ({ deleteQuizInfo, setDeleteQuizInfo }: Integ
             }
           });
           setMessage(result.message);
-          if (result.message.messageColor === 'success.light') {
+          if (result.isSuccess) {
             setQuizRequestData(initGetQuizRequestData);
             setQuizResponseData(initGetQuizResponseData);
             setDeleteQuizInfo(initGetQuizResponseData);

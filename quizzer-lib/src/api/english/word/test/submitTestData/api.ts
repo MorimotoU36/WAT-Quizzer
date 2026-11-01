@@ -1,5 +1,6 @@
-import { ApiResult, post, ProcessingApiReponse } from '../../../..'
-import { SubmitEnglishWordTestDataAPIRequestDto } from '.'
+import type { ApiResult, ProcessingApiReponse } from '../../../..'
+import { post } from '../../../..'
+import type { SubmitEnglishWordTestDataAPIRequestDto } from '.'
 
 interface SubmitEnglishBotTestButtonProps {
   testResult: SubmitEnglishWordTestDataAPIRequestDto
@@ -12,6 +13,7 @@ export const submitEnglishBotTestAPI = async ({
 }: SubmitEnglishBotTestButtonProps): Promise<ApiResult> => {
   if (selectedValue === undefined) {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:解答が入力されていません',
         messageColor: 'error',
@@ -45,8 +47,9 @@ export const submitEnglishBotTestAPI = async ({
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',

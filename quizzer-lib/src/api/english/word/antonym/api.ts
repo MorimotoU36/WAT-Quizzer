@@ -1,11 +1,12 @@
-import { AddAntonymAPIRequestDto } from '.'
-import { ErrorResponse, ProcessingApiReponse, post } from '../../..'
+import type { AddAntonymAPIRequestDto } from '.'
+import type { ErrorResponse, ApiResult, ProcessingApiReponse } from '../../..'
+import { post } from '../../..'
 
 interface AddAntonymAPIProps {
   addAntonymData: AddAntonymAPIRequestDto
 }
 
-export const addAntonymAPI = async ({ addAntonymData }: AddAntonymAPIProps) => {
+export const addAntonymAPI = async ({ addAntonymData }: AddAntonymAPIProps): Promise<ApiResult> => {
   const result = await post(
     '/english/word/antonym',
     addAntonymData,
@@ -30,8 +31,9 @@ export const addAntonymAPI = async ({ addAntonymData }: AddAntonymAPIProps) => {
         }
       }
     }
-  ).catch((err) => {
+  ).catch(() => {
     return {
+      isSuccess: false,
       message: {
         message: 'エラー:外部APIとの連携に失敗しました',
         messageColor: 'error',
